@@ -29,8 +29,12 @@ pytestmark = pytest.mark.skipif(
 async def database():  # type: ignore[no-untyped-def]
     db = Database(Settings(database_url=TEST_DATABASE_URL, jwt_secret="x" * 32))
 
+    # Clean before *and* after. Cleaning only afterwards leaves a run that
+    # crashed mid-test poisoning the next one, which turns a single failure into
+    # a suite that stays red until someone drops the database by hand.
     async with db.engine.begin() as connection:
         await connection.run_sync(Base.metadata.create_all)
+        await connection.execute(text("TRUNCATE app_user, cohort CASCADE"))
 
     yield db
 

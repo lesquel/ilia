@@ -34,9 +34,11 @@ jobs:
           --health-timeout 5s
           --health-retries 10
 
+    # Only the test variable is set job-wide. `ILIA_DATABASE_URL` is scoped to
+    # the migration step alone: `Settings` reads it from the environment, so
+    # exporting it here would stop the unit tests from being hermetic.
     env:
       ILIA_TEST_DATABASE_URL: postgresql+asyncpg://ilia:ilia@localhost:5432/ilia
-      ILIA_DATABASE_URL: postgresql+asyncpg://ilia:ilia@localhost:5432/ilia
 
     steps:
       - uses: actions/checkout@v5
@@ -62,6 +64,8 @@ jobs:
       # only thing a deploy will ever do with them.
       - name: Apply migrations
         run: uv run alembic upgrade head
+        env:
+          ILIA_DATABASE_URL: postgresql+asyncpg://ilia:ilia@localhost:5432/ilia
 
       - name: Test
         run: uv run pytest
