@@ -50,3 +50,6 @@ htmlcov/
 
 # CI web build output
 apps/mobile/.web-build/
+
+# Local tooling cache
+.atl/
