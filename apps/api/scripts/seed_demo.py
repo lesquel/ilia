@@ -21,8 +21,39 @@ from app.features.auth.infrastructure.models import CohortModel
 from app.features.auth.infrastructure.security import Argon2PasswordHasher
 from app.features.auth.infrastructure.sql_repository import SqlAlchemyUserRepository
 from app.features.catalog.infrastructure.models import CourseModel, LessonModel, ModuleModel
+from app.features.evaluation.infrastructure.models import (
+    ActivityModel,
+    RubricDimensionModel,
+    RubricModel,
+)
 
 DEMO_COHORT_CODE = "MANTA-SEP-01"
+
+# The rubric proposed in PRD 9.2, plus the deterministic anchor. The judged
+# dimensions carry the PRD's suggested weights; `deterministic` is what the
+# platform measures for itself and the judge cannot touch.
+DEMO_DIMENSIONS = [
+    ("claridad", "Claridad y especificidad", "¿La instrucción es inequívoca?", "prompt", 20),
+    ("contexto", "Contexto y rol", "¿Aporta contexto, audiencia y rol del modelo?", "prompt", 15),
+    (
+        "formato",
+        "Restricciones y formato",
+        "¿Define formato, longitud, tono o límites?",
+        "prompt",
+        15,
+    ),
+    ("adecuacion", "Adecuación a la tarea", "¿Ataca lo que pide el enunciado?", "prompt", 20),
+    ("resultado", "Calidad del resultado", "¿La salida cumple el objetivo?", "result", 30),
+    (
+        "deterministic",
+        "Requisitos verificables",
+        "Lo que la plataforma comprueba por sí misma, sin intervención de un modelo.",
+        "prompt",
+        20,
+    ),
+]
+
+DEMO_ACTIVITY_TITLE = "Escribí tu primer prompt"
 
 DEMO_COURSES = [
     {
@@ -240,9 +271,70 @@ async def main() -> None:
 
             session.add(course)
 
+    # An activity on the first course, so the Lab has something to run.
+    async with database.session() as session:
+        already = await session.execute(
+            select(ActivityModel).where(ActivityModel.title == DEMO_ACTIVITY_TITLE)
+        )
+        if already.scalar_one_or_none() is None:
+            course_row = (
+                await session.execute(
+                    select(CourseModel).where(CourseModel.slug == "prompting-para-docentes")
+                )
+            ).scalar_one()
+            module_row = (
+                (
+                    await session.execute(
+                        select(ModuleModel)
+                        .where(ModuleModel.course_id == course_row.id)
+                        .order_by(ModuleModel.position)
+                    )
+                )
+                .scalars()
+                .first()
+            )
+
+            rubric = RubricModel(id=uuid4(), version=1, name="Rúbrica base de prompting")
+            rubric.dimensions = [
+                RubricDimensionModel(
+                    id=uuid4(),
+                    key=key,
+                    name=name,
+                    description=description,
+                    kind=kind,
+                    weight=weight,
+                )
+                for key, name, description, kind, weight in DEMO_DIMENSIONS
+            ]
+            session.add(rubric)
+
+            session.add(
+                ActivityModel(
+                    id=uuid4(),
+                    module_id=module_row.id,
+                    course_id=course_row.id,
+                    rubric_id=rubric.id,
+                    title=DEMO_ACTIVITY_TITLE,
+                    statement=(
+                        "Escribí un prompt que le pida a un modelo una guía de 5 ejercicios "
+                        "de fracciones para séptimo grado, de dificultad creciente.\n\n"
+                        "Tu prompt tiene que darle un rol al modelo, decir en qué formato "
+                        "querés la respuesta y mencionar explícitamente las fracciones."
+                    ),
+                    max_attempts=3,
+                    checks={
+                        "requires_role": True,
+                        "requires_format": True,
+                        "required_terms": [["fracciones", "quebrados"]],
+                        "min_length": 15,
+                    },
+                )
+            )
+
     await database.dispose()
     print(f"Seeded {len(DEMO_COURSES)} courses for {instructor.full_name}")
     print(f"Cohort code: {DEMO_COHORT_CODE}")
+    print(f"Activity: {DEMO_ACTIVITY_TITLE}")
 
 
 if __name__ == "__main__":

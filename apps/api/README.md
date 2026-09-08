@@ -93,6 +93,16 @@ uv run alembic revision --autogenerate -m "mensaje"   # nueva migración
 uv run alembic downgrade -1                           # revertir la última
 ```
 
+**Dos bases, no una.** `docker compose` crea `ilia` (desarrollo) y `ilia_test`
+(integración). Las pruebas hacen `TRUNCATE` de sus tablas en el teardown, así que
+apuntarlas a la base de desarrollo significa que `pytest` te borra los datos con
+los que estabas trabajando. Nos pasó una vez; por eso existe
+`docker/initdb/01-create-test-database.sql`.
+
+```bash
+export ILIA_TEST_DATABASE_URL=postgresql+asyncpg://ilia:ilia@localhost:5432/ilia_test
+```
+
 **Sin `ILIA_DATABASE_URL` la app arranca igual, con repositorios en memoria** —
 útil para mirar la API, inservible para cualquier otra cosa: pierde todas las
 cuentas al reiniciar. El arranque lo advierte por log, y en producción
@@ -296,6 +306,84 @@ primera del módulo 2, no la nada.
 responder *qué porcentaje de los docentes de la charla del 3 de septiembre activó
 cuenta y terminó la ruta básica* — el número que le demuestra a la Alcaldía que
 la alianza funciona (PRD §12).
+
+## Laboratorio IA y motor de EVALs
+
+El corazón del producto (PRD §9). Todos los endpoints autenticados.
+
+| Método | Ruta | Qué hace |
+|---|---|---|
+| `GET` | `/api/v1/lab/activities/{id}` | Enunciado, rúbrica, requisitos objetivos e intentos restantes |
+| `POST` | `/api/v1/lab/activities/{id}/submissions` | Envía un prompt. Devuelve **202**, no 201 |
+| `GET` | `/api/v1/lab/submissions/{id}` | Entrega + evaluación, para hacer polling |
+| `GET` | `/api/v1/lab/activities/{id}/submissions` | Mis intentos en esa actividad |
+
+### El grafo de evaluación (TRD §6.1)
+
+```
+validar → ejecutar en aislamiento → checks determinísticos ‖ juicio del modelo
+        → agregar → feedback → persistir
+```
+
+Vive en `application/use_cases.py` como Python común sobre puertos. LangGraph,
+cuando llegue, implementa `PromptExecutor` y `PromptJudge` — **no reemplaza esta
+orquestación**, y la secuencia se sigue pudiendo testear sin proveedor.
+
+### Cómo se defiende una nota
+
+Esto es lo que hace que la certificación se pueda sostener frente a un docente
+que no está de acuerdo con su nota.
+
+**El total se calcula, nunca se acepta.** El modelo propone un número por
+dimensión y nada más. `domain/scoring.py` hace el resto en Python común:
+
+- Las claves que la rúbrica **no define se descartan**. Un modelo que inventa
+  una dimensión no puede sumar peso a la nota.
+- Las dimensiones que el juez **no puntuó valen cero**, no se ignoran: ignorarlas
+  subiría el promedio achicando el denominador.
+- Los puntajes fuera de rango se recortan a 0–100.
+- No existe un campo `total` de entrada. No hay por dónde colarlo.
+
+**Las verificaciones determinísticas anclan la nota** (`domain/checks.py`). Son
+puras y reproducibles: ¿el prompt dice el formato? ¿le da un rol al modelo?
+¿menciona los términos que pedía el enunciado? El modelo **no vota** sobre algo
+que la plataforma puede medir sola.
+
+**Aprobar exige dos cosas, no una.** El total ponderado dice *qué tan bueno* fue
+el prompt; los checks dicen *si hizo lo que la actividad pedía*. Solo el primero
+depende del juicio de un modelo.
+
+> Esa separación salió de un test que falló. Con el ancla como una dimensión más
+> entre tres, un juez completamente comprometido llegaba a **77.78 sobre un
+> umbral de 70** — certificado con un prompt que no cumplía ninguno de los
+> requisitos. Un juez inyectado puede inflar el número; lo que no puede es hacer
+> que un prompt contenga una instrucción de formato que no contiene.
+
+**El tipo `UntrustedPrompt`** existe para que la regla de inyección sea difícil
+de olvidar: los adaptadores reciben ese tipo, nunca un `str` pelado, y **explota
+si alguien intenta interpolarlo en un f-string**. La defensa real está en el
+adaptador; el tipo es lo que hace que el próximo se entere de que había una regla.
+
+**El feedback tampoco se secuestra.** Un requisito incumplido gana sobre la
+sugerencia del modelo — la sugerencia podría ser texto inyectado, y un fallo
+medible es específico, cierto y se arregla en segundos.
+
+**Nada de esto elimina el riesgo.** Lo acota. El TRD §6.2 es explícito y hay que
+mantener el muestreo humano.
+
+### Lo que todavía es provisorio
+
+- **No hay proveedor de LLM.** `infrastructure/local_provider.py` produce salida
+  válida y **no evalúa nada** — el feedback que devuelve lo dice en voz alta. Las
+  dimensiones juzgadas son ruido determinístico hasta que se conecte un proveedor
+  real; el ancla determinística sí es real desde ya.
+- **La cola corre en el proceso de la API** (`infrastructure/queue.py`). La
+  tecnología de cola sigue abierta (TRD §5.2). Sirve para un piloto y **no
+  sobrevive un reinicio**: una entrega en vuelo queda en `running` para siempre.
+- **Sin cupos.** `UnlimitedQuota` hasta que se definan los números del tier
+  gratuito (PRD pregunta abierta 4). La política ya es un puerto y está testeada.
+- **Sin calibración.** El TRD §6.3 lo pide antes de certificar a nadie: corregir
+  a mano una muestra y comparar. Sin proveedor, no hay nada que calibrar todavía.
 
 ## Convenciones
 

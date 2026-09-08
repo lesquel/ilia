@@ -20,6 +20,7 @@ from app.core.database import Base
 from app.features.auth.infrastructure import models as auth_models  # noqa: F401
 from app.features.catalog.infrastructure import models as catalog_models  # noqa: F401
 from app.features.enrollment.infrastructure import models as enrollment_models  # noqa: F401
+from app.features.evaluation.infrastructure import models as evaluation_models  # noqa: F401
 
 config = context.config
 
