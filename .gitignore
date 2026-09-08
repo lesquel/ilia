@@ -44,3 +44,6 @@ htmlcov/
 
 # Local tooling
 .codegraph/
+
+# uv lock is committed on purpose: reproducible installs across the team
+!apps/api/uv.lock
