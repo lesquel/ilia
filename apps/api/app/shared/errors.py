@@ -42,6 +42,17 @@ class ConflictError(DomainError):
     code = "conflict"
 
 
+class AuthenticationError(DomainError):
+    """The caller could not be identified: no credentials, or bad ones.
+
+    Distinct from PermissionDeniedError, which means "we know who you are and
+    the answer is still no". The client reacts differently to each: one sends
+    you to the login screen, the other does not.
+    """
+
+    code = "unauthenticated"
+
+
 class PermissionDeniedError(DomainError):
     """The caller is authenticated but not allowed to perform this action.
 

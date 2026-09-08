@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.shared.errors import (
+    AuthenticationError,
     ConflictError,
     DomainError,
     NotFoundError,
@@ -21,12 +22,26 @@ from app.shared.errors import (
 
 _STATUS_BY_ERROR: dict[type[DomainError], int] = {
     ValidationError: 422,
+    AuthenticationError: 401,
     PermissionDeniedError: 403,
     NotFoundError: 404,
     ConflictError: 409,
     QuotaExceededError: 429,
     UnavailableError: 503,
 }
+
+
+def _status_for(exc: DomainError) -> int:
+    """Resolve the status by walking the exception's own class hierarchy.
+
+    An exact `type(exc)` lookup would quietly downgrade every subclass to 400 —
+    `InvalidCredentialsError` is an `AuthenticationError`, not literally one, and
+    a 400 there would stop the client from ever sending the user back to login.
+    """
+    for klass in type(exc).__mro__:
+        if klass in _STATUS_BY_ERROR:
+            return _STATUS_BY_ERROR[klass]
+    return 400
 
 
 def _envelope(code: str, message: str, detail: object = None) -> dict[str, object]:
@@ -37,7 +52,7 @@ def _envelope(code: str, message: str, detail: object = None) -> dict[str, objec
 def register_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(DomainError)
     async def _domain(_: Request, exc: DomainError) -> JSONResponse:
-        status = _STATUS_BY_ERROR.get(type(exc), 400)
+        status = _status_for(exc)
         return JSONResponse(
             status_code=status,
             content=_envelope(exc.code, exc.message, exc.detail),

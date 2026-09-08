@@ -12,6 +12,8 @@ from app.core.config import Settings, get_settings
 from app.core.errors import register_error_handlers
 from app.core.logging import configure_logging
 from app.core.middleware import CorrelationIdMiddleware
+from app.features.auth.interface.dependencies import build_auth_container
+from app.features.auth.interface.router import router as auth_router
 from app.features.health.interface.router import router as health_router
 
 
@@ -38,7 +40,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     register_error_handlers(app)
 
+    # Singletons built once here, injected per request. A use case never reaches
+    # for a global.
+    app.state.settings = settings
+    app.state.auth = build_auth_container(settings)
+
     app.include_router(health_router)
+    app.include_router(auth_router, prefix=settings.api_prefix)
 
     return app
 

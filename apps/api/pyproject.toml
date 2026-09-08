@@ -6,9 +6,11 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115",
     "uvicorn[standard]>=0.32",
-    "pydantic>=2.9",
+    "pydantic[email]>=2.9",
     "pydantic-settings>=2.6",
     "structlog>=24.4",
+    "pyjwt>=2.10",
+    "argon2-cffi>=23.1",
 ]
 
 [dependency-groups]
