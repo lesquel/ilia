@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="08df8102-8fcc-4d96-9791-e376e83f1456"></script>
+
+
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<style>/* Industry — design-system tokens and component classes. This file is the source of truth for the system's look; retune it here and see readme.md. */
+/* vietnamese */
+@font-face {
+  font-family: 'Barlow';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("751c1ff7-c8ae-4e17-a0ad-f3e8ab85fa8d") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Barlow';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("4453a5f5-a470-4d70-97fe-918af60d8ba1") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Barlow';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("bed4931f-af65-4265-92a8-18e1e25531ca") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Barlow';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("bb11381a-eab4-402f-8ac1-78c987a09dd8") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Barlow';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("0043d2bf-6e2e-4862-a5bc-98c6855bfe70") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Barlow';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("cb09350d-4adb-4ae6-a632-adb5970ccb28") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Barlow';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("765da3a1-40f0-4f16-9b0b-c8b40feb4bf7") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Barlow';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("d6069ea9-1399-4926-9ce5-5ac800080e38") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Barlow';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("f3b323da-a4ef-4f29-ad31-8132ce5e40d8") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Barlow Condensed';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("25d0c17b-83ff-47b5-b3c7-b2c4b0c7c624") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Barlow Condensed';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("280be4ee-5df8-49e8-bec5-0651152171fe") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Barlow Condensed';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("b86d868c-7ba2-454c-bf8d-467b2967cedc") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Barlow Condensed';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("f80f1a8c-1627-4630-9a68-827867a3f943") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Barlow Condensed';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("8499c8f2-219d-4aac-9dd0-4d4c1a2008da") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Barlow Condensed';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("b581b223-016f-40ad-a0e1-adc86884c9ff") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+
+:root {
+  --color-bg: #f2f2f3;
+  --color-surface: #e9e9ea;
+  --color-text: #1d1f20;
+  --color-accent: #5980a6;
+  --color-accent-2: #728fab;
+  --color-divider: color-mix(in srgb, #1d1f20 16%, transparent);
+
+  /* Tonal ramps — generated in OKLCH on one shared lightness scale, so the
+     same step of any role matches the others in visual value. */
+  --color-neutral-100: #f5f5f8;
+  --color-neutral-200: #e7e7ea;
+  --color-neutral-300: #d4d4d7;
+  --color-neutral-400: #b7b7ba;
+  --color-neutral-500: #98989b;
+  --color-neutral-600: #7a7a7d;
+  --color-neutral-700: #5d5d60;
+  --color-neutral-800: #424244;
+  --color-neutral-900: #2b2b2d;
+
+  --color-accent-100: #eef6ff;
+  --color-accent-200: #d6ebff;
+  --color-accent-300: #b5d9fd;
+  --color-accent-400: #94bce3;
+  --color-accent-500: #749dc4;
+  --color-accent-600: #597ea3;
+  --color-accent-700: #416180;
+  --color-accent-800: #2c455d;
+  --color-accent-900: #1d2d3d;
+
+  --color-accent-2-100: #eef6ff;
+  --color-accent-2-200: #d6ebff;
+  --color-accent-2-300: #bdd8f2;
+  --color-accent-2-400: #9ebbd8;
+  --color-accent-2-500: #7e9cb8;
+  --color-accent-2-600: #627d98;
+  --color-accent-2-700: #486077;
+  --color-accent-2-800: #314457;
+  --color-accent-2-900: #1f2d3a;
+
+  --font-heading: "Barlow Condensed", system-ui, sans-serif;
+  --font-heading-weight: 600;
+  --font-body: "Barlow", system-ui, sans-serif;
+
+  --space-1: 3.4px;
+  --space-2: 6.8px;
+  --space-3: 10.2px;
+  --space-4: 13.6px;
+  --space-6: 20.4px;
+  --space-8: 27.2px;
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 7px;
+
+  /* Elevation — derived from the ground: soft ink-tinted shadows on a
+     light theme, a hairline edge + ambient darkness on a dark one. */
+  --shadow-sm: 0 1px 2px color-mix(in srgb, #2b2b2d 14%, transparent);
+  --shadow-md: 0 3px 10px color-mix(in srgb, #2b2b2d 16%, transparent);
+  --shadow-lg: 0 12px 32px color-mix(in srgb, #2b2b2d 22%, transparent);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+}
+h1, h2, h3, h4 { font-family: var(--font-heading); font-weight: var(--font-heading-weight); }
+
+.blueprint {
+  position: relative;
+  border: 1px solid var(--color-divider);
+  border-radius: 0;
+}
+/* The overlay image treatments (halftone, duotone) clip their overlay
+   (overflow:hidden); a blueprint wrapper draws its registration marks
+   outside the box, so when both classes share a wrapper the frame must
+   win. */
+.blueprint.halftone, .blueprint.plate, .blueprint.duotone { overflow: visible; }
+.blueprint > .corner {
+  position: absolute; width: 11px; height: 11px;
+  color: color-mix(in srgb, var(--color-text) 55%, transparent);
+}
+.blueprint > .corner::before, .blueprint > .corner::after {
+  content: ""; position: absolute; background: currentColor;
+}
+.blueprint > .corner::before { left: 5px; top: 0; width: 1px; height: 100%; }
+.blueprint > .corner::after  { top: 5px; left: 0; width: 100%; height: 1px; }
+.blueprint > .corner.tl { top: -6px; left: -6px; }
+.blueprint > .corner.tr { top: -6px; right: -6px; }
+.blueprint > .corner.bl { bottom: -6px; left: -6px; }
+.blueprint > .corner.br { bottom: -6px; right: -6px; }
+
+.duotone{position:relative;overflow:hidden}
+.duotone::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:var(--color-accent);mix-blend-mode:color}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Components — built with the tokens above. Plain CSS
+   on plain HTML: no JavaScript, no build step. Each class is documented in
+   readme.md and demonstrated in foundations/ and components/.
+   ══════════════════════════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; font-size: 15px; line-height: 1.55; font-weight: 400; }
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  line-height: 1.12; letter-spacing: -0.015em; margin: 0 0 var(--space-2);
+}
+h1 { font-size: 42px; }
+h2 { font-size: 32px; }
+h3 { font-size: 25px; }
+h4 { font-size: 20px; }
+h5 { font-size: 16px; }
+h6 { font-size: 13px; }
+h6 { letter-spacing: 0.08em; text-transform: uppercase; }
+p { margin: 0 0 var(--space-3); }
+a { color: var(--color-accent); text-underline-offset: 3px; }
+img { display: block; max-width: 100%; }
+figure { margin: 0; }
+figcaption {
+  font-size: 11px; margin-top: var(--space-1);
+  color: color-mix(in srgb, var(--color-text) 55%, transparent);
+}
+.text-muted { color: color-mix(in srgb, var(--color-text) 55%, transparent); }
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+::selection { background: color-mix(in srgb, var(--color-accent) 30%, transparent); }
+
+/* — rules — */
+.hr {
+  height: 1px; border: 0; margin: var(--space-4) 0;
+  background: var(--color-divider);
+}
+
+/* — buttons — */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  cursor: pointer; text-decoration: none;
+  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: 14px; line-height: 1.2; color: var(--color-text); /* matches the .input's 14px —
+     the pair sits side by side in sign-up rows */
+  background: transparent; border: 1px solid transparent;
+  padding: var(--space-2) calc(var(--space-3) * 1.2);
+  border-radius: var(--radius-md);
+}
+.btn svg { display: block; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-primary { background: var(--color-accent); color: var(--color-bg); }
+.btn-primary:hover { background: var(--color-accent-600); }
+.btn-primary:active { background: var(--color-accent-700); }
+.btn-secondary { border-color: var(--color-divider); }
+.btn-secondary:hover { background: color-mix(in srgb, var(--color-text) 7%, transparent); }
+.btn-secondary:active { background: color-mix(in srgb, var(--color-text) 14%, transparent); }
+.btn-ghost { color: var(--color-accent); padding-inline: var(--space-1); }
+.btn-ghost:hover { background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
+.btn-ghost:active { background: color-mix(in srgb, var(--color-accent) 18%, transparent); }
+.btn-icon { width: 36px; height: 36px; padding: 0; }
+.btn-block { width: 100%; margin-top: var(--space-2); }
+
+/* — forms — */
+.field > label {
+  display: block; font-size: 12px; margin-bottom: 5px;
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
+}
+.input {
+  width: 100%; min-height: 36px; padding: 6px 10px; font: inherit;
+  font-size: 14px; color: var(--color-text); caret-color: var(--color-accent);
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider); border-radius: var(--radius-md);
+}
+.input:hover { border-color: color-mix(in srgb, var(--color-text) 45%, transparent); }
+.input:focus-visible { border-color: var(--color-accent); outline-offset: 0; }
+textarea.input { min-height: 90px; resize: vertical; }
+.radio { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; }
+.radio input, .seg-opt input {
+  position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;
+}
+.radio .dot {
+  width: 16px; height: 16px; flex: none; border-radius: 50%;
+  border: 1.5px solid var(--color-divider);
+}
+.radio:hover .dot { border-color: var(--color-accent); }
+.radio input:checked + .dot {
+  border-color: var(--color-accent); background: var(--color-accent);
+  box-shadow: inset 0 0 0 4px var(--color-bg);
+}
+.radio input:focus-visible + .dot { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.seg {
+  display: inline-flex; overflow: hidden;
+  border: 1px solid var(--color-divider); border-radius: var(--radius-md);
+}
+.seg-opt {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px; font-size: 13px; cursor: pointer;
+}
+.seg-opt + .seg-opt { border-left: 1px solid var(--color-divider); }
+.seg-opt:has(input:checked) { background: var(--color-accent); color: var(--color-bg); }
+.seg-opt:not(:has(input:checked)):hover { background: color-mix(in srgb, var(--color-text) 7%, transparent); }
+.seg-opt:has(input:focus-visible) { outline: 2px solid var(--color-accent); outline-offset: -2px; }
+
+/* — cards — */
+.card {
+  display: flex; flex-direction: column; gap: var(--space-2);
+  padding: var(--space-3); border-radius: var(--radius-md); background: var(--color-surface);
+}
+.card-kicker { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-accent); }
+.card-title {
+  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: 17px; line-height: 1.2;
+}
+.card-body { margin: 0; font-size: 13px; opacity: 0.8; flex: 1; }
+.card-meta {
+  display: flex; align-items: center; gap: 6px; font-size: 11px;
+  color: color-mix(in srgb, var(--color-text) 50%, transparent);
+}
+.elev-sm { box-shadow: var(--shadow-sm); }
+.elev-md { box-shadow: var(--shadow-md); }
+.elev-lg { box-shadow: var(--shadow-lg); }
+
+/* — tags — */
+.tag {
+  display: inline-flex; align-items: center; font-size: 11px;
+  letter-spacing: 0.02em; padding: 3px 10px;
+  border-radius: calc(var(--radius-md) * 0.75);
+}
+.tag-accent { background: var(--color-accent-100); color: var(--color-accent-800); }
+.tag-accent-2 { background: var(--color-accent-2-100); color: var(--color-accent-2-800); }
+.tag-neutral { background: var(--color-neutral-100); color: var(--color-neutral-800); }
+.tag-outline { border: 1px solid var(--color-accent); color: var(--color-accent); }
+
+/* — navigation — */
+.nav {
+  display: flex; align-items: center; gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: none;
+}
+.nav-brand {
+  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: 18px; margin-right: auto;
+}
+.nav a { color: inherit; text-decoration: none; font-size: 14px; }
+.nav a:hover, .nav a[aria-current='page'] { color: var(--color-accent); }
+
+/* — tables — */
+.table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.table th {
+  text-align: left; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 60%, transparent);
+  padding: var(--space-2); border-bottom: 1px solid var(--color-divider);
+}
+.table td {
+  padding: var(--space-2);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+.table tbody tr:hover { background: color-mix(in srgb, var(--color-text) 4%, transparent); }
+
+/* — dialog — */
+.dialog-backdrop {
+  position: fixed; inset: 0; display: grid; place-items: center;
+  padding: var(--space-4);
+  background: color-mix(in srgb, var(--color-neutral-900) 50%, transparent);
+}
+.dialog {
+  width: min(440px, 100%); display: flex; flex-direction: column; gap: var(--space-3);
+  padding: var(--space-4); border-radius: var(--radius-lg);
+  background: var(--color-surface); box-shadow: var(--shadow-lg);
+}
+.dialog-title {
+  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: 20px;
+}
+.dialog-body { font-size: 14px; opacity: 0.85; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-2); }
+
+/* — blueprint frame: components are wireframe objects (see .blueprint
+     and .corner above) — square, transparent, hairline-bordered — */
+.card, .btn, .input, .tag, .seg, .dialog { border-radius: 0; }
+.card, .dialog { background: transparent; border: 1px solid var(--color-divider); }
+.btn { border: 1px solid var(--color-divider); }
+.btn-primary { border-color: var(--color-accent); }
+.btn-ghost { border-color: transparent; }
+
+</style>
+<script src="4be1333d-0cdc-4b5a-a49e-0f31efbbc6f2"></script>
+<script src="b924b6dd-f9b6-41d7-a9b3-8356eb815960"></script>
+<script>
+(function(){
+  var m = document.querySelector('meta[name="ext-resource-dependency"][data-resource-id="photo"]');
+  var apply = function(){
+    var u = (window.__resources && window.__resources.photo) || (m && m.getAttribute('content'));
+    if (!u) return;
+    document.querySelectorAll('image-slot').forEach(function(el){
+      if (el.getAttribute('src') !== u) el.setAttribute('src', u);
+    });
+  };
+  apply();
+  new MutationObserver(apply).observe(document.documentElement, {childList:true, subtree:true});
+})();
+</script>
+<style>
+body{margin:0;background:#f2f2f3}
+[data-theme="dark"]{
+  --color-bg:#15181b;--color-surface:#1d2126;--color-text:#e8eaec;
+  --color-divider:color-mix(in srgb,#e8eaec 18%,transparent);
+  --color-accent:#7ea6cd;
+  --color-neutral-100:#22262b;--color-neutral-200:#2b3036;--color-neutral-800:#c9ced3;
+  --color-accent-100:#1f2c39;--color-accent-200:#26384a;--color-accent-800:#bcd6ef;
+  --color-accent-2-100:#1f2c39;--color-accent-2-800:#bcd6ef;
+}
+@keyframes shimmer{0%{background-position:-380px 0}100%{background-position:380px 0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes riseIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.rroot{container-type:inline-size;container-name:app}
+image-slot{display:block;width:100%;height:100%}
+@container app (max-width:1080px){
+  .g3,.g4{grid-template-columns:1fr 1fr!important}
+  .split,.hero{grid-template-columns:1fr!important}
+  .learn{grid-template-columns:1fr!important}
+  .learnside{display:none!important}
+  .learnnav{border-right:0!important;border-bottom:1px solid var(--color-divider)!important;height:auto!important}
+}
+@container app (max-width:760px){
+  .g2,.g3,.g4,.g5{grid-template-columns:1fr!important}
+  .shell{grid-template-columns:1fr!important}
+  .shell>aside{display:none!important}
+  .mobnav{display:grid!important}
+  .shell>main{padding-bottom:76px!important}
+  h1{font-size:38px!important}
+  h2{font-size:26px!important}
+  .pad{padding-left:18px!important;padding-right:18px!important}
+}
+</style>
+</helmet>
+
+<div data-theme="{{ theme }}" style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)">
+
+  <div style="position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:14px;padding:8px 16px;background:var(--color-neutral-900);color:#f2f2f3;overflow-x:auto">
+    <span style="font-family:var(--font-heading);font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.6;white-space:nowrap">Prototipo</span>
+    <div style="display:flex;gap:6px">
+      <sc-for list="{{ screens }}" as="s" hint-placeholder-count="6">
+        <button sc-camel-on-click="{{ s.go }}" style="{{ s.chipStyle }}">{{ s.label }}</button>
+      </sc-for>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:6px;flex:none">
+      <sc-for list="{{ viewports }}" as="v" hint-placeholder-count="3">
+        <button sc-camel-on-click="{{ v.go }}" style="{{ v.style }}">{{ v.label }}</button>
+      </sc-for>
+    </div>
+    <button sc-camel-on-click="{{ toggleTheme }}" style="flex:none;display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid rgba(255,255,255,.28);color:#f2f2f3;font-family:var(--font-heading);font-size:12px;padding:5px 10px;cursor:pointer">{{ themeLabel }}</button>
+  </div>
+
+  <div class="rroot" style="{{ frameStyle }}">
+
+  <!-- ══ LANDING ══ -->
+  <sc-if value="{{ scLanding }}" hint-placeholder-val="{{ true }}">
+    <div>
+      <div class="nav" style="max-width:1280px;margin:0 auto;padding:20px 40px;gap:28px">
+        <span class="nav-brand" style="letter-spacing:.02em">PRAXIS<span style="color:var(--color-accent)">.AI</span></span>
+        <a href="#" sc-camel-on-click="{{ goCatalogo }}">Cursos</a>
+        <a href="#">Cómo funciona</a>
+        <a href="#">Para docentes</a>
+        <a href="#">Sobre nosotros</a>
+        <button class="btn btn-secondary" sc-camel-on-click="{{ goLogin }}">Iniciar sesión</button>
+        <button class="btn btn-primary blueprint" sc-camel-on-click="{{ goRegistro }}"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>Registrarse</button>
+      </div>
+
+      <div class="hero pad" style="max-width:1280px;margin:0 auto;padding:48px 40px 72px;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center">
+        <div>
+          <div style="display:inline-flex;align-items:center;gap:8px;font-family:var(--font-heading);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent);border:1px solid var(--color-divider);padding:4px 10px;margin-bottom:22px">Laboratorio práctico de IA</div>
+          <h1 style="font-size:70px;line-height:.98;margin:0 0 20px;letter-spacing:-.02em;text-wrap:balance">Aprende Inteligencia Artificial haciendo</h1>
+          <p style="font-size:18px;line-height:1.5;max-width:52ch;opacity:.75;margin-bottom:28px;text-wrap:pretty">Domina nuevas herramientas y tecnologías de IA mediante cursos prácticos, actividades y evaluaciones demostrativas.</p>
+          <div style="display:flex;gap:12px">
+            <button class="btn btn-primary blueprint" sc-camel-on-click="{{ goCatalogo }}" style="padding:11px 22px;font-size:16px"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>Explorar cursos</button>
+            <button class="btn btn-secondary" sc-camel-on-click="{{ goRegistro }}" style="padding:11px 22px;font-size:16px">Comenzar ahora</button>
+          </div>
+          <div style="display:flex;gap:40px;margin-top:44px;padding-top:22px;border-top:1px solid var(--color-divider)">
+            <div><div style="font-family:var(--font-heading);font-size:30px;line-height:1">6.400+</div><div style="font-size:12px;opacity:.55">estudiantes</div></div>
+            <div><div style="font-family:var(--font-heading);font-size:30px;line-height:1">28</div><div style="font-size:12px;opacity:.55">cursos prácticos</div></div>
+            <div><div style="font-family:var(--font-heading);font-size:30px;line-height:1">91%</div><div style="font-size:12px;opacity:.55">finalización</div></div>
+          </div>
+        </div>
+
+        <div class="blueprint" style="padding:16px;background:var(--color-surface)">
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <div style="display:flex;align-items:center;gap:8px;font-family:var(--font-heading);font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.6;margin-bottom:12px">
+            <span style="width:7px;height:7px;background:var(--color-accent);display:block"></span>Laboratorio generativo — sesión 04
+          </div>
+          <div style="border:1px solid var(--color-divider);padding:12px;font-size:13px;line-height:1.5;background:var(--color-bg)">
+            <span style="opacity:.5">prompt&nbsp;▸&nbsp;</span>ciudad futurista sostenible, torres con vegetación integrada, luz de amanecer, plano general, estilo fotorrealista
+          </div>
+          <div class="blueprint duotone" style="margin-top:14px;aspect-ratio:16/10;background:repeating-linear-gradient(45deg,var(--color-accent-200) 0 10px,var(--color-accent-100) 10px 20px)">
+            <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+            <image-slot src="2c5af0b1-d849-4777-998e-242b83498b71" id="hero-gen" shape="rect" placeholder="Imagen generada"></image-slot>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px">
+            <div style="border:1px solid var(--color-divider);padding:8px"><div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;opacity:.5">Cumpl.</div><div style="font-family:var(--font-heading);font-size:20px">95</div></div>
+            <div style="border:1px solid var(--color-divider);padding:8px"><div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;opacity:.5">Prompt</div><div style="font-family:var(--font-heading);font-size:20px">82</div></div>
+            <div style="border:1px solid var(--color-divider);padding:8px"><div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;opacity:.5">Creat.</div><div style="font-family:var(--font-heading);font-size:20px">90</div></div>
+            <div style="border:1px solid var(--color-divider);padding:8px;background:var(--color-accent);color:var(--color-bg)"><div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;opacity:.8">Total</div><div style="font-family:var(--font-heading);font-size:20px">87</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid var(--color-divider);border-bottom:1px solid var(--color-divider)">
+        <div style="max-width:1280px;margin:0 auto;padding:56px 40px">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:26px">
+            <h2 style="margin:0">Cursos destacados</h2>
+            <button class="btn btn-ghost" sc-camel-on-click="{{ goCatalogo }}">Ver todos →</button>
+          </div>
+          <div class="g3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+            <sc-for list="{{ destacados }}" as="c" hint-placeholder-count="3">
+              <div class="card blueprint" style="padding:0;gap:0">
+                <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+                <div class="duotone" style="aspect-ratio:16/9;border-bottom:1px solid var(--color-divider);background:repeating-linear-gradient(45deg,var(--color-accent-200) 0 10px,var(--color-accent-100) 10px 20px)"><image-slot src="2c5af0b1-d849-4777-998e-242b83498b71" id="{{ c.slot }}" shape="rect" placeholder="Imagen del curso"></image-slot></div>
+                <div style="padding:16px;display:flex;flex-direction:column;gap:9px;flex:1">
+                  <div class="card-kicker">{{ c.categoria }}</div>
+                  <div class="card-title">{{ c.nombre }}</div>
+                  <p class="card-body">{{ c.desc }}</p>
+                  <div class="card-meta" style="gap:10px"><span>{{ c.nivel }}</span><span>·</span><span>{{ c.duracion }}</span><span>·</span><span>{{ c.estudiantes }} est.</span></div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:10px;border-top:1px solid var(--color-divider)">
+                    <span style="font-size:12px;opacity:.7">{{ c.docente }}</span>
+                    <button class="btn btn-secondary" sc-camel-on-click="{{ c.go }}" style="font-size:13px">Ver curso</button>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div style="max-width:1280px;margin:0 auto;padding:64px 40px">
+        <h2 style="margin:0 0 8px">Aprende haciendo</h2>
+        <p style="opacity:.7;max-width:60ch;margin-bottom:32px">Los cursos no se quedan en la teoría. Cada módulo termina en una actividad ejecutable y cada curso en una evaluación demostrativa que se corrige de forma automática.</p>
+        <div class="g3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--color-divider)">
+          <div style="padding:28px;border-right:1px solid var(--color-divider)">
+            <div style="font-family:var(--font-heading);font-size:44px;line-height:1;color:var(--color-accent)">01</div>
+            <h4 style="margin:12px 0 6px">Aprende</h4>
+            <p style="font-size:14px;opacity:.7;margin:0">Lecciones en vídeo, presentaciones y documentos descargables, organizados en módulos cortos.</p>
+          </div>
+          <div style="padding:28px;border-right:1px solid var(--color-divider)">
+            <div style="font-family:var(--font-heading);font-size:44px;line-height:1;color:var(--color-accent)">02</div>
+            <h4 style="margin:12px 0 6px">Practica</h4>
+            <p style="font-size:14px;opacity:.7;margin:0">Actividades, preguntas con explicación y foros donde contrastar tus resultados con los del grupo.</p>
+          </div>
+          <div style="padding:28px">
+            <div style="font-family:var(--font-heading);font-size:44px;line-height:1;color:var(--color-accent)">03</div>
+            <h4 style="margin:12px 0 6px">Demuestra</h4>
+            <p style="font-size:14px;opacity:.7;margin:0">Una evaluación práctica en el laboratorio: escribes el prompt, generas y recibes puntuación y feedback.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid var(--color-divider);background:var(--color-accent-900)">
+        <div style="max-width:1280px;margin:0 auto;padding:56px 40px;color:#f2f2f3">
+          <h2 style="margin:0 0 26px;color:#f2f2f3">Qué incluye la plataforma</h2>
+          <div class="g3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.18)">
+            <sc-for list="{{ features }}" as="f" hint-placeholder-count="6">
+              <div style="background:var(--color-accent-900);padding:22px">
+                <div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.55">{{ f.num }}</div>
+                <h4 style="margin:8px 0 6px;color:#f2f2f3">{{ f.t }}</h4>
+                <p style="font-size:13px;margin:0;opacity:.7">{{ f.d }}</p>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ══ LOGIN ══ -->
+  <sc-if value="{{ scLogin }}">
+    <div class="split" style="display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 41px)">
+      <div style="display:grid;place-items:center;padding:48px">
+        <div style="width:100%;max-width:380px">
+          <div style="font-family:var(--font-heading);font-weight:600;font-size:20px;margin-bottom:36px">PRAXIS<span style="color:var(--color-accent)">.AI</span></div>
+          <h2 style="margin:0 0 6px">Iniciar sesión</h2>
+          <p style="font-size:14px;opacity:.65;margin-bottom:26px">Accede para continuar con tus cursos.</p>
+          <div class="field" style="margin-bottom:14px"><label>Email</label><input class="input" type="email" value="miquel@praxis.ai" readonly=""></div>
+          <div class="field" style="margin-bottom:14px"><label>Contraseña</label><input class="input" type="password" value="············" readonly=""></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;font-size:13px">
+            <label class="radio"><input type="checkbox"><span class="dot" style="border-radius:0"></span>Recordarme</label>
+            <a href="#">¿Olvidaste tu contraseña?</a>
+          </div>
+          <button class="btn btn-primary btn-block blueprint" sc-camel-on-click="{{ goDashboard }}" style="padding:11px"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>Iniciar sesión</button>
+          <div style="display:flex;align-items:center;gap:12px;margin:22px 0;font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.45">
+            <span style="flex:1;height:1px;background:var(--color-divider)"></span>o continúa con<span style="flex:1;height:1px;background:var(--color-divider)"></span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <button class="btn btn-secondary">Google</button>
+            <button class="btn btn-secondary">GitHub</button>
+          </div>
+          <p style="text-align:center;font-size:13px;margin-top:26px;opacity:.7">¿No tienes cuenta? <a href="#" sc-camel-on-click="{{ goRegistro }}">Registrarse</a></p>
+        </div>
+      </div>
+      <div class="duotone" style="background:repeating-linear-gradient(45deg,var(--color-accent-200) 0 14px,var(--color-accent-100) 14px 28px);border-left:1px solid var(--color-divider);display:grid;place-items:center;padding:48px">
+        <div style="max-width:360px">
+          <div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-800);margin-bottom:12px">Laboratorio de IA</div>
+          <p style="font-family:var(--font-heading);font-size:30px;line-height:1.12;color:var(--color-accent-900);margin:0">Escribe un prompt, ejecútalo, recibe una evaluación en segundos.</p>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ══ REGISTRO ══ -->
+  <sc-if value="{{ scRegistro }}">
+    <div style="display:grid;place-items:center;padding:64px 24px">
+      <div class="blueprint" style="width:100%;max-width:480px;padding:34px;background:var(--color-surface)">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <div style="font-family:var(--font-heading);font-weight:600;font-size:20px;margin-bottom:24px">PRAXIS<span style="color:var(--color-accent)">.AI</span></div>
+        <h2 style="margin:0 0 6px">Crear cuenta</h2>
+        <p style="font-size:14px;opacity:.65;margin-bottom:24px">Empieza gratis. Sin tarjeta.</p>
+        <div class="g2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+          <div class="field"><label>Nombre</label><input class="input" placeholder="Miquel"></div>
+          <div class="field"><label>Apellido</label><input class="input" placeholder="Torrent"></div>
+        </div>
+        <div class="field" style="margin-bottom:14px"><label>Email</label><input class="input" placeholder="tu@email.com"></div>
+        <div class="field" style="margin-bottom:6px"><label>Contraseña</label><input class="input" type="password" placeholder="Mínimo 8 caracteres"></div>
+        <div style="display:flex;gap:4px;margin-bottom:14px">
+          <span style="flex:1;height:3px;background:var(--color-accent)"></span>
+          <span style="flex:1;height:3px;background:var(--color-accent)"></span>
+          <span style="flex:1;height:3px;background:var(--color-divider)"></span>
+        </div>
+        <div class="field" style="margin-bottom:8px"><label>Confirmar contraseña</label><input class="input" type="password" placeholder="Repite la contraseña"></div>
+        <div style="font-size:12px;color:#b4553f;margin-bottom:18px">Las contraseñas no coinciden.</div>
+        <button class="btn btn-primary btn-block blueprint" sc-camel-on-click="{{ goDashboard }}" style="padding:11px"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>Crear cuenta</button>
+        <p style="text-align:center;font-size:13px;margin:20px 0 0;opacity:.7">¿Ya tienes cuenta? <a href="#" sc-camel-on-click="{{ goLogin }}">Iniciar sesión</a></p>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ══ CATÁLOGO ══ -->
+  <sc-if value="{{ scCatalogo }}">
+    <div style="max-width:1280px;margin:0 auto;padding:36px 40px 72px">
+      <h2 style="margin:0 0 6px">Explorar cursos</h2>
+      <p style="opacity:.65;margin-bottom:24px">28 cursos prácticos de inteligencia artificial.</p>
+      <div class="split" style="display:grid;grid-template-columns:220px 1fr;gap:32px;align-items:start">
+        <div class="blueprint" style="padding:18px">
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <input class="input" placeholder="Buscar…" style="margin-bottom:20px">
+          <div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.55;margin-bottom:8px">Categoría</div>
+          <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:20px;font-size:14px">
+            <label class="radio"><input type="checkbox" checked=""><span class="dot" style="border-radius:0"></span>Imagen generativa</label>
+            <label class="radio"><input type="checkbox"><span class="dot" style="border-radius:0"></span>Texto y LLM</label>
+            <label class="radio"><input type="checkbox"><span class="dot" style="border-radius:0"></span>Agentes</label>
+            <label class="radio"><input type="checkbox"><span class="dot" style="border-radius:0"></span>Visión</label>
+            <label class="radio"><input type="checkbox"><span class="dot" style="border-radius:0"></span>Ética y gobernanza</label>
+          </div>
+          <div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.55;margin-bottom:8px">Nivel</div>
+          <div class="seg" style="flex-direction:column;align-items:stretch;margin-bottom:20px">
+            <label class="seg-opt" style="border-left:0"><input type="radio" name="niv" checked="">Todos</label>
+            <label class="seg-opt" style="border-left:0;border-top:1px solid var(--color-divider)"><input type="radio" name="niv">Principiante</label>
+            <label class="seg-opt" style="border-left:0;border-top:1px solid var(--color-divider)"><input type="radio" name="niv">Intermedio</label>
+            <label class="seg-opt" style="border-left:0;border-top:1px solid var(--color-divider)"><input type="radio" name="niv">Avanzado</label>
+          </div>
+          <div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.55;margin-bottom:8px">Duración</div>
+          <div style="display:flex;flex-direction:column;gap:7px;font-size:14px">
+            <label class="radio"><input type="radio" name="dur"><span class="dot"></span>Menos de 5 h</label>
+            <label class="radio"><input type="radio" name="dur"><span class="dot"></span>5 – 10 h</label>
+            <label class="radio"><input type="radio" name="dur"><span class="dot"></span>Más de 10 h</label>
+          </div>
+        </div>
+
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:18px">
+            <span class="tag tag-accent">Imagen generativa ✕</span>
+            <span style="font-size:13px;opacity:.55;margin-left:auto">6 resultados · ordenar por relevancia</span>
+          </div>
+          <div class="g3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+            <sc-for list="{{ cursos }}" as="c" hint-placeholder-count="6">
+              <div class="card blueprint" style="padding:0;gap:0">
+                <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+                <div class="duotone" style="aspect-ratio:16/9;border-bottom:1px solid var(--color-divider);background:repeating-linear-gradient(45deg,var(--color-accent-200) 0 10px,var(--color-accent-100) 10px 20px)"><image-slot src="2c5af0b1-d849-4777-998e-242b83498b71" id="{{ c.slot }}" shape="rect" placeholder="Imagen del curso"></image-slot></div>
+                <div style="padding:16px;display:flex;flex-direction:column;gap:9px;flex:1">
+                  <div style="display:flex;justify-content:space-between;align-items:center">
+                    <span class="card-kicker">{{ c.categoria }}</span>
+                    <span style="font-size:12px;opacity:.6">★ {{ c.rating }}</span>
+                  </div>
+                  <div class="card-title">{{ c.nombre }}</div>
+                  <p class="card-body">{{ c.desc }}</p>
+                  <div class="card-meta" style="gap:10px"><span>{{ c.nivel }}</span><span>·</span><span>{{ c.duracion }}</span><span>·</span><span>{{ c.estudiantes }} est.</span></div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:10px;border-top:1px solid var(--color-divider)">
+                    <span style="font-size:12px;opacity:.7">{{ c.docente }}</span>
+                    <button class="btn btn-secondary" sc-camel-on-click="{{ c.go }}" style="font-size:13px">Ver curso</button>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ══ DETALLE DE CURSO ══ -->
+  <sc-if value="{{ scCurso }}">
+    <div>
+      <div class="duotone" style="position:relative;background:repeating-linear-gradient(45deg,var(--color-accent-200) 0 14px,var(--color-accent-100) 14px 28px);border-bottom:1px solid var(--color-divider)">
+        <div style="position:absolute;inset:0"><image-slot src="2c5af0b1-d849-4777-998e-242b83498b71" id="curso-banner" shape="rect" placeholder="Banner del curso"></image-slot></div>
+        <div style="position:absolute;inset:0;background:linear-gradient(90deg,var(--color-accent-900) 0%,color-mix(in srgb,var(--color-accent-900) 88%,transparent) 55%,color-mix(in srgb,var(--color-accent-900) 45%,transparent) 100%);pointer-events:none"></div>
+        <div class="pad" style="position:relative;max-width:1180px;margin:0 auto;padding:44px 40px;pointer-events:none">
+          <div style="font-size:12px;color:rgba(242,242,243,.8);margin-bottom:14px;pointer-events:auto"><a href="#" sc-camel-on-click="{{ goCatalogo }}" style="color:#f2f2f3">Cursos</a> / Imagen generativa</div>
+          <h1 style="margin:0 0 10px;font-size:52px;max-width:20ch;color:#f2f2f3">Creación de imágenes con IA</h1>
+          <p style="max-width:62ch;color:rgba(242,242,243,.85);margin-bottom:20px">Aprende a diseñar imágenes utilizando modelos generativos y técnicas de prompting.</p>
+          <div style="display:flex;gap:22px;font-size:13px;color:rgba(242,242,243,.85);flex-wrap:wrap">
+            <span>Elena Ruiz</span><span>8 h</span><span>Intermedio</span><span>1.240 estudiantes</span><span>5 módulos</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="split pad" style="max-width:1180px;margin:0 auto;padding:32px 40px 72px;display:grid;grid-template-columns:1fr 320px;gap:44px;align-items:start">
+        <div>
+          <div style="display:flex;gap:26px;border-bottom:1px solid var(--color-divider);margin-bottom:24px">
+            <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4">
+              <button sc-camel-on-click="{{ t.go }}" style="{{ t.style }}">{{ t.label }}</button>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ tabDesc }}">
+            <div>
+              <h4 style="margin-top:0">Sobre este curso</h4>
+              <p style="opacity:.78">Un recorrido práctico por los modelos de difusión y las técnicas de prompting que se usan hoy en producción. Cada módulo termina con una actividad ejecutable, y el curso cierra con una evaluación demostrativa en el laboratorio: generas una imagen a partir de un enunciado y el sistema puntúa cumplimiento, calidad del prompt, coherencia y composición.</p>
+              <h4 style="margin-top:26px">Qué vas a poder hacer</h4>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;font-size:14px;opacity:.8">
+                <div>— Estructurar un prompt en sujeto, estilo, luz y composición</div>
+                <div>— Controlar la coherencia entre varias generaciones</div>
+                <div>— Elegir el modelo adecuado para cada encargo</div>
+                <div>— Iterar sobre un resultado con variaciones dirigidas</div>
+                <div>— Documentar y versionar tus prompts</div>
+                <div>— Evaluar críticamente una imagen generada</div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ tabContenido }}">
+            <div style="border:1px solid var(--color-divider)">
+              <sc-for list="{{ modulos }}" as="m" hint-placeholder-count="5">
+                <div style="{{ m.wrapStyle }}">
+                  <button sc-camel-on-click="{{ m.toggle }}" style="width:100%;display:flex;align-items:center;gap:14px;background:transparent;border:0;padding:16px 18px;cursor:pointer;color:inherit;text-align:left;font-family:var(--font-body)">
+                    <span style="font-family:var(--font-heading);font-size:12px;letter-spacing:.1em;color:var(--color-accent);width:24px">{{ m.num }}</span>
+                    <span style="font-family:var(--font-heading);font-size:18px;flex:1">{{ m.titulo }}</span>
+                    <span style="font-size:12px;opacity:.5">{{ m.meta }}</span>
+                    <span style="font-size:12px;opacity:.5;width:12px">{{ m.chev }}</span>
+                  </button>
+                  <sc-if value="{{ m.open }}">
+                    <div style="padding:0 18px 14px 56px;display:flex;flex-direction:column;gap:8px">
+                      <sc-for list="{{ m.items }}" as="it" hint-placeholder-count="3">
+                        <div style="display:flex;align-items:center;gap:12px;font-size:14px;padding:6px 0;border-top:1px solid var(--color-divider)">
+                          <span class="tag tag-neutral" style="min-width:74px;justify-content:center">{{ it.tipo }}</span>
+                          <span style="flex:1">{{ it.nombre }}</span>
+                          <span style="font-size:12px;opacity:.5">{{ it.dur }}</span>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ tabDocente }}">
+            <div style="display:flex;gap:20px">
+              <div class="blueprint duotone" style="width:120px;height:120px;flex:none;background:repeating-linear-gradient(45deg,var(--color-accent-200) 0 8px,var(--color-accent-100) 8px 16px)"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i></div>
+              <div>
+                <h4 style="margin:0 0 2px">Elena Ruiz</h4>
+                <div style="font-size:13px;color:var(--color-accent);margin-bottom:10px">Directora de imagen generativa · 4 cursos · 3.100 estudiantes</div>
+                <p style="opacity:.78;font-size:14px;margin:0">Trabaja desde 2019 con modelos de difusión aplicados a dirección de arte y producción editorial. En Praxis dirige el itinerario de imagen y diseña las evaluaciones demostrativas del laboratorio.</p>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ tabForo }}">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <sc-for list="{{ discusiones }}" as="d" hint-placeholder-count="3">
+                <div class="card" style="padding:14px 16px;cursor:pointer" sc-camel-on-click="{{ goForo }}">
+                  <div class="card-title" style="font-size:16px">{{ d.titulo }}</div>
+                  <div class="card-meta" style="gap:12px"><span>{{ d.autor }}</span><span>{{ d.fecha }}</span><span>{{ d.respuestas }} respuestas</span><span>♥ {{ d.likes }}</span></div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+
+        <div class="blueprint" style="padding:20px;position:sticky;top:60px;background:var(--color-surface)">
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <div style="font-family:var(--font-heading);font-size:34px;line-height:1">Gratis</div>
+          <div style="font-size:12px;opacity:.55;margin-bottom:18px">Acceso completo · certificado incluido</div>
+          <button class="btn btn-primary btn-block blueprint" sc-camel-on-click="{{ openModal }}" style="padding:11px;margin:0"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>Inscribirme al curso</button>
+          <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--color-divider);display:flex;flex-direction:column;gap:9px;font-size:13px">
+            <div style="display:flex;justify-content:space-between"><span style="opacity:.6">Módulos</span><span>5</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="opacity:.6">Lecciones</span><span>24</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="opacity:.6">Actividades</span><span>11</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="opacity:.6">Evaluación</span><span>Demostrativa</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="opacity:.6">Idioma</span><span>Español</span></div>
+          </div>
+        </div>
+      </div>
+
+      <sc-if value="{{ modal }}">
+        <div class="dialog-backdrop" style="z-index:60">
+          <div class="dialog blueprint" style="background:var(--color-bg)">
+            <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+            <div class="dialog-title">Confirmar inscripción</div>
+            <div class="dialog-body">Vas a inscribirte en <strong>Creación de imágenes con IA</strong>. El curso aparecerá en tu panel y podrás retomarlo cuando quieras.</div>
+            <div class="dialog-actions">
+              <button class="btn btn-secondary" sc-camel-on-click="{{ closeModal }}">Cancelar</button>
+              <button class="btn btn-primary" sc-camel-on-click="{{ confirmarInscripcion }}">Inscribirme</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- ══ APP ESTUDIANTE ══ -->
+  <sc-if value="{{ inApp }}">
+    <div class="shell" style="display:grid;grid-template-columns:232px 1fr;min-height:calc(100vh - 41px)">
+      <aside style="border-right:1px solid var(--color-divider);padding:20px 14px;display:flex;flex-direction:column;gap:4px;position:sticky;top:41px;height:calc(100vh - 41px)">
+        <div style="font-family:var(--font-heading);font-weight:600;font-size:18px;padding:0 10px 18px">PRAXIS<span style="color:var(--color-accent)">.AI</span></div>
+        <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="8">
+          <button sc-camel-on-click="{{ n.go }}" style="{{ n.style }}">
+            <svg width="17" height="17" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="{{ n.d }}"></path></svg>
+            <span style="flex:1;text-align:left">{{ n.label }}</span>
+            <span style="font-size:11px;opacity:.55">{{ n.badge }}</span>
+          </button>
+        </sc-for>
+        <div style="margin-top:auto;border-top:1px solid var(--color-divider);padding-top:14px;display:flex;align-items:center;gap:10px">
+          <div class="duotone" style="width:30px;height:30px;flex:none;border:1px solid var(--color-divider);background:repeating-linear-gradient(45deg,var(--color-accent-200) 0 5px,var(--color-accent-100) 5px 10px)"></div>
+          <div style="line-height:1.2"><div style="font-size:13px">Miquel Torrent</div><div style="font-size:11px;opacity:.5">Estudiante</div></div>
+        </div>
+      </aside>
+
+      <main>
+        <header style="display:flex;align-items:center;gap:14px;padding:12px 28px;border-bottom:1px solid var(--color-divider);position:sticky;top:41px;background:var(--color-bg);z-index:20">
+          <input class="input" placeholder="Buscar cursos, lecciones, foros…" style="max-width:340px">
+          <div style="margin-left:auto;display:flex;align-items:center;gap:12px">
+            <button class="btn btn-secondary btn-icon" style="position:relative">
+              <svg width="17" height="17" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9a6 6 0 0112 0c0 5 2 6 2 6H4s2-1 2-6"></path><path d="M10 20h4"></path></svg>
+              <span style="position:absolute;top:5px;right:5px;width:6px;height:6px;background:var(--color-accent)"></span>
+            </button>
+            <div class="duotone" style="width:32px;height:32px;border:1px solid var(--color-divider);background:repeating-linear-gradient(45deg,var(--color-accent-200) 0 5px,var(--color-accent-100) 5px 10px)"></div>
+          </div>
+        </header>
+
+        <!-- Dashboard -->
+        <sc-if value="{{ scDashboard }}">
+          <div style="padding:32px 28px 64px;max-width:1180px">
+            <h2 style="margin:0 0 2px">Hola, Miquel 👋</h2>
+            <p style="opacity:.65;margin-bottom:26px">Continúa aprendiendo donde lo dejaste.</p>
+
+            <div class="blueprint split" style="display:grid;grid-template-columns:300px 1fr;gap:0;margin-bottom:28px">
+              <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+              <div class="duotone" style="border-right:1px solid var(--color-divider);min-height:190px;background:repeating-linear-gradient(45deg,var(--color-accent-200) 0 10px,var(--color-accent-100) 10px 20px)"><image-slot src="2c5af0b1-d849-4777-998e-242b83498b71" id="dash-curso" shape="rect" placeholder="Imagen del curso"></image-slot></div>
+              <div style="padding:24px 26px;display:flex;flex-direction:column;justify-content:center">
+                <div class="card-kicker">Curso en progreso</div>
+                <h3 style="margin:6px 0 4px">Creación de imágenes con IA</h3>
+                <div style="font-size:13px;opacity:.6;margin-bottom:18px">Módulo 2 · Estructura de un prompt · Elena Ruiz</div>
+                <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
+                  <div style="flex:1;height:6px;border:1px solid var(--color-divider);background:var(--color-bg)"><div style="height:100%;width:72%;background:var(--color-accent)"></div></div>
+                  <span style="font-family:var(--font-heading);font-size:20px">72%</span>
+                </div>
+                <div style="display:flex;gap:10px">
+                  <button class="btn btn-primary blueprint" sc-camel-on-click="{{ goAprender }}"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>Continuar curso</button>
+                  <button class="btn btn-secondary" sc-camel-on-click="{{ goCurso }}">Ver temario</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="g4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px">
+              <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+                <div class="card blueprint" style="padding:16px 18px;gap:2px">
+                  <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+                  <div style="font-family:var(--font-heading);font-size:38px;line-height:1">{{ s.v }}</div>
+                  <div style="font-size:12px;opacity:.6">{{ s.l }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div class="split" style="display:grid;grid-template-columns:1.4fr 1fr;gap:28px">
+              <div>
+                <h4 style="margin:0 0 12px">Próximas actividades</h4>
+                <div style="border:1px solid var(--color-divider)">
+                  <sc-for list="{{ proximas }}" as="p" hint-placeholder-count="3">
+                    <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-bottom:1px solid var(--color-divider)">
+                      <span class="tag tag-accent" style="min-width:88px;justify-content:center">{{ p.tipo }}</span>
+                      <div style="flex:1"><div style="font-size:14px">{{ p.titulo }}</div><div style="font-size:12px;opacity:.5">{{ p.curso }}</div></div>
+                      <span style="font-size:12px;opacity:.6">{{ p.cuando }}</span>
+                      <button class="btn btn-secondary" sc-camel-on-click="{{ p.go }}" style="font-size:13px">Abrir</button>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div>
+                <h4 style="margin:0 0 12px">Tu ritmo</h4>
+                <div class="blueprint" style="padding:18px">
+                  <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+                  <div style="display:flex;align-items:flex-end;gap:8px;height:110px">
+                    <sc-for list="{{ ritmo }}" as="b" hint-placeholder-count="7">
+                      <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;height:100%">
+                        <div style="{{ b.style }}"></div>
+                        <span style="font-size:10px;opacity:.5">{{ b.d }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <div style="font-size:12px;opacity:.6;margin-top:12px;border-top:1px solid var(--color-divider);padding-top:10px">4 h 20 min esta semana · racha de 6 días</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- Mis cursos -->
+        <sc-if value="{{ scMisCursos }}">
+          <div style="padding:32px 28px 64px;max-width:1180px">
+            <h2 style="margin:0 0 22px">Mis cursos</h2>
+            <div class="g3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-bottom:36px">
+              <sc-for list="{{ misCursos }}" as="c" hint-placeholder-count="3">
+                <div class="card blueprint" style="padding:0;gap:0">
+                  <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+                  <div class="duotone" style="aspect-ratio:16/9;border-bottom:1px solid var(--color-divider);background:repeating-linear-gradient(45deg,var(--color-accent-200) 0 10px,var(--color-accent-100) 10px 20px)"><image-slot src="2c5af0b1-d849-4777-998e-242b83498b71" id="{{ c.slot }}" shape="rect" placeholder="Imagen del curso"></image-slot></div>
+                  <div style="padding:16px;display:flex;flex-direction:column;gap:10px;flex:1">
+                    <div class="card-title">{{ c.nombre }}</div>
+                    <div style="font-size:12px;opacity:.55">{{ c.docente }} · {{ c.restante }}</div>
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <div style="flex:1;height:6px;border:1px solid var(--color-divider)"><div style="{{ c.barStyle }}"></div></div>
+                      <span style="font-size:12px">{{ c.pct }}%</span>
+                    </div>
+                    <button class="btn btn-secondary btn-block" sc-camel-on-click="{{ goAprender }}" style="font-size:13px">{{ c.cta }}</button>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <h4 style="margin:0 0 12px">Completados</h4>
+            <div class="blueprint" style="padding:40px;display:grid;place-items:center;text-align:center">
+              <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+              <div style="max-width:36ch">
+                <svg width="34" height="34" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.35;margin:0 auto 10px"><path d="M4 4h16v16H4z"></path><path d="M8 12l3 3 5-6"></path></svg>
+                <div style="font-family:var(--font-heading);font-size:18px">Todavía no has completado ningún curso</div>
+                <p style="font-size:13px;opacity:.6;margin:6px 0 14px">Cuando termines un curso aparecerá aquí junto a su certificado.</p>
+                <button class="btn btn-secondary" sc-camel-on-click="{{ goCatalogo }}">Explorar cursos</button>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- Vista de aprendizaje -->
+        <sc-if value="{{ scAprender }}">
+          <div class="learn" style="display:grid;grid-template-columns:270px 1fr 260px;min-height:calc(100vh - 100px)">
+            <div class="learnnav" style="border-right:1px solid var(--color-divider);padding:20px 16px;overflow:auto">
+              <div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.5;margin-bottom:12px">Contenido del curso</div>
+              <sc-for list="{{ temario }}" as="m" hint-placeholder-count="3">
+                <div style="margin-bottom:18px">
+                  <div style="font-family:var(--font-heading);font-size:15px;margin-bottom:6px">{{ m.titulo }}</div>
+                  <sc-for list="{{ m.lecciones }}" as="l" hint-placeholder-count="2">
+                    <div style="{{ l.style }}"><span style="width:14px;opacity:.75">{{ l.mark }}</span><span>{{ l.nombre }}</span></div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="padding:28px 34px 60px;max-width:760px">
+              <div style="font-size:12px;opacity:.55;margin-bottom:8px">Módulo 2 · Lección 2 de 4</div>
+              <h2 style="margin:0 0 16px">Estructura de un prompt</h2>
+              <div class="blueprint duotone" style="aspect-ratio:16/9;display:grid;place-items:center;background:repeating-linear-gradient(45deg,var(--color-accent-200) 0 12px,var(--color-accent-100) 12px 24px);margin-bottom:22px">
+                <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+                <div style="display:flex;align-items:center;gap:10px;background:var(--color-bg);border:1px solid var(--color-divider);padding:8px 14px">
+                  <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 5l11 7-11 7z"></path></svg>
+                  <span style="font-family:var(--font-heading);font-size:13px;letter-spacing:.1em;text-transform:uppercase">Vídeo · 12:40</span>
+                </div>
+              </div>
+              <p style="opacity:.8">Un prompt eficaz se descompone en cinco decisiones explícitas. Cuanto más concretas sean, menos margen queda para que el modelo improvise en la dirección equivocada.</p>
+              <div class="g5" style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--color-divider);margin:20px 0">
+                <div style="padding:12px;border-right:1px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent)">Sujeto</div><div style="font-size:12px;opacity:.65;margin-top:4px">Qué aparece</div></div>
+                <div style="padding:12px;border-right:1px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent)">Estilo</div><div style="font-size:12px;opacity:.65;margin-top:4px">Referencia visual</div></div>
+                <div style="padding:12px;border-right:1px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent)">Luz</div><div style="font-size:12px;opacity:.65;margin-top:4px">Hora y dirección</div></div>
+                <div style="padding:12px;border-right:1px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent)">Composición</div><div style="font-size:12px;opacity:.65;margin-top:4px">Plano y encuadre</div></div>
+                <div style="padding:12px"><div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent)">Contexto</div><div style="font-size:12px;opacity:.65;margin-top:4px">Dónde y cuándo</div></div>
+              </div>
+              <div style="border:1px solid var(--color-divider);background:var(--color-surface);padding:14px 16px;font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.6">
+                <span style="opacity:.45">// ejemplo</span><br>
+                <span style="color:var(--color-accent-700)">sujeto:</span> mercado de barrio al amanecer<br>
+                <span style="color:var(--color-accent-700)">estilo:</span> fotografía documental en color, grano fino<br>
+                <span style="color:var(--color-accent-700)">luz:</span> lateral cálida, sombras largas<br>
+                <span style="color:var(--color-accent-700)">composición:</span> plano medio, regla de tercios<br>
+                <span style="color:var(--color-accent-700)">contexto:</span> ciudad mediterránea, día laborable
+              </div>
+              <div style="display:flex;gap:10px;margin-top:26px;padding-top:20px;border-top:1px solid var(--color-divider)">
+                <button class="btn btn-secondary">← Anterior</button>
+                <button class="btn btn-primary blueprint" sc-camel-on-click="{{ marcarCompletado }}"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>Marcar como completado</button>
+                <button class="btn btn-secondary" sc-camel-on-click="{{ goActividad }}" style="margin-left:auto">Siguiente: Actividad práctica →</button>
+              </div>
+            </div>
+
+            <div class="learnside" style="border-left:1px solid var(--color-divider);padding:20px 18px">
+              <div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.5;margin-bottom:14px">Tu progreso</div>
+              <div style="font-family:var(--font-heading);font-size:46px;line-height:1">72%</div>
+              <div style="height:6px;border:1px solid var(--color-divider);margin:10px 0 8px"><div style="height:100%;width:72%;background:var(--color-accent)"></div></div>
+              <div style="font-size:12px;opacity:.6">8 de 11 actividades completadas</div>
+              <div style="margin-top:22px;padding-top:16px;border-top:1px solid var(--color-divider);display:flex;flex-direction:column;gap:10px;font-size:13px">
+                <div style="display:flex;justify-content:space-between"><span style="opacity:.6">Lecciones</span><span>16 / 24</span></div>
+                <div style="display:flex;justify-content:space-between"><span style="opacity:.6">Actividades</span><span>8 / 11</span></div>
+                <div style="display:flex;justify-content:space-between"><span style="opacity:.6">Evaluación</span><span style="color:var(--color-accent)">Pendiente</span></div>
+              </div>
+              <div class="blueprint" style="margin-top:22px;padding:14px">
+                <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+                <div style="font-family:var(--font-heading);font-size:15px;margin-bottom:4px">Evaluación final</div>
+                <p style="font-size:12px;opacity:.6;margin:0 0 10px">Se desbloquea al completar el módulo 4.</p>
+                <button class="btn btn-secondary btn-block" sc-camel-on-click="{{ goEvaluaciones }}" style="font-size:13px;margin:0">Ver requisitos</button>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- Actividad -->
+        <sc-if value="{{ scActividad }}">
+          <div style="padding:32px 28px 64px;max-width:860px">
+            <div style="font-size:12px;opacity:.55;margin-bottom:8px">Creación de imágenes con IA / Módulo 2</div>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+              <span class="tag tag-accent">Actividad</span><span style="font-size:12px;opacity:.55">Intento 1 de 3 · 20 puntos</span>
+            </div>
+            <h2 style="margin:0 0 10px">Crea tu primer prompt</h2>
+            <p style="opacity:.78;max-width:64ch">Utiliza los conocimientos aprendidos para crear un prompt capaz de generar una imagen coherente.</p>
+
+            <h4 style="margin:26px 0 10px">Instrucciones</h4>
+            <div style="border:1px solid var(--color-divider)">
+              <sc-for list="{{ instrucciones }}" as="i" hint-placeholder-count="5">
+                <div style="display:flex;gap:14px;padding:11px 16px;border-bottom:1px solid var(--color-divider);font-size:14px">
+                  <span style="font-family:var(--font-heading);color:var(--color-accent);width:20px">{{ i.n }}</span><span>{{ i.t }}</span>
+                </div>
+              </sc-for>
+            </div>
+
+            <h4 style="margin:26px 0 10px">Tu respuesta</h4>
+            <textarea class="input" placeholder="Escribe tu respuesta…" style="min-height:170px;font-size:14px"></textarea>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:8px;font-size:12px;opacity:.55">
+              <span>0 / 800 caracteres</span><span style="margin-left:auto">Guardado automático hace 1 min</span>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:20px">
+              <button class="btn btn-primary blueprint" sc-camel-on-click="{{ enviarActividad }}"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>Enviar actividad</button>
+              <button class="btn btn-secondary">Guardar borrador</button>
+              <button class="btn btn-ghost" sc-camel-on-click="{{ goPreguntas }}" style="margin-left:auto">Ir a las preguntas →</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- Preguntas -->
+        <sc-if value="{{ scPreguntas }}">
+          <div style="padding:32px 28px 64px;max-width:760px">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+              <span class="tag tag-accent">Pregunta 3 de 6</span>
+              <div style="flex:1;height:4px;border:1px solid var(--color-divider)"><div style="height:100%;width:50%;background:var(--color-accent)"></div></div>
+            </div>
+            <h3 style="margin:0 0 20px">¿Cuál es la diferencia entre un prompt descriptivo y uno estructurado?</h3>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <sc-for list="{{ opciones }}" as="o" hint-placeholder-count="4">
+                <button sc-camel-on-click="{{ o.pick }}" style="{{ o.style }}">
+                  <span style="font-family:var(--font-heading);width:18px;opacity:.6">{{ o.letra }}</span>
+                  <span style="flex:1;text-align:left">{{ o.texto }}</span>
+                  <span>{{ o.mark }}</span>
+                </button>
+              </sc-for>
+            </div>
+            <sc-if value="{{ respondido }}">
+              <div class="blueprint" style="margin-top:22px;padding:18px;animation:riseIn .25s ease">
+                <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+                <div style="font-family:var(--font-heading);font-size:16px;margin-bottom:6px">{{ vereditoTexto }}</div>
+                <p style="font-size:14px;opacity:.78;margin:0">El prompt descriptivo enumera lo que se quiere ver en lenguaje corriente. El estructurado separa las decisiones en campos — sujeto, estilo, luz, composición, contexto — de modo que cada una puede ajustarse sin reescribir el resto y el resultado es reproducible entre generaciones.</p>
+                <div style="display:flex;gap:10px;margin-top:16px">
+                  <button class="btn btn-secondary" sc-camel-on-click="{{ resetPregunta }}">Reintentar</button>
+                  <button class="btn btn-primary" sc-camel-on-click="{{ goEvaluaciones }}">Siguiente pregunta</button>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <!-- Foro -->
+        <sc-if value="{{ scForo }}">
+          <div style="padding:32px 28px 64px;max-width:960px">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px">
+              <h2 style="margin:0">Foro del curso</h2>
+              <button class="btn btn-primary blueprint" sc-camel-on-click="{{ showToastForo }}"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>+ Nueva discusión</button>
+            </div>
+            <p style="opacity:.6;margin-bottom:22px">Creación de imágenes con IA · 34 discusiones</p>
+            <div class="split" style="display:grid;grid-template-columns:1fr 300px;gap:28px;align-items:start">
+              <div style="border:1px solid var(--color-divider)">
+                <sc-for list="{{ discusiones }}" as="d" hint-placeholder-count="3">
+                  <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid var(--color-divider)">
+                    <div class="duotone" style="width:34px;height:34px;flex:none;border:1px solid var(--color-divider);background:repeating-linear-gradient(45deg,var(--color-accent-200) 0 5px,var(--color-accent-100) 5px 10px)"></div>
+                    <div style="flex:1">
+                      <div style="font-family:var(--font-heading);font-size:17px;margin-bottom:2px">{{ d.titulo }}</div>
+                      <div style="font-size:12px;opacity:.55">{{ d.autor }} · {{ d.fecha }} · última actividad {{ d.ultima }}</div>
+                    </div>
+                    <div style="text-align:right;font-size:12px;opacity:.6;white-space:nowrap"><div>{{ d.respuestas }} respuestas</div><div>♥ {{ d.likes }}</div></div>
+                  </div>
+                </sc-for>
+                <div style="padding:20px">
+                  <div style="font-family:var(--font-heading);font-size:16px;margin-bottom:12px">¿Qué estructura utilizan para sus prompts?</div>
+                  <div style="display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--color-divider)">
+                    <div class="duotone" style="width:30px;height:30px;flex:none;border:1px solid var(--color-divider);background:repeating-linear-gradient(45deg,var(--color-accent-200) 0 5px,var(--color-accent-100) 5px 10px)"></div>
+                    <div><div style="font-size:12px;opacity:.55;margin-bottom:3px">Laura Benítez · hace 2 h</div><p style="font-size:14px;margin:0;opacity:.85">Yo mantengo los cinco campos fijos y guardo cada variación en una hoja. Cuando algo falla suele ser la luz, no el sujeto.</p></div>
+                  </div>
+                  <div style="display:flex;gap:10px;margin-top:12px">
+                    <input class="input" placeholder="Escribe una respuesta…">
+                    <button class="btn btn-primary" style="flex:none">Responder</button>
+                  </div>
+                </div>
+              </div>
+              <div class="blueprint" style="padding:18px">
+                <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+                <div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.5;margin-bottom:10px">Normas del foro</div>
+                <p style="font-size:13px;opacity:.7;margin:0">Comparte el prompt completo cuando pidas ayuda. Marca como resuelta la discusión cuando obtengas respuesta.</p>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- Evaluaciones -->
+        <sc-if value="{{ scEvaluaciones }}">
+          <div style="padding:32px 28px 64px;max-width:900px">
+            <h2 style="margin:0 0 22px">Evaluaciones</h2>
+            <div class="blueprint" style="padding:24px 26px;margin-bottom:18px">
+              <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                <span class="tag tag-outline">Disponible</span><span style="font-size:12px;opacity:.55">Creación de imágenes con IA</span>
+              </div>
+              <h3 style="margin:0 0 6px">Evaluación final</h3>
+              <p style="opacity:.75;max-width:60ch;margin-bottom:18px">Proyecto demostrativo — Generación de imágenes mediante IA.</p>
+              <div class="g4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--color-divider);margin-bottom:20px">
+                <div style="padding:12px 14px;border-right:1px solid var(--color-divider)"><div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.5">Duración</div><div style="font-family:var(--font-heading);font-size:20px">30 min</div></div>
+                <div style="padding:12px 14px;border-right:1px solid var(--color-divider)"><div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.5">Intentos</div><div style="font-family:var(--font-heading);font-size:20px">1</div></div>
+                <div style="padding:12px 14px;border-right:1px solid var(--color-divider)"><div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.5">Puntuación</div><div style="font-family:var(--font-heading);font-size:20px">100</div></div>
+                <div style="padding:12px 14px"><div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.5">Aprobado</div><div style="font-family:var(--font-heading);font-size:20px">70</div></div>
+              </div>
+              <button class="btn btn-primary blueprint" sc-camel-on-click="{{ goLab }}" style="padding:11px 20px"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>Comenzar evaluación</button>
+            </div>
+            <div class="card" style="padding:18px 20px;opacity:.6">
+              <div style="display:flex;align-items:center;gap:10px"><span class="tag tag-neutral">Bloqueada</span><span style="font-size:12px">Fundamentos de prompting</span></div>
+              <div class="card-title">Evaluación intermedia — Reescritura de prompts</div>
+              <div class="card-meta">Se desbloquea al completar el módulo 3</div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- Laboratorio -->
+        <sc-if value="{{ scLab }}">
+          <div style="padding:24px 28px 64px">
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--color-divider)">
+              <span class="tag tag-accent">Evaluación final</span>
+              <span style="font-family:var(--font-heading);font-size:18px">Genera una imagen mediante IA</span>
+              <span style="margin-left:auto;font-family:var(--font-heading);font-size:20px;border:1px solid var(--color-divider);padding:3px 12px">{{ reloj }}</span>
+            </div>
+
+            <div class="split" style="display:grid;grid-template-columns:420px 1fr;gap:28px;align-items:start">
+              <div>
+                <div class="blueprint" style="padding:18px;margin-bottom:18px">
+                  <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+                  <div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.5;margin-bottom:8px">Instrucción</div>
+                  <p style="margin:0;font-size:15px;opacity:.9">Utiliza tus conocimientos de prompting para generar una imagen que represente una ciudad futurista sostenible.</p>
+                </div>
+                <div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.5;margin-bottom:8px">Prompt</div>
+                <textarea class="input" placeholder="Escribe aquí tu prompt…" value="{{ prompt }}" sc-camel-on-change="{{ setPrompt }}" style="min-height:150px;font-size:14px;font-family:ui-monospace,Menlo,monospace"></textarea>
+                <div style="display:flex;gap:8px;margin:10px 0 14px;flex-wrap:wrap">
+                  <span class="tag tag-neutral">sujeto</span><span class="tag tag-neutral">estilo</span><span class="tag tag-neutral">luz</span><span class="tag tag-neutral">composición</span><span class="tag tag-neutral">contexto</span>
+                </div>
+                <button class="btn btn-primary btn-block blueprint" sc-camel-on-click="{{ generar }}" style="padding:11px;margin:0"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>{{ botonLab }}</button>
+                <div style="font-size:12px;opacity:.5;margin-top:10px">Generaciones usadas: {{ generaciones }} de 3</div>
+              </div>
+
+              <div>
+                <div class="blueprint" style="aspect-ratio:16/10;display:grid;place-items:center;background:var(--color-surface);margin-bottom:18px;overflow:hidden">
+                  <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+                  <sc-if value="{{ labIdle }}" hint-placeholder-val="{{ true }}">
+                    <div style="text-align:center;max-width:32ch">
+                      <svg width="38" height="38" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.3;margin:0 auto 10px"><path d="M4 4h16v16H4z"></path><path d="M4 16l5-5 4 4 3-3 4 4"></path><circle cx="9" cy="9" r="1.6"></circle></svg>
+                      <div style="font-family:var(--font-heading);font-size:17px">Aún no has generado nada</div>
+                      <p style="font-size:13px;opacity:.55;margin:6px 0 0">Escribe tu prompt y pulsa «Generar imagen». Puedes iterar hasta tres veces.</p>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ labLoading }}">
+                    <div style="width:100%;height:100%;display:grid;place-items:center;background:linear-gradient(100deg,var(--color-surface) 30%,var(--color-accent-100) 50%,var(--color-surface) 70%);background-size:760px 100%;animation:shimmer 1.3s linear infinite">
+                      <div style="text-align:center">
+                        <svg width="30" height="30" sc-camel-view-box="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="1.5" style="animation:spin 1s linear infinite;margin:0 auto 10px"><path d="M12 3a9 9 0 019 9"></path><path d="M21 12a9 9 0 11-9-9" opacity=".25"></path></svg>
+                        <div style="font-family:var(--font-heading);font-size:15px;letter-spacing:.08em;text-transform:uppercase">Generando imagen…</div>
+                      </div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ labDone }}">
+                    <div class="duotone" style="width:100%;height:100%;background:repeating-linear-gradient(45deg,var(--color-accent-200) 0 14px,var(--color-accent-100) 14px 28px);animation:riseIn .35s ease">
+                      <image-slot src="2c5af0b1-d849-4777-998e-242b83498b71" id="lab-resultado" shape="rect" placeholder="Resultado generado"></image-slot>
+                    </div>
+                  </sc-if>
+                </div>
+
+                <sc-if value="{{ labDone }}">
+                  <div style="animation:riseIn .4s ease">
+                    <div class="g4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--color-divider);margin-bottom:18px;font-size:12px">
+                      <div style="padding:10px 12px;border-right:1px solid var(--color-divider)"><div style="opacity:.5;text-transform:uppercase;letter-spacing:.1em;font-size:10px">Modelo</div>diffusion-xl</div>
+                      <div style="padding:10px 12px;border-right:1px solid var(--color-divider)"><div style="opacity:.5;text-transform:uppercase;letter-spacing:.1em;font-size:10px">Fecha</div>03/09/2026 · 11:42</div>
+                      <div style="padding:10px 12px;border-right:1px solid var(--color-divider)"><div style="opacity:.5;text-transform:uppercase;letter-spacing:.1em;font-size:10px">Tiempo</div>7,4 s</div>
+                      <div style="padding:10px 12px"><div style="opacity:.5;text-transform:uppercase;letter-spacing:.1em;font-size:10px">Resolución</div>1280 × 800</div>
+                    </div>
+                    <div class="blueprint" style="padding:20px">
+                      <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+                      <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:16px">
+                        <div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.5">Evaluación automática</div>
+                        <div style="margin-left:auto;font-family:var(--font-heading);font-size:34px;line-height:1">87<span style="font-size:16px;opacity:.5">/100</span></div>
+                      </div>
+                      <div style="display:flex;flex-direction:column;gap:11px">
+                        <sc-for list="{{ criterios }}" as="c" hint-placeholder-count="4">
+                          <div style="display:flex;align-items:center;gap:12px;font-size:13px">
+                            <span style="width:150px">{{ c.n }}</span>
+                            <div style="flex:1;height:6px;border:1px solid var(--color-divider)"><div style="{{ c.barStyle }}"></div></div>
+                            <span style="width:38px;text-align:right;font-family:var(--font-heading)">{{ c.v }}%</span>
+                          </div>
+                        </sc-for>
+                      </div>
+                      <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--color-divider)">
+                        <div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.5;margin-bottom:6px">Feedback</div>
+                        <p style="font-size:14px;opacity:.85;margin:0">Tu prompt define correctamente el sujeto y el contexto. Puedes mejorar la descripción de iluminación y composición.</p>
+                      </div>
+                      <div style="display:flex;gap:10px;margin-top:18px">
+                        <button class="btn btn-secondary" sc-camel-on-click="{{ resetLab }}">Volver a intentar</button>
+                        <button class="btn btn-primary blueprint" sc-camel-on-click="{{ goResultado }}"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>Finalizar evaluación</button>
+                      </div>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- Resultado -->
+        <sc-if value="{{ scResultado }}">
+          <div style="padding:40px 28px 64px;max-width:900px">
+            <div class="blueprint split" style="padding:34px;display:grid;grid-template-columns:220px 1fr;gap:34px;align-items:center;margin-bottom:24px">
+              <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+              <div style="text-align:center;border-right:1px solid var(--color-divider);padding-right:20px">
+                <div style="font-family:var(--font-heading);font-size:82px;line-height:.9">87</div>
+                <div style="font-size:13px;opacity:.5">de 100</div>
+                <div class="tag tag-accent" style="margin-top:12px">Aprobado</div>
+              </div>
+              <div>
+                <h2 style="margin:0 0 6px">Excelente trabajo 🎉</h2>
+                <p style="opacity:.75;margin-bottom:18px">Has superado la evaluación demostrativa de <strong>Creación de imágenes con IA</strong>.</p>
+                <div class="g3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--color-divider)">
+                  <div style="padding:10px 12px;border-right:1px solid var(--color-divider)"><div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;opacity:.5">Tiempo</div><div style="font-family:var(--font-heading);font-size:19px">18 min</div></div>
+                  <div style="padding:10px 12px;border-right:1px solid var(--color-divider)"><div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;opacity:.5">Intentos</div><div style="font-family:var(--font-heading);font-size:19px">1 de 1</div></div>
+                  <div style="padding:10px 12px"><div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;opacity:.5">Percentil</div><div style="font-family:var(--font-heading);font-size:19px">Top 15%</div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="g2" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px">
+              <div class="blueprint" style="padding:20px">
+                <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+                <div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.5;margin-bottom:14px">Criterios evaluados</div>
+                <div style="display:flex;flex-direction:column;gap:11px">
+                  <sc-for list="{{ criterios }}" as="c" hint-placeholder-count="4">
+                    <div style="display:flex;align-items:center;gap:12px;font-size:13px">
+                      <span style="width:130px">{{ c.n }}</span>
+                      <div style="flex:1;height:6px;border:1px solid var(--color-divider)"><div style="{{ c.barStyle }}"></div></div>
+                      <span style="width:38px;text-align:right;font-family:var(--font-heading)">{{ c.v }}%</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div class="blueprint" style="padding:20px">
+                <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+                <div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.5;margin-bottom:14px">Feedback del instructor</div>
+                <div style="display:flex;gap:12px">
+                  <div class="duotone" style="width:36px;height:36px;flex:none;border:1px solid var(--color-divider);background:repeating-linear-gradient(45deg,var(--color-accent-200) 0 5px,var(--color-accent-100) 5px 10px)"></div>
+                  <div>
+                    <div style="font-size:12px;opacity:.55;margin-bottom:4px">Elena Ruiz · hace 3 h</div>
+                    <p style="font-size:14px;opacity:.85;margin:0">La lectura del encargo es correcta y el resultado es coherente. Trabaja la luz: describir la hora del día y la dirección de la fuente te habría subido la composición varios puntos.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px">
+              <button class="btn btn-secondary" sc-camel-on-click="{{ goAprender }}">Volver al curso</button>
+              <button class="btn btn-primary blueprint" sc-camel-on-click="{{ goCertificados }}"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>Ver certificado</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- Certificados -->
+        <sc-if value="{{ scCertificados }}">
+          <div style="padding:32px 28px 64px;max-width:1000px">
+            <h2 style="margin:0 0 22px">Certificados</h2>
+            <div class="split" style="display:grid;grid-template-columns:1.2fr 1fr;gap:26px;align-items:start">
+              <div class="blueprint" style="padding:30px;background:var(--color-surface)">
+                <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+                <div style="border:1px solid var(--color-divider);padding:30px;text-align:center">
+                  <div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.55">Certificado de finalización</div>
+                  <div style="height:1px;background:var(--color-divider);margin:16px auto;width:60px"></div>
+                  <div style="font-size:13px;opacity:.6">Se acredita que</div>
+                  <div style="font-family:var(--font-heading);font-size:32px;margin:6px 0">Miquel Torrent</div>
+                  <div style="font-size:13px;opacity:.6">ha completado el curso</div>
+                  <div style="font-family:var(--font-heading);font-size:22px;color:var(--color-accent);margin:6px 0 18px">Creación de imágenes con IA</div>
+                  <div style="display:flex;justify-content:center;gap:36px;font-size:12px;opacity:.65">
+                    <div><div style="opacity:.6">Fecha</div>03 sep 2026</div>
+                    <div><div style="opacity:.6">Puntuación</div>87 / 100</div>
+                    <div><div style="opacity:.6">Código</div>PX-2026-0483</div>
+                  </div>
+                </div>
+                <div style="display:flex;gap:10px;margin-top:18px">
+                  <button class="btn btn-primary blueprint"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>Descargar PDF</button>
+                  <button class="btn btn-secondary">Compartir</button>
+                </div>
+              </div>
+              <div>
+                <h4 style="margin:0 0 12px">En curso</h4>
+                <div style="border:1px solid var(--color-divider)">
+                  <div style="padding:14px 16px;border-bottom:1px solid var(--color-divider)"><div style="font-size:14px">Fundamentos de prompting</div><div style="font-size:12px;opacity:.55">Faltan 2 módulos para el certificado</div></div>
+                  <div style="padding:14px 16px"><div style="font-size:14px">Automatización con agentes</div><div style="font-size:12px;opacity:.55">Faltan 4 módulos para el certificado</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- Perfil -->
+        <sc-if value="{{ scPerfil }}">
+          <div style="padding:32px 28px 64px;max-width:900px">
+            <div style="display:flex;gap:22px;align-items:center;margin-bottom:28px">
+              <div class="blueprint duotone" style="width:96px;height:96px;flex:none;background:repeating-linear-gradient(45deg,var(--color-accent-200) 0 7px,var(--color-accent-100) 7px 14px)"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i></div>
+              <div>
+                <h2 style="margin:0 0 2px">Miquel Torrent</h2>
+                <div style="font-size:13px;opacity:.6">miquel@praxis.ai · Estudiante · desde marzo 2026</div>
+                <div style="display:flex;gap:8px;margin-top:10px"><span class="tag tag-accent">3 cursos</span><span class="tag tag-neutral">1 certificado</span><span class="tag tag-neutral">Racha 6 días</span></div>
+              </div>
+              <button class="btn btn-secondary" style="margin-left:auto">Editar perfil</button>
+            </div>
+            <h4 style="margin:0 0 12px">Mi progreso</h4>
+            <sc-raw-table class="table">
+              <sc-raw-thead><sc-raw-tr><sc-raw-th>Curso</sc-raw-th><sc-raw-th>Docente</sc-raw-th><sc-raw-th>Progreso</sc-raw-th><sc-raw-th>Evaluación</sc-raw-th><sc-raw-th>Estado</sc-raw-th></sc-raw-tr></sc-raw-thead>
+              <sc-raw-tbody>
+                <sc-raw-tr><sc-raw-td>Creación de imágenes con IA</sc-raw-td><sc-raw-td>Elena Ruiz</sc-raw-td><sc-raw-td>72%</sc-raw-td><sc-raw-td>87 / 100</sc-raw-td><sc-raw-td><span class="tag tag-accent">En curso</span></sc-raw-td></sc-raw-tr>
+                <sc-raw-tr><sc-raw-td>Fundamentos de prompting</sc-raw-td><sc-raw-td>Marc Oliver</sc-raw-td><sc-raw-td>45%</sc-raw-td><sc-raw-td>—</sc-raw-td><sc-raw-td><span class="tag tag-accent">En curso</span></sc-raw-td></sc-raw-tr>
+                <sc-raw-tr><sc-raw-td>Automatización con agentes</sc-raw-td><sc-raw-td>Sara Vidal</sc-raw-td><sc-raw-td>12%</sc-raw-td><sc-raw-td>—</sc-raw-td><sc-raw-td><span class="tag tag-neutral">Iniciado</span></sc-raw-td></sc-raw-tr>
+              </sc-raw-tbody>
+            </sc-raw-table>
+          </div>
+        </sc-if>
+      </main>
+
+      <nav class="mobnav" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:50;grid-template-columns:repeat(5,1fr);background:var(--color-bg);border-top:1px solid var(--color-divider)">
+        <sc-for list="{{ navMobile }}" as="n" hint-placeholder-count="5">
+          <button sc-camel-on-click="{{ n.go }}" style="{{ n.mstyle }}">
+            <svg width="19" height="19" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="{{ n.d }}"></path></svg>
+            <span style="font-size:10px">{{ n.short }}</span>
+          </button>
+        </sc-for>
+      </nav>
+    </div>
+  </sc-if>
+
+  </div>
+
+  <sc-if value="{{ toast }}">
+    <div style="position:fixed;right:22px;bottom:22px;z-index:80;animation:riseIn .25s ease">
+      <div class="blueprint" style="display:flex;align-items:center;gap:12px;padding:13px 18px;background:var(--color-neutral-900);color:#f2f2f3">
+        <span style="width:8px;height:8px;background:var(--color-accent);display:block"></span>
+        <span style="font-size:14px">{{ toast }}</span>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:980}}">
+class Component extends DCLogic {
+  state = {
+    screen: 'landing', theme: 'light', tab: 'contenido', openModule: 2,
+    modal: false, toast: null, labPhase: 'idle', prompt: '', generaciones: 0, pick: null,
+    vp: 'desktop'
+  };
+
+  go(id) { return () => { this.setState({ screen: id, modal: false }); window.scrollTo(0, 0); }; }
+  flash(msg) { clearTimeout(this._t); this.setState({ toast: msg }); this._t = setTimeout(() => this.setState({ toast: null }), 2600); }
+  componentWillUnmount() { clearTimeout(this._t); clearTimeout(this._g); }
+
+  cursosBase() {
+    return [
+      { nombre: 'Creación de imágenes con IA', desc: 'Aprende a diseñar imágenes utilizando modelos generativos y técnicas de prompting.', categoria: 'Imagen generativa', nivel: 'Intermedio', duracion: '8 h', estudiantes: '1.240', docente: 'Elena Ruiz', rating: '4,8' },
+      { nombre: 'Fundamentos de prompting', desc: 'De la instrucción suelta al prompt estructurado y reproducible.', categoria: 'Texto y LLM', nivel: 'Principiante', duracion: '5 h', estudiantes: '2.310', docente: 'Marc Oliver', rating: '4,9' },
+      { nombre: 'Automatización con agentes', desc: 'Diseña flujos donde varios modelos colaboran y se corrigen entre sí.', categoria: 'Agentes', nivel: 'Avanzado', duracion: '12 h', estudiantes: '640', docente: 'Sara Vidal', rating: '4,7' },
+      { nombre: 'IA generativa de texto', desc: 'Redacción asistida, resumen y clasificación con modelos de lenguaje.', categoria: 'Texto y LLM', nivel: 'Intermedio', duracion: '6 h', estudiantes: '1.870', docente: 'Elena Ruiz', rating: '4,6' },
+      { nombre: 'Visión por computador aplicada', desc: 'Detección, segmentación y control de calidad con modelos de visión.', categoria: 'Visión', nivel: 'Avanzado', duracion: '10 h', estudiantes: '410', docente: 'Diego Sáez', rating: '4,5' },
+      { nombre: 'Ética y uso responsable de IA', desc: 'Sesgos, atribución y límites legales del contenido generado.', categoria: 'Ética', nivel: 'Principiante', duracion: '4 h', estudiantes: '980', docente: 'Nuria Peña', rating: '4,8' }
+    ];
+  }
+
+  renderVals() {
+    const s = this.state;
+    const go = id => this.go(id);
+    const bar = (pct, c) => ({ height: '100%', width: pct + '%', background: c || 'var(--color-accent)' });
+
+    const screenDefs = [
+      ['landing', 'Landing'], ['login', 'Login'], ['registro', 'Registro'], ['catalogo', 'Explorar'],
+      ['curso', 'Detalle'], ['dashboard', 'Dashboard'], ['miscursos', 'Mis cursos'], ['aprender', 'Lección'],
+      ['actividad', 'Actividad'], ['preguntas', 'Preguntas'], ['foro', 'Foro'], ['evaluaciones', 'Evaluaciones'],
+      ['lab', 'Laboratorio IA'], ['resultado', 'Resultado'], ['certificados', 'Certificados'], ['perfil', 'Perfil']
+    ];
+    const screens = screenDefs.map(([id, label]) => ({
+      label, go: go(id),
+      chipStyle: {
+        fontFamily: 'var(--font-heading)', fontSize: 12, letterSpacing: '.04em', whiteSpace: 'nowrap',
+        padding: '4px 10px', cursor: 'pointer', border: '1px solid ' + (s.screen === id ? 'transparent' : 'rgba(255,255,255,.22)'),
+        background: s.screen === id ? 'var(--color-accent)' : 'transparent',
+        color: s.screen === id ? '#12161a' : 'rgba(242,242,243,.75)'
+      }
+    }));
+
+    const vpDefs = [['desktop', 'Desktop', 'none'], ['tablet', 'Tablet', '834px'], ['mobile', 'Mobile', '412px']];
+    const viewports = vpDefs.map(([id, label]) => ({
+      label, go: () => this.setState({ vp: id }),
+      style: {
+        fontFamily: 'var(--font-heading)', fontSize: 12, padding: '4px 10px', cursor: 'pointer', whiteSpace: 'nowrap',
+        border: '1px solid ' + (s.vp === id ? 'transparent' : 'rgba(255,255,255,.22)'),
+        background: s.vp === id ? 'rgba(242,242,243,.92)' : 'transparent',
+        color: s.vp === id ? '#12161a' : 'rgba(242,242,243,.75)'
+      }
+    }));
+    const vpWidth = (vpDefs.find(v => v[0] === s.vp) || vpDefs[0])[2];
+    const frameStyle = {
+      width: '100%', maxWidth: vpWidth, margin: '0 auto', containerType: 'inline-size', containerName: 'app',
+      borderLeft: vpWidth === 'none' ? 'none' : '1px solid var(--color-divider)',
+      borderRight: vpWidth === 'none' ? 'none' : '1px solid var(--color-divider)',
+      minHeight: 'calc(100vh - 41px)', background: 'var(--color-bg)'
+    };
+
+    const navDefs = [
+      ['dashboard', 'Inicio', 'M3 10.5 12 3l9 7.5V21H3z', '', 'Inicio'],
+      ['miscursos', 'Mis cursos', 'M4 4h7v16H4zM13 4h7v16h-7z', '3', 'Cursos'],
+      ['catalogo', 'Explorar cursos', 'M12 3a9 9 0 100 18 9 9 0 000-18zM15.5 8.5l-2 5-5 2 2-5z', '', 'Explorar'],
+      ['actividad', 'Actividades', 'M4 20h4L20 8l-4-4L4 16z', '2', 'Activid.'],
+      ['evaluaciones', 'Evaluaciones', 'M4 4h16v16H4zM8 12l3 3 5-6', '1', 'Evalúa'],
+      ['foro', 'Foros', 'M4 5h16v11H9l-5 4z', '', 'Foros'],
+      ['certificados', 'Certificados', 'M12 3a5 5 0 100 10 5 5 0 000-10zM9 13l-1 8 4-2 4 2-1-8', '', 'Cert.'],
+      ['perfil', 'Perfil', 'M12 4a4 4 0 100 8 4 4 0 000-8zM4 21c0-4 4-6 8-6s8 2 8 6', '', 'Perfil']
+    ];
+    const active = { aprender: 'miscursos', preguntas: 'actividad', lab: 'evaluaciones', resultado: 'evaluaciones' }[s.screen] || s.screen;
+    const navItems = navDefs.map(([id, label, d, badge, short]) => ({
+      label, d, badge, short, go: go(id),
+      mstyle: {
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, padding: '9px 2px',
+        background: 'transparent', border: 0, cursor: 'pointer', fontFamily: 'var(--font-body)',
+        color: active === id ? 'var(--color-accent)' : 'color-mix(in srgb, var(--color-text) 60%, transparent)'
+      },
+      style: {
+        display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '8px 10px', cursor: 'pointer',
+        fontFamily: 'var(--font-body)', fontSize: 14, textAlign: 'left', border: '1px solid transparent',
+        background: active === id ? 'var(--color-accent-100)' : 'transparent',
+        color: active === id ? 'var(--color-accent-800)' : 'var(--color-text)',
+        borderColor: active === id ? 'var(--color-divider)' : 'transparent'
+      }
+    }));
+
+    const cursos = this.cursosBase().map((c, i) => ({ ...c, slot: 'curso-' + i, go: go('curso') }));
+
+    const tabDefs = [['desc', 'Descripción'], ['contenido', 'Contenido'], ['docente', 'Docente'], ['foro', 'Foro']];
+    const tabs = tabDefs.map(([id, label]) => ({
+      label, go: () => this.setState({ tab: id }),
+      style: {
+        background: 'transparent', border: 0, cursor: 'pointer', padding: '0 0 12px',
+        fontFamily: 'var(--font-heading)', fontSize: 16, color: s.tab === id ? 'var(--color-accent)' : 'var(--color-text)',
+        borderBottom: '2px solid ' + (s.tab === id ? 'var(--color-accent)' : 'transparent'),
+        marginBottom: -1, opacity: s.tab === id ? 1 : .6
+      }
+    }));
+
+    const modDefs = [
+      [1, 'Introducción a la IA generativa', '4 lecciones · 45 min', [['Lección', 'Qué es un modelo generativo', '08:20'], ['Vídeo', 'Panorama de modelos 2026', '14:05'], ['Presentación', 'Mapa del ecosistema', '12 láminas'], ['Pregunta', 'Comprobación rápida', '3 ítems']]],
+      [2, 'Fundamentos del prompting', '6 lecciones · 1 h 20', [['Lección', '¿Qué es un prompt?', '06:10'], ['Lección', 'Estructura de un prompt', '12:40'], ['Actividad', 'Crea tu primer prompt', '20 puntos'], ['Pregunta', 'Descriptivo vs. estructurado', '6 ítems']]],
+      [3, 'Técnicas para generación de imágenes', '5 lecciones · 1 h 10', [['Vídeo', 'Control de estilo y referencia', '18:30'], ['Lección', 'Semilla, pasos y guía', '09:15'], ['Actividad', 'Serie coherente de tres imágenes', '30 puntos']]],
+      [4, 'Creación de prompts avanzados', '5 lecciones · 1 h 30', [['Lección', 'Negativos y pesos', '11:00'], ['Documento', 'Plantilla de prompts', 'PDF'], ['Actividad', 'Reescritura dirigida', '25 puntos']]],
+      [5, 'Proyecto final', '2 lecciones · 40 min', [['Lección', 'Briefing del proyecto', '07:00'], ['Evaluación', 'Generación de imágenes mediante IA', '30 min']]]
+    ];
+    const modulos = modDefs.map(([n, titulo, meta, items], i) => ({
+      num: String(n).padStart(2, '0'), titulo, meta, open: s.openModule === n,
+      chev: s.openModule === n ? '▲' : '▼',
+      toggle: () => this.setState({ openModule: s.openModule === n ? 0 : n }),
+      wrapStyle: { borderBottom: i < 4 ? '1px solid var(--color-divider)' : 'none', background: s.openModule === n ? 'var(--color-surface)' : 'transparent' },
+      items: items.map(([tipo, nombre, dur]) => ({ tipo, nombre, dur }))
+    }));
+
+    const temario = [
+      { titulo: 'Módulo 1 — Introducción', lecciones: [['done', 'Introducción'], ['done', 'Conceptos básicos']] },
+      { titulo: 'Módulo 2 — Prompting', lecciones: [['done', '¿Qué es un prompt?'], ['current', 'Estructura de un prompt'], ['todo', 'Actividad práctica']] },
+      { titulo: 'Módulo 3 — Imágenes', lecciones: [['todo', 'Generación de imágenes'], ['todo', 'Técnicas avanzadas']] },
+      { titulo: 'Módulo 4 — Avanzado', lecciones: [['todo', 'Negativos y pesos'], ['todo', 'Reescritura dirigida']] }
+    ].map(m => ({
+      titulo: m.titulo,
+      lecciones: m.lecciones.map(([st, nombre]) => ({
+        nombre, mark: st === 'done' ? '✓' : st === 'current' ? '●' : '○',
+        style: {
+          display: 'flex', gap: 8, alignItems: 'center', fontSize: 13, padding: '6px 8px',
+          color: st === 'todo' ? 'color-mix(in srgb, var(--color-text) 55%, transparent)' : 'var(--color-text)',
+          background: st === 'current' ? 'var(--color-accent-100)' : 'transparent',
+          borderLeft: '2px solid ' + (st === 'current' ? 'var(--color-accent)' : 'transparent')
+        }
+      }))
+    }));
+
+    const opcionesDefs = [
+      ['A', 'El descriptivo es más largo; el estructurado es más corto.', false],
+      ['B', 'El descriptivo enumera en lenguaje corriente; el estructurado separa las decisiones en campos ajustables.', true],
+      ['C', 'El descriptivo sirve para texto y el estructurado solo para imagen.', false],
+      ['D', 'No hay diferencia real, es cuestión de estilo del autor.', false]
+    ];
+    const opciones = opcionesDefs.map(([letra, texto, ok]) => {
+      const picked = s.pick === letra;
+      const reveal = s.pick !== null;
+      let border = 'var(--color-divider)', bg = 'transparent', mark = '';
+      if (reveal && ok) { border = 'var(--color-accent)'; bg = 'var(--color-accent-100)'; mark = '✓'; }
+      if (reveal && picked && !ok) { border = '#b4553f'; bg = 'color-mix(in srgb,#b4553f 10%,transparent)'; mark = '✕'; }
+      return {
+        letra, texto, mark, pick: () => { if (s.pick === null) this.setState({ pick: letra }); },
+        style: {
+          display: 'flex', alignItems: 'center', gap: 12, padding: '13px 16px', cursor: reveal ? 'default' : 'pointer',
+          fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--color-text)',
+          border: '1px solid ' + border, background: bg, textAlign: 'left'
+        }
+      };
+    });
+
+    const crit = [['Cumplimiento de instrucciones', 95], ['Calidad del prompt', 82], ['Creatividad', 90], ['Coherencia y composición', 84]];
+
+    return {
+      theme: s.theme,
+      themeLabel: s.theme === 'light' ? '☀ Light' : '🌙 Dark',
+      toggleTheme: () => this.setState({ theme: s.theme === 'light' ? 'dark' : 'light' }),
+      screens, navItems, cursos, tabs, modulos, temario, opciones,
+      viewports, frameStyle, navMobile: navItems.slice(0, 5),
+      destacados: cursos.slice(0, 3),
+      scLanding: s.screen === 'landing', scLogin: s.screen === 'login', scRegistro: s.screen === 'registro',
+      scCatalogo: s.screen === 'catalogo', scCurso: s.screen === 'curso',
+      inApp: ['dashboard', 'miscursos', 'aprender', 'actividad', 'preguntas', 'foro', 'evaluaciones', 'lab', 'resultado', 'certificados', 'perfil'].includes(s.screen),
+      scDashboard: s.screen === 'dashboard', scMisCursos: s.screen === 'miscursos', scAprender: s.screen === 'aprender',
+      scActividad: s.screen === 'actividad', scPreguntas: s.screen === 'preguntas', scForo: s.screen === 'foro',
+      scEvaluaciones: s.screen === 'evaluaciones', scLab: s.screen === 'lab', scResultado: s.screen === 'resultado',
+      scCertificados: s.screen === 'certificados', scPerfil: s.screen === 'perfil',
+      goLogin: go('login'), goRegistro: go('registro'), goCatalogo: go('catalogo'), goCurso: go('curso'),
+      goDashboard: go('dashboard'), goAprender: go('aprender'), goActividad: go('actividad'),
+      goPreguntas: go('preguntas'), goForo: go('foro'), goEvaluaciones: go('evaluaciones'),
+      goLab: go('lab'), goResultado: go('resultado'), goCertificados: go('certificados'),
+      tabDesc: s.tab === 'desc', tabContenido: s.tab === 'contenido', tabDocente: s.tab === 'docente', tabForo: s.tab === 'foro',
+      modal: s.modal,
+      openModal: () => this.setState({ modal: true }),
+      closeModal: () => this.setState({ modal: false }),
+      confirmarInscripcion: () => { this.setState({ modal: false, screen: 'dashboard' }); this.flash('Te has inscrito en Creación de imágenes con IA'); },
+      marcarCompletado: () => this.flash('Lección marcada como completada · 73%'),
+      enviarActividad: () => { this.flash('Actividad enviada. Recibirás la corrección en 24 h'); this.setState({ screen: 'preguntas' }); },
+      showToastForo: () => this.flash('Editor de nueva discusión (pendiente de maquetar)'),
+      toast: s.toast,
+      respondido: s.pick !== null,
+      vereditoTexto: s.pick === 'B' ? '✓ Respuesta correcta' : '✕ Respuesta incorrecta',
+      resetPregunta: () => this.setState({ pick: null }),
+      stats: [{ v: '3', l: 'Cursos inscritos' }, { v: '1', l: 'Cursos completados' }, { v: '18', l: 'Actividades completadas' }, { v: '1', l: 'Certificados' }],
+      proximas: [
+        { tipo: 'Actividad', titulo: 'Crear tu primer prompt', curso: 'Módulo 2 · Creación de imágenes con IA', cuando: 'Vence en 2 días', go: go('actividad') },
+        { tipo: 'Evaluación', titulo: 'Evaluación final — proyecto demostrativo', curso: 'Creación de imágenes con IA', cuando: 'Disponible', go: go('evaluaciones') },
+        { tipo: 'Foro', titulo: 'Participar en el foro del módulo 2', curso: '3 respuestas nuevas', cuando: 'Hoy', go: go('foro') }
+      ],
+      ritmo: [['L', 40], ['M', 72], ['X', 25], ['J', 88], ['V', 55], ['S', 12], ['D', 64]].map(([d, h]) => ({
+        d, style: { width: '100%', height: h + '%', background: h > 70 ? 'var(--color-accent)' : 'var(--color-accent-300)', border: '1px solid var(--color-divider)' }
+      })),
+      misCursos: [
+        { nombre: 'Creación de imágenes con IA', slot: 'mio-0', docente: 'Elena Ruiz', pct: 72, restante: 'quedan 2 h 15', cta: 'Continuar', barStyle: bar(72) },
+        { nombre: 'Fundamentos de prompting', slot: 'mio-1', docente: 'Marc Oliver', pct: 45, restante: 'quedan 2 h 45', cta: 'Continuar', barStyle: bar(45) },
+        { nombre: 'Automatización con agentes', slot: 'mio-2', docente: 'Sara Vidal', pct: 12, restante: 'quedan 10 h', cta: 'Continuar', barStyle: bar(12, 'var(--color-accent-300)') }
+      ],
+      instrucciones: [
+        { n: '1', t: 'Define el sujeto.' }, { n: '2', t: 'Define el estilo.' }, { n: '3', t: 'Define la iluminación.' },
+        { n: '4', t: 'Define la composición.' }, { n: '5', t: 'Define el contexto.' }
+      ],
+      discusiones: [
+        { titulo: '¿Qué estructura utilizan para sus prompts?', autor: 'Laura Benítez', fecha: '28 ago', respuestas: 14, likes: 32, ultima: 'hace 2 h' },
+        { titulo: '¿Qué modelo de generación de imágenes recomiendan?', autor: 'Toni Serra', fecha: '26 ago', respuestas: 9, likes: 21, ultima: 'ayer' },
+        { titulo: 'Mi primera experiencia generando imágenes', autor: 'Aina Comas', fecha: '22 ago', respuestas: 6, likes: 47, ultima: 'hace 3 días' }
+      ],
+      features: [
+        { num: '01', t: 'Cursos interactivos', d: 'Módulos cortos con vídeo, presentación y documento descargable.' },
+        { num: '02', t: 'Actividades prácticas', d: 'Cada módulo cierra con un ejercicio que se entrega y se corrige.' },
+        { num: '03', t: 'Foros', d: 'Discusión por curso, con hilos, respuestas y likes.' },
+        { num: '04', t: 'Evaluaciones demostrativas', d: 'Exámenes que se resuelven ejecutando, no marcando casillas.' },
+        { num: '05', t: 'Progreso personalizado', d: 'Siempre sabes dónde estás, qué falta y cuándo llega la evaluación.' },
+        { num: '06', t: 'Certificados', d: 'Acreditación descargable con puntuación y código de verificación.' }
+      ],
+      criterios: crit.map(([n, v]) => ({ n, v, barStyle: bar(v) })),
+      prompt: s.prompt,
+      setPrompt: e => this.setState({ prompt: e.target.value }),
+      labIdle: s.labPhase === 'idle', labLoading: s.labPhase === 'loading', labDone: s.labPhase === 'done',
+      botonLab: s.labPhase === 'loading' ? 'Generando…' : s.labPhase === 'done' ? 'Generar de nuevo' : 'Generar imagen',
+      generaciones: s.generaciones,
+      reloj: '18:42 restantes',
+      generar: () => {
+        if (s.labPhase === 'loading') return;
+        this.setState({ labPhase: 'loading', generaciones: Math.min(3, s.generaciones + 1) });
+        clearTimeout(this._g);
+        this._g = setTimeout(() => this.setState({ labPhase: 'done' }), 2400);
+      },
+      resetLab: () => this.setState({ labPhase: 'idle' })
+    };
+  }
+}
+</script>
+
+
+</body></html>
