@@ -16,6 +16,48 @@ Complementaria de la Alcaldía.
 Fase de arranque. La documentación de requisitos está completa (v0.1); la
 implementación está en scaffolding.
 
+| Pieza | Estado |
+|---|---|
+| PRD y TRD v0.1 | ✅ Completos, con preguntas abiertas marcadas |
+| Design system extraído del mockup | ✅ En `apps/mobile/src/core/theme/tokens.ts` |
+| Backend — esqueleto, config, logs, errores, health | ✅ Corre, con tests, lint y tipos en verde |
+| Cliente — esqueleto Expo, router, tema, cliente HTTP | ✅ Compila para web y tipa en strict |
+| CI | ✅ Lint, tipos, tests y build web en cada push |
+| Auth | ⬜ Pendiente |
+| Catálogo, inscripción, aprendizaje | ⬜ Pendiente |
+| Laboratorio IA y motor de EVALs | ⬜ Pendiente |
+| Foro, certificados, freemium | ⬜ Pendiente |
+| Pantallas de instructor y admin | ⬜ Sin diseñar |
+
+## Puesta en marcha
+
+```bash
+# Backend
+cd apps/api && uv sync && uv run uvicorn app.main:app --reload
+
+# Cliente
+cd apps/mobile && npm install && npm run web
+```
+
+Detalle en [`apps/api/README.md`](apps/api/README.md) y
+[`apps/mobile/README.md`](apps/mobile/README.md).
+
+## Decisiones que bloquean el siguiente paso
+
+El TRD §15 lista once. Estas cuatro son las que impiden avanzar más allá del
+scaffolding, por orden de impacto:
+
+1. **Estrategia de sesión en web.** Cookie `httpOnly` o token en cliente. Define
+   cómo se implementa auth en backend **y** en cliente; decidirlo después
+   significa reescribir las dos puntas. (TRD §4.5)
+2. **Base de datos y dónde se despliega.** Sin esto no hay capa de persistencia
+   ni migraciones.
+3. **Proveedor y modelo de LLM.** Bloquea el motor de EVALs, que es el corazón
+   del producto.
+4. **Cohortes sí o no.** Si las charlas presenciales generan cohortes, hace falta
+   la entidad `cohort` ligada a `enrollment`. Añadirla ahora es barato; después
+   es una migración con datos vivos. (PRD pregunta abierta 7, TRD §7)
+
 ## Documentación
 
 | Documento | Contenido |
