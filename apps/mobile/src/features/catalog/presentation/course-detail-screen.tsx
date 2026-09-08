@@ -1,5 +1,6 @@
 import { useLocalSearchParams } from 'expo-router';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import type { ReactNode } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
 import { ErrorState, LoadingState } from '@/core/ui/state-view';
@@ -11,7 +12,26 @@ import {
   type Module,
 } from '@/features/catalog/domain/entities';
 
-export function CourseDetailScreen() {
+/**
+ * The course page.
+ *
+ * Enrollment is passed in as a slot rather than imported: this feature must not
+ * depend on `enrollment`, or the dependency runs in both directions and the two
+ * stop being separable. The route composes them.
+ */
+export interface CourseDetailScreenProps {
+  enrollmentSlot?: ReactNode;
+  completedLessonIds?: string[];
+  onLessonPress?: (lessonId: string) => void;
+  pendingLessonId?: string | null;
+}
+
+export function CourseDetailScreen({
+  enrollmentSlot,
+  completedLessonIds = [],
+  onLessonPress,
+  pendingLessonId = null,
+}: CourseDetailScreenProps) {
   const theme = useTheme();
   const { slug } = useLocalSearchParams<{ slug: string }>();
 
@@ -58,6 +78,8 @@ export function CourseDetailScreen() {
         {formatDuration(course.durationSeconds)}
       </Text>
 
+      {enrollmentSlot}
+
       <View style={[styles.divider, { backgroundColor: theme.colors.divider }]} />
 
       <Text style={[styles.description, { color: theme.colors.text }]}>{course.description}</Text>
@@ -69,37 +91,99 @@ export function CourseDetailScreen() {
           El temario de este curso todavía se está armando.
         </Text>
       ) : (
-        course.modules.map((module) => <ModuleBlock key={module.id} module={module} />)
+        course.modules.map((module) => (
+          <ModuleBlock
+            key={module.id}
+            module={module}
+            completedLessonIds={completedLessonIds}
+            onLessonPress={onLessonPress}
+            pendingLessonId={pendingLessonId}
+          />
+        ))
       )}
     </ScrollView>
   );
 }
 
-function ModuleBlock({ module }: { module: Module }) {
+function ModuleBlock({
+  module,
+  completedLessonIds,
+  onLessonPress,
+  pendingLessonId,
+}: {
+  module: Module;
+  completedLessonIds: string[];
+  onLessonPress?: (lessonId: string) => void;
+  pendingLessonId: string | null;
+}) {
   const theme = useTheme();
 
   return (
     <View
-      style={[
-        styles.module,
-        { borderColor: theme.colors.divider, borderRadius: theme.radius.md },
-      ]}
+      style={[styles.module, { borderColor: theme.colors.divider, borderRadius: theme.radius.md }]}
     >
       <Text style={[styles.moduleTitle, { color: theme.colors.text }]}>
         {module.position}. {module.title}
       </Text>
 
-      {module.lessons.map((lesson) => (
-        <View key={lesson.id} style={styles.lesson}>
-          <Text style={[styles.lessonKind, { color: theme.colors.accentRamp[700] }]}>
-            {LESSON_KIND_LABELS[lesson.kind]}
-          </Text>
-          <Text style={[styles.lessonTitle, { color: theme.colors.text }]}>{lesson.title}</Text>
-          <Text style={[styles.lessonDuration, { color: theme.colors.neutral[600] }]}>
-            {formatDuration(lesson.durationSeconds)}
-          </Text>
-        </View>
-      ))}
+      {module.lessons.map((lesson) => {
+        const done = completedLessonIds.includes(lesson.id);
+        const pending = pendingLessonId === lesson.id;
+        // Lessons are only interactive for an enrolled teacher. Otherwise they
+        // are a table of contents, and a button that silently does nothing is
+        // worse than no button.
+        const interactive = Boolean(onLessonPress);
+
+        const row = (
+          <View style={styles.lesson}>
+            <Text
+              style={[
+                styles.check,
+                {
+                  color: done ? theme.colors.accent : theme.colors.neutral[400],
+                  opacity: pending ? 0.4 : 1,
+                },
+              ]}
+            >
+              {done ? '●' : '○'}
+            </Text>
+            <Text style={[styles.lessonKind, { color: theme.colors.accentRamp[700] }]}>
+              {LESSON_KIND_LABELS[lesson.kind]}
+            </Text>
+            <Text
+              style={[
+                styles.lessonTitle,
+                {
+                  color: done ? theme.colors.neutral[600] : theme.colors.text,
+                },
+              ]}
+            >
+              {lesson.title}
+            </Text>
+            <Text style={[styles.lessonDuration, { color: theme.colors.neutral[600] }]}>
+              {formatDuration(lesson.durationSeconds)}
+            </Text>
+          </View>
+        );
+
+        if (!interactive) {
+          return <View key={lesson.id}>{row}</View>;
+        }
+
+        return (
+          <Pressable
+            key={lesson.id}
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: done, disabled: pending }}
+            accessibilityLabel={`${lesson.title}, ${done ? 'completada' : 'pendiente'}`}
+            disabled={pending}
+            onPress={() => onLessonPress?.(lesson.id)}
+            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+          >
+            {row}
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
@@ -166,6 +250,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10.2,
+    paddingVertical: 6.8,
+  },
+  check: {
+    fontSize: 15,
+    width: 16,
   },
   lessonKind: {
     fontSize: 11,

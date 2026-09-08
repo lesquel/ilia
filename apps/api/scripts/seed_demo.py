@@ -11,13 +11,18 @@ import asyncio
 from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
+from sqlalchemy import select
+
 from app.core.config import get_settings
 from app.core.database import Database
 from app.features.auth.domain.entities import Email
 from app.features.auth.domain.entities import User as AuthUser
+from app.features.auth.infrastructure.models import CohortModel
 from app.features.auth.infrastructure.security import Argon2PasswordHasher
 from app.features.auth.infrastructure.sql_repository import SqlAlchemyUserRepository
 from app.features.catalog.infrastructure.models import CourseModel, LessonModel, ModuleModel
+
+DEMO_COHORT_CODE = "MANTA-SEP-01"
 
 DEMO_COURSES = [
     {
@@ -82,10 +87,35 @@ async def main() -> None:
     else:
         instructor = existing
 
+    # A cohort, so the enrollment flow has a real code to attribute against.
+    # This is what makes "how many teachers from the September talk activated an
+    # account" answerable (PRD 12).
+    cohort_id = uuid4()
+    async with database.session() as session:
+        existing_cohort = await session.execute(
+            select(CohortModel).where(CohortModel.code == DEMO_COHORT_CODE)
+        )
+        if existing_cohort.scalar_one_or_none() is None:
+            session.add(
+                CohortModel(
+                    id=cohort_id,
+                    name="Charla Manta — septiembre 2026",
+                    code=DEMO_COHORT_CODE,
+                )
+            )
+
     published_at = datetime.now(UTC) - timedelta(days=len(DEMO_COURSES))
 
     async with database.session() as session:
         for index, course_data in enumerate(DEMO_COURSES):
+            # Idempotent: running the seed twice must not explode on the slug
+            # unique index, because someone will run it twice.
+            already_there = await session.execute(
+                select(CourseModel.id).where(CourseModel.slug == str(course_data["slug"]))
+            )
+            if already_there.scalar_one_or_none() is not None:
+                continue
+
             course = CourseModel(
                 id=uuid4(),
                 slug=str(course_data["slug"]),
@@ -130,6 +160,7 @@ async def main() -> None:
 
     await database.dispose()
     print(f"Seeded {len(DEMO_COURSES)} courses for {instructor.full_name}")
+    print(f"Cohort code: {DEMO_COHORT_CODE}")
 
 
 if __name__ == "__main__":

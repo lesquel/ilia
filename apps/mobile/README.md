@@ -59,9 +59,8 @@ src/
       presentation/     Pantallas y componentes
 ```
 
-Features implementadas: `auth`, `catalog`.
-Previstas: `enrollment`, `learning`, `lab`, `forum`, `certificates`, `profile`,
-`instructor`, `admin`.
+Features implementadas: `auth`, `catalog`, `enrollment`.
+Previstas: `lab`, `forum`, `certificates`, `profile`, `instructor`, `admin`.
 
 ## Rutas
 
@@ -70,7 +69,8 @@ Previstas: `enrollment`, `learning`, `lab`, `forum`, `certificates`, `profile`,
 | `/` | Portada |
 | `/login` | Iniciar sesión |
 | `/catalog` | Catálogo, con búsqueda, filtro por nivel y scroll infinito |
-| `/catalog/[slug]` | Detalle del curso con su temario |
+| `/catalog/[slug]` | Detalle del curso, inscripción y marcado de lecciones |
+| `/my-courses` | Mis cursos con progreso y punto de retomada |
 
 En web son URLs reales y compartibles, que es para lo que los cursos se
 direccionan por slug y no por UUID.
@@ -84,6 +84,17 @@ direccionan por slug y no por UUID.
   sube a `core` o expón un punto de entrada público en la feature.
 - Los DTOs de la API viven en `data` y se convierten a entidades de dominio
   mediante mappers. La pantalla nunca ve la forma cruda de la respuesta.
+
+### Cuando una pantalla necesita dos features
+
+`enrollment` ya depende de `catalog`. Si `catalog` importara `enrollment` para
+pintar el botón de inscripción, la dependencia correría en los dos sentidos y
+ninguna de las dos volvería a ser separable.
+
+La solución es componer **en la ruta**, que es justamente para lo que existe
+`src/app`. `CourseDetailScreen` recibe la inscripción como un slot
+(`enrollmentSlot`) y las lecciones completadas como props; `app/catalog/[slug].tsx`
+cablea las dos features. El catálogo sigue sin saber que la inscripción existe.
 
 ## Móvil y web desde un mismo código
 
