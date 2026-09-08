@@ -19,6 +19,7 @@ from app.core.database import Base
 # happily produces an empty migration and reports success.
 from app.features.auth.infrastructure import models as auth_models  # noqa: F401
 from app.features.catalog.infrastructure import models as catalog_models  # noqa: F401
+from app.features.enrollment.infrastructure import models as enrollment_models  # noqa: F401
 
 config = context.config
 

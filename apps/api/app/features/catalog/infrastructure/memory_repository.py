@@ -8,6 +8,8 @@ purpose. If the two ever disagree, the integration suite is what catches it —
 which is why those tests run against a real PostgreSQL and not against this.
 """
 
+from uuid import UUID
+
 from app.features.catalog.domain.entities import (
     CatalogFilters,
     Course,
@@ -79,6 +81,9 @@ class InMemoryCourseRepository:
             next_cursor = encode_cursor(last.published_at or last.created_at, last.id)
 
         return Page(items=items, next_cursor=next_cursor)
+
+    async def get_by_id(self, course_id: UUID) -> Course | None:
+        return next((course for course in self._courses if course.id == course_id), None)
 
     async def get_published_by_slug(self, slug: Slug) -> Course | None:
         for course in self._courses:

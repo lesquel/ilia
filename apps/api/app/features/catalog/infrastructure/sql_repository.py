@@ -1,5 +1,7 @@
 """PostgreSQL implementation of the catalog port."""
 
+from uuid import UUID
+
 from sqlalchemy import Subquery, and_, func, literal, or_, select, tuple_
 from sqlalchemy.orm import selectinload
 
@@ -124,6 +126,23 @@ class SqlAlchemyCourseRepository:
             next_cursor = encode_cursor(last_sort_key, last_course.id)
 
         return Page(items=items, next_cursor=next_cursor)
+
+    async def get_by_id(self, course_id: UUID) -> Course | None:
+        statement = (
+            select(CourseModel, UserModel.full_name)
+            .join(UserModel, UserModel.id == CourseModel.instructor_id)
+            .where(CourseModel.id == course_id)
+            .options(selectinload(CourseModel.modules).selectinload(ModuleModel.lessons))
+        )
+
+        async with self._db.session() as session:
+            row = (await session.execute(statement)).first()
+
+        if row is None:
+            return None
+
+        course, instructor_name = row
+        return _to_entity(course, instructor_name)
 
     async def get_published_by_slug(self, slug: Slug) -> Course | None:
         statement = (

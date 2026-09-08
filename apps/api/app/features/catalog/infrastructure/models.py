@@ -23,9 +23,14 @@ class CourseModel(Base):
     # the only slice the catalog ever reads, which keeps the index small and
     # leaves drafts out of it entirely.
     __table_args__ = (
+        # Declared as two separate expressions, not one string holding both.
+        # Postgres reports the index that way, and Alembic compares them
+        # element by element — a single combined expression makes autogenerate
+        # believe the index changed on every future migration and churn it.
         Index(
             "ix_course_catalog_keyset",
-            text("coalesce(published_at, created_at) DESC, id DESC"),
+            text("coalesce(published_at, created_at) DESC"),
+            text("id DESC"),
             postgresql_where=text("status = 'published'"),
         ),
     )

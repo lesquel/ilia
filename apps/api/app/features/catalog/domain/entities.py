@@ -133,6 +133,20 @@ class Course:
         """
         return sum(module.duration_seconds for module in self.modules)
 
+    def as_summary(self) -> "CourseSummary":
+        """Narrow this course down to what a card renders."""
+        return CourseSummary(
+            id=self.id,
+            slug=self.slug,
+            title=self.title,
+            summary=self.summary,
+            level=self.level,
+            instructor_name=self.instructor_name,
+            lesson_count=self.lesson_count,
+            duration_seconds=self.duration_seconds,
+            published_at=self.published_at,
+        )
+
 
 @dataclass(frozen=True)
 class CourseSummary:

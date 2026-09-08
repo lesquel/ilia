@@ -105,6 +105,8 @@ verdad: una migración nunca debe correr contra una base distinta a la de la app
 | `course` | Slug único. Índice parcial `ix_course_catalog_keyset` sobre `coalesce(published_at, created_at) DESC, id DESC` filtrado a `status = 'published'` |
 | `course_module` | Pertenece a un curso, ordenado por `position` |
 | `lesson` | Pertenece a un módulo. Tipos: `video`, `slides`, `text`, `quiz` |
+| `enrollment` | Único por `(user_id, course_id)`. `cohort_id` nullable — acá es donde la cohorte finalmente se usa |
+| `lesson_progress` | Único por `(enrollment_id, lesson_id)`. Colgado de la inscripción, no del usuario |
 
 Sobre `ix_course_catalog_keyset`: un índice simple sobre `published_at` **no
 sirve** para el listado, porque la consulta ordena por
@@ -228,6 +230,53 @@ uv run python -m scripts.seed_demo
 
 Tres cursos con temario, para tener qué renderizar mientras se produce el
 contenido real. Se niega a correr en producción.
+
+## Inscripción y progreso
+
+Todos los endpoints son **autenticados**, y la identidad sale del token, nunca
+del cuerpo de la petición. Un `user_id` como parámetro dejaría que cualquiera
+inscriba a cualquier otro.
+
+| Método | Ruta | Qué hace |
+|---|---|---|
+| `POST` | `/api/v1/enrollments` | Inscribirse. Acepta `cohort_code` opcional |
+| `GET` | `/api/v1/enrollments/me` | "Mis cursos" con el progreso de cada uno |
+| `GET` | `/api/v1/enrollments/me/{slug}` | Progreso de un curso + dónde retomar |
+| `POST` | `/api/v1/enrollments/me/{slug}/lessons/{lesson_id}/complete` | Marca la lección y devuelve el progreso nuevo |
+
+### Decisiones
+
+**El progreso se deriva, no se guarda.** Un porcentaje cacheado queda obsoleto
+en cuanto un instructor agrega una lección, y una barra que dice 100% al lado de
+un curso sin terminar destruye la única señal que tiene el docente.
+
+**`next_lesson` es el primer hueco, no la siguiente a la última completada.** Un
+docente que se salteó adelante vuelve a lo que se perdió. Cualquier otra cosa lo
+deja terminar un curso que no hizo. Es lo que hace respondible el "retomar
+exactamente donde quedé" del PRD E-04.
+
+**Marcar una lección dos veces no es un error.** Una conexión inestable que
+reintenta no se castiga. En SQL es `ON CONFLICT DO NOTHING`: idempotente en un
+solo viaje y a prueba de dos peticiones corriendo a la vez.
+
+**Un curso vacío no es un curso terminado.** Sin esa guarda, un temario en
+construcción regalaría la certificación.
+
+**Las completaciones de lecciones que ya no existen se ignoran.** Un instructor
+borrando una lección no puede empujar a nadie por encima del 100%.
+
+**`lesson_progress` cuelga de la inscripción, no del usuario.** Así el esquema
+garantiza que no puede haber progreso sin inscripción, en vez de que cada caso
+de uso tenga que acordarse.
+
+**Un código de cohorte inválido falla fuerte, no en silencio.** Inscribir al
+docente sin atribución es exactamente la pérdida de dato que vuelve inútil la
+métrica de la alianza.
+
+**Y acá es donde las cohortes sirven.** `enrollment.cohort_id` es lo que permite
+responder *qué porcentaje de los docentes de la charla del 3 de septiembre activó
+cuenta y terminó la ruta básica* — el número que le demuestra a la Alcaldía que
+la alianza funciona (PRD §12).
 
 ## Convenciones
 
