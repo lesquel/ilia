@@ -6,6 +6,10 @@ import { useColorScheme } from 'react-native';
 
 import { createQueryClient } from '@/core/api/query-client';
 import { palette } from '@/core/theme';
+import { installAuthTokenProvider } from '@/features/auth';
+
+// Composition root. Runs once, before the first render, not on every mount.
+installAuthTokenProvider();
 
 export default function RootLayout() {
   const scheme = useColorScheme();

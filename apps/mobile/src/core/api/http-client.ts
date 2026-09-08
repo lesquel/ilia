@@ -1,5 +1,13 @@
+import { Platform } from 'react-native';
+
 import { apiUrl } from '@/core/config/env';
 import { ApiError } from '@/core/errors/api-error';
+
+/**
+ * Tells the backend which credential transport this client can hold safely:
+ * an httpOnly cookie for the browser, a bearer token for the app (TRD 4.5).
+ */
+const CLIENT_PLATFORM = Platform.OS === 'web' ? 'web' : 'native';
 
 /**
  * Supplies the credentials for a request.
@@ -36,11 +44,22 @@ export interface RequestOptions {
 
 export class HttpClient {
   private readonly baseUrl: string;
-  private readonly tokenProvider?: AuthTokenProvider;
+  private tokenProvider?: AuthTokenProvider;
 
   constructor({ baseUrl = apiUrl, tokenProvider }: HttpClientOptions = {}) {
     this.baseUrl = baseUrl.replace(/\/$/, '');
     this.tokenProvider = tokenProvider;
+  }
+
+  /**
+   * Wired once at startup by the composition root.
+   *
+   * `core` must not import from a feature — that is the dependency rule — so
+   * the auth feature hands its token source in rather than this file reaching
+   * out for it.
+   */
+  setTokenProvider(provider: AuthTokenProvider): void {
+    this.tokenProvider = provider;
   }
 
   async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
@@ -48,6 +67,7 @@ export class HttpClient {
 
     const requestHeaders: Record<string, string> = {
       Accept: 'application/json',
+      'X-Client-Platform': CLIENT_PLATFORM,
       ...headers,
     };
 

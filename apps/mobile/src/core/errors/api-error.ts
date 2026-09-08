@@ -6,17 +6,32 @@
  * developer-facing string, and the wording the teacher reads is decided here.
  */
 
-export type ApiErrorCode =
+/**
+ * The codes `core` knows about: the ones any endpoint can return.
+ *
+ * Features add their own on top (`invalid_credentials`, `quota_exceeded` for a
+ * specific activity, …). Listing every feature's codes here would make `core`
+ * depend on features, which is the one direction the architecture forbids.
+ */
+export type CommonErrorCode =
   | 'not_found'
   | 'validation_error'
   | 'schema_error'
   | 'conflict'
+  | 'unauthenticated'
   | 'permission_denied'
   | 'quota_exceeded'
   | 'unavailable'
   | 'http_error'
   | 'network_error'
   | 'unknown';
+
+/**
+ * `string & {}` keeps autocomplete for the common codes while still accepting
+ * a feature-specific one, instead of forcing a cast at every call site.
+ */
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type ApiErrorCode = CommonErrorCode | (string & {});
 
 export interface ApiErrorEnvelope {
   error: {
