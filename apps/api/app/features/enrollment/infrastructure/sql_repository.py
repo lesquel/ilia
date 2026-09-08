@@ -8,7 +8,8 @@ from sqlalchemy.exc import IntegrityError
 
 from app.core.database import Database
 from app.features.auth.infrastructure.models import CohortModel
-from app.features.enrollment.domain.entities import Enrollment
+from app.features.catalog.infrastructure.models import LessonModel
+from app.features.enrollment.domain.entities import Enrollment, LessonContent
 from app.features.enrollment.domain.errors import AlreadyEnrolledError
 
 from .models import EnrollmentModel, LessonProgressModel
@@ -121,3 +122,23 @@ class SqlAlchemyCohortRepository:
         async with self._db.session() as session:
             result = await session.execute(select(CohortModel.id).where(CohortModel.code == code))
             return result.scalar_one_or_none()
+
+
+class SqlAlchemyLessonContentRepository:
+    def __init__(self, database: Database) -> None:
+        self._db = database
+
+    async def get_content(self, lesson_id: UUID) -> LessonContent | None:
+        async with self._db.session() as session:
+            result = await session.execute(
+                select(LessonModel.body, LessonModel.resource_ref).where(
+                    LessonModel.id == lesson_id
+                )
+            )
+            row = result.first()
+
+        if row is None:
+            return None
+
+        body, resource_ref = row
+        return LessonContent(lesson_id=lesson_id, body=body, resource_ref=resource_ref)

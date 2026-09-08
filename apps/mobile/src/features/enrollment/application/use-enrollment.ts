@@ -12,7 +12,34 @@ export const enrollmentKeys = {
   all: ['enrollment'] as const,
   myCourses: ['enrollment', 'my-courses'] as const,
   progress: (slug: string) => ['enrollment', 'progress', slug] as const,
+  lesson: (slug: string, lessonId: string) =>
+    ['enrollment', 'lesson', slug, lessonId] as const,
 };
+
+/**
+ * One lesson's material.
+ *
+ * The response carries its own neighbours, so moving through a course costs one
+ * request per lesson and not three.
+ */
+export function useLesson(
+  slug: string,
+  lessonId: string,
+  repository: EnrollmentRepository = enrollmentRepository,
+) {
+  const query = useQuery({
+    queryKey: enrollmentKeys.lesson(slug, lessonId),
+    queryFn: () => repository.lesson(slug, lessonId),
+    enabled: Boolean(slug && lessonId),
+  });
+
+  return {
+    lesson: query.data ?? null,
+    isLoading: query.isLoading,
+    error: query.error,
+    refetch: query.refetch,
+  };
+}
 
 export function useMyCourses(repository: EnrollmentRepository = enrollmentRepository) {
   const query = useQuery({
@@ -93,6 +120,8 @@ export function useCompleteLesson(
       // not be there.
       queryClient.setQueryData(enrollmentKeys.progress(slug), progress);
       void queryClient.invalidateQueries({ queryKey: enrollmentKeys.myCourses });
+      // The lesson view carries its own `is_completed`, so it goes stale too.
+      void queryClient.invalidateQueries({ queryKey: ['enrollment', 'lesson', slug] });
     },
   });
 }

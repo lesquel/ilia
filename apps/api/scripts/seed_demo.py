@@ -31,13 +31,56 @@ DEMO_COURSES = [
         "summary": "Ahorrá horas por semana en material de clase",
         "level": "beginner",
         "modules": [
-            ("Qué es un prompt", [("Anatomía de un prompt", "video", 420)]),
+            (
+                "Qué es un prompt",
+                [
+                    (
+                        "Anatomía de un prompt",
+                        "video",
+                        420,
+                        "Un prompt útil tiene cuatro partes: el ROL que le pedís al modelo "
+                        "que asuma, el CONTEXTO de tu clase, la TAREA concreta y el FORMATO "
+                        "en el que querés la respuesta.\n\n"
+                        "Comparalo:\n\n"
+                        '"Hacé un ejercicio de fracciones."\n\n'
+                        "contra\n\n"
+                        '"Sos docente de matemática de séptimo. Escribí 5 ejercicios de suma '
+                        "de fracciones con distinto denominador, de dificultad creciente, "
+                        'con la respuesta al final en una tabla."\n\n'
+                        "El segundo no es más largo por adorno: cada palabra que agregaste "
+                        "elimina una decisión que el modelo iba a tomar por vos.",
+                    )
+                ],
+            ),
             (
                 "Aplicalo a tu clase",
                 [
-                    ("Generar una guía de ejercicios", "video", 600),
-                    ("Resumir un texto largo", "text", 300),
-                    ("Comprobá lo aprendido", "quiz", 180),
+                    (
+                        "Generar una guía de ejercicios",
+                        "video",
+                        600,
+                        "Vamos a armar una guía completa partiendo del temario que ya tenés. "
+                        "La clave es darle al modelo tu contexto real: el curso, el nivel, "
+                        "cuánto tiempo tenés y qué ya vieron tus alumnos.",
+                    ),
+                    (
+                        "Resumir un texto largo",
+                        "text",
+                        300,
+                        "Pedir 'resumime esto' devuelve un resumen genérico. Pedí en cambio "
+                        "para quién es el resumen y para qué lo vas a usar.\n\n"
+                        "Probá: 'Resumí este texto en 5 viñetas para alumnos de 14 años que "
+                        "nunca vieron el tema, y agregá una pregunta de comprensión por "
+                        "viñeta.'",
+                    ),
+                    (
+                        "Comprobá lo aprendido",
+                        "quiz",
+                        180,
+                        "Antes de seguir: escribí un prompt para generar material de tu "
+                        "próxima clase que incluya las cuatro partes: rol, contexto, tarea "
+                        "y formato.",
+                    ),
                 ],
             ),
         ],
@@ -48,8 +91,32 @@ DEMO_COURSES = [
         "summary": "Convertí tus apuntes en material de estudio",
         "level": "intermediate",
         "modules": [
-            ("Primeros pasos", [("Cargar tus fuentes", "video", 360)]),
-            ("Casos reales", [("Armar una clase completa", "slides", 540)]),
+            (
+                "Primeros pasos",
+                [
+                    (
+                        "Cargar tus fuentes",
+                        "video",
+                        360,
+                        "NotebookLM trabaja solo con las fuentes que vos le das. Eso es una "
+                        "limitación y también su mayor ventaja: no inventa desde internet, "
+                        "responde desde tu material.",
+                    )
+                ],
+            ),
+            (
+                "Casos reales",
+                [
+                    (
+                        "Armar una clase completa",
+                        "slides",
+                        540,
+                        "Cargá el capítulo del libro, tus apuntes y la planificación. "
+                        "Después pedile una guía de estudio, preguntas de repaso y un "
+                        "resumen para las familias.",
+                    )
+                ],
+            ),
         ],
     },
     {
@@ -57,7 +124,21 @@ DEMO_COURSES = [
         "title": "Evaluación asistida por IA",
         "summary": "Diseñá rúbricas y corregí con criterio",
         "level": "expert",
-        "modules": [("Rúbricas", [("Qué mide una buena rúbrica", "text", 480)])],
+        "modules": [
+            (
+                "Rúbricas",
+                [
+                    (
+                        "Qué mide una buena rúbrica",
+                        "text",
+                        480,
+                        "Una rúbrica que solo dice 'excelente / bueno / regular' no mide "
+                        "nada: mide la impresión de quien corrige. Una que sirve nombra "
+                        "dimensiones observables y qué se ve en cada nivel.",
+                    )
+                ],
+            )
+        ],
     },
 ]
 
@@ -144,8 +225,9 @@ async def main() -> None:
                             kind=kind,
                             position=lesson_position,
                             duration_seconds=duration,
+                            body=body,
                         )
-                        for lesson_position, (lesson_title, kind, duration) in enumerate(
+                        for lesson_position, (lesson_title, kind, duration, body) in enumerate(
                             lessons, start=1
                         )
                     ],

@@ -6,7 +6,7 @@ Not for production, same as its siblings.
 import asyncio
 from uuid import UUID
 
-from app.features.enrollment.domain.entities import Enrollment
+from app.features.enrollment.domain.entities import Enrollment, LessonContent
 from app.features.enrollment.domain.errors import AlreadyEnrolledError
 
 
@@ -66,3 +66,22 @@ class InMemoryCohortRepository:
 
     async def id_for_code(self, code: str) -> UUID | None:
         return self._codes.get(code)
+
+
+class InMemoryLessonContentRepository:
+    """Content keyed by lesson id.
+
+    Returns None for a lesson nothing was seeded for, exactly like the SQL
+    version does for a lesson with no material yet.
+    """
+
+    def __init__(self, contents: dict[UUID, LessonContent] | None = None) -> None:
+        self._contents = dict(contents or {})
+
+    async def get_content(self, lesson_id: UUID) -> LessonContent | None:
+        return self._contents.get(lesson_id)
+
+    def set_content(self, lesson_id: UUID, body: str, resource_ref: str | None = None) -> None:
+        self._contents[lesson_id] = LessonContent(
+            lesson_id=lesson_id, body=body, resource_ref=resource_ref
+        )

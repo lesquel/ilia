@@ -1,9 +1,11 @@
 import { HttpClient, httpClient } from '@/core/api/http-client';
 import { toCourseSummary, type CourseSummaryDto } from '@/features/catalog/data/dto';
+import { LESSON_KINDS, type LessonKind } from '@/features/catalog/domain/entities';
 import type {
   CourseProgress,
   EnrolledCourse,
   Enrollment,
+  LessonView,
 } from '@/features/enrollment/domain/entities';
 
 interface NextLessonDto {
@@ -53,11 +55,42 @@ function toProgress(dto: ProgressDto): CourseProgress {
   };
 }
 
+interface LessonViewDto {
+  lesson_id: string;
+  title: string;
+  module_title: string;
+  kind: string;
+  duration_seconds: number;
+  body: string;
+  resource_ref: string | null;
+  is_completed: boolean;
+  position: number;
+  total_lessons: number;
+  previous: NextLessonDto | null;
+  next: NextLessonDto | null;
+}
+
+function toNextLesson(dto: NextLessonDto | null) {
+  return dto
+    ? {
+        lessonId: dto.lesson_id,
+        lessonTitle: dto.lesson_title,
+        moduleId: dto.module_id,
+        moduleTitle: dto.module_title,
+      }
+    : null;
+}
+
+function toLessonKind(value: string): LessonKind {
+  return (LESSON_KINDS as readonly string[]).includes(value) ? (value as LessonKind) : 'text';
+}
+
 export interface EnrollmentRepository {
   enroll(input: { courseSlug: string; cohortCode?: string }): Promise<Enrollment>;
   myCourses(): Promise<EnrolledCourse[]>;
   progressFor(slug: string): Promise<CourseProgress>;
   completeLesson(slug: string, lessonId: string): Promise<CourseProgress>;
+  lesson(slug: string, lessonId: string): Promise<LessonView>;
 }
 
 export class HttpEnrollmentRepository implements EnrollmentRepository {
@@ -109,6 +142,27 @@ export class HttpEnrollmentRepository implements EnrollmentRepository {
         { idempotencyKey: `${slug}:${lessonId}` },
       ),
     );
+  }
+
+  async lesson(slug: string, lessonId: string): Promise<LessonView> {
+    const dto = await this.http.get<LessonViewDto>(
+      `/enrollments/me/${encodeURIComponent(slug)}/lessons/${encodeURIComponent(lessonId)}`,
+    );
+
+    return {
+      lessonId: dto.lesson_id,
+      title: dto.title,
+      moduleTitle: dto.module_title,
+      kind: toLessonKind(dto.kind),
+      durationSeconds: dto.duration_seconds,
+      body: dto.body,
+      resourceRef: dto.resource_ref,
+      isCompleted: dto.is_completed,
+      position: dto.position,
+      totalLessons: dto.total_lessons,
+      previous: toNextLesson(dto.previous),
+      next: toNextLesson(dto.next),
+    };
   }
 }
 

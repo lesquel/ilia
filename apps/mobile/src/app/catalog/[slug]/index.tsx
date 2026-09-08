@@ -1,11 +1,8 @@
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useSession } from '@/features/auth';
 import { CourseDetailScreen } from '@/features/catalog/presentation/course-detail-screen';
-import {
-  useCompleteLesson,
-  useCourseProgress,
-} from '@/features/enrollment/application/use-enrollment';
+import { useCourseProgress } from '@/features/enrollment/application/use-enrollment';
 import { EnrollPanel } from '@/features/enrollment/presentation/enroll-panel';
 
 /**
@@ -19,17 +16,22 @@ export default function CourseRoute() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const courseSlug = slug ?? '';
 
+  const router = useRouter();
   const { isAuthenticated } = useSession();
   const { progress } = useCourseProgress(courseSlug, { enabled: isAuthenticated });
-  const completeLesson = useCompleteLesson(courseSlug);
 
   return (
     <CourseDetailScreen
       enrollmentSlot={<EnrollPanel slug={courseSlug} />}
       completedLessonIds={progress?.completedLessonIds ?? []}
-      // Lessons become interactive only once the teacher is enrolled.
-      onLessonPress={progress ? (lessonId) => completeLesson.mutate(lessonId) : undefined}
-      pendingLessonId={completeLesson.isPending ? completeLesson.variables : null}
+      // Tapping a lesson opens it. Marking it done belongs in the reader, next
+      // to the material — a checkbox in the syllabus would let a teacher tick
+      // off a lesson they never read.
+      onLessonPress={
+        progress
+          ? (lessonId) => router.push(`/catalog/${courseSlug}/lessons/${lessonId}`)
+          : undefined
+      }
     />
   );
 }

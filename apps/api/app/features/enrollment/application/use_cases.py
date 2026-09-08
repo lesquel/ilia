@@ -10,8 +10,12 @@ from app.features.enrollment.domain.entities import (
     CourseProgress,
     EnrolledCourse,
     Enrollment,
+    LessonContent,
+    LessonView,
     compute_progress,
     find_lesson,
+    neighbours,
+    syllabus_order,
 )
 from app.features.enrollment.domain.errors import (
     AlreadyEnrolledError,
@@ -22,6 +26,7 @@ from app.features.enrollment.domain.errors import (
 from app.features.enrollment.domain.ports import (
     CohortRepository,
     EnrollmentRepository,
+    LessonContentRepository,
     ProgressRepository,
 )
 
@@ -178,3 +183,54 @@ class CompleteLesson:
         completed = await self._progress.completed_lesson_ids(enrollment.id)
 
         return compute_progress(course, completed)
+
+
+class GetLesson:
+    """Read one lesson's material.
+
+    Enrollment is checked before any content is loaded. The syllabus is public,
+    the material is not — and that gate lives here, not in the client.
+    """
+
+    def __init__(
+        self,
+        *,
+        courses: CourseRepository,
+        enrollments: EnrollmentRepository,
+        progress: ProgressRepository,
+        contents: LessonContentRepository,
+    ) -> None:
+        self._courses = courses
+        self._enrollments = enrollments
+        self._progress = progress
+        self._contents = contents
+
+    async def execute(self, *, user_id: UUID, slug: str, lesson_id: UUID) -> LessonView:
+        course = await _published_course(self._courses, slug)
+
+        enrollment = await self._enrollments.get(user_id=user_id, course_id=course.id)
+        if enrollment is None:
+            raise NotEnrolledError()
+
+        lesson = find_lesson(course, lesson_id)
+        if lesson is None:
+            raise LessonNotInCourseError()
+
+        previous, following, position = neighbours(course, lesson_id)
+        order = syllabus_order(course)
+        current = next(ref for ref in order if ref.lesson_id == lesson_id)
+
+        content = await self._contents.get_content(lesson_id)
+        completed = await self._progress.completed_lesson_ids(enrollment.id)
+
+        return LessonView(
+            lesson=current,
+            kind=lesson.kind.value,
+            duration_seconds=lesson.duration_seconds,
+            content=content or LessonContent(lesson_id=lesson_id, body="", resource_ref=None),
+            is_completed=lesson_id in completed,
+            previous=previous,
+            next=following,
+            position=position,
+            total_lessons=len(order),
+        )

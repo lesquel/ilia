@@ -71,6 +71,11 @@ class Lesson:
     kind: LessonKind
     position: int
     duration_seconds: int = 0
+    # Content is deliberately absent from the public syllabus. The catalog shows
+    # what a course covers (PRD E-02); reading the material is what enrollment
+    # is for, so these stay empty on the catalog endpoints.
+    body: str = ""
+    resource_ref: str | None = None
 
 
 @dataclass

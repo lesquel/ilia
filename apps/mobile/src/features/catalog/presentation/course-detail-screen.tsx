@@ -23,14 +23,12 @@ export interface CourseDetailScreenProps {
   enrollmentSlot?: ReactNode;
   completedLessonIds?: string[];
   onLessonPress?: (lessonId: string) => void;
-  pendingLessonId?: string | null;
 }
 
 export function CourseDetailScreen({
   enrollmentSlot,
   completedLessonIds = [],
   onLessonPress,
-  pendingLessonId = null,
 }: CourseDetailScreenProps) {
   const theme = useTheme();
   const { slug } = useLocalSearchParams<{ slug: string }>();
@@ -97,7 +95,6 @@ export function CourseDetailScreen({
             module={module}
             completedLessonIds={completedLessonIds}
             onLessonPress={onLessonPress}
-            pendingLessonId={pendingLessonId}
           />
         ))
       )}
@@ -109,12 +106,10 @@ function ModuleBlock({
   module,
   completedLessonIds,
   onLessonPress,
-  pendingLessonId,
 }: {
   module: Module;
   completedLessonIds: string[];
   onLessonPress?: (lessonId: string) => void;
-  pendingLessonId: string | null;
 }) {
   const theme = useTheme();
 
@@ -128,7 +123,6 @@ function ModuleBlock({
 
       {module.lessons.map((lesson) => {
         const done = completedLessonIds.includes(lesson.id);
-        const pending = pendingLessonId === lesson.id;
         // Lessons are only interactive for an enrolled teacher. Otherwise they
         // are a table of contents, and a button that silently does nothing is
         // worse than no button.
@@ -141,7 +135,6 @@ function ModuleBlock({
                 styles.check,
                 {
                   color: done ? theme.colors.accent : theme.colors.neutral[400],
-                  opacity: pending ? 0.4 : 1,
                 },
               ]}
             >
@@ -173,10 +166,8 @@ function ModuleBlock({
         return (
           <Pressable
             key={lesson.id}
-            accessibilityRole="checkbox"
-            accessibilityState={{ checked: done, disabled: pending }}
+            accessibilityRole="link"
             accessibilityLabel={`${lesson.title}, ${done ? 'completada' : 'pendiente'}`}
-            disabled={pending}
             onPress={() => onLessonPress?.(lesson.id)}
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
           >

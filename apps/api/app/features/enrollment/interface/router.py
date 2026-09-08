@@ -15,10 +15,12 @@ from app.features.enrollment.application.use_cases import (
     CompleteLesson,
     EnrollInCourse,
     GetCourseProgress,
+    GetLesson,
     ListMyCourses,
 )
 from app.features.enrollment.interface.dependencies import (
     CohortsDep,
+    ContentsDep,
     EnrollmentsDep,
     ProgressDep,
 )
@@ -26,6 +28,7 @@ from app.features.enrollment.interface.schemas import (
     EnrolledCourseResponse,
     EnrollmentResponse,
     EnrollRequest,
+    LessonViewResponse,
     ProgressResponse,
 )
 
@@ -106,3 +109,25 @@ async def complete_lesson(
     ).execute(user_id=user.id, slug=slug, lesson_id=lesson_id)
 
     return ProgressResponse.from_entity(result)
+
+
+@router.get("/me/{slug}/lessons/{lesson_id}", response_model=LessonViewResponse)
+async def read_lesson(
+    slug: str,
+    lesson_id: UUID,
+    user: CurrentUser,
+    courses: CoursesDep,
+    enrollments: EnrollmentsDep,
+    progress: ProgressDep,
+    contents: ContentsDep,
+) -> LessonViewResponse:
+    """The material of one lesson.
+
+    Under `/enrollments` and not `/catalog` on purpose: the syllabus is public,
+    the material is not, and the route says so.
+    """
+    view = await GetLesson(
+        courses=courses, enrollments=enrollments, progress=progress, contents=contents
+    ).execute(user_id=user.id, slug=slug, lesson_id=lesson_id)
+
+    return LessonViewResponse.from_entity(view)

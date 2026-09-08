@@ -95,4 +95,17 @@ class LessonModel(Base):
     position: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     duration_seconds: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
+    # Body for a text lesson. Empty for the other kinds, which point at a
+    # resource instead.
+    #
+    # `server_default` and not just `default`: adding a NOT NULL column to a
+    # table that already has rows fails without one, and that failure happens
+    # during the deploy, against real data.
+    body: Mapped[str] = mapped_column(Text, nullable=False, server_default="", default="")
+    # Reference into object storage for video and slides. Stored as a plain
+    # reference, never as a ready-to-use URL: media is served through a signed
+    # URL with an expiry (TRD 11), and a permanent link in the database would
+    # defeat that the first time someone copies it.
+    resource_ref: Mapped[str | None] = mapped_column(String(500), nullable=True)
+
     module: Mapped[ModuleModel] = relationship(back_populates="lessons")

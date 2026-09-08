@@ -81,6 +81,11 @@ PostgreSQL 17 con SQLAlchemy 2 (async, `asyncpg`) y Alembic. La URL sale de
 ILIA_DATABASE_URL=postgresql+asyncpg://ilia:ilia@localhost:5432/ilia
 ```
 
+> **Al agregar una columna `NOT NULL` poné siempre `server_default`.** Sin él,
+> `ALTER TABLE ... ADD COLUMN ... NOT NULL` falla contra una tabla que ya tiene
+> filas — y eso pasa durante el despliegue, sobre datos reales. Nos pasó con
+> `lesson.body`.
+
 ```bash
 docker compose up -d                                  # levantar Postgres
 uv run alembic upgrade head                           # aplicar migraciones
@@ -104,7 +109,7 @@ verdad: una migración nunca debe correr contra una base distinta a la de la app
 | `cohort` | Grupo de docentes que sale de una charla presencial |
 | `course` | Slug único. Índice parcial `ix_course_catalog_keyset` sobre `coalesce(published_at, created_at) DESC, id DESC` filtrado a `status = 'published'` |
 | `course_module` | Pertenece a un curso, ordenado por `position` |
-| `lesson` | Pertenece a un módulo. Tipos: `video`, `slides`, `text`, `quiz` |
+| `lesson` | Pertenece a un módulo. Tipos: `video`, `slides`, `text`, `quiz`. `body` para texto, `resource_ref` para vídeo/presentación |
 | `enrollment` | Único por `(user_id, course_id)`. `cohort_id` nullable — acá es donde la cohorte finalmente se usa |
 | `lesson_progress` | Único por `(enrollment_id, lesson_id)`. Colgado de la inscripción, no del usuario |
 
@@ -242,6 +247,7 @@ inscriba a cualquier otro.
 | `POST` | `/api/v1/enrollments` | Inscribirse. Acepta `cohort_code` opcional |
 | `GET` | `/api/v1/enrollments/me` | "Mis cursos" con el progreso de cada uno |
 | `GET` | `/api/v1/enrollments/me/{slug}` | Progreso de un curso + dónde retomar |
+| `GET` | `/api/v1/enrollments/me/{slug}/lessons/{lesson_id}` | El material de una lección, con sus vecinas |
 | `POST` | `/api/v1/enrollments/me/{slug}/lessons/{lesson_id}/complete` | Marca la lección y devuelve el progreso nuevo |
 
 ### Decisiones
@@ -272,6 +278,19 @@ de uso tenga que acordarse.
 **Un código de cohorte inválido falla fuerte, no en silencio.** Inscribir al
 docente sin atribución es exactamente la pérdida de dato que vuelve inútil la
 métrica de la alianza.
+
+**El material vive bajo `/enrollments`, no bajo `/catalog`.** El temario es
+público (PRD E-02); el contenido no. El repositorio del catálogo deja `body` y
+`resource_ref` **vacíos a propósito**, y el contenido se lee por un puerto propio
+de `enrollment`, que verifica la inscripción antes de cargar nada. La ruta dice
+lo mismo que el código.
+
+**La lección viaja con sus vecinas.** `previous` y `next` vienen en la misma
+respuesta, así moverse por un curso cuesta una petición por lección y no tres.
+En el wifi de un colegio, cada petición que evitás es una página que carga.
+
+**La navegación cruza módulos.** La última lección del módulo 1 la sigue la
+primera del módulo 2, no la nada.
 
 **Y acá es donde las cohortes sirven.** `enrollment.cohort_id` es lo que permite
 responder *qué porcentaje de los docentes de la charla del 3 de septiembre activó

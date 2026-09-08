@@ -111,7 +111,17 @@ function EnrolledCourseCard({ enrolled }: { enrolled: EnrolledCourse }) {
         </Text>
       ) : null}
 
-      <Link href={`/catalog/${course.slug}`} asChild>
+      {/* Straight to the lesson the teacher left off at. Landing on the course
+          page and making them find it again is the friction PRD E-04 exists to
+          remove. */}
+      <Link
+        href={
+          progress.nextLesson
+            ? `/catalog/${course.slug}/lessons/${progress.nextLesson.lessonId}`
+            : `/catalog/${course.slug}`
+        }
+        asChild
+      >
         <Pressable accessibilityRole="link">
           {({ pressed }) => (
             <View

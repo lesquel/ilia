@@ -1,4 +1,4 @@
-import type { CourseSummary } from '@/features/catalog/domain/entities';
+import type { CourseSummary, LessonKind } from '@/features/catalog/domain/entities';
 
 /** Enrollment and progress domain. Plain TypeScript, shared by all platforms. */
 
@@ -50,4 +50,19 @@ export function callToAction(progress: CourseProgress | null): string {
 
 export function isLessonCompleted(progress: CourseProgress, lessonId: string): boolean {
   return progress.completedLessonIds.includes(lessonId);
+}
+
+export interface LessonView {
+  lessonId: string;
+  title: string;
+  moduleTitle: string;
+  kind: LessonKind;
+  durationSeconds: number;
+  body: string;
+  resourceRef: string | null;
+  isCompleted: boolean;
+  position: number;
+  totalLessons: number;
+  previous: NextLesson | null;
+  next: NextLesson | null;
 }

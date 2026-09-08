@@ -9,6 +9,7 @@ from app.features.enrollment.domain.entities import (
     EnrolledCourse,
     Enrollment,
     LessonRef,
+    LessonView,
 )
 
 
@@ -90,4 +91,42 @@ class EnrolledCourseResponse(BaseModel):
             course=CourseSummaryResponse.from_entity(enrolled.course),
             enrolled_at=enrolled.enrolled_at,
             progress=ProgressResponse.from_entity(enrolled.progress),
+        )
+
+
+class LessonViewResponse(BaseModel):
+    """One lesson plus its neighbours.
+
+    Prev/next travel with the lesson so the reader can move without another
+    round trip. On school Wi-Fi every avoided request is a page that loads.
+    """
+
+    lesson_id: UUID
+    title: str
+    module_title: str
+    kind: str
+    duration_seconds: int
+    body: str
+    resource_ref: str | None
+    is_completed: bool
+    position: int
+    total_lessons: int
+    previous: NextLessonResponse | None
+    next: NextLessonResponse | None
+
+    @classmethod
+    def from_entity(cls, view: LessonView) -> "LessonViewResponse":
+        return cls(
+            lesson_id=view.lesson.lesson_id,
+            title=view.lesson.lesson_title,
+            module_title=view.lesson.module_title,
+            kind=view.kind,
+            duration_seconds=view.duration_seconds,
+            body=view.content.body,
+            resource_ref=view.content.resource_ref,
+            is_completed=view.is_completed,
+            position=view.position,
+            total_lessons=view.total_lessons,
+            previous=NextLessonResponse.from_entity(view.previous) if view.previous else None,
+            next=NextLessonResponse.from_entity(view.next) if view.next else None,
         )

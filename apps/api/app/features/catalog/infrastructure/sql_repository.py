@@ -188,6 +188,10 @@ def _to_entity(row: CourseModel, instructor_name: str) -> Course:
                 title=module.title,
                 position=module.position,
                 lessons=[
+                    # `body` and `resource_ref` are deliberately left empty.
+                    # The catalog serves the syllabus, not the material: content
+                    # is read through the enrollment feature, which checks the
+                    # teacher actually joined the course first.
                     Lesson(
                         id=lesson.id,
                         title=lesson.title,

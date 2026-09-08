@@ -153,3 +153,54 @@ def find_lesson(course: Course, lesson_id: UUID) -> Lesson | None:
             if lesson.id == lesson_id:
                 return lesson
     return None
+
+
+@dataclass(frozen=True)
+class LessonContent:
+    """The material of one lesson.
+
+    Separate from `Lesson` in the catalog because it is gated differently: the
+    syllabus is public, the content is not.
+    """
+
+    lesson_id: UUID
+    body: str
+    resource_ref: str | None
+
+
+@dataclass(frozen=True)
+class LessonView:
+    """Everything the lesson screen needs, in one response.
+
+    Bundles the neighbours so the reader can move without another round trip —
+    on school Wi-Fi, every avoided request is a page that actually loads.
+    """
+
+    lesson: LessonRef
+    kind: str
+    duration_seconds: int
+    content: LessonContent
+    is_completed: bool
+    previous: LessonRef | None
+    next: LessonRef | None
+    position: int
+    total_lessons: int
+
+
+def neighbours(course: Course, lesson_id: UUID) -> tuple[LessonRef | None, LessonRef | None, int]:
+    """The lessons before and after this one, plus its 1-based position.
+
+    Navigation follows the syllabus, so it crosses module boundaries: the last
+    lesson of module 1 is followed by the first of module 2, not by nothing.
+    """
+    order = syllabus_order(course)
+
+    for index, ref in enumerate(order):
+        if ref.lesson_id == lesson_id:
+            return (
+                order[index - 1] if index > 0 else None,
+                order[index + 1] if index + 1 < len(order) else None,
+                index + 1,
+            )
+
+    return None, None, 0
