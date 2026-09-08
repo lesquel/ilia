@@ -102,6 +102,16 @@ verdad: una migración nunca debe correr contra una base distinta a la de la app
 |---|---|
 | `app_user` | Correo único e indexado. `app_user` y no `user` porque `user` es palabra reservada en Postgres |
 | `cohort` | Grupo de docentes que sale de una charla presencial |
+| `course` | Slug único. Índice parcial `ix_course_catalog_keyset` sobre `coalesce(published_at, created_at) DESC, id DESC` filtrado a `status = 'published'` |
+| `course_module` | Pertenece a un curso, ordenado por `position` |
+| `lesson` | Pertenece a un módulo. Tipos: `video`, `slides`, `text`, `quiz` |
+
+Sobre `ix_course_catalog_keyset`: un índice simple sobre `published_at` **no
+sirve** para el listado, porque la consulta ordena por
+`coalesce(published_at, created_at)` y Postgres no usa un índice de columna para
+una expresión. Es parcial sobre `status = 'published'` porque esa es la única
+porción que el catálogo lee jamás: el índice queda chico y los borradores ni
+aparecen en él.
 
 Sobre `cohort`: existe desde la primera migración aunque la feature de
 inscripción todavía no esté. El TRD tiene razón en que añadirla después sería
@@ -134,7 +144,7 @@ navegador un token que puede leer.
 La cookie de refresh va con `Path=/api/v1/auth/refresh`. Una cookie que no se
 envía en cada petición no puede ser reenviada por cada petición.
 
-### Endpoints
+### Endpoints de auth
 
 | Método | Ruta | Qué hace |
 |---|---|---|
@@ -170,6 +180,54 @@ después.
 desarrollo, mide menos de 32 bytes, las cookies no son `Secure`, o no hay
 `ILIA_DATABASE_URL`. Un arranque que falla es infinitamente mejor que un token
 falsificable —o una base de datos en memoria— en producción.
+
+## Catálogo
+
+**Público, sin autenticación.** Un docente tiene que poder ver de qué trata un
+curso antes de comprometerse (PRD E-02); exigir cuenta para leer el temario es
+exactamente la fricción contra la que advierte el PRD §2.2.
+
+| Método | Ruta | Qué hace |
+|---|---|---|
+| `GET` | `/api/v1/catalog/courses` | Lista cursos publicados. Filtros `level` y `q`, paginación `limit` + `cursor` |
+| `GET` | `/api/v1/catalog/courses/{slug}` | Detalle con el temario completo |
+
+### Decisiones que vale la pena conocer
+
+**Solo se ven los publicados, y eso lo garantiza el repositorio**, no cada
+endpoint. Un borrador que se filtra al catálogo porque alguien olvidó un `WHERE`
+es el bug que aparece justo en la demo.
+
+**Un borrador responde igual que un curso inexistente** — mismo 404, mismo
+código. Si respondieran distinto, el endpoint de detalle se convertiría en una
+forma de descubrir trabajo sin publicar probando slugs.
+
+**Paginación por cursor, no por offset** (TRD §8). Con offset, un curso
+publicado mientras el docente scrollea corre todas las filas siguientes y el
+docente ve un duplicado o se saltea uno sin enterarse. El cursor es opaco pero
+**no es secreto**: es base64 sin firmar, así que nunca metas ahí nada que no sea
+público. Y llega del cliente, o sea que no es confiable: cualquier cosa
+malformada se rechaza con `invalid_cursor`, no se coerciona.
+
+**La duración se deriva de las lecciones, nunca se guarda.** Una columna
+denormalizada se desincroniza la primera vez que alguien edita una lección y se
+olvida de recalcularla, y un catálogo que miente sobre cuánto dura un curso
+pierde al docente el primer día.
+
+**Los cursos se direccionan por slug**, no por UUID, porque en web se espera
+poder compartir el enlace (TRD §4.5). El slug es ASCII estricto: `str.isalnum()`
+es Unicode-aware y aceptaría `prompting-básico`, que el navegador convierte en
+`prompting-b%C3%A1sico` — ilegible, que es lo contrario de para qué existe un
+enlace compartible.
+
+### Datos de demo
+
+```bash
+uv run python -m scripts.seed_demo
+```
+
+Tres cursos con temario, para tener qué renderizar mientras se produce el
+contenido real. Se niega a correr en producción.
 
 ## Convenciones
 

@@ -18,6 +18,8 @@ from app.core.logging import configure_logging
 from app.core.middleware import CorrelationIdMiddleware
 from app.features.auth.interface.dependencies import build_auth_container
 from app.features.auth.interface.router import router as auth_router
+from app.features.catalog.interface.dependencies import build_catalog_container
+from app.features.catalog.interface.router import router as catalog_router
 from app.features.health.interface.router import router as health_router
 
 
@@ -58,9 +60,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.settings = settings
     app.state.database = database
     app.state.auth = build_auth_container(settings, database)
+    app.state.catalog = build_catalog_container(settings, database)
 
     app.include_router(health_router)
     app.include_router(auth_router, prefix=settings.api_prefix)
+    app.include_router(catalog_router, prefix=settings.api_prefix)
 
     return app
 
