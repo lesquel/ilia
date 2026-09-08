@@ -23,7 +23,8 @@ implementación está en scaffolding.
 | Backend — esqueleto, config, logs, errores, health | ✅ Corre, con tests, lint y tipos en verde |
 | Cliente — esqueleto Expo, router, tema, cliente HTTP | ✅ Compila para web y tipa en strict |
 | CI | ✅ Lint, tipos, tests y build web en cada push |
-| Auth | ⬜ Pendiente |
+| Auth — backend y cliente | ✅ Registro, login, refresh, logout y `/me`. Cookie `httpOnly` en web, bearer en nativo |
+| Persistencia de usuarios | ⚠️ En memoria. Se pierde al reiniciar — esperando la decisión de base de datos |
 | Catálogo, inscripción, aprendizaje | ⬜ Pendiente |
 | Laboratorio IA y motor de EVALs | ⬜ Pendiente |
 | Foro, certificados, freemium | ⬜ Pendiente |
@@ -47,11 +48,12 @@ Detalle en [`apps/api/README.md`](apps/api/README.md) y
 El TRD §15 lista once. Estas cuatro son las que impiden avanzar más allá del
 scaffolding, por orden de impacto:
 
-1. **Estrategia de sesión en web.** Cookie `httpOnly` o token en cliente. Define
-   cómo se implementa auth en backend **y** en cliente; decidirlo después
-   significa reescribir las dos puntas. (TRD §4.5)
-2. **Base de datos y dónde se despliega.** Sin esto no hay capa de persistencia
-   ni migraciones.
+1. ~~**Estrategia de sesión en web.**~~ ✅ **Decidido:** cookie `httpOnly` para
+   web, bearer token para nativo. Implementado en las dos puntas. Trae una
+   restricción de despliegue: el cliente web y la API deben compartir dominio
+   registrable. Ver [`apps/api/README.md`](apps/api/README.md#autenticación).
+2. **Base de datos y dónde se despliega.** Sin esto no hay persistencia real:
+   hoy los usuarios viven en memoria y se pierden al reiniciar.
 3. **Proveedor y modelo de LLM.** Bloquea el motor de EVALs, que es el corazón
    del producto.
 4. **Cohortes sí o no.** Si las charlas presenciales generan cohortes, hace falta
