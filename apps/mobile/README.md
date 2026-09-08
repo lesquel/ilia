@@ -59,8 +59,21 @@ src/
       presentation/     Pantallas y componentes
 ```
 
-Features previstas: `auth`, `catalog`, `enrollment`, `learning`, `lab`, `forum`,
-`certificates`, `profile`, `instructor`, `admin`.
+Features implementadas: `auth`, `catalog`.
+Previstas: `enrollment`, `learning`, `lab`, `forum`, `certificates`, `profile`,
+`instructor`, `admin`.
+
+## Rutas
+
+| Ruta | Pantalla |
+|---|---|
+| `/` | Portada |
+| `/login` | Iniciar sesión |
+| `/catalog` | Catálogo, con búsqueda, filtro por nivel y scroll infinito |
+| `/catalog/[slug]` | Detalle del curso con su temario |
+
+En web son URLs reales y compartibles, que es para lo que los cursos se
+direccionan por slug y no por UUID.
 
 ## Reglas de dependencia
 
@@ -99,3 +112,22 @@ componentes pensados para un teléfono. Es un costo asumido, no un descuido.
   como riesgo (T9): toca carga diferida por ruta, sobre todo en instructor y
   admin, que el estudiante nunca abre.
 - **Iconos y splash** siguen siendo los de la plantilla de Expo.
+
+## Trampa conocida: `Link asChild` y los estilos
+
+`expo-router` con `asChild` renderiza el hijo **como** el `<a>` en web, y el
+anchor **descarta el `style` del `Pressable`**. El resultado es una tarjeta sin
+padding, sin borde y sin fondo — y no falla en compilación ni en el typecheck,
+así que solo se ve mirando el navegador.
+
+La forma correcta es poner todos los estilos visuales en un `View` interno:
+
+```tsx
+<Link href="/catalog/mi-curso" asChild>
+  <Pressable accessibilityRole="link">
+    {({ pressed }) => (
+      <View style={[styles.card, { opacity: pressed ? 0.85 : 1 }]}>…</View>
+    )}
+  </Pressable>
+</Link>
+```
