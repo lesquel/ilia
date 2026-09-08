@@ -59,8 +59,8 @@ src/
       presentation/     Pantallas y componentes
 ```
 
-Features implementadas: `auth`, `catalog`, `enrollment`.
-Previstas: `lab`, `forum`, `certificates`, `profile`, `instructor`, `admin`.
+Features implementadas: `auth`, `catalog`, `enrollment`, `lab`.
+Previstas: `forum`, `certificates`, `profile`, `instructor`, `admin`.
 
 ## Rutas
 
@@ -71,6 +71,8 @@ Previstas: `lab`, `forum`, `certificates`, `profile`, `instructor`, `admin`.
 | `/catalog` | Catálogo, con búsqueda, filtro por nivel y scroll infinito |
 | `/catalog/[slug]` | Detalle del curso, inscripción y marcado de lecciones |
 | `/my-courses` | Mis cursos con progreso y punto de retomada |
+| `/lab/[activityId]` | Laboratorio IA: enunciado, requisitos, rúbrica y editor de prompt |
+| `/lab/submissions/[submissionId]` | Resultado, con polling hasta que la evaluación llega |
 
 En web son URLs reales y compartibles, que es para lo que los cursos se
 direccionan por slug y no por UUID.
@@ -123,6 +125,12 @@ componentes pensados para un teléfono. Es un costo asumido, no un descuido.
   como riesgo (T9): toca carga diferida por ruta, sobre todo en instructor y
   admin, que el estudiante nunca abre.
 - **Iconos y splash** siguen siendo los de la plantilla de Expo.
+- **Sin autoguardado del borrador del prompt.** El TRD §4.4 lo pide para móvil, y
+  tiene razón: escribir un prompt largo en un teclado de celular y perderlo es
+  una razón para no volver. Necesita el mismo patrón de resolución por
+  plataforma que `token-store` (`localStorage` en web, almacenamiento asíncrono
+  en nativo).
+- **Sin dictado por voz** (TRD §4.4, marcado como *[A confirmar]*).
 
 ## Trampa conocida: `Link asChild` y los estilos
 

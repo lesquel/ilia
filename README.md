@@ -28,8 +28,8 @@ real, en backend y en cliente.
 | Persistencia | ✅ PostgreSQL 17 + SQLAlchemy async + Alembic. Tablas `app_user` y `cohort` |
 | Catálogo — backend y cliente | ✅ Público. Filtros, búsqueda, paginación por cursor y detalle con temario |
 | Inscripción y progreso — backend y cliente | ✅ Inscripción con código de cohorte, "Mis cursos", marcado de lecciones y punto de retomada |
-| Visor de lección (vídeo, presentación, texto) | ⬜ Pendiente |
-| Laboratorio IA y motor de EVALs | ⬜ Pendiente |
+| Visor de lección | ✅ Texto y navegación por el temario. Reproductor de vídeo pendiente |
+| Laboratorio IA y motor de EVALs | ✅ Grafo completo del TRD §6.1, con anclaje determinístico y resistencia a inyección. **Sin proveedor de LLM conectado** |
 | Foro, certificados, freemium | ⬜ Pendiente |
 | Pantallas de instructor y admin | ⬜ Sin diseñar |
 
@@ -59,10 +59,11 @@ resueltas.
 2. ~~**Base de datos.**~~ ✅ **PostgreSQL**, adoptando la propuesta del TRD §2.4.
    **Sigue abierto dónde se despliega**, y eso importa: la estrategia de cookie
    exige que el cliente web y la API compartan dominio registrable.
-3. **Proveedor y modelo de LLM.** El único que sigue bloqueando de verdad:
-   sin esto no se puede construir el motor de EVALs, que es el corazón del
-   producto. El TRD (T4) ya manda abstraerlo tras un puerto de dominio desde el
-   día 1, así que se puede empezar por ahí y enchufar el proveedor después.
+3. **Proveedor y modelo de LLM.** El motor de EVALs **ya está construido y
+   probado** detrás de un puerto (TRD T4), así que esto ya no bloquea el
+   desarrollo — bloquea que las notas signifiquen algo. Hoy corre contra un stub
+   local que produce salida válida y **no evalúa nada**, y lo dice en voz alta en
+   el feedback que ve el docente.
 4. ~~**Cohortes sí o no.**~~ ✅ **Decidido: con cohortes.** La tabla `cohort` y
    `app_user.cohort_id` ya están en la primera migración, así que no habrá que
    migrar datos de docentes reales después. Falta el flujo: crear cohortes y que
