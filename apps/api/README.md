@@ -13,6 +13,9 @@ Backend de ILIA. Python + FastAPI, Clean Architecture organizada por features.
 cd apps/api
 cp .env.example .env
 uv sync
+
+docker compose up -d              # PostgreSQL en localhost:5432
+uv run alembic upgrade head       # aplica las migraciones
 uv run uvicorn app.main:app --reload
 ```
 
@@ -22,7 +25,7 @@ producción). Health check en <http://localhost:8000/health>.
 ## Comandos
 
 ```bash
-uv run pytest          # pruebas
+uv run pytest          # pruebas (las de integración se saltan sin base de datos)
 uv run ruff check .    # lint
 uv run ruff format .   # formato
 uv run mypy app        # tipos (modo strict)
@@ -38,6 +41,7 @@ app/
     logging.py         Logs estructurados
     middleware.py      Correlation id por petición
     errors.py          Traducción de errores de dominio a HTTP
+    database.py        Engine async, sesiones y Base declarativa
   shared/              Value objects y errores de dominio comunes
     errors.py
   features/
@@ -46,6 +50,7 @@ app/
       application/     Casos de uso y DTOs internos
       infrastructure/  Implementación de los puertos: repos, LLM, storage
       interface/       Routers HTTP y esquemas de request/response
+migrations/            Historial de Alembic
 ```
 
 ## Reglas de dependencia
@@ -66,6 +71,47 @@ con nombres bonitos:
 El beneficio concreto: el caso de uso "evaluar entrega" depende de un puerto
 `PromptEvaluator`. La implementación con LangGraph vive en `infrastructure`.
 Eso permite testear el caso de uso con un evaluador falso, **sin gastar tokens.**
+
+## Base de datos
+
+PostgreSQL 17 con SQLAlchemy 2 (async, `asyncpg`) y Alembic. La URL sale de
+`ILIA_DATABASE_URL` y necesita el driver async:
+
+```
+ILIA_DATABASE_URL=postgresql+asyncpg://ilia:ilia@localhost:5432/ilia
+```
+
+```bash
+docker compose up -d                                  # levantar Postgres
+uv run alembic upgrade head                           # aplicar migraciones
+uv run alembic revision --autogenerate -m "mensaje"   # nueva migración
+uv run alembic downgrade -1                           # revertir la última
+```
+
+**Sin `ILIA_DATABASE_URL` la app arranca igual, con repositorios en memoria** —
+útil para mirar la API, inservible para cualquier otra cosa: pierde todas las
+cuentas al reiniciar. El arranque lo advierte por log, y en producción
+directamente falla.
+
+Alembic lee la URL desde `Settings`, no desde `alembic.ini`. Una sola fuente de
+verdad: una migración nunca debe correr contra una base distinta a la de la app.
+
+### Tablas
+
+| Tabla | Notas |
+|---|---|
+| `app_user` | Correo único e indexado. `app_user` y no `user` porque `user` es palabra reservada en Postgres |
+| `cohort` | Grupo de docentes que sale de una charla presencial |
+
+Sobre `cohort`: existe desde la primera migración aunque la feature de
+inscripción todavía no esté. El TRD tiene razón en que añadirla después sería
+una migración con datos de docentes reales. Y es lo que hace respondible la
+primera métrica de éxito del PRD §12 — **qué porcentaje de los docentes de una
+charla activó cuenta** —, que es justamente el número que le demuestra a la
+Alcaldía que la alianza funciona.
+
+`app_user.cohort_id` es nullable a propósito: la inscripción también es abierta,
+y quien se registra por su cuenta simplemente no tiene cohorte que atribuir.
 
 ## Autenticación
 
@@ -109,20 +155,21 @@ después.
 
 ### Lo que todavía no está
 
-- **Persistencia.** `InMemoryUserRepository` pierde todas las cuentas al
-  reiniciar. Es deliberado: la base de datos sigue sin decidirse, y el puerto
-  existe justo para que eso no bloquee el resto. Cuando se confirme PostgreSQL,
-  aparece un `SqlAlchemyUserRepository` al lado y no cambia nada más.
+- **Cohortes en el flujo.** La tabla existe, pero todavía no hay endpoint para
+  crear una ni para que un docente se una con el código de su charla. Eso llega
+  con la feature de inscripción.
 - **Revocación real.** El `logout` limpia cookies, pero el access token sigue
   siendo válido hasta que expira porque es stateless. Revocar de verdad exige
-  una lista de denegación, y eso exige la base de datos.
+  una tabla de denegación de tokens. Con 15 minutos de vida el daño está acotado,
+  pero no es lo mismo que revocar.
 - Recuperación de contraseña y verificación de correo.
 
 ### Guardas de producción
 
 `Settings` **falla al arrancar** si en producción la clave de firma es la de
-desarrollo, mide menos de 32 bytes, o las cookies no son `Secure`. Un arranque
-que falla es infinitamente mejor que un token falsificable en producción.
+desarrollo, mide menos de 32 bytes, las cookies no son `Secure`, o no hay
+`ILIA_DATABASE_URL`. Un arranque que falla es infinitamente mejor que un token
+falsificable —o una base de datos en memoria— en producción.
 
 ## Convenciones
 

@@ -5,10 +5,14 @@ handlers and routers. Use cases never reach for a global — they receive their
 ports through dependency injection (TRD 5.1).
 """
 
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import Settings, get_settings
+from app.core.database import Database
 from app.core.errors import register_error_handlers
 from app.core.logging import configure_logging
 from app.core.middleware import CorrelationIdMiddleware
@@ -21,12 +25,21 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
     configure_logging(settings)
 
+    database = Database(settings) if settings.database_url else None
+
+    @asynccontextmanager
+    async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+        yield
+        if database is not None:
+            await database.dispose()
+
     app = FastAPI(
         title=settings.project_name,
         version="0.1.0",
         docs_url=None if settings.is_production else "/docs",
         redoc_url=None,
         openapi_url=None if settings.is_production else "/openapi.json",
+        lifespan=lifespan,
     )
 
     app.add_middleware(CorrelationIdMiddleware)
@@ -43,7 +56,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # Singletons built once here, injected per request. A use case never reaches
     # for a global.
     app.state.settings = settings
-    app.state.auth = build_auth_container(settings)
+    app.state.database = database
+    app.state.auth = build_auth_container(settings, database)
 
     app.include_router(health_router)
     app.include_router(auth_router, prefix=settings.api_prefix)

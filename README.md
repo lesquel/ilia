@@ -13,8 +13,9 @@ Complementaria de la Alcaldía.
 
 ## Estado
 
-Fase de arranque. La documentación de requisitos está completa (v0.1); la
-implementación está en scaffolding.
+Fase temprana. La documentación de requisitos está completa (v0.1) y hay un
+slice vertical funcionando de punta a punta: autenticación con persistencia
+real, en backend y en cliente.
 
 | Pieza | Estado |
 |---|---|
@@ -24,7 +25,7 @@ implementación está en scaffolding.
 | Cliente — esqueleto Expo, router, tema, cliente HTTP | ✅ Compila para web y tipa en strict |
 | CI | ✅ Lint, tipos, tests y build web en cada push |
 | Auth — backend y cliente | ✅ Registro, login, refresh, logout y `/me`. Cookie `httpOnly` en web, bearer en nativo |
-| Persistencia de usuarios | ⚠️ En memoria. Se pierde al reiniciar — esperando la decisión de base de datos |
+| Persistencia | ✅ PostgreSQL 17 + SQLAlchemy async + Alembic. Tablas `app_user` y `cohort` |
 | Catálogo, inscripción, aprendizaje | ⬜ Pendiente |
 | Laboratorio IA y motor de EVALs | ⬜ Pendiente |
 | Foro, certificados, freemium | ⬜ Pendiente |
@@ -34,7 +35,8 @@ implementación está en scaffolding.
 
 ```bash
 # Backend
-cd apps/api && uv sync && uv run uvicorn app.main:app --reload
+cd apps/api && uv sync && docker compose up -d && uv run alembic upgrade head
+uv run uvicorn app.main:app --reload
 
 # Cliente
 cd apps/mobile && npm install && npm run web
@@ -45,20 +47,22 @@ Detalle en [`apps/api/README.md`](apps/api/README.md) y
 
 ## Decisiones que bloquean el siguiente paso
 
-El TRD §15 lista once. Estas cuatro son las que impiden avanzar más allá del
-scaffolding, por orden de impacto:
+El TRD §15 lista once. Estas son las cuatro de mayor impacto; tres ya están
+resueltas.
 
 1. ~~**Estrategia de sesión en web.**~~ ✅ **Decidido:** cookie `httpOnly` para
    web, bearer token para nativo. Implementado en las dos puntas. Trae una
    restricción de despliegue: el cliente web y la API deben compartir dominio
    registrable. Ver [`apps/api/README.md`](apps/api/README.md#autenticación).
-2. **Base de datos y dónde se despliega.** Sin esto no hay persistencia real:
-   hoy los usuarios viven en memoria y se pierden al reiniciar.
+2. ~~**Base de datos.**~~ ✅ **PostgreSQL**, adoptando la propuesta del TRD §2.4.
+   **Sigue abierto dónde se despliega**, y eso importa: la estrategia de cookie
+   exige que el cliente web y la API compartan dominio registrable.
 3. **Proveedor y modelo de LLM.** Bloquea el motor de EVALs, que es el corazón
    del producto.
-4. **Cohortes sí o no.** Si las charlas presenciales generan cohortes, hace falta
-   la entidad `cohort` ligada a `enrollment`. Añadirla ahora es barato; después
-   es una migración con datos vivos. (PRD pregunta abierta 7, TRD §7)
+4. ~~**Cohortes sí o no.**~~ ✅ **Decidido: con cohortes.** La tabla `cohort` y
+   `app_user.cohort_id` ya están en la primera migración, así que no habrá que
+   migrar datos de docentes reales después. Falta el flujo: crear cohortes y que
+   un docente se una con el código de su charla.
 
 ## Documentación
 
@@ -88,7 +92,7 @@ siguen pendientes de confirmación por el equipo.
 | Lenguaje cliente | TypeScript *(propuesta)* |
 | Datos de servidor | TanStack Query *(propuesta)* |
 | Backend | Python + FastAPI *(propuesta)* |
-| Base de datos | PostgreSQL *(propuesta)* |
+| Base de datos | PostgreSQL 17 |
 | Orquestación de IA | LangGraph |
 | Arquitectura | Clean Architecture organizada por features, en cliente y backend |
 

@@ -28,6 +28,14 @@ class Settings(BaseSettings):
     # first-class target (TRD 4.5), so CORS is not an afterthought here.
     cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:8081"])
 
+    # --- Database -----------------------------------------------------------
+
+    # Async driver required, e.g.
+    # postgresql+asyncpg://ilia:ilia@localhost:5432/ilia
+    # When unset, the app falls back to in-memory repositories: usable for a
+    # quick look at the API, useless for anything real (it forgets on restart).
+    database_url: str | None = None
+
     # --- Auth ---------------------------------------------------------------
 
     # Override in every deployed environment. The default exists so `uv run` and
@@ -74,6 +82,15 @@ class Settings(BaseSettings):
     def _require_secure_cookies_in_production(self) -> "Settings":
         if self.is_production and not self.cookie_secure:
             raise ValueError("ILIA_COOKIE_SECURE cannot be disabled in production")
+        return self
+
+    @model_validator(mode="after")
+    def _require_a_database_in_production(self) -> "Settings":
+        if self.is_production and not self.database_url:
+            raise ValueError(
+                "ILIA_DATABASE_URL is required in production: without it the app "
+                "runs on in-memory repositories and loses every account on restart."
+            )
         return self
 
 

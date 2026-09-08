@@ -10,6 +10,7 @@ from pydantic import ValidationError
 from app.core.config import Settings
 
 STRONG_SECRET = "a-secret-that-is-at-least-32-bytes-long"
+DATABASE_URL = "postgresql+asyncpg://ilia:ilia@db:5432/ilia"
 
 
 def test_the_default_secret_is_refused_in_production() -> None:
@@ -24,11 +25,27 @@ def test_a_short_secret_is_refused_in_production() -> None:
 
 def test_insecure_cookies_are_refused_in_production() -> None:
     with pytest.raises(ValidationError, match="COOKIE_SECURE"):
-        Settings(environment="production", jwt_secret=STRONG_SECRET, cookie_secure=False)
+        Settings(
+            environment="production",
+            jwt_secret=STRONG_SECRET,
+            database_url=DATABASE_URL,
+            cookie_secure=False,
+        )
+
+
+def test_a_missing_database_is_refused_in_production() -> None:
+    # In-memory repositories in production means every teacher's account
+    # disappears on the next deploy.
+    with pytest.raises(ValidationError, match="ILIA_DATABASE_URL"):
+        Settings(environment="production", jwt_secret=STRONG_SECRET)
 
 
 def test_a_correct_production_configuration_is_accepted() -> None:
-    settings = Settings(environment="production", jwt_secret=STRONG_SECRET)
+    settings = Settings(
+        environment="production",
+        jwt_secret=STRONG_SECRET,
+        database_url=DATABASE_URL,
+    )
 
     assert settings.is_production
     assert settings.cookie_secure

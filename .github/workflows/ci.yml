@@ -16,6 +16,28 @@ jobs:
     defaults:
       run:
         working-directory: apps/api
+
+    # Repository tests run against a real PostgreSQL (TRD 13). Faking the
+    # database would test the fake, not the constraints that actually hold.
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: ilia
+          POSTGRES_PASSWORD: ilia
+          POSTGRES_DB: ilia
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ilia -d ilia"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      ILIA_TEST_DATABASE_URL: postgresql+asyncpg://ilia:ilia@localhost:5432/ilia
+      ILIA_DATABASE_URL: postgresql+asyncpg://ilia:ilia@localhost:5432/ilia
+
     steps:
       - uses: actions/checkout@v5
 
@@ -35,6 +57,11 @@ jobs:
 
       - name: Typecheck
         run: uv run mypy app
+
+      # Proves the migrations actually apply to an empty database, which is the
+      # only thing a deploy will ever do with them.
+      - name: Apply migrations
+        run: uv run alembic upgrade head
 
       - name: Test
         run: uv run pytest

@@ -7,9 +7,11 @@ inside a use case (TRD 5.1).
 from datetime import timedelta
 from typing import Annotated
 
+import structlog
 from fastapi import Depends, Request
 
 from app.core.config import Settings, get_app_settings
+from app.core.database import Database
 from app.features.auth.application.use_cases import (
     AuthenticateUser,
     GetCurrentUser,
@@ -25,16 +27,29 @@ from app.features.auth.infrastructure.security import (
     JwtTokenService,
     SystemClock,
 )
+from app.features.auth.infrastructure.sql_repository import SqlAlchemyUserRepository
 from app.features.auth.interface.transport import read_access_token
 from app.shared.errors import PermissionDeniedError
 
 SettingsDep = Annotated[Settings, Depends(get_app_settings)]
 
 
-def build_auth_container(settings: Settings) -> dict[str, object]:
+def build_auth_container(settings: Settings, database: Database | None = None) -> dict[str, object]:
     """Build the auth singletons once, at application startup."""
+    users: UserRepository
+    if database is not None:
+        users = SqlAlchemyUserRepository(database)
+    else:
+        # Loud on purpose. Silently forgetting every account on restart is the
+        # kind of thing that gets discovered in front of a room of teachers.
+        structlog.get_logger().warning(
+            "auth_using_in_memory_repository",
+            detail="ILIA_DATABASE_URL is not set; accounts will be lost on restart",
+        )
+        users = InMemoryUserRepository()
+
     return {
-        "users": InMemoryUserRepository(),
+        "users": users,
         "hasher": Argon2PasswordHasher(),
         "tokens": JwtTokenService(
             secret=settings.jwt_secret,

@@ -1,0 +1,60 @@
+"""ORM mapping for the auth feature.
+
+These classes are **not** the domain. `User` in `domain/entities.py` is the
+domain; this is how it is stored. The repository translates between the two, so
+a column rename never reaches a use case.
+"""
+
+from datetime import datetime
+from uuid import UUID
+
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, String, Uuid, func
+from sqlalchemy.orm import Mapped, mapped_column
+
+from app.core.database import Base
+
+
+class CohortModel(Base):
+    """A group of teachers coming from one in-person talk.
+
+    Created now, ahead of the enrollment feature, because the TRD is right that
+    adding it later means migrating live teacher data. It is also what makes the
+    first success metric of PRD 12 answerable — *what share of the teachers at a
+    given talk activated an account* — which is the number that proves the
+    alliance with the Alcaldía is working.
+    """
+
+    __tablename__ = "cohort"
+
+    id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
+    name: Mapped[str] = mapped_column(String(160), nullable=False)
+    # Short code handed out at the talk, so a teacher can attach their new
+    # account to the session they attended.
+    code: Mapped[str] = mapped_column(String(32), nullable=False, unique=True, index=True)
+    starts_on: Mapped[datetime | None] = mapped_column(Date(), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+
+
+class UserModel(Base):
+    __tablename__ = "app_user"
+
+    id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
+    # Stored already normalized by the domain. The unique index is what actually
+    # enforces it: two concurrent registrations both pass an existence check,
+    # and only the constraint stops the second one.
+    email: Mapped[str] = mapped_column(String(320), nullable=False, unique=True, index=True)
+    full_name: Mapped[str] = mapped_column(String(120), nullable=False)
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    role: Mapped[str] = mapped_column(String(20), nullable=False, default="student")
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+
+    # Nullable on purpose: enrollment is open, and a teacher who signs up on
+    # their own simply has no cohort to attribute.
+    cohort_id: Mapped[UUID | None] = mapped_column(
+        Uuid(as_uuid=True), ForeignKey("cohort.id", ondelete="SET NULL"), nullable=True
+    )

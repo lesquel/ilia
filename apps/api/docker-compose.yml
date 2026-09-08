@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: ilia-db
+    environment:
+      POSTGRES_USER: ilia
+      POSTGRES_PASSWORD: ilia
+      POSTGRES_DB: ilia
+    ports:
+      - '5432:5432'
+    volumes:
+      - ilia-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ilia -d ilia']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  ilia-db-data:
