@@ -3,6 +3,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSession } from '@/features/auth';
 import { CourseDetailScreen } from '@/features/catalog/presentation/course-detail-screen';
 import { useCourseProgress } from '@/features/enrollment/application/use-enrollment';
+import { useCourse } from '@/features/catalog';
+import { CertificatePanel } from '@/features/certificates/presentation/certificate-panel';
 import { EnrollPanel } from '@/features/enrollment/presentation/enroll-panel';
 
 /**
@@ -19,10 +21,16 @@ export default function CourseRoute() {
   const router = useRouter();
   const { isAuthenticated } = useSession();
   const { progress } = useCourseProgress(courseSlug, { enabled: isAuthenticated });
+  const { course } = useCourse(courseSlug);
 
   return (
     <CourseDetailScreen
-      enrollmentSlot={<EnrollPanel slug={courseSlug} />}
+      enrollmentSlot={
+        <>
+          <EnrollPanel slug={courseSlug} />
+          <CertificatePanel slug={courseSlug} courseTitle={course?.title} />
+        </>
+      }
       completedLessonIds={progress?.completedLessonIds ?? []}
       // Tapping a lesson opens it. Marking it done belongs in the reader, next
       // to the material — a checkbox in the syllabus would let a teacher tick

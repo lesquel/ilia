@@ -60,6 +60,27 @@ export default function HomeScreen() {
           </Pressable>
         </Link>
 
+        <Link href="/certificates" asChild>
+          <Pressable accessibilityRole="link">
+            {({ pressed }) => (
+              <View
+                style={[
+                  styles.secondary,
+                  {
+                    borderColor: theme.colors.divider,
+                    borderRadius: theme.radius.md,
+                    opacity: pressed ? 0.7 : 1,
+                  },
+                ]}
+              >
+                <Text style={[styles.secondaryLabel, { color: theme.colors.text }]}>
+                  Mis certificados
+                </Text>
+              </View>
+            )}
+          </Pressable>
+        </Link>
+
         <Link href="/login" asChild>
           <Pressable accessibilityRole="link">
             {({ pressed }) => (

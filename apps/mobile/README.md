@@ -59,8 +59,8 @@ src/
       presentation/     Pantallas y componentes
 ```
 
-Features implementadas: `auth`, `catalog`, `enrollment`, `lab`.
-Previstas: `forum`, `certificates`, `profile`, `instructor`, `admin`.
+Features implementadas: `auth`, `catalog`, `enrollment`, `lab`, `certificates`.
+Previstas: `forum`, `profile`, `instructor`, `admin`.
 
 ## Rutas
 
@@ -73,6 +73,8 @@ Previstas: `forum`, `certificates`, `profile`, `instructor`, `admin`.
 | `/my-courses` | Mis cursos con progreso y punto de retomada |
 | `/lab/[activityId]` | Laboratorio IA: enunciado, requisitos, rúbrica y editor de prompt |
 | `/lab/submissions/[submissionId]` | Resultado, con polling hasta que la evaluación llega |
+| `/certificates` | Mis certificados con su código |
+| `/verify` y `/verify/[code]` | **Verificación pública. No requiere sesión.** |
 
 En web son URLs reales y compartibles, que es para lo que los cursos se
 direccionan por slug y no por UUID.

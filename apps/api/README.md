@@ -385,6 +385,55 @@ mantener el muestreo humano.
 - **Sin calibración.** El TRD §6.3 lo pide antes de certificar a nadie: corregir
   a mano una muestra y comparar. Sin proveedor, no hay nada que calibrar todavía.
 
+## Certificados
+
+| Método | Ruta | Autenticación |
+|---|---|---|
+| `GET` | `/api/v1/certificates/verify/{code}` | **Ninguna. Pública.** |
+| `GET` | `/api/v1/certificates/me` | Docente |
+| `GET` | `/api/v1/certificates/eligibility/{slug}` | Docente |
+| `POST` | `/api/v1/certificates/{slug}` | Docente |
+| `POST` | `/api/v1/certificates/{id}/revoke` | **Admin** |
+
+### La verificación es pública, y es el punto
+
+Una escuela, la Alcaldía o un empleador escriben el código y obtienen una
+respuesta **sin crear cuenta**. Eso es lo que hace que la certificación valga
+algo (PRD §8).
+
+Por eso mismo revela lo mínimo: nombre, curso, fecha y si sigue vigente. Sin
+correo, sin id, sin progreso. **Verificar un certificado no puede convertirse en
+una forma de buscar a alguien.**
+
+### Otras decisiones
+
+**El código es aleatorio, no secuencial.** Uno adivinable dejaría enumerar todos
+los certificados que la plataforma emitió jamás. Y usa un alfabeto sin `O/0` ni
+`I/1/L`, porque un código se lee en voz alta y lo tipea alguien que no es quien
+lo recibió. Se muestra agrupado (`ABCD-2345-EFGH`) y se acepta con o sin guiones.
+
+**El nombre y el título del curso se copian al emitir**, no se buscan al
+verificar. Un certificado dice lo que era cierto cuando se ganó; una página de
+verificación que cambia porque alguien editó su perfil no es una página de
+verificación.
+
+**Un certificado revocado no desaparece: falla la verificación y dice por qué**
+(PRD A-04). Uno que se esfumara sería indistinguible de uno que nunca existió, y
+"revocado" sin motivo deja al titular presuntamente culpable de algo sin
+especificar. Revocar **exige un motivo** — el dominio se niega sin él.
+
+**Emitir es idempotente.** Pedirlo dos veces devuelve el que ya tenés. Dos
+códigos para un mismo logro son dos cosas que verificar y una que explicar.
+
+**Los criterios (PRD §10, umbral exacto *[A confirmar]*):** todas las lecciones
+completadas y todas las actividades evaluadas aprobadas. Como aprobar una
+actividad ya exige cumplir sus requisitos objetivos, **no se llega a un
+certificado solo con un puntaje inflado por el juez.** Un curso vacío nunca
+califica.
+
+**Y cuando no alcanza, se dice qué falta.** "Todavía no" sin explicación es lo
+más frustrante que esta plataforma le puede decir a alguien que viene trabajando.
+
 ## Convenciones
 
 - **Errores.** Todos los endpoints devuelven la misma envoltura:

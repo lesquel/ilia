@@ -30,7 +30,8 @@ real, en backend y en cliente.
 | Inscripción y progreso — backend y cliente | ✅ Inscripción con código de cohorte, "Mis cursos", marcado de lecciones y punto de retomada |
 | Visor de lección | ✅ Texto y navegación por el temario. Reproductor de vídeo pendiente |
 | Laboratorio IA y motor de EVALs | ✅ Grafo completo del TRD §6.1, con anclaje determinístico y resistencia a inyección. **Sin proveedor de LLM conectado** |
-| Foro, certificados, freemium | ⬜ Pendiente |
+| Certificados | ✅ Emisión por criterios, código antifalsificación y **verificación pública sin cuenta**. Revocación de admin auditada |
+| Foro y freemium | ⬜ Pendiente |
 | Pantallas de instructor y admin | ⬜ Sin diseñar |
 
 ## Puesta en marcha
