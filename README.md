@@ -27,7 +27,8 @@ real, en backend y en cliente.
 | Auth — backend y cliente | ✅ Registro, login, refresh, logout y `/me`. Cookie `httpOnly` en web, bearer en nativo |
 | Persistencia | ✅ PostgreSQL 17 + SQLAlchemy async + Alembic. Tablas `app_user` y `cohort` |
 | Catálogo — backend y cliente | ✅ Público. Filtros, búsqueda, paginación por cursor y detalle con temario |
-| Inscripción y aprendizaje | ⬜ Pendiente |
+| Inscripción y progreso — backend y cliente | ✅ Inscripción con código de cohorte, "Mis cursos", marcado de lecciones y punto de retomada |
+| Visor de lección (vídeo, presentación, texto) | ⬜ Pendiente |
 | Laboratorio IA y motor de EVALs | ⬜ Pendiente |
 | Foro, certificados, freemium | ⬜ Pendiente |
 | Pantallas de instructor y admin | ⬜ Sin diseñar |
@@ -60,7 +61,8 @@ resueltas.
    exige que el cliente web y la API compartan dominio registrable.
 3. **Proveedor y modelo de LLM.** El único que sigue bloqueando de verdad:
    sin esto no se puede construir el motor de EVALs, que es el corazón del
-   producto.
+   producto. El TRD (T4) ya manda abstraerlo tras un puerto de dominio desde el
+   día 1, así que se puede empezar por ahí y enchufar el proveedor después.
 4. ~~**Cohortes sí o no.**~~ ✅ **Decidido: con cohortes.** La tabla `cohort` y
    `app_user.cohort_id` ya están en la primera migración, así que no habrá que
    migrar datos de docentes reales después. Falta el flujo: crear cohortes y que
