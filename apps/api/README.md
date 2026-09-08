@@ -434,6 +434,55 @@ califica.
 **Y cuando no alcanza, se dice qué falta.** "Todavía no" sin explicación es lo
 más frustrante que esta plataforma le puede decir a alguien que viene trabajando.
 
+## Foro
+
+| Método | Ruta | Qué hace |
+|---|---|---|
+| `GET` | `/api/v1/forum/{slug}/threads` | Discusiones del curso, la más activa primero |
+| `POST` | `/api/v1/forum/{slug}/threads` | Abrir una discusión |
+| `GET` | `/api/v1/forum/{slug}/threads/{id}` | La discusión con sus respuestas |
+| `POST` | `/api/v1/forum/{slug}/threads/{id}/replies` | Responder |
+| `POST` | `/api/v1/forum/threads/{id}/hide` | Moderar una discusión |
+| `POST` | `/api/v1/forum/posts/{id}/hide` | Moderar una respuesta |
+
+### El PRD y el mockup se contradicen
+
+La pregunta abierta 8 del PRD dice *"el mockup sugiere por módulo"*. **No es
+así:** la pantalla del mockup se titula **"Foro del curso"** y su subtítulo
+cuenta discusiones de todo el curso (*"Creación de imágenes con IA · 34
+discusiones"*).
+
+El TRD §7 permite ambos, así que `module_id` es nullable: **null = discusión del
+curso**, que es el default y lo que muestra el mockup. Si el equipo decide que
+las quiere por módulo, el filtro ya está.
+
+### Decisiones
+
+**Se listan por última actividad, no por fecha de creación.** Un foro ordenado
+por antigüedad entierra la conversación que la gente está teniendo. Y
+`last_activity_at` está guardado, no derivado: ordenar por un `max()` sobre todas
+las respuestas es un sort que la base rehace en cada carga de página. Hay índice
+compuesto `(course_id, last_activity_at)`.
+
+**Un mensaje moderado se reemplaza, no se borra.** Queda la fila y el lector ve
+`[Mensaje retirado por moderación]`. Borrarlo reescribiría en silencio una
+conversación en la que otros ya respondieron, y dejaría a alguien preguntándose
+a qué contestaba el mensaje de arriba. Moderar **exige un motivo**.
+
+**Un instructor modera sus propios cursos, no los ajenos.** Esa comprobación
+vive en la capa de aplicación, no en `interface`, porque necesita el curso para
+decidir — el chequeo de rol solo no alcanza.
+
+**Un instructor no necesita inscribirse para moderar.** Si no, tendría que
+anotarse en todos los cursos que supervisa.
+
+**No se puede leer una discusión a través de otro curso.** Sin esa comprobación,
+cualquier id de hilo sería legible desde cualquier curso en el que estés inscrito.
+
+**No está el corte freemium.** El PRD §11 divide el foro en *lectura gratis /
+participación paga*, pero el sistema de planes no existe todavía y **no lo
+simulo**. Hoy la puerta es la inscripción.
+
 ## Convenciones
 
 - **Errores.** Todos los endpoints devuelven la misma envoltura:

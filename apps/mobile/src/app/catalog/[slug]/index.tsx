@@ -5,6 +5,7 @@ import { CourseDetailScreen } from '@/features/catalog/presentation/course-detai
 import { useCourseProgress } from '@/features/enrollment/application/use-enrollment';
 import { useCourse } from '@/features/catalog';
 import { CertificatePanel } from '@/features/certificates/presentation/certificate-panel';
+import { Link } from 'expo-router';
 import { EnrollPanel } from '@/features/enrollment/presentation/enroll-panel';
 
 /**
@@ -30,6 +31,16 @@ export default function CourseRoute() {
           <EnrollPanel slug={courseSlug} />
           <CertificatePanel slug={courseSlug} courseTitle={course?.title} />
         </>
+      }
+      footerSlot={
+        progress ? (
+          <Link
+            href={`/catalog/${courseSlug}/forum`}
+            style={{ fontSize: 15, fontWeight: '600', marginTop: 13.6 }}
+          >
+            Ir al foro del curso →
+          </Link>
+        ) : null
       }
       completedLessonIds={progress?.completedLessonIds ?? []}
       // Tapping a lesson opens it. Marking it done belongs in the reader, next

@@ -21,12 +21,15 @@ import {
  */
 export interface CourseDetailScreenProps {
   enrollmentSlot?: ReactNode;
+  /** Rendered under the syllabus. The forum is another feature; the route composes it. */
+  footerSlot?: ReactNode;
   completedLessonIds?: string[];
   onLessonPress?: (lessonId: string) => void;
 }
 
 export function CourseDetailScreen({
   enrollmentSlot,
+  footerSlot,
   completedLessonIds = [],
   onLessonPress,
 }: CourseDetailScreenProps) {
@@ -98,6 +101,8 @@ export function CourseDetailScreen({
           />
         ))
       )}
+
+      {footerSlot}
     </ScrollView>
   );
 }

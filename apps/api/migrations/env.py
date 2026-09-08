@@ -22,6 +22,7 @@ from app.features.catalog.infrastructure import models as catalog_models  # noqa
 from app.features.certificates.infrastructure import models as certificate_models  # noqa: F401
 from app.features.enrollment.infrastructure import models as enrollment_models  # noqa: F401
 from app.features.evaluation.infrastructure import models as evaluation_models  # noqa: F401
+from app.features.forum.infrastructure import models as forum_models  # noqa: F401
 
 config = context.config
 

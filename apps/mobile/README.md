@@ -59,8 +59,8 @@ src/
       presentation/     Pantallas y componentes
 ```
 
-Features implementadas: `auth`, `catalog`, `enrollment`, `lab`, `certificates`.
-Previstas: `forum`, `profile`, `instructor`, `admin`.
+Features implementadas: `auth`, `catalog`, `enrollment`, `lab`, `certificates`,
+`forum`. Previstas: `profile`, `instructor`, `admin`.
 
 ## Rutas
 
@@ -73,6 +73,8 @@ Previstas: `forum`, `profile`, `instructor`, `admin`.
 | `/my-courses` | Mis cursos con progreso y punto de retomada |
 | `/lab/[activityId]` | Laboratorio IA: enunciado, requisitos, rúbrica y editor de prompt |
 | `/lab/submissions/[submissionId]` | Resultado, con polling hasta que la evaluación llega |
+| `/catalog/[slug]/forum` | Foro del curso |
+| `/catalog/[slug]/forum/[threadId]` | Una discusión con sus respuestas |
 | `/certificates` | Mis certificados con su código |
 | `/verify` y `/verify/[code]` | **Verificación pública. No requiere sesión.** |
 

@@ -31,7 +31,8 @@ real, en backend y en cliente.
 | Visor de lección | ✅ Texto y navegación por el temario. Reproductor de vídeo pendiente |
 | Laboratorio IA y motor de EVALs | ✅ Grafo completo del TRD §6.1, con anclaje determinístico y resistencia a inyección. **Sin proveedor de LLM conectado** |
 | Certificados | ✅ Emisión por criterios, código antifalsificación y **verificación pública sin cuenta**. Revocación de admin auditada |
-| Foro y freemium | ⬜ Pendiente |
+| Foro | ✅ Discusiones por curso, respuestas y moderación con alcance por instructor |
+| Freemium (planes y cupos) | ⬜ Pendiente |
 | Pantallas de instructor y admin | ⬜ Sin diseñar |
 
 ## Puesta en marcha

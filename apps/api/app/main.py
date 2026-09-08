@@ -26,6 +26,8 @@ from app.features.enrollment.interface.dependencies import build_enrollment_cont
 from app.features.enrollment.interface.router import router as enrollment_router
 from app.features.evaluation.interface.dependencies import build_evaluation_container
 from app.features.evaluation.interface.router import router as evaluation_router
+from app.features.forum.interface.dependencies import build_forum_container
+from app.features.forum.interface.router import router as forum_router
 from app.features.health.interface.router import router as health_router
 
 
@@ -70,6 +72,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.enrollment = build_enrollment_container(settings, database)
     app.state.evaluation = build_evaluation_container(settings, database)
     app.state.certificates = build_certificate_container(settings, database)
+    app.state.forum = build_forum_container(settings, database)
 
     app.include_router(health_router)
     app.include_router(auth_router, prefix=settings.api_prefix)
@@ -77,6 +80,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(enrollment_router, prefix=settings.api_prefix)
     app.include_router(evaluation_router, prefix=settings.api_prefix)
     app.include_router(certificate_router, prefix=settings.api_prefix)
+    app.include_router(forum_router, prefix=settings.api_prefix)
 
     return app
 
