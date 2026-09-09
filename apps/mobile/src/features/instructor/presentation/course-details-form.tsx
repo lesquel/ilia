@@ -13,6 +13,8 @@ function messageFor(error: unknown): string {
   switch (error.code) {
     case 'slug_taken':
       return 'Ya hay otro curso con esa dirección. Elegí otra.';
+    case 'published_slug_change':
+      return 'No se puede cambiar la dirección de un curso publicado. Retiralo del catálogo primero.';
     case 'invalid_slug':
       return 'La dirección sólo admite minúsculas sin acentos, números y guiones.';
     case 'validation_error':
@@ -40,9 +42,8 @@ export function CourseDetailsForm({ course }: { course: AuthoredCourse }) {
   const [level, setLevel] = useState<Level>(course.level);
 
   // Once the course is out there, its address is in students' bookmarks and in
-  // whatever the instructor pasted into a staff group. The API would let this
-  // change and keeps no alias, so the old link would simply 404. Locked here
-  // rather than silently breaking them.
+  // whatever the instructor pasted into a staff group. The API refuses the
+  // change too — this only saves the round trip and explains it in place.
   const slugLocked = course.status === 'published';
 
   const dirty =

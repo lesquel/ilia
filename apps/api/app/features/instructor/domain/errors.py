@@ -45,3 +45,19 @@ class ModuleNotFoundError(NotFoundError):
 
     def __init__(self) -> None:
         super().__init__("That module does not exist in this course")
+
+
+class PublishedSlugChangeError(ConflictError):
+    """The course is published and its address is already in circulation.
+
+    Withdrawing it from the catalogue first is the honest way through: it makes
+    the breakage a decision somebody took, rather than one that happened to
+    students without anyone noticing.
+    """
+
+    code = "published_slug_change"
+
+    def __init__(self) -> None:
+        super().__init__(
+            "A published course's address cannot change. Withdraw it from the catalogue first"
+        )

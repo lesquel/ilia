@@ -437,6 +437,23 @@ Y el juez **nunca devuelve un total**: propone puntajes por dimensión y el
 backend computa el total con los pesos de la rúbrica. Un total que viene del
 modelo es un total que se puede negociar.
 
+## La dirección de un curso publicado no cambia
+
+`UpdateCourse` rechaza cambiar el slug de un curso publicado
+(`published_slug_change`). No guardamos alias: la dirección ya está en los
+marcadores de estudiantes y en lo que el instructor pegó en un grupo, y
+cambiarla haría 404 en silencio todos esos enlaces.
+
+El camino honesto es retirarlo del catálogo primero. Así el enlace roto es una
+decisión que alguien tomó, y no algo que le pasó a los estudiantes sin que nadie
+se enterara.
+
+La regla protege **la dirección, no el curso**: título, resumen, descripción y
+nivel se siguen editando con el curso publicado.
+
+Estaba bloqueado solo en la UI. Una regla que la API no hace cumplir no es una
+regla: es una sugerencia para quien la llame directo.
+
 ### Lo que todavía es provisorio
 
 - **El proveedor de LLM se configura, no se elige en el código.** Sin

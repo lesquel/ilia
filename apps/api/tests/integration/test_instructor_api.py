@@ -412,3 +412,78 @@ class TestRoster:
             client.get(f"{API}/courses/{course['id']}/roster", headers=auth(other)).status_code
             == 403
         )
+
+
+class TestCourseAddress:
+    """Changing a published course's slug.
+
+    The address of a published course is in students' bookmarks and in whatever
+    the instructor pasted into a staff group. We keep no alias, so changing it
+    would silently 404 every link already in circulation.
+    """
+
+    def build_complete_course(self, client: TestClient, token: str) -> dict:  # type: ignore[type-arg]
+        return TestPublishing.build_complete_course(client, token)
+
+    def test_a_draft_can_be_renamed_freely(self, client: TestClient, instructor: str) -> None:
+        # Nothing points at it yet, so there is nothing to break.
+        course = client.post(f"{API}/courses", json=DRAFT, headers=auth(instructor)).json()
+
+        response = client.put(
+            f"{API}/courses/{course['id']}",
+            json={**DRAFT, "slug": "otro-nombre"},
+            headers=auth(instructor),
+        )
+
+        assert response.status_code == 200
+        assert response.json()["slug"] == "otro-nombre"
+
+    def test_a_published_course_keeps_its_address(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        course = self.build_complete_course(client, instructor)
+        client.post(f"{API}/courses/{course['id']}/publish", headers=auth(instructor))
+
+        response = client.put(
+            f"{API}/courses/{course['id']}",
+            json={**DRAFT, "slug": "direccion-nueva"},
+            headers=auth(instructor),
+        )
+
+        assert response.status_code == 409
+        assert response.json()["error"]["code"] == "published_slug_change"
+        # And the old address still works, which is the whole point.
+        assert client.get(f"/api/v1/catalog/courses/{DRAFT['slug']}").status_code == 200
+
+    def test_everything_else_stays_editable_while_published(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        # The rule protects the address, not the course. An instructor must
+        # still be able to fix a typo in the title of a live course.
+        course = self.build_complete_course(client, instructor)
+        client.post(f"{API}/courses/{course['id']}/publish", headers=auth(instructor))
+
+        response = client.put(
+            f"{API}/courses/{course['id']}",
+            json={**DRAFT, "title": "Prompting para docentes (2026)"},
+            headers=auth(instructor),
+        )
+
+        assert response.status_code == 200
+        assert response.json()["title"] == "Prompting para docentes (2026)"
+
+    def test_withdrawing_it_reopens_the_address(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        # The way through: the breakage becomes a decision somebody took.
+        course = self.build_complete_course(client, instructor)
+        client.post(f"{API}/courses/{course['id']}/publish", headers=auth(instructor))
+        client.post(f"{API}/courses/{course['id']}/unpublish", headers=auth(instructor))
+
+        response = client.put(
+            f"{API}/courses/{course['id']}",
+            json={**DRAFT, "slug": "direccion-nueva"},
+            headers=auth(instructor),
+        )
+
+        assert response.status_code == 200

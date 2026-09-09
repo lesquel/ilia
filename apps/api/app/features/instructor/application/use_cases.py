@@ -16,6 +16,7 @@ from app.features.instructor.domain.errors import (
     ModuleNotFoundError,
     NotPublishedError,
     NotYourCourseError,
+    PublishedSlugChangeError,
     SlugTakenError,
 )
 from app.features.instructor.domain.ports import (
@@ -116,6 +117,14 @@ class UpdateCourse:
     ) -> Course:
         course = await self._ownership.require(user=user, course_id=course_id)
         identifier = Slug(slug)
+
+        # A published course's address is in students' bookmarks and in whatever
+        # the instructor pasted into a staff group. We keep no alias, so changing
+        # it would silently 404 every link already in circulation. Refused here
+        # rather than only in the UI: a rule the API does not enforce is not a
+        # rule, it is a suggestion to whoever calls it directly.
+        if identifier.value != course.slug.value and course.status is CourseStatus.PUBLISHED:
+            raise PublishedSlugChangeError()
 
         if await self._writer.slug_taken(slug=identifier.value, excluding=course.id):
             raise SlugTakenError(identifier.value)
