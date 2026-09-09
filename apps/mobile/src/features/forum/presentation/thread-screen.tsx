@@ -12,6 +12,7 @@ import {
 
 import { useTheme } from '@/core/theme';
 import { ErrorState, LoadingState } from '@/core/ui/state-view';
+import { useEntitlements } from '@/features/billing';
 import { useReply, useThread } from '@/features/forum/application/use-forum';
 import { MAX_BODY_CHARS, replyLabel, timeAgo } from '@/features/forum/domain/entities';
 import { ModerateControl } from '@/features/forum/presentation/moderate-control';
@@ -22,6 +23,10 @@ export function ThreadScreen() {
   const courseSlug = slug ?? '';
 
   const { thread, isLoading, error } = useThread(courseSlug, threadId ?? '');
+  const { entitlements } = useEntitlements();
+  // Null means billing is not configured, which is generous by design: a
+  // misconfiguration must not silence a whole course's forum.
+  const canPost = entitlements === null || entitlements.canPostInForum;
   const reply = useReply(courseSlug, threadId ?? '');
   const [body, setBody] = useState('');
 
@@ -119,6 +124,25 @@ export function ThreadScreen() {
         </View>
       ))}
 
+      {/* Same rule as the forum listing, which already got this right: someone
+          whose plan does not allow posting is told so instead of being handed a
+          box to write in and refused afterwards. */}
+      {!canPost ? (
+        <View
+          style={[
+            styles.gate,
+            { borderColor: theme.colors.divider, borderRadius: theme.radius.md },
+          ]}
+        >
+          <Text style={[styles.replyLabel, { color: theme.colors.neutral[700] }]}>
+            Con tu plan actual podés leer el foro, pero no responder.
+          </Text>
+          <Link href="/plans" style={[styles.planLink, { color: theme.colors.accent }]}>
+            Ver planes →
+          </Link>
+        </View>
+      ) : (
+        <>
       <Text style={[styles.replyLabel, { color: theme.colors.neutral[700] }]}>Tu respuesta</Text>
       <TextInput
         value={body}
@@ -165,11 +189,15 @@ export function ThreadScreen() {
           <Text style={styles.buttonLabel}>Responder</Text>
         )}
       </Pressable>
+        </>
+      )}
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  gate: { borderWidth: 1, padding: 13.6, gap: 6.8, marginTop: 13.6 },
+  planLink: { fontSize: 15, fontWeight: '600' },
   screen: { flex: 1 },
   content: {
     padding: 20.4,

@@ -268,6 +268,54 @@ class TestForumGate:
 
         assert response.status_code == 201
 
+    def test_replying_is_gated_too_not_only_opening_a_thread(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        """The gate the client screen had forgotten.
+
+        The forum listing hid its composer from a free account; the thread
+        detail did not, so someone could write a full reply and be refused
+        afterwards. The API always refused — this pins it, so the two cannot
+        drift apart again.
+        """
+        # Sets up the course and enrols someone; the tokens this test needs are
+        # created below.
+        self.setup_forum(client, instructor)
+
+        subscribe("ana@colegio.edu", "pro")
+        author = client.post(
+            "/api/v1/auth/login",
+            json={"email": "ana@colegio.edu", "password": "una-clave-larga"},
+            headers=NATIVE,
+        ).json()["access_token"]
+        thread = client.post(
+            "/api/v1/forum/basico/threads",
+            json={"title": "Una duda", "body": "cuerpo"},
+            headers=auth(author),
+        ).json()
+
+        # A second teacher on the free plan.
+        free = register(client, "bea@colegio.edu")["access_token"]
+        client.post("/api/v1/enrollments", json={"course_slug": "basico"}, headers=auth(free))
+
+        # Reading the thread is fine.
+        assert (
+            client.get(
+                f"/api/v1/forum/basico/threads/{thread['id']}", headers=auth(free)
+            ).status_code
+            == 200
+        )
+
+        # Replying is not.
+        response = client.post(
+            f"/api/v1/forum/basico/threads/{thread['id']}/replies",
+            json={"body": "quiero responder"},
+            headers=auth(free),
+        )
+
+        assert response.status_code == 403
+        assert response.json()["error"]["code"] == "plan_posting_not_allowed"
+
 
 class TestCertificateGate:
     def finish_basic_course(self, client: TestClient, instructor: str) -> str:
