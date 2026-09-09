@@ -1,0 +1,17 @@
+- generic [ref=f61e64]:
+  - generic [ref=f61e65]: ILIA
+  - generic [ref=f61e66]: Iniciar sesión
+  - generic [ref=f61e67]: Entrá para continuar con tus cursos
+  - generic [ref=f61e68]: Correo
+  - textbox "Correo electrónico" [ref=f61e69]:
+    - /placeholder: docente@colegio.edu
+    - text: ana@colegio.edu
+  - generic [ref=f61e70]: Contraseña
+  - textbox "Contraseña" [ref=f61e71]:
+    - /placeholder: ••••••••
+    - text: Prompt2026!
+  - button "Entrar" [ref=f61e72] [cursor=pointer]
+  - generic [ref=f61e74]:
+    - text: ¿Todavía no tenés cuenta?
+    - link "Crear cuenta" [ref=f61e75] [cursor=pointer]:
+      - /url: /register?next=%2Flab%2Fdc62dd30-d879-4773-992b-7477efcc2138

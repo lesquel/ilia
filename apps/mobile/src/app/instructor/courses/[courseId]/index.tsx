@@ -1,4 +1,11 @@
+import { RequireAuth } from '@/features/auth/presentation/require-auth';
 import { CourseEditorScreen } from '@/features/instructor/presentation/course-editor-screen';
 
 /** Route composition only — the screen lives in the instructor feature. */
-export default CourseEditorScreen;
+export default function Route() {
+  return (
+    <RequireAuth>
+      <CourseEditorScreen />
+    </RequireAuth>
+  );
+}

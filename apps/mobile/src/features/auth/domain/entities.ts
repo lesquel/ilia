@@ -58,3 +58,30 @@ export interface Session {
     expiresIn: number;
   };
 }
+
+/** Where to land after signing in. */
+export const DEFAULT_DESTINATION = '/catalog';
+
+/**
+ * Sanitise the `next` parameter carried to the login screen.
+ *
+ * Only an internal path is ever accepted. Redirecting to whatever arrives in a
+ * query string is an open redirect: a link like
+ * `…/login?next=https://not-ilia.example` would take a teacher who typed their
+ * password on our page straight to someone else's, and the URL they checked
+ * before typing it was ours.
+ *
+ * Rejected: absolute URLs, protocol-relative `//host` (a browser reads that as
+ * a different host), anything not starting with `/`, and the auth screens
+ * themselves — bouncing someone back to the login form after logging in is a
+ * loop, not a destination.
+ */
+export function safeDestination(next: string | undefined | null): string {
+  if (!next) return DEFAULT_DESTINATION;
+
+  const path = next.trim();
+  if (!path.startsWith('/') || path.startsWith('//')) return DEFAULT_DESTINATION;
+  if (path.startsWith('/login') || path.startsWith('/register')) return DEFAULT_DESTINATION;
+
+  return path;
+}

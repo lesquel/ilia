@@ -1,4 +1,4 @@
-import { Link, useRouter } from 'expo-router';
+import { Link, useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
@@ -15,6 +15,7 @@ import {
 import { ApiError } from '@/core/errors/api-error';
 import { useTheme } from '@/core/theme';
 import { useRegister } from '@/features/auth/application/use-auth';
+import { safeDestination } from '@/features/auth/domain/entities';
 
 /** Mirrors `RegisterRequest` on the API. Kept in sync deliberately, not guessed. */
 const MIN_PASSWORD = 8;
@@ -43,6 +44,11 @@ export function RegisterScreen() {
   const theme = useTheme();
   const router = useRouter();
   const register = useRegister();
+  const { next } = useLocalSearchParams<{ next?: string }>();
+  // Cast past expo-router's typed routes: the destination is a runtime value,
+  // and `safeDestination` is what makes it safe — it only ever returns an
+  // internal path.
+  const destination = safeDestination(next) as Href;
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -62,9 +68,8 @@ export function RegisterScreen() {
     if (!canSubmit) return;
     register.mutate(
       { fullName: fullName.trim(), email: email.trim(), password },
-      // Straight into the product. Leaving someone on the form after a
-      // successful sign-up reads as a failure.
-      { onSuccess: () => router.replace('/catalog') },
+      // Straight into the product, and to wherever they were headed.
+      { onSuccess: () => router.replace(destination) },
     );
   };
 
@@ -191,7 +196,10 @@ export function RegisterScreen() {
 
           <Text style={[styles.footer, { color: theme.colors.neutral[600] }]}>
             ¿Ya tenés cuenta?{' '}
-            <Link href="/login" style={{ color: theme.colors.accent }}>
+            <Link
+              href={next ? `/login?next=${encodeURIComponent(next)}` : '/login'}
+              style={{ color: theme.colors.accent }}
+            >
               Iniciar sesión
             </Link>
           </Text>

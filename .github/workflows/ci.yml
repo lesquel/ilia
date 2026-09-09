@@ -98,6 +98,11 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      # The domain layer is pure by design, so it runs here in milliseconds
+      # without a native test environment.
+      - name: Unit tests
+        run: npm test
+
       # Bundling the web target is what actually catches a broken import or a
       # native-only module leaking into shared code. Typecheck alone does not.
       - name: Build web

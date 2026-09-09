@@ -13,3 +13,4 @@ export { installAuthTokenProvider } from './data/install';
 export { AccountBar } from './presentation/account-bar';
 export { RegisterScreen } from './presentation/register-screen';
 export { GuestOnly } from './presentation/guest-only';
+export { RequireAuth } from './presentation/require-auth';

@@ -1,0 +1,10 @@
+- generic [ref=f60e9]:
+  - generic [ref=f60e10]: ILIA
+  - generic [ref=f60e11]: Aprendé inteligencia artificial haciendo
+  - generic [ref=f60e12]:
+    - link "Explorar cursos" [ref=f60e13] [cursor=pointer]:
+      - /url: /catalog
+    - link "Mis cursos" [ref=f60e16] [cursor=pointer]:
+      - /url: /my-courses
+    - link "Mis certificados" [ref=f60e19] [cursor=pointer]:
+      - /url: /certificates

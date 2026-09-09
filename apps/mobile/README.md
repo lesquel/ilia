@@ -169,6 +169,30 @@ for h in $(rg -o 'export function (use[A-Z]\w+)' -r '$1' -g '*.ts' src/features 
 done
 ```
 
+## Tests del cliente
+
+`npm test` (vitest). Cubren **solo la capa de dominio**, que es pura por
+diseño — sin React, sin React Native, sin expo — y por eso corre en
+milisegundos sin entorno nativo. Lo que necesite un renderer no va acá.
+
+Correr siempre `npm run typecheck` además de `npm test`: vitest **no**
+typecheckea. Un test puede pasar en verde con tipos incorrectos y estar
+comprobando otra cosa que la que creés.
+
+## Rutas protegidas
+
+- `RequireAuth` envuelve las rutas que necesitan sesión. Sin él, un visitante
+  que abre un enlace compartido recibe "No pudimos cargar esta información":
+  ni es cierto ni ofrece salida.
+- El destino viaja en `?next=` y la persona vuelve adonde iba. Aterrizar en el
+  catálogo después de hacer clic en el enlace de una lección obliga a buscarla
+  de nuevo.
+- `safeDestination()` sanea ese parámetro. Redirigir a lo que venga en el query
+  string es un **redirect abierto**: `?next=https://otro-sitio` llevaría a una
+  docente que acaba de escribir su contraseña en nuestra página a la de otro.
+  Rechaza URLs absolutas, `//host` (que el navegador lee como otro host), lo que
+  no empiece con `/`, y las propias pantallas de auth.
+
 ## Entrada y salida de la sesión
 
 - `/register` → `RegisterScreen`. Espeja la validación de `RegisterRequest` del

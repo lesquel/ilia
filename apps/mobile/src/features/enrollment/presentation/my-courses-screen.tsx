@@ -29,7 +29,12 @@ export function MyCoursesScreen() {
           title="Iniciá sesión para ver tus cursos"
           hint="Tu progreso queda guardado en tu cuenta."
         />
-        <Link href="/login" style={[styles.link, { color: theme.colors.accent }]}>
+        {/* Carrying the destination, so signing in returns here rather than
+            dropping the person on the catalogue. */}
+        <Link
+          href="/login?next=/my-courses"
+          style={[styles.link, { color: theme.colors.accent }]}
+        >
           Iniciar sesión
         </Link>
       </View>

@@ -59,13 +59,18 @@ export const STATUS_LABELS: Record<CourseStatus, string> = {
 
 /** Turns a title into a URL-safe slug, ASCII only. */
 export function slugify(title: string): string {
-  return title
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 160);
+  return (
+    title
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      // Truncate before trimming, not after. Cutting at 160 can land on a
+      // separator, and a trailing hyphen is rejected by the API's slug rule —
+      // turning a long course title into a 400 the instructor cannot explain.
+      .slice(0, 160)
+      .replace(/^-+|-+$/g, '')
+  );
 }
 
 export function canPublish(course: AuthoredCourse): boolean {

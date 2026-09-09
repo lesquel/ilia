@@ -27,7 +27,12 @@ export function MyCertificatesScreen() {
           title="Iniciá sesión para ver tus certificados"
           hint="Tus certificados quedan guardados en tu cuenta."
         />
-        <Link href="/login" style={[styles.link, { color: theme.colors.accent }]}>
+        {/* Carrying the destination, so signing in returns here rather than
+            dropping the person on the catalogue. */}
+        <Link
+          href="/login?next=/certificates"
+          style={[styles.link, { color: theme.colors.accent }]}
+        >
           Iniciar sesión
         </Link>
       </View>

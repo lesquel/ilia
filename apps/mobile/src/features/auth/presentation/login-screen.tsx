@@ -1,4 +1,4 @@
-import { Link, useRouter } from 'expo-router';
+import { Link, useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
@@ -15,6 +15,7 @@ import {
 import { ApiError } from '@/core/errors/api-error';
 import { useTheme } from '@/core/theme';
 import { useLogin } from '@/features/auth/application/use-auth';
+import { safeDestination } from '@/features/auth/domain/entities';
 
 /** Wording the teacher reads, chosen here from the backend's stable error code. */
 function messageFor(error: unknown): string {
@@ -40,6 +41,12 @@ export function LoginScreen() {
   const theme = useTheme();
   const router = useRouter();
   const login = useLogin();
+  // Where the person was heading before being asked to sign in.
+  const { next } = useLocalSearchParams<{ next?: string }>();
+  // Cast past expo-router's typed routes: the destination is a runtime value,
+  // and `safeDestination` is what makes it safe — it only ever returns an
+  // internal path.
+  const destination = safeDestination(next) as Href;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -50,9 +57,8 @@ export function LoginScreen() {
     if (!canSubmit) return;
     login.mutate(
       { email: email.trim(), password },
-      // Signing in has to take you somewhere. Staying on the form after a
-      // successful login reads as if nothing happened.
-      { onSuccess: () => router.replace('/catalog') },
+      // Back to where they were going, not to a generic home page.
+      { onSuccess: () => router.replace(destination) },
     );
   };
 
@@ -141,7 +147,10 @@ export function LoginScreen() {
 
           <Text style={[styles.footer, { color: theme.colors.neutral[600] }]}>
             ¿Todavía no tenés cuenta?{' '}
-            <Link href="/register" style={{ color: theme.colors.accent }}>
+            <Link
+              href={next ? `/register?next=${encodeURIComponent(next)}` : '/register'}
+              style={{ color: theme.colors.accent }}
+            >
               Crear cuenta
             </Link>
           </Text>
