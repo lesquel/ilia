@@ -33,7 +33,8 @@ real, en backend y en cliente.
 | Certificados | ✅ Emisión por criterios, código antifalsificación y **verificación pública sin cuenta**. Revocación de admin auditada |
 | Foro | ✅ Discusiones por curso, respuestas y moderación con alcance por instructor |
 | Freemium (planes y cupos) | ⬜ Pendiente |
-| Pantallas de instructor y admin | ⬜ Sin diseñar |
+| Instructor — autoría, publicación, revisión y roster | ✅ Backend y cliente |
+| Pantallas de admin | ⬜ Sin diseñar |
 
 ## Puesta en marcha
 

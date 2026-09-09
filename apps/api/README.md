@@ -483,6 +483,70 @@ cualquier id de hilo sería legible desde cualquier curso en el que estés inscr
 participación paga*, pero el sistema de planes no existe todavía y **no lo
 simulo**. Hoy la puerta es la inscripción.
 
+## Instructor
+
+Todas las rutas exigen rol `instructor`. Ese es **solo el primer portón**: si
+este instructor es dueño de *este* curso se decide en la capa de aplicación,
+porque necesita el curso para responder.
+
+| Método | Ruta | Qué hace |
+|---|---|---|
+| `GET` | `/api/v1/instructor/courses` | Mis cursos, **borradores incluidos** |
+| `POST` | `/api/v1/instructor/courses` | Crear (nace como borrador) |
+| `PUT` | `/api/v1/instructor/courses/{id}` | Editar datos |
+| `POST` | `/api/v1/instructor/courses/{id}/publish` | Publicar |
+| `POST` | `/api/v1/instructor/courses/{id}/unpublish` | Retirar del catálogo |
+| `POST` | `/api/v1/instructor/courses/{id}/modules` | Agregar módulo |
+| `POST` | `/api/v1/instructor/courses/{id}/modules/{mid}/lessons` | Agregar lección |
+| `GET` | `/api/v1/instructor/submissions` | Bandeja de entregas |
+| `POST` | `/api/v1/instructor/submissions/{id}/override` | Corregir la nota |
+| `GET` | `/api/v1/instructor/courses/{id}/roster` | Inscritos y su avance |
+
+### Decisiones
+
+**Los cursos nacen como borrador.** Nadie debería descubrir su curso a medio
+escribir en el catálogo. Publicar es un acto aparte y deliberado.
+
+**Publicar exige que el curso esté completo**, y cuando no lo está devuelve
+**todos** los motivos, no el primero. Un instructor al que le dicen "no se puede
+publicar" de a un motivo por vez lo va a arreglar de a un viaje por vez.
+`publish_blockers` viaja también en los cursos ya publicados, así se entera de
+que rompió algo en el momento, no la próxima vez que intente publicar.
+
+Los bloqueos: sin título, resumen de menos de 20 caracteres, sin módulos, sin
+lecciones, o módulos vacíos. Cada uno existe por un docente del otro lado — un
+curso vacío desperdicia la única visita que el PRD §2.2 dice que tenemos.
+
+**Retirar archiva, no borra.** Los inscritos conservan el acceso y sus
+certificados siguen siendo verificables (PRD A-04).
+
+**Republicar conserva la fecha original de publicación.** Si no, un curso viejo
+volvería al tope del catálogo como si fuera nuevo.
+
+**Las posiciones de módulos y lecciones las asigna el servidor**, no el cliente.
+Así dos módulos nunca pueden reclamar el mismo lugar.
+
+**Un módulo tiene que pertenecer a *este* curso.** Sin esa comprobación, un
+instructor podría agregarle lecciones al curso de otro pasando el id de un
+módulo ajeno. Hay un test que lo verifica.
+
+**El override de nota se escribe al lado, nunca encima** (PRD I-03). Sobreviven
+la nota automática, la humana, quién la cambió, cuándo y por qué. Sin eso la
+corrección tampoco es defendible — y es el mecanismo que el TRD §9.3 dice que la
+certificación necesita.
+
+**El roster incluye el correo.** Es el curso propio del instructor, y contactar
+al docente que se quedó a mitad de camino es exactamente para lo que se mira esa
+lista.
+
+### Nota sobre los tests
+
+`tests/integration/test_instructor_api.py` hace su setup con `asyncio.run` en
+funciones **síncronas**. No es capricho: `TestClient` corre la app en su propio
+event loop y una fixture async de pytest corre en otro; compartir un engine
+asyncpg entre los dos falla con *"attached to a different loop"*. Cada llamada
+de setup abre su propio loop y su propio engine, así no se comparte nada.
+
 ## Convenciones
 
 - **Errores.** Todos los endpoints devuelven la misma envoltura:
