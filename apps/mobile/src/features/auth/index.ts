@@ -11,3 +11,5 @@ export type { Credentials, Registration, Role, Session, User } from './domain/en
 export { useLogin, useLogout, useRegister, useSession, authKeys } from './application/use-auth';
 export { installAuthTokenProvider } from './data/install';
 export { AccountBar } from './presentation/account-bar';
+export { RegisterScreen } from './presentation/register-screen';
+export { GuestOnly } from './presentation/guest-only';

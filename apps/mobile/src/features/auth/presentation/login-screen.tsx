@@ -1,3 +1,4 @@
+import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
@@ -37,6 +38,7 @@ function messageFor(error: unknown): string {
 
 export function LoginScreen() {
   const theme = useTheme();
+  const router = useRouter();
   const login = useLogin();
 
   const [email, setEmail] = useState('');
@@ -46,7 +48,12 @@ export function LoginScreen() {
 
   const submit = () => {
     if (!canSubmit) return;
-    login.mutate({ email: email.trim(), password });
+    login.mutate(
+      { email: email.trim(), password },
+      // Signing in has to take you somewhere. Staying on the form after a
+      // successful login reads as if nothing happened.
+      { onSuccess: () => router.replace('/catalog') },
+    );
   };
 
   const inputStyle = [
@@ -131,6 +138,13 @@ export function LoginScreen() {
               <Text style={styles.buttonLabel}>Entrar</Text>
             )}
           </Pressable>
+
+          <Text style={[styles.footer, { color: theme.colors.neutral[600] }]}>
+            ¿Todavía no tenés cuenta?{' '}
+            <Link href="/register" style={{ color: theme.colors.accent }}>
+              Crear cuenta
+            </Link>
+          </Text>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -188,5 +202,10 @@ const styles = StyleSheet.create({
     color: '#f2f2f3',
     fontSize: 16,
     fontWeight: '600',
+  },
+  footer: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 20.4,
   },
 });

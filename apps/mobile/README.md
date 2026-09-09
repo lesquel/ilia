@@ -142,6 +142,21 @@ componentes pensados para un teléfono. Es un costo asumido, no un descuido.
   en nativo).
 - **Sin dictado por voz** (TRD §4.4, marcado como *[A confirmar]*).
 
+## Entrada y salida de la sesión
+
+- `/register` → `RegisterScreen`. Espeja la validación de `RegisterRequest` del
+  backend (correo válido, nombre 1–120, contraseña ≥ 8). La regla se muestra
+  antes de enviar, no como error del servidor después del viaje de ida y vuelta.
+- Hay un botón **Mostrar/Ocultar** en lugar de un campo "repetí la contraseña".
+  Todavía no existe endpoint de recuperación, así que un error de tipeo deja la
+  cuenta inaccesible para siempre: dejar leer lo que se escribió atrapa eso
+  mejor que pedir escribir el mismo error dos veces.
+- `/login` y `/register` van envueltas en `GuestOnly`. Sin eso, alguien con
+  sesión abierta puede registrar una segunda cuenta y reemplazar en silencio la
+  sesión en curso — en una computadora compartida, a nombre de otra persona.
+- Las dos pantallas navegan a `/catalog` al tener éxito. Quedarse en el
+  formulario después de entrar se lee como que no pasó nada.
+
 ## Datos locales del dispositivo y cierre de sesión
 
 Dos almacenamientos separados a propósito, con reglas distintas:

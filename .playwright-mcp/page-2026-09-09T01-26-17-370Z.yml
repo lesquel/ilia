@@ -1,0 +1,21 @@
+- generic [ref=f38e44]:
+  - generic [ref=f38e45]: ILIA
+  - generic [ref=f38e46]: Crear cuenta
+  - generic [ref=f38e47]: Empezá a aprender inteligencia artificial haciendo
+  - generic [ref=f38e48]: Nombre y apellido
+  - textbox "Nombre y apellido" [ref=f38e49]:
+    - /placeholder: Ana Pérez
+  - generic [ref=f38e50]: Correo
+  - textbox "Correo electrónico" [ref=f38e51]:
+    - /placeholder: docente@colegio.edu
+  - generic [ref=f38e52]:
+    - generic [ref=f38e53]: Contraseña
+    - button "Mostrar" [ref=f38e54] [cursor=pointer]
+  - textbox "Contraseña" [ref=f38e56]:
+    - /placeholder: Al menos 8 caracteres
+  - generic [ref=f38e57]: Mínimo 8 caracteres. Una frase larga es más segura y más fácil de recordar que símbolos raros.
+  - button "Crear cuenta" [disabled]
+  - generic [ref=f38e59]:
+    - text: ¿Ya tenés cuenta?
+    - link "Iniciar sesión" [ref=f38e60] [cursor=pointer]:
+      - /url: /login

@@ -2,9 +2,11 @@ import { Link } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
+import { useSession } from '@/features/auth';
 
 export default function HomeScreen() {
   const theme = useTheme();
+  const { isAuthenticated, isLoading } = useSession();
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.bg }]}>
@@ -81,26 +83,53 @@ export default function HomeScreen() {
           </Pressable>
         </Link>
 
-        <Link href="/login" asChild>
-          <Pressable accessibilityRole="link">
-            {({ pressed }) => (
-              <View
-                style={[
-                  styles.secondary,
-                  {
-                    borderColor: theme.colors.divider,
-                    borderRadius: theme.radius.md,
-                    opacity: pressed ? 0.7 : 1,
-                  },
-                ]}
-              >
-                <Text style={[styles.secondaryLabel, { color: theme.colors.text }]}>
-                  Iniciar sesión
-                </Text>
-              </View>
-            )}
-          </Pressable>
-        </Link>
+        {/* Only for a visitor. The account bar already shows who is signed in,
+            so an "Iniciar sesión" button here would contradict it. */}
+        {!isLoading && !isAuthenticated ? (
+          <>
+            <Link href="/register" asChild>
+              <Pressable accessibilityRole="link">
+                {({ pressed }) => (
+                  <View
+                    style={[
+                      styles.secondary,
+                      {
+                        borderColor: theme.colors.divider,
+                        borderRadius: theme.radius.md,
+                        opacity: pressed ? 0.7 : 1,
+                      },
+                    ]}
+                  >
+                    <Text style={[styles.secondaryLabel, { color: theme.colors.text }]}>
+                      Crear cuenta
+                    </Text>
+                  </View>
+                )}
+              </Pressable>
+            </Link>
+
+            <Link href="/login" asChild>
+              <Pressable accessibilityRole="link">
+                {({ pressed }) => (
+                  <View
+                    style={[
+                      styles.secondary,
+                      {
+                        borderColor: theme.colors.divider,
+                        borderRadius: theme.radius.md,
+                        opacity: pressed ? 0.7 : 1,
+                      },
+                    ]}
+                  >
+                    <Text style={[styles.secondaryLabel, { color: theme.colors.text }]}>
+                      Iniciar sesión
+                    </Text>
+                  </View>
+                )}
+              </Pressable>
+            </Link>
+          </>
+        ) : null}
       </View>
     </View>
   );
