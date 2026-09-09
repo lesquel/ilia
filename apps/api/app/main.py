@@ -16,6 +16,8 @@ from app.core.database import Database
 from app.core.errors import register_error_handlers
 from app.core.logging import configure_logging
 from app.core.middleware import CorrelationIdMiddleware
+from app.features.admin.interface.dependencies import build_admin_container
+from app.features.admin.interface.router import router as admin_router
 from app.features.auth.interface.dependencies import build_auth_container
 from app.features.auth.interface.router import router as auth_router
 from app.features.catalog.interface.dependencies import build_catalog_container
@@ -76,6 +78,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.certificates = build_certificate_container(settings, database)
     app.state.forum = build_forum_container(settings, database)
     app.state.instructor = build_instructor_container(settings, database)
+    app.state.admin = build_admin_container(settings, database)
 
     app.include_router(health_router)
     app.include_router(auth_router, prefix=settings.api_prefix)
@@ -85,6 +88,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(certificate_router, prefix=settings.api_prefix)
     app.include_router(forum_router, prefix=settings.api_prefix)
     app.include_router(instructor_router, prefix=settings.api_prefix)
+    app.include_router(admin_router, prefix=settings.api_prefix)
 
     return app
 

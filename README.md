@@ -34,7 +34,7 @@ real, en backend y en cliente.
 | Foro | ✅ Discusiones por curso, respuestas y moderación con alcance por instructor |
 | Freemium (planes y cupos) | ⬜ Pendiente |
 | Instructor — autoría, publicación, revisión y roster | ✅ Backend y cliente |
-| Pantallas de admin | ⬜ Sin diseñar |
+| Admin — métricas, roles, consumo de LLM y auditoría | ✅ Backend y cliente |
 
 ## Puesta en marcha
 

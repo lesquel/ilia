@@ -547,6 +547,45 @@ event loop y una fixture async de pytest corre en otro; compartir un engine
 asyncpg entre los dos falla con *"attached to a different loop"*. Cada llamada
 de setup abre su propio loop y su propio engine, así no se comparte nada.
 
+## Administración
+
+Todas las rutas exigen rol `admin`.
+
+| Método | Ruta | Qué hace |
+|---|---|---|
+| `GET` | `/api/v1/admin/overview` | Estado global de la plataforma (PRD A-01) |
+| `GET` | `/api/v1/admin/usage?days=30` | Consumo de LLM y costo (PRD A-03) |
+| `GET` | `/api/v1/admin/users?q=` | Usuarios, con búsqueda |
+| `POST` | `/api/v1/admin/users/{id}/role` | Cambiar rol (PRD A-02) |
+| `GET` | `/api/v1/admin/audit` | Bitácora de acciones sensibles |
+
+### Decisiones
+
+**Los roles se otorgan, nunca se reclaman.** No hay ninguna ruta de
+autoservicio a instructor o admin en toda la plataforma. Un admin los concede, y
+queda registrado.
+
+**Un admin no puede cambiarse el rol a sí mismo**, y **no se puede degradar al
+último admin**. Cualquiera de las dos deja la plataforma sin nadie que pueda
+volver a conceder el rol, recuperable solo editando la base a mano.
+
+**El costo se calcula con precios de configuración**, no con una constante.
+`ILIA_LLM_INPUT_PRICE_PER_MILLION` y `ILIA_LLM_OUTPUT_PRICE_PER_MILLION` valen
+cero hasta que se elija proveedor (TRD §2.6) — hardcodear un precio que nadie
+acordó produce un reporte de costos que parece autoritativo y es inventado.
+
+Por eso la respuesta trae `prices_configured`: **un cero que significa "sin
+configurar" no puede mostrarse como un cero que significa "gratis".** El cliente
+muestra una advertencia en vez de un total falso.
+
+**El consumo por usuario se ordena por gasto, no por nombre.** El sentido de esa
+lista es encontrar quién cuesta más, no buscar a alguien.
+
+**`audit_log` es solo-append por construcción**: la entidad no tiene ningún
+método que la modifique. Una bitácora que se puede editar no es una bitácora. Y
+`actor_name` se copia, no se joinea — tiene que seguir diciendo quién hizo algo
+después de que esa cuenta desaparezca.
+
 ## Convenciones
 
 - **Errores.** Todos los endpoints devuelven la misma envoltura:

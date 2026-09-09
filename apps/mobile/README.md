@@ -60,7 +60,7 @@ src/
 ```
 
 Features implementadas: `auth`, `catalog`, `enrollment`, `lab`, `certificates`,
-`forum`, `instructor`. Previstas: `profile`, `admin`.
+`forum`, `instructor`, `admin`. Previstas: `profile`.
 
 ## Rutas
 
@@ -81,6 +81,7 @@ Features implementadas: `auth`, `catalog`, `enrollment`, `lab`, `certificates`,
 | `/instructor/courses/[courseId]` | Editor: temario, publicar, retirar |
 | `/instructor/courses/[courseId]/roster` | Inscritos y su avance |
 | `/instructor/submissions` | Bandeja de entregas con corrección de nota |
+| `/admin` | Panel: métricas, consumo de LLM, roles y auditoría |
 
 En web son URLs reales y compartibles, que es para lo que los cursos se
 direccionan por slug y no por UUID.

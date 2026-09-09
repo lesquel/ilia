@@ -36,6 +36,14 @@ class Settings(BaseSettings):
     # quick look at the API, useless for anything real (it forgets on restart).
     database_url: str | None = None
 
+    # --- LLM cost -----------------------------------------------------------
+
+    # Price per million tokens, for the admin cost report (PRD A-03).
+    # Zero until a provider is chosen (TRD 2.6): a hard-coded price would make
+    # an invented cost report look authoritative.
+    llm_input_price_per_million: float = 0.0
+    llm_output_price_per_million: float = 0.0
+
     # --- Auth ---------------------------------------------------------------
 
     # Override in every deployed environment. The default exists so `uv run` and
