@@ -1,0 +1,106 @@
+- generic [ref=f54e18]:
+  - generic [ref=f54e19]:
+    - link "ILIA" [ref=f54e20] [cursor=pointer]:
+      - /url: /
+    - generic [ref=f54e21]:
+      - generic [ref=f54e22]: Ana Perez
+      - button "Cerrar sesión" [ref=f54e23] [cursor=pointer]
+  - generic [ref=f54e30]:
+    - generic [ref=f54e31]: Administración
+    - generic [ref=f54e32]:
+      - generic [ref=f54e33]:
+        - generic [ref=f54e34]: "2"
+        - generic [ref=f54e35]: Docentes
+      - generic [ref=f54e36]:
+        - generic [ref=f54e37]: "2"
+        - generic [ref=f54e38]: Instructores
+      - generic [ref=f54e39]:
+        - generic [ref=f54e40]: "4"
+        - generic [ref=f54e41]: Cursos publicados
+      - generic [ref=f54e42]:
+        - generic [ref=f54e43]: "0"
+        - generic [ref=f54e44]: Borradores
+      - generic [ref=f54e45]:
+        - generic [ref=f54e46]: "2"
+        - generic [ref=f54e47]: Inscripciones
+      - generic [ref=f54e48]:
+        - generic [ref=f54e49]: "4"
+        - generic [ref=f54e50]: Entregas
+      - generic [ref=f54e51]:
+        - generic [ref=f54e52]: "1"
+        - generic [ref=f54e53]: Certificados
+      - generic [ref=f54e54]:
+        - generic [ref=f54e55]: "0"
+        - generic [ref=f54e56]: Revocados
+    - generic [ref=f54e57]: Consumo de LLM · últimos 30 días
+    - generic [ref=f54e58]:
+      - generic [ref=f54e59]: 1.190 tokens
+      - generic [ref=f54e60]: 797 de entrada · 393 de salida · 4 evaluaciones
+      - generic [ref=f54e61]: "Sin precios configurados: no se puede estimar el costo. Definí ILIA_LLM_INPUT_PRICE_PER_MILLION y ILIA_LLM_OUTPUT_PRICE_PER_MILLION cuando se elija el proveedor."
+      - generic [ref=f54e62]:
+        - generic [ref=f54e63]: Quiénes consumen más
+        - generic [ref=f54e64]: Ana Perez — 870 tokens · 3 evaluaciones
+        - generic [ref=f54e65]: Luis Zambrano — 320 tokens · 1 evaluaciones
+    - generic [ref=f54e66]: Usuarios y roles
+    - generic [ref=f54e67]: "Los roles se otorgan, nunca se reclaman: no hay forma de autoasignárselos en ninguna parte de la plataforma."
+    - textbox "Buscar usuario" [ref=f54e68]:
+      - /placeholder: Buscar por nombre o correo
+    - generic [ref=f54e69]:
+      - generic [ref=f54e70]:
+        - generic [ref=f54e71]: Marta Cedeño
+        - generic [ref=f54e72]: marta@colegio.edu
+      - generic [ref=f54e73]:
+        - button "Estudiante" [disabled]
+        - button "Instructor" [ref=f54e75] [cursor=pointer]
+        - button "Administrador" [ref=f54e77] [cursor=pointer]
+    - generic [ref=f54e79]:
+      - generic [ref=f54e80]:
+        - generic [ref=f54e81]: Marta Solorzano
+        - generic [ref=f54e82]: nueva@colegio.edu
+      - generic [ref=f54e83]:
+        - button "Estudiante" [disabled]
+        - button "Instructor" [ref=f54e85] [cursor=pointer]
+        - button "Administrador" [ref=f54e87] [cursor=pointer]
+    - generic [ref=f54e89]:
+      - generic [ref=f54e90]:
+        - generic [ref=f54e91]: Luis Zambrano
+        - generic [ref=f54e92]: luis@colegio.edu
+      - generic [ref=f54e93]:
+        - button "Estudiante" [ref=f54e94] [cursor=pointer]
+        - button "Instructor" [disabled]
+        - button "Administrador" [ref=f54e97] [cursor=pointer]
+    - generic [ref=f54e99]:
+      - generic [ref=f54e100]:
+        - generic [ref=f54e101]: Ana Perez
+        - generic [ref=f54e102]: ana@colegio.edu
+      - generic [ref=f54e103]:
+        - button "Estudiante" [ref=f54e104] [cursor=pointer]
+        - button "Instructor" [ref=f54e106] [cursor=pointer]
+        - button "Administrador" [disabled]
+    - generic [ref=f54e109]:
+      - generic [ref=f54e110]:
+        - generic [ref=f54e111]: Eduardo Calvache
+        - generic [ref=f54e112]: eduardo@manta.gob.ec
+      - generic [ref=f54e113]:
+        - button "Estudiante" [ref=f54e114] [cursor=pointer]
+        - button "Instructor" [disabled]
+        - button "Administrador" [ref=f54e117] [cursor=pointer]
+    - generic [ref=f54e119]: Auditoría
+    - generic [ref=f54e120]: "Registro de acciones sensibles. Solo se agrega: nada de acá se puede editar."
+    - generic [ref=f54e121]:
+      - generic [ref=f54e122]: Cambio de rol
+      - generic [ref=f54e123]: "Ana Perez · {\"email\":\"luis@colegio.edu\",\"from\":\"student\",\"to\":\"instructor\"}"
+    - generic [ref=f54e124]:
+      - generic [ref=f54e125]: Certificados
+      - generic [ref=f54e126]: Buscá por código de verificación para revisar o anular un certificado. La anulación queda auditada y el certificado deja de validar.
+      - generic [ref=f54e127]:
+        - textbox "Código de verificación" [ref=f54e128]:
+          - /placeholder: ABCD-EFGH-JKMN
+          - text: A77PSXJVMXDW
+        - button "Buscar" [ref=f54e129] [cursor=pointer]
+      - generic [ref=f54e131]:
+        - generic [ref=f54e132]: Ana Perez
+        - generic [ref=f54e133]: NotebookLM en el aula · A77P-SXJV-MXDW · Válido
+        - textbox "Motivo de la anulación" [ref=f54e134]
+        - generic [ref=f54e135]: El motivo se muestra a quien verifique el certificado.
+        - button "Anular certificado" [disabled]

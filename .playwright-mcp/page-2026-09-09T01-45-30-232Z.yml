@@ -1,0 +1,12 @@
+- generic [ref=f55e10]:
+  - generic [ref=f55e11]: ILIA
+  - generic [ref=f55e12]: Verificar un certificado
+  - generic [ref=f55e13]: Escribí el código que aparece en el certificado. No hace falta tener cuenta.
+  - generic [ref=f55e14]:
+    - textbox "Código del certificado" [ref=f55e15]:
+      - /placeholder: ABCD-2345-EFGH
+      - text: A77P-SXJV-MXDW
+    - button "Verificar" [ref=f55e16] [cursor=pointer]
+  - generic [ref=f55e18]:
+    - progressbar [ref=f55e19]
+    - generic [ref=f55e24]: Buscando el certificado…

@@ -2,6 +2,12 @@
 
 export type CertificateStatus = 'valid' | 'revoked';
 
+/** How each status reads to a person. */
+export const STATUS_LABELS: Record<CertificateStatus, string> = {
+  valid: 'Válido',
+  revoked: 'Anulado',
+};
+
 export interface Certificate {
   id: string;
   code: string;

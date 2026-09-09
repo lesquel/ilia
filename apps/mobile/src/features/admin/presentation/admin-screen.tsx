@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -34,7 +34,12 @@ import { ROLES, type Role } from '@/features/auth/domain/entities';
  * the TRD (§4.5) is explicit that admin lists should not be phone components
  * stretched wide.
  */
-export function AdminScreen() {
+/**
+ * `extra` is a composition slot. The certificate panel belongs to the
+ * certificates feature, and having `admin` import it would point a dependency
+ * between two sibling features — so the route wires them instead.
+ */
+export function AdminScreen({ extra }: { extra?: ReactNode } = {}) {
   const theme = useTheme();
   const { overview, isLoading, error } = useOverview();
   const { report } = useUsage(30);
@@ -196,6 +201,8 @@ export function AdminScreen() {
           </View>
         ))
       )}
+
+      {extra}
     </ScrollView>
   );
 }

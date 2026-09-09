@@ -2,6 +2,8 @@
 
 from uuid import UUID
 
+from app.features.admin.domain.entities import AuditAction, AuditEntry
+from app.features.admin.domain.ports import AuditLog
 from app.features.auth.domain.entities import User
 from app.features.auth.domain.ports import Clock, UserRepository
 from app.features.catalog.domain.entities import Course, Slug
@@ -169,13 +171,24 @@ class VerifyCertificate:
 
 
 class RevokeCertificate:
-    """Admin-only (PRD A-04). Authorization is enforced in the interface layer."""
+    """Admin-only (PRD A-04). Authorization is enforced in the interface layer.
 
-    def __init__(self, *, certificates: CertificateRepository, clock: Clock) -> None:
+    The revocation is written to the append-only audit log, not only to the
+    application log. Invalidating someone's credential is exactly the kind of
+    act that has to be answerable later — by an admin reading the log in the
+    product, not by whoever still has access to the server's stdout.
+    """
+
+    def __init__(
+        self, *, certificates: CertificateRepository, audit: AuditLog, clock: Clock
+    ) -> None:
         self._certificates = certificates
+        self._audit = audit
         self._clock = clock
 
-    async def execute(self, *, certificate_id: UUID, admin_id: UUID, reason: str) -> Certificate:
+    async def execute(
+        self, *, certificate_id: UUID, admin: User, reason: str
+    ) -> Certificate:
         certificate = await self._certificates.get(certificate_id)
         if certificate is None:
             raise CertificateNotFoundError()
@@ -183,7 +196,25 @@ class RevokeCertificate:
         if not certificate.is_valid:
             raise AlreadyRevokedError()
 
-        certificate.revoke(by=admin_id, reason=reason, at=self._clock.now())
+        now = self._clock.now()
+        certificate.revoke(by=admin.id, reason=reason, at=now)
         await self._certificates.update(certificate)
+
+        await self._audit.append(
+            AuditEntry.record(
+                actor_id=admin.id,
+                actor_name=admin.full_name,
+                action=AuditAction.CERTIFICATE_REVOKED,
+                target_type="certificate",
+                target_id=certificate.id,
+                detail={
+                    "code": certificate.code.formatted,
+                    "holder": certificate.holder_name,
+                    "course": certificate.course_title,
+                    "reason": reason,
+                },
+                at=now,
+            )
+        )
 
         return certificate

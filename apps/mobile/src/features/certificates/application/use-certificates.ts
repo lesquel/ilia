@@ -80,3 +80,22 @@ export function useVerification(
     error: query.error,
   };
 }
+
+/**
+ * Find a certificate by its code, then revoke it (PRD A-04). Admin only.
+ *
+ * Two steps on purpose, not one: revoking straight from a typed code would
+ * mean an admin never sees whose certificate they are about to invalidate.
+ */
+export function useCertificateLookup(repository: CertificateRepository = certificateRepository) {
+  return useMutation({
+    mutationFn: (code: string) => repository.lookup(code),
+  });
+}
+
+export function useRevokeCertificate(repository: CertificateRepository = certificateRepository) {
+  return useMutation({
+    mutationFn: (input: { certificateId: string; reason: string }) =>
+      repository.revoke(input.certificateId, input.reason),
+  });
+}

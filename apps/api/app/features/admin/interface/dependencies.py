@@ -11,6 +11,7 @@ from app.features.admin.domain.ports import (
     UsagePricing,
     UserDirectory,
 )
+from app.features.admin.infrastructure.memory_repository import InMemoryAuditLog
 from app.features.admin.infrastructure.sql_repository import (
     SettingsPricing,
     SqlAlchemyAuditLog,
@@ -27,7 +28,9 @@ def build_admin_container(
             "admin_unavailable_without_database",
             detail="ILIA_DATABASE_URL is not set; admin endpoints will not work",
         )
-        return {"pricing": SettingsPricing(settings)}
+        # The audit log is the one part that works without a database: an
+        # action claimed to be audited must be audited on every configuration.
+        return {"audit": InMemoryAuditLog(), "pricing": SettingsPricing(settings)}
 
     return {
         "metrics": SqlAlchemyMetricsReader(database),

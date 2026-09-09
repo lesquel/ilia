@@ -259,3 +259,74 @@ class TestRevocation:
             if str(user.email) == "admin@ilia.app":
                 user.role = Role.ADMIN
         return token
+
+    def test_an_admin_can_find_a_certificate_by_its_code(self, client: TestClient, app) -> None:  # type: ignore[no-untyped-def]
+        """Revocation needs an id, and this is the only way to get one.
+
+        The public verification endpoint deliberately omits the id and the
+        per-user listing only shows your own, so without this lookup the revoke
+        endpoint cannot be reached by the admin the PRD assigns it to.
+        """
+        certificate_id, code = self.issue_one(client, app)
+        admin_token = self.make_admin(client, app)
+
+        found = client.get(f"{CERTS}/lookup", params={"code": code}, headers=auth(admin_token))
+
+        assert found.status_code == 200
+        assert found.json()["id"] == certificate_id
+
+        # And that id revokes, closing the loop.
+        revoked = client.post(
+            f"{CERTS}/{certificate_id}/revoke",
+            json={"reason": "Emitido por error"},
+            headers=auth(admin_token),
+        )
+        assert revoked.status_code == 200
+
+    def test_the_lookup_is_not_open_to_everyone(self, client: TestClient, app) -> None:  # type: ignore[no-untyped-def]
+        # An open lookup would be an enumeration oracle, and it answers with
+        # more than "is this valid".
+        _, code = self.issue_one(client, app)
+        token = register(client, "curiosa@colegio.edu")
+
+        assert client.get(f"{CERTS}/lookup", params={"code": code}).status_code == 401
+        assert (
+            client.get(f"{CERTS}/lookup", params={"code": code}, headers=auth(token)).status_code
+            == 403
+        )
+
+    def test_an_unknown_or_malformed_code_answers_the_same_way(self, client: TestClient, app) -> None:  # type: ignore[no-untyped-def]
+        admin_token = self.make_admin(client, app)
+
+        unknown = client.get(f"{CERTS}/lookup", params={"code": "ABCD-EFGH-JKMN"}, headers=auth(admin_token))
+        malformed = client.get(f"{CERTS}/lookup", params={"code": "no-es-un-codigo"}, headers=auth(admin_token))
+
+        assert unknown.status_code == 404
+        assert malformed.status_code == 404
+
+    def test_revoking_is_written_to_the_audit_log(self, client: TestClient, app) -> None:  # type: ignore[no-untyped-def]
+        """The product tells the admin the revocation "queda auditada".
+
+        Before this, it only reached the application log — so the claim was
+        true for whoever could read the server's stdout and false for the admin
+        reading the audit screen. Invalidating someone's credential has to be
+        answerable inside the product.
+        """
+        certificate_id, code = self.issue_one(client, app)
+        admin_token = self.make_admin(client, app)
+
+        client.post(
+            f"{CERTS}/{certificate_id}/revoke",
+            json={"reason": "Emitido por error administrativo"},
+            headers=auth(admin_token),
+        )
+
+        entries = client.get("/api/v1/admin/audit", headers=auth(admin_token)).json()
+        revocations = [e for e in entries if e["action"] == "certificate_revoked"]
+
+        assert len(revocations) == 1
+        detail = revocations[0]["detail"]
+        assert detail["code"] == code
+        # The reason travels with it: an audit entry that records the act but
+        # not the justification does not answer the question anyone will ask.
+        assert detail["reason"] == "Emitido por error administrativo"

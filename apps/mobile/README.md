@@ -142,6 +142,20 @@ componentes pensados para un teléfono. Es un costo asumido, no un descuido.
   en nativo).
 - **Sin dictado por voz** (TRD §4.4, marcado como *[A confirmar]*).
 
+## Endpoints sin cliente
+
+El barrido inverso: endpoints del backend que ninguna pantalla llama. Encontró
+tres — las tres de moderación — y un endpoint que era inalcanzable por otra
+razón: revocar un certificado necesita un id que ninguna respuesta exponía.
+
+```sh
+# comparar rutas declaradas contra URLs construidas en apps/mobile/src
+rg -oP '@router\.(get|post|patch|put|delete)\(\s*"\K[^"]+' apps/api/app/features/*/interface/router.py
+```
+
+Ojo con los falsos positivos: una URL con query string (`/admin/users${search}`)
+no coincide literal con la ruta declarada. Verificá cada caso antes de reportarlo.
+
 ## Casos de uso sin pantalla
 
 Un caso de uso construido y probado que ninguna pantalla invoca es una feature

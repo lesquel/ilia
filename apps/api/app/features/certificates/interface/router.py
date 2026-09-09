@@ -24,7 +24,12 @@ from app.features.certificates.application.use_cases import (
     RevokeCertificate,
     VerifyCertificate,
 )
-from app.features.certificates.domain.entities import Certificate, CriteriaOutcome
+from app.features.certificates.domain.entities import (
+    Certificate,
+    CriteriaOutcome,
+    VerificationCode,
+)
+from app.features.certificates.domain.errors import CertificateNotFoundError
 from app.features.certificates.interface.dependencies import (
     CertificatesDep,
     ResultsDep,
@@ -167,6 +172,37 @@ class RevokeRequest(BaseModel):
     reason: str = Field(min_length=1, max_length=500)
 
 
+@router.get("/lookup", response_model=CertificateResponse)
+async def lookup(
+    code: str,
+    certificates: CertificatesDep,
+    admin: Annotated[User, Depends(require_role(Role.ADMIN))],
+) -> CertificateResponse:
+    """Find a certificate by its verification code. Admin only.
+
+    Revocation needs an id, and until this existed there was no way to obtain
+    one: the public verification endpoint deliberately omits it, and the
+    per-user listing only shows your own. The revoke endpoint was therefore
+    unreachable in practice.
+
+    Admin-only rather than public because it answers with more than "is this
+    valid" — and because an open lookup would hand an enumeration oracle to
+    whoever wanted one.
+    """
+    try:
+        parsed = VerificationCode(code)
+    except ValueError as exc:
+        # Same answer as a well-formed code that matches nothing: a malformed
+        # one cannot match anything either.
+        raise CertificateNotFoundError() from exc
+
+    found = await certificates.get_by_code(parsed)
+    if found is None:
+        raise CertificateNotFoundError()
+
+    return CertificateResponse.from_entity(found)
+
+
 @router.post("/{certificate_id}/revoke", response_model=CertificateResponse)
 async def revoke(
     certificate_id: UUID,
@@ -180,8 +216,10 @@ async def revoke(
     A revoked certificate fails public verification from the next request on.
     """
     certificate = await RevokeCertificate(
-        certificates=certificates, clock=request.app.state.auth["clock"]
-    ).execute(certificate_id=certificate_id, admin_id=admin.id, reason=payload.reason)
+        certificates=certificates,
+        audit=request.app.state.admin["audit"],
+        clock=request.app.state.auth["clock"],
+    ).execute(certificate_id=certificate_id, admin=admin, reason=payload.reason)
 
     logger.info(
         "certificate_revoked",

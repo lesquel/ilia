@@ -1,0 +1,46 @@
+- generic [ref=f53e10]:
+  - generic [ref=f53e11]:
+    - link "ILIA" [ref=f53e12] [cursor=pointer]:
+      - /url: /
+    - generic [ref=f53e13]:
+      - generic [ref=f53e14]: Ana Perez
+      - button "Cerrar sesión" [ref=f53e15] [cursor=pointer]
+  - generic [ref=f53e22]:
+    - generic [ref=f53e24]:
+      - generic [ref=f53e25]: Explorar cursos
+      - generic [ref=f53e26]: Aprendé haciendo. Cada módulo termina en una actividad, no en un cuestionario.
+      - textbox "Buscar un curso" [ref=f53e27]
+      - generic [ref=f53e28]:
+        - button "Todos" [ref=f53e29] [cursor=pointer]
+        - button "Básico" [ref=f53e31] [cursor=pointer]
+        - button "Intermedio" [ref=f53e33] [cursor=pointer]
+        - button "Experto" [ref=f53e35] [cursor=pointer]
+    - generic [ref=f53e38]:
+      - link "IA para planificación docente, nivel Básico" [ref=f53e40] [cursor=pointer]:
+        - /url: /catalog/ia-para-planificacion-docente
+        - generic [ref=f53e41]:
+          - generic [ref=f53e42]: Básico
+          - generic [ref=f53e45]: IA para planificación docente
+          - generic [ref=f53e46]: Armá tu planificación anual en una tarde, no en un fin de semana.
+          - generic [ref=f53e47]: Eduardo Calvache · 1 lección · 10 min
+      - link "Evaluación asistida por IA, nivel Experto" [ref=f53e49] [cursor=pointer]:
+        - /url: /catalog/evaluacion-asistida-por-ia
+        - generic [ref=f53e50]:
+          - generic [ref=f53e51]: Experto
+          - generic [ref=f53e54]: Evaluación asistida por IA
+          - generic [ref=f53e55]: Diseñá rúbricas y corregí con criterio
+          - generic [ref=f53e56]: Eduardo Calvache · 1 lección · 8 min
+      - link "NotebookLM en el aula, nivel Intermedio" [ref=f53e58] [cursor=pointer]:
+        - /url: /catalog/notebooklm-en-el-aula
+        - generic [ref=f53e59]:
+          - generic [ref=f53e60]: Intermedio
+          - generic [ref=f53e63]: NotebookLM en el aula
+          - generic [ref=f53e64]: Convertí tus apuntes en material de estudio
+          - generic [ref=f53e65]: Eduardo Calvache · 2 lecciones · 15 min
+    - link "Prompting para docentes, nivel Básico" [ref=f53e69] [cursor=pointer]:
+      - /url: /catalog/prompting-para-docentes
+      - generic [ref=f53e70]:
+        - generic [ref=f53e71]: Básico
+        - generic [ref=f53e74]: Prompting para docentes
+        - generic [ref=f53e75]: Ahorrá horas por semana en material de clase
+        - generic [ref=f53e76]: Eduardo Calvache · 4 lecciones · 25 min

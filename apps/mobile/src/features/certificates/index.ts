@@ -14,3 +14,4 @@ export {
   useMyCertificates,
   useVerification,
 } from './application/use-certificates';
+export { RevokePanel } from './presentation/revoke-panel';

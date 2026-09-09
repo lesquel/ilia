@@ -56,6 +56,9 @@ export interface CertificateRepository {
   eligibility(slug: string): Promise<Eligibility>;
   issue(slug: string): Promise<Certificate>;
   verify(code: string): Promise<Verification>;
+  /** Admin only. The only way to obtain the id that revocation needs. */
+  lookup(code: string): Promise<Certificate>;
+  revoke(certificateId: string, reason: string): Promise<Certificate>;
 }
 
 export class HttpCertificateRepository implements CertificateRepository {
@@ -100,6 +103,23 @@ export class HttpCertificateRepository implements CertificateRepository {
       issuedAt: dto.issued_at,
       revokedReason: dto.revoked_reason,
     };
+  }
+
+  async lookup(code: string): Promise<Certificate> {
+    return toCertificate(
+      await this.http.get<CertificateDto>(
+        `/certificates/lookup?code=${encodeURIComponent(code)}`,
+      ),
+    );
+  }
+
+  async revoke(certificateId: string, reason: string): Promise<Certificate> {
+    return toCertificate(
+      await this.http.post<CertificateDto>(
+        `/certificates/${encodeURIComponent(certificateId)}/revoke`,
+        { reason },
+      ),
+    );
   }
 }
 
