@@ -7,6 +7,8 @@ from fastapi import APIRouter, Request, status
 from pydantic import BaseModel, Field
 
 from app.features.auth.interface.dependencies import CurrentUser
+from app.features.billing.application.use_cases import require_posting
+from app.features.billing.interface.dependencies import EntitlementsDep
 from app.features.catalog.interface.router import CoursesDep
 from app.features.enrollment.interface.dependencies import EnrollmentsDep
 from app.features.forum.application.use_cases import (
@@ -119,7 +121,12 @@ async def open_thread(
     courses: CoursesDep,
     enrollments: EnrollmentsDep,
     threads: ThreadsDep,
+    entitlements: EntitlementsDep,
 ) -> ThreadDetailResponse:
+    # Free reads, paid writes (PRD 11).
+    if entitlements is not None:
+        require_posting(entitlements)
+
     thread = await OpenThread(
         courses=courses,
         enrollments=enrollments,
@@ -176,7 +183,11 @@ async def reply(
     enrollments: EnrollmentsDep,
     threads: ThreadsDep,
     posts: PostsDep,
+    entitlements: EntitlementsDep,
 ) -> PostResponse:
+    if entitlements is not None:
+        require_posting(entitlements)
+
     post = await ReplyToThread(
         courses=courses,
         enrollments=enrollments,

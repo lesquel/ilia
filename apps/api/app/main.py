@@ -20,6 +20,8 @@ from app.features.admin.interface.dependencies import build_admin_container
 from app.features.admin.interface.router import router as admin_router
 from app.features.auth.interface.dependencies import build_auth_container
 from app.features.auth.interface.router import router as auth_router
+from app.features.billing.interface.dependencies import build_billing_container
+from app.features.billing.interface.router import router as billing_router
 from app.features.catalog.interface.dependencies import build_catalog_container
 from app.features.catalog.interface.router import router as catalog_router
 from app.features.certificates.interface.dependencies import build_certificate_container
@@ -79,6 +81,25 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.forum = build_forum_container(settings, database)
     app.state.instructor = build_instructor_container(settings, database)
     app.state.admin = build_admin_container(settings, database)
+    app.state.billing = build_billing_container(settings, database)
+
+    # The evaluation quota runs on plans once billing is configured. Wired here,
+    # at the composition root, so neither feature imports the other's container.
+    if "plans" in app.state.billing:
+        from app.features.billing.application.use_cases import (
+            GetEntitlements,
+            PlanQuotaPolicy,
+        )
+
+        app.state.evaluation["quota"] = PlanQuotaPolicy(
+            entitlements=GetEntitlements(
+                plans=app.state.billing["plans"],
+                subscriptions=app.state.billing["subscriptions"],
+                counter=app.state.billing["counter"],
+                clock=app.state.auth["clock"],
+            ),
+            users=app.state.auth["users"],
+        )
 
     app.include_router(health_router)
     app.include_router(auth_router, prefix=settings.api_prefix)
@@ -89,6 +110,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(forum_router, prefix=settings.api_prefix)
     app.include_router(instructor_router, prefix=settings.api_prefix)
     app.include_router(admin_router, prefix=settings.api_prefix)
+    app.include_router(billing_router, prefix=settings.api_prefix)
 
     return app
 

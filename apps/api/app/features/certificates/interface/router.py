@@ -14,6 +14,8 @@ from pydantic import BaseModel, Field
 
 from app.features.auth.domain.entities import Role, User
 from app.features.auth.interface.dependencies import CurrentUser, require_role
+from app.features.billing.application.use_cases import require_certificates
+from app.features.billing.interface.dependencies import EntitlementsDep
 from app.features.catalog.interface.router import CoursesDep
 from app.features.certificates.application.use_cases import (
     CheckEligibility,
@@ -140,7 +142,14 @@ async def issue(
     progress: ProgressDep,
     results: ResultsDep,
     certificates: CertificatesDep,
+    entitlements: EntitlementsDep,
 ) -> CertificateResponse:
+    # Downloadable certificates are a paid feature (PRD 11). Eligibility is
+    # still computed and shown to everyone — a teacher who earned it should
+    # know they earned it, even if their plan does not hand it over.
+    if entitlements is not None:
+        require_certificates(entitlements)
+
     certificate = await IssueCertificate(
         courses=courses,
         enrollments=enrollments,

@@ -73,6 +73,9 @@ def build_evaluation_container(
         "submissions": submissions,
         "evaluations": evaluations,
         "usage": usage,
+        # Unlimited by default. `create_app` swaps in the plan-backed policy at
+        # startup when billing is configured, so neither feature has to import
+        # the other's container.
         "quota": UnlimitedQuota(),
         "run": run,
         "queue": InProcessEvaluationQueue(run.execute),

@@ -10,6 +10,9 @@ from uuid import UUID
 from fastapi import APIRouter, Request, status
 
 from app.features.auth.interface.dependencies import CurrentUser
+from app.features.billing.application.use_cases import require_level
+from app.features.billing.interface.dependencies import EntitlementsDep
+from app.features.catalog.domain.entities import Slug
 from app.features.catalog.interface.router import CoursesDep
 from app.features.enrollment.application.use_cases import (
     CompleteLesson,
@@ -43,7 +46,16 @@ async def enroll(
     courses: CoursesDep,
     enrollments: EnrollmentsDep,
     cohorts: CohortsDep,
+    entitlements: EntitlementsDep,
 ) -> EnrollmentResponse:
+    # The plan gate (PRD 11): the free tier covers the basic path only. Checked
+    # before enrolling rather than after, so a teacher is never given a course
+    # and then locked out of it.
+    if entitlements is not None:
+        course = await courses.get_published_by_slug(Slug(payload.course_slug))
+        if course is not None:
+            require_level(entitlements, course.level)
+
     use_case = EnrollInCourse(
         courses=courses,
         enrollments=enrollments,

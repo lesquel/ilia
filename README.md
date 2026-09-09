@@ -32,7 +32,7 @@ real, en backend y en cliente.
 | Laboratorio IA y motor de EVALs | ✅ Grafo completo del TRD §6.1, con anclaje determinístico y resistencia a inyección. **Sin proveedor de LLM conectado** |
 | Certificados | ✅ Emisión por criterios, código antifalsificación y **verificación pública sin cuenta**. Revocación de admin auditada |
 | Foro | ✅ Discusiones por curso, respuestas y moderación con alcance por instructor |
-| Freemium (planes y cupos) | ⬜ Pendiente |
+| Freemium — planes, cupos y los cuatro gates | ✅ Números como datos editables, no constantes |
 | Instructor — autoría, publicación, revisión y roster | ✅ Backend y cliente |
 | Admin — métricas, roles, consumo de LLM y auditoría | ✅ Backend y cliente |
 

@@ -4,6 +4,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import { ApiError } from '@/core/errors/api-error';
 import { useTheme } from '@/core/theme';
 import { useSession } from '@/features/auth';
+import { useEntitlements } from '@/features/billing';
 import {
   useEligibility,
   useIssueCertificate,
@@ -21,6 +22,7 @@ export function CertificatePanel({ slug, courseTitle }: { slug: string; courseTi
   const { isAuthenticated } = useSession();
   const { eligibility, isLoading } = useEligibility(slug, { enabled: isAuthenticated });
   const { certificates } = useMyCertificates();
+  const { entitlements } = useEntitlements({ enabled: isAuthenticated });
   const issue = useIssueCertificate(slug);
 
   if (!isAuthenticated || isLoading || !eligibility) return null;
@@ -68,6 +70,35 @@ export function CertificatePanel({ slug, courseTitle }: { slug: string; courseTi
             • {item}
           </Text>
         ))}
+      </View>
+    );
+  }
+
+  // Eligibility is shown to everyone; only the download is gated. A teacher who
+  // earned it should know they earned it.
+  const canDownload = entitlements === null || entitlements.canIssueCertificates;
+
+  if (!canDownload) {
+    return (
+      <View
+        style={[
+          styles.panel,
+          {
+            borderColor: theme.colors.accent,
+            backgroundColor: theme.colors.accentRamp[100],
+            borderRadius: theme.radius.md,
+          },
+        ]}
+      >
+        <Text style={[styles.title, { color: theme.colors.accentRamp[800] }]}>
+          Completaste todo lo que pide este curso 🎉
+        </Text>
+        <Text style={[styles.missing, { color: theme.colors.accentRamp[800] }]}>
+          El certificado descargable no está incluido en tu plan actual.
+        </Text>
+        <Link href="/plans" style={[styles.link, { color: theme.colors.accent }]}>
+          Ver planes →
+        </Link>
       </View>
     );
   }

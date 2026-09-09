@@ -13,6 +13,8 @@ import {
 import { ApiError } from '@/core/errors/api-error';
 import { useTheme } from '@/core/theme';
 import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
+import { useSession } from '@/features/auth';
+import { useEntitlements } from '@/features/billing';
 import { useOpenThread, useThreads } from '@/features/forum/application/use-forum';
 import {
   MAX_TITLE_CHARS,
@@ -27,7 +29,13 @@ export function ForumScreen() {
   const courseSlug = slug ?? '';
 
   const { threads, isLoading, error, refetch } = useThreads(courseSlug);
+  const { isAuthenticated } = useSession();
+  const { entitlements } = useEntitlements({ enabled: isAuthenticated });
   const open = useOpenThread(courseSlug);
+
+  // PRD 11: reading is free, participating is not. The composer is replaced by
+  // an explanation rather than by a button that 403s.
+  const canPost = entitlements === null || entitlements.canPostInForum;
 
   const [composing, setComposing] = useState(false);
   const [title, setTitle] = useState('');
@@ -90,7 +98,21 @@ export function ForumScreen() {
             Preguntá lo que no te salga. Alguien más ya lo intentó.
           </Text>
 
-          {composing ? (
+          {!canPost ? (
+            <View
+              style={[
+                styles.composer,
+                { borderColor: theme.colors.divider, borderRadius: theme.radius.md },
+              ]}
+            >
+              <Text style={[styles.subtitle, { color: theme.colors.neutral[700] }]}>
+                Con tu plan actual podés leer el foro, pero no publicar.
+              </Text>
+              <Link href="/plans" style={[styles.link, { color: theme.colors.accent }]}>
+                Ver planes →
+              </Link>
+            </View>
+          ) : composing ? (
             <View
               style={[
                 styles.composer,

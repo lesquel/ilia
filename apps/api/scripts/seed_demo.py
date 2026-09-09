@@ -20,6 +20,7 @@ from app.features.auth.domain.entities import User as AuthUser
 from app.features.auth.infrastructure.models import CohortModel
 from app.features.auth.infrastructure.security import Argon2PasswordHasher
 from app.features.auth.infrastructure.sql_repository import SqlAlchemyUserRepository
+from app.features.billing.infrastructure.models import PlanModel
 from app.features.catalog.infrastructure.models import CourseModel, LessonModel, ModuleModel
 from app.features.evaluation.infrastructure.models import (
     ActivityModel,
@@ -54,6 +55,39 @@ DEMO_DIMENSIONS = [
 ]
 
 DEMO_ACTIVITY_TITLE = "Escribí tu primer prompt"
+
+# **[A confirmar]** — PRD pregunta abierta 4 deja el cupo del tier gratuito y el
+# precio del pago sin definir. Estos números son un punto de partida para poder
+# probar el flujo, NO una decisión: viven como filas editables justamente para
+# que cambiarlos no necesite un deploy. El precio va en null a propósito.
+DEMO_PLANS = [
+    {
+        "code": "free",
+        "name": "Gratis",
+        "description": ("Ruta básica completa, cupo mensual de evaluaciones y lectura del foro."),
+        "monthly_evaluations": 10,
+        "allowed_levels": ["beginner"],
+        "can_issue_certificates": False,
+        "can_post_in_forum": False,
+        "price_cents": 0,
+        "is_default": True,
+    },
+    {
+        "code": "pro",
+        "name": "Completo",
+        "description": (
+            "Todas las rutas, cupo amplio de evaluaciones, certificado descargable "
+            "y participación en el foro."
+        ),
+        "monthly_evaluations": 200,
+        "allowed_levels": ["beginner", "intermediate", "expert"],
+        "can_issue_certificates": True,
+        "can_post_in_forum": True,
+        # Sin precio: mostrar uno que nadie acordó es peor que no mostrarlo.
+        "price_cents": None,
+        "is_default": False,
+    },
+]
 
 DEMO_COURSES = [
     {
@@ -271,6 +305,13 @@ async def main() -> None:
 
             session.add(course)
 
+    # Plans. Idempotent, like everything else in this script.
+    async with database.session() as session:
+        for plan in DEMO_PLANS:
+            exists = await session.execute(select(PlanModel).where(PlanModel.code == plan["code"]))
+            if exists.scalar_one_or_none() is None:
+                session.add(PlanModel(id=uuid4(), **plan))
+
     # An activity on the first course, so the Lab has something to run.
     async with database.session() as session:
         already = await session.execute(
@@ -335,6 +376,7 @@ async def main() -> None:
     print(f"Seeded {len(DEMO_COURSES)} courses for {instructor.full_name}")
     print(f"Cohort code: {DEMO_COHORT_CODE}")
     print(f"Activity: {DEMO_ACTIVITY_TITLE}")
+    print(f"Plans: {', '.join(str(p['code']) for p in DEMO_PLANS)} (cupos [A confirmar])")
 
 
 if __name__ == "__main__":

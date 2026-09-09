@@ -15,6 +15,7 @@ import {
 import { ApiError } from '@/core/errors/api-error';
 import { useTheme } from '@/core/theme';
 import { ErrorState, LoadingState } from '@/core/ui/state-view';
+import { useEntitlements } from '@/features/billing';
 import { useActivity, useSubmitPrompt } from '@/features/lab/application/use-lab';
 import { MAX_PROMPT_CHARS, canSubmit } from '@/features/lab/domain/entities';
 
@@ -25,7 +26,7 @@ function messageFor(error: unknown): string {
     case 'no_attempts_left':
       return 'Ya usaste todos los intentos de esta actividad.';
     case 'evaluation_quota_exceeded':
-      return 'Se te acabaron las evaluaciones de este período.';
+      return 'Se te acabaron las evaluaciones de este mes. El cupo se renueva el día 1.';
     case 'prompt_too_long':
       return `El prompt no puede superar los ${MAX_PROMPT_CHARS} caracteres.`;
     case 'empty_prompt':
@@ -45,6 +46,7 @@ export function LabScreen() {
 
   const { activity, isLoading, error, refetch } = useActivity(id);
   const submit = useSubmitPrompt(id);
+  const { entitlements } = useEntitlements();
   const [prompt, setPrompt] = useState('');
 
   if (isLoading) {
@@ -157,6 +159,12 @@ export function LabScreen() {
           <Text style={[styles.metaText, { color: theme.colors.neutral[600] }]}>
             {activity.attemptsLeft} de {activity.maxAttempts}{' '}
             {activity.maxAttempts === 1 ? 'intento' : 'intentos'} disponibles
+            {/* The quota, before the wall. A teacher should see the limit
+                coming, not discover it on submit. */}
+            {entitlements?.evaluationsRemaining !== null &&
+            entitlements?.evaluationsRemaining !== undefined
+              ? ` · ${entitlements.evaluationsRemaining} evaluaciones este mes`
+              : ''}
           </Text>
           <Text
             style={[

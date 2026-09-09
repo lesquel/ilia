@@ -28,7 +28,7 @@ export default function CourseRoute() {
     <CourseDetailScreen
       enrollmentSlot={
         <>
-          <EnrollPanel slug={courseSlug} />
+          <EnrollPanel slug={courseSlug} level={course?.level} />
           <CertificatePanel slug={courseSlug} courseTitle={course?.title} />
         </>
       }

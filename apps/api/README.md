@@ -586,6 +586,72 @@ método que la modifique. Una bitácora que se puede editar no es una bitácora.
 `actor_name` se copia, no se joinea — tiene que seguir diciendo quién hizo algo
 después de que esa cuenta desaparezca.
 
+## Planes y freemium
+
+| Método | Ruta | Autenticación |
+|---|---|---|
+| `GET` | `/api/v1/billing/plans` | **Ninguna. Pública.** |
+| `GET` | `/api/v1/billing/me` | Docente |
+
+### Los números son datos, no código
+
+`plan` es una tabla. El cupo del tier gratuito y el precio del pago siguen
+abiertos (PRD pregunta 4), y un límite hardcodeado en Python necesita un deploy
+para moverse. Cambiarlos es un `UPDATE`.
+
+El seed carga `free` (10 evaluaciones/mes, ruta básica) y `pro` (200, todas las
+rutas) — **son un punto de partida para poder probar el flujo, no una decisión.**
+
+**`price_cents` del plan pago va en `null`.** Mostrar un precio que nadie acordó
+es peor que no mostrar ninguno; el cliente dice *"Precio a definir"*. Misma
+postura que con los precios de tokens del panel de admin.
+
+### Los cuatro gates (PRD §11)
+
+| Gate | Dónde | Error |
+|---|---|---|
+| Nivel del curso | al inscribirse | `plan_level_not_allowed` |
+| Certificado descargable | al emitirlo | `plan_certificates_not_allowed` |
+| Publicar en el foro | al abrir hilo o responder | `plan_posting_not_allowed` |
+| Cupo de evaluaciones | al enviar un prompt | `evaluation_quota_exceeded` |
+
+**El gate está en inscribirse, no en ver.** Un curso experto se sigue viendo
+completo en el catálogo: esconderlo impediría que el docente descubra que hay
+algo por lo que valdría la pena pagar.
+
+**La elegibilidad del certificado se calcula y se muestra igual.** Un docente que
+se lo ganó tiene que saber que se lo ganó, aunque su plan no se lo entregue.
+
+**Leer el foro es gratis, participar no.** El cliente reemplaza el compositor por
+la explicación, en vez de dejar un botón que responde 403.
+
+### Cómo se cuenta el cupo
+
+**Desde el ledger de `llm_usage`, no desde un contador.** Un contador se
+desincroniza la primera vez que se pierde una escritura, y el ledger es contra lo
+que se concilia la factura de todos modos: así el cupo y la cuenta del proveedor
+nunca pueden discrepar.
+
+El período es el **mes calendario**. *"Tu cupo se renueva el 1"* es algo que un
+docente puede tener en la cabeza; *"30 días desde la primera vez que lo usaste"*
+no.
+
+### Otras decisiones
+
+**`NULL` significa ilimitado; `0` significa ninguna.** Confundirlos es cómo un
+plan pago deja de funcionar en silencio. Hay tests para las dos.
+
+**Instructores y administradores no son clientes** de la plataforma que operan.
+Cobrarle a un instructor por evaluar su propia actividad sería absurdo, y además
+haría imposible probar un curso antes de publicarlo.
+
+**Una suscripción vencida cae al plan por defecto, no al vacío.** Perder acceso a
+lo que ya hiciste porque se venció un pago es cómo una plataforma pierde a
+alguien para siempre.
+
+**Sin planes configurados, todo es ilimitado.** Una mala configuración debe
+degradar en una plataforma generosa, no en una rota.
+
 ## Convenciones
 
 - **Errores.** Todos los endpoints devuelven la misma envoltura:

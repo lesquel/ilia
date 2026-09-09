@@ -6,6 +6,8 @@ import { ApiError } from '@/core/errors/api-error';
 import { useTheme } from '@/core/theme';
 import { ProgressBar } from '@/core/ui/progress-bar';
 import { useSession } from '@/features/auth';
+import { canEnrolIn, useEntitlements } from '@/features/billing';
+import type { Level } from '@/features/catalog/domain/entities';
 import {
   useCourseProgress,
   useEnroll,
@@ -20,6 +22,8 @@ function messageFor(error: unknown): string {
       return 'Ese código de charla no existe. Revisalo o dejalo vacío.';
     case 'already_enrolled':
       return 'Ya estás inscrito en este curso.';
+    case 'plan_level_not_allowed':
+      return 'Tu plan no incluye los cursos de este nivel.';
     case 'network_error':
       return 'No pudimos conectarnos. Revisá tu conexión.';
     default:
@@ -35,7 +39,7 @@ function messageFor(error: unknown): string {
  * them into one button is how a person ends up pressing something that does
  * nothing.
  */
-export function EnrollPanel({ slug }: { slug: string }) {
+export function EnrollPanel({ slug, level }: { slug: string; level?: Level }) {
   const theme = useTheme();
   const { isAuthenticated, isLoading: isCheckingSession } = useSession();
 
@@ -43,6 +47,7 @@ export function EnrollPanel({ slug }: { slug: string }) {
   // spend a teacher's data to tell us what we already know.
   const { progress, isLoading } = useCourseProgress(slug, { enabled: isAuthenticated });
   const enroll = useEnroll();
+  const { entitlements } = useEntitlements({ enabled: isAuthenticated });
 
   const [cohortCode, setCohortCode] = useState('');
 
@@ -70,6 +75,37 @@ export function EnrollPanel({ slug }: { slug: string }) {
                 ]}
               >
                 <Text style={styles.buttonLabel}>Iniciar sesión</Text>
+              </View>
+            )}
+          </Pressable>
+        </Link>
+      </View>
+    );
+  }
+
+  // The plan gate, explained rather than hit. A teacher who presses a button
+  // and gets a 403 learns nothing; one who is told the level is not in their
+  // plan knows exactly what to do.
+  if (level && !canEnrolIn(entitlements, level)) {
+    return (
+      <View style={[styles.panel, { borderColor: theme.colors.divider }]}>
+        <Text style={[styles.hint, { color: theme.colors.neutral[700] }]}>
+          Tu plan actual no incluye los cursos de este nivel.
+        </Text>
+        <Link href="/plans" asChild>
+          <Pressable accessibilityRole="link">
+            {({ pressed }) => (
+              <View
+                style={[
+                  styles.button,
+                  {
+                    backgroundColor: theme.colors.accent,
+                    borderRadius: theme.radius.md,
+                    opacity: pressed ? 0.85 : 1,
+                  },
+                ]}
+              >
+                <Text style={styles.buttonLabel}>Ver planes</Text>
               </View>
             )}
           </Pressable>
