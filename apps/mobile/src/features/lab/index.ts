@@ -17,3 +17,4 @@ export {
   useSubmissionResult,
   useSubmitPrompt,
 } from './application/use-lab';
+export { AttemptHistory } from './presentation/attempt-history';

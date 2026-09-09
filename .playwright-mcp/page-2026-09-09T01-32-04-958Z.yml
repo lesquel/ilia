@@ -1,0 +1,39 @@
+- generic [ref=f46e16]:
+  - generic [ref=f46e18]:
+    - generic [ref=f46e19]: Explorar cursos
+    - generic [ref=f46e20]: Aprendé haciendo. Cada módulo termina en una actividad, no en un cuestionario.
+    - textbox "Buscar un curso" [ref=f46e21]
+    - generic [ref=f46e22]:
+      - button "Todos" [ref=f46e23] [cursor=pointer]
+      - button "Básico" [ref=f46e25] [cursor=pointer]
+      - button "Intermedio" [ref=f46e27] [cursor=pointer]
+      - button "Experto" [ref=f46e29] [cursor=pointer]
+  - generic [ref=f46e32]:
+    - link "IA para planificación docente, nivel Básico" [ref=f46e34] [cursor=pointer]:
+      - /url: /catalog/ia-para-planificacion-docente
+      - generic [ref=f46e35]:
+        - generic [ref=f46e36]: Básico
+        - generic [ref=f46e39]: IA para planificación docente
+        - generic [ref=f46e40]: Armá tu planificación anual en una tarde, no en un fin de semana.
+        - generic [ref=f46e41]: Eduardo Calvache · 1 lección · 10 min
+    - link "Evaluación asistida por IA, nivel Experto" [ref=f46e43] [cursor=pointer]:
+      - /url: /catalog/evaluacion-asistida-por-ia
+      - generic [ref=f46e44]:
+        - generic [ref=f46e45]: Experto
+        - generic [ref=f46e48]: Evaluación asistida por IA
+        - generic [ref=f46e49]: Diseñá rúbricas y corregí con criterio
+        - generic [ref=f46e50]: Eduardo Calvache · 1 lección · 8 min
+    - link "NotebookLM en el aula, nivel Intermedio" [ref=f46e52] [cursor=pointer]:
+      - /url: /catalog/notebooklm-en-el-aula
+      - generic [ref=f46e53]:
+        - generic [ref=f46e54]: Intermedio
+        - generic [ref=f46e57]: NotebookLM en el aula
+        - generic [ref=f46e58]: Convertí tus apuntes en material de estudio
+        - generic [ref=f46e59]: Eduardo Calvache · 2 lecciones · 15 min
+  - link "Prompting para docentes, nivel Básico" [ref=f46e63] [cursor=pointer]:
+    - /url: /catalog/prompting-para-docentes
+    - generic [ref=f46e64]:
+      - generic [ref=f46e65]: Básico
+      - generic [ref=f46e68]: Prompting para docentes
+      - generic [ref=f46e69]: Ahorrá horas por semana en material de clase
+      - generic [ref=f46e70]: Eduardo Calvache · 4 lecciones · 25 min

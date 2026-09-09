@@ -20,3 +20,4 @@ export {
   useUnpublishCourse,
   useUpdateCourse,
 } from './application/use-instructor';
+export { CourseDetailsForm } from './presentation/course-details-form';

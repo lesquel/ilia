@@ -17,6 +17,7 @@ import { ErrorState, LoadingState } from '@/core/ui/state-view';
 import { useEntitlements } from '@/features/billing';
 import { useDraft } from '@/features/lab/application/use-draft';
 import { useActivity, useSubmitPrompt } from '@/features/lab/application/use-lab';
+import { AttemptHistory } from '@/features/lab/presentation/attempt-history';
 import { MAX_PROMPT_CHARS, canSubmit } from '@/features/lab/domain/entities';
 
 function messageFor(error: unknown): string {
@@ -234,6 +235,10 @@ export function LabScreen() {
           La evaluación tarda unos segundos. Podés salir de esta pantalla: tu entrega ya quedó
           guardada.
         </Text>
+
+        {/* Below the editor, not above it: the task comes first, the history is
+            there for whoever wants to compare. */}
+        <AttemptHistory activityId={id} />
       </ScrollView>
     </KeyboardAvoidingView>
   );

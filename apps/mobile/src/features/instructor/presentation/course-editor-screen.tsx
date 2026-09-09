@@ -22,6 +22,7 @@ import {
   usePublishCourse,
   useUnpublishCourse,
 } from '@/features/instructor/application/use-instructor';
+import { CourseDetailsForm } from '@/features/instructor/presentation/course-details-form';
 import { STATUS_LABELS, canPublish } from '@/features/instructor/domain/entities';
 
 export function CourseEditorScreen() {
@@ -125,6 +126,8 @@ export function CourseEditorScreen() {
           Ver inscritos →
         </Link>
       </View>
+
+      <CourseDetailsForm course={course} />
 
       {/* Every blocker, not just the first. An instructor told "cannot publish"
           one reason at a time will fix them one round trip at a time. */}

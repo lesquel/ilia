@@ -142,6 +142,19 @@ componentes pensados para un teléfono. Es un costo asumido, no un descuido.
   en nativo).
 - **Sin dictado por voz** (TRD §4.4, marcado como *[A confirmar]*).
 
+## Casos de uso sin pantalla
+
+Un caso de uso construido y probado que ninguna pantalla invoca es una feature
+que no existe. Ya pasó cuatro veces en este cliente (`useLogout`, `useRegister`,
+`useMySubmissions`, `useUpdateCourse`), y ninguna la detectó el typecheck ni el
+build. Se detectan así:
+
+```sh
+for h in $(rg -o 'export function (use[A-Z]\w+)' -r '$1' -g '*.ts' src/features | cut -d: -f2 | sort -u); do
+  [ "$(rg -c "\b$h\b" -g '*.tsx' src | wc -l)" -eq 0 ] && echo "SIN PANTALLA: $h"
+done
+```
+
 ## Entrada y salida de la sesión
 
 - `/register` → `RegisterScreen`. Espeja la validación de `RegisterRequest` del

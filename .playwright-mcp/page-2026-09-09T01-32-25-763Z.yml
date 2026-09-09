@@ -1,0 +1,50 @@
+- generic [ref=f48e18]:
+  - generic [ref=f48e19]:
+    - link "ILIA" [ref=f48e20] [cursor=pointer]:
+      - /url: /
+    - generic [ref=f48e21]:
+      - generic [ref=f48e22]: Eduardo Calvache
+      - button "Cerrar sesión" [ref=f48e23] [cursor=pointer]
+  - generic [ref=f48e30]:
+    - link "← Mis cursos" [ref=f48e31] [cursor=pointer]:
+      - /url: /instructor
+    - generic [ref=f48e32]: Publicado
+    - generic [ref=f48e33]: Prompting para docentes
+    - generic [ref=f48e34]: /catalog/prompting-para-docentes · 4 lecciones · 25 min
+    - generic [ref=f48e35]:
+      - button "Retirar del catálogo" [ref=f48e36] [cursor=pointer]
+      - link "Ver inscritos →" [ref=f48e38] [cursor=pointer]:
+        - /url: /instructor/courses/4eeeb363-68a8-47a6-b718-1ad972b8036a/roster
+    - generic [ref=f48e39]:
+      - generic [ref=f48e40]: Datos del curso
+      - generic [ref=f48e41]: Título
+      - textbox "Título del curso" [ref=f48e42]: Prompting para docentes
+      - generic [ref=f48e43]: Dirección
+      - textbox "Dirección del curso" [ref=f48e44]: prompting-para-docentes
+      - generic [ref=f48e45]: "No se puede cambiar mientras el curso esté publicado: los enlaces que ya tienen tus estudiantes dejarían de funcionar. Retiralo del catálogo si necesitás cambiarla."
+      - generic [ref=f48e46]: Resumen
+      - textbox "Resumen del curso" [ref=f48e47]: Ahorrá horas por semana en material de clase
+      - generic [ref=f48e48]: Descripción
+      - textbox "Descripción del curso" [ref=f48e49]: "Ahorrá horas por semana en material de clase. Curso práctico: cada módulo termina en una actividad ejecutable, no en un cuestionario."
+      - generic [ref=f48e50]: Nivel
+      - generic [ref=f48e51]:
+        - button "Básico" [ref=f48e52] [cursor=pointer]
+        - button "Intermedio" [ref=f48e54] [cursor=pointer]
+        - button "Experto" [ref=f48e56] [cursor=pointer]
+      - generic [ref=f48e58]:
+        - button "Cerrar" [ref=f48e59] [cursor=pointer]
+        - button "Guardar cambios" [disabled]
+    - generic [ref=f48e62]: Temario
+    - generic [ref=f48e63]:
+      - generic [ref=f48e64]: 1. Qué es un prompt
+      - generic [ref=f48e65]: • Anatomía de un prompt · 7 min
+      - button "+ Lección" [ref=f48e66] [cursor=pointer]
+    - generic [ref=f48e68]:
+      - generic [ref=f48e69]: 2. Aplicalo a tu clase
+      - generic [ref=f48e70]: • Generar una guía de ejercicios · 10 min
+      - generic [ref=f48e71]: • Resumir un texto largo · 5 min
+      - generic [ref=f48e72]: • Comprobá lo aprendido · 3 min
+      - button "+ Lección" [ref=f48e73] [cursor=pointer]
+    - generic [ref=f48e75]:
+      - textbox "Título del nuevo módulo" [ref=f48e76]
+      - button "+ Agregar módulo" [disabled]
