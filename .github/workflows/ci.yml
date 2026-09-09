@@ -107,3 +107,73 @@ jobs:
       # native-only module leaking into shared code. Typecheck alone does not.
       - name: Build web
         run: npx expo export --platform web --output-dir .web-build
+
+  # The images are part of the product: a Dockerfile nobody builds is a
+  # Dockerfile that stops working, and it stops working on the day somebody
+  # needs to deploy in a hurry.
+  images:
+    name: Images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build the API image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./apps/api
+          # Not pushed: this job exists to catch a broken build, and publishing
+          # is a release decision, not a CI one.
+          push: false
+          load: true
+          tags: ilia-api:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build the web image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./apps/mobile
+          push: false
+          load: true
+          tags: ilia-web:ci
+          build-args: |
+            EXPO_PUBLIC_API_URL=http://localhost:8000
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Building proves it compiles. Starting proves it runs — which is a
+      # different thing, and the one that caught a crash on boot.
+      - name: The API image starts and answers
+        run: |
+          docker run -d --name api-smoke -p 8000:8000 \
+            -e ILIA_JWT_SECRET=ci-secret-long-enough-for-hmac-sha256 \
+            --read-only --tmpfs /tmp \
+            ilia-api:ci
+          for attempt in $(seq 1 20); do
+            if curl -fs http://localhost:8000/health > /dev/null; then
+              echo "The API answered on attempt $attempt."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "The API never answered. Logs:"
+          docker logs api-smoke
+          exit 1
+
+      - name: The web image serves a deep link
+        run: |
+          docker run -d --name web-smoke -p 8090:80 ilia-web:ci
+          for attempt in $(seq 1 15); do
+            # A course URL, not the root: reloading a shared link is the case
+            # that breaks when the SPA fallback is wrong.
+            if curl -fs http://localhost:8090/catalog/algo > /dev/null; then
+              echo "The web image served a deep link on attempt $attempt."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "The web image never answered. Logs:"
+          docker logs web-smoke
+          exit 1

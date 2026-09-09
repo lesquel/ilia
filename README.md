@@ -21,6 +21,28 @@ docker compose up -d --build
 Levanta cuatro cosas en orden: la base, las **migraciones hasta terminar**, la
 API y el cliente web. Nada arranca hasta que lo que necesita está sano.
 
+### El primer administrador
+
+Un despliegue nuevo nace bloqueado: los roles se otorgan y nunca se reclaman
+(PRD A-02), así que sin admin no hay quien otorgue nada — y sin instructores no
+hay cursos. Nunca.
+
+```sh
+# 1. registrate por la app como cualquier docente
+# 2. promovete una sola vez
+docker compose run --rm api python -m app.cli bootstrap-admin tu@correo.gob
+```
+
+Se niega si ya existe un administrador. Después de ese, promover es cosa del
+producto, donde queda auditado y es reversible: un comando de consola que sigue
+funcionando es una puerta lateral permanente. Ese único otorgamiento que nadie
+aprobó queda marcado en el log de auditoría como `bootstrap`, para siempre.
+
+Los planes (`free` y `pro`) los siembra una migración, porque sin ellos la
+plataforma no puede responder qué tiene permitido un docente. **Los números son
+un punto de partida, no una decisión**: son filas, y se cambian con un `UPDATE`
+sin desplegar nada.
+
 ### Decisiones
 
 **Las migraciones son un contenedor aparte que corre una vez.** Si la API
