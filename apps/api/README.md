@@ -444,8 +444,16 @@ modelo es un total que se puede negociar.
   salida válida y **no evalúa nada** — el feedback lo dice en voz alta. Con un
   proveedor configurado evalúa de verdad. Ver «Proveedores de LLM» más abajo.
 - **La cola corre en el proceso de la API** (`infrastructure/queue.py`). La
-  tecnología de cola sigue abierta (TRD §5.2). Sirve para un piloto y **no
-  sobrevive un reinicio**: una entrega en vuelo queda en `running` para siempre.
+  tecnología de cola sigue abierta (TRD §5.2), pero ya **sobrevive un
+  reinicio**: `recover_abandoned` corre al arrancar y retoma lo que un proceso
+  muerto dejó a medias. El reclamo es atómico (`FOR UPDATE SKIP LOCKED`), así
+  que dos réplicas arrancando juntas no pueden correr la misma evaluación y
+  cobrarla dos veces. Tras `MAX_RECOVERIES` intentos se cierra con una falla
+  honesta: un reintento cuesta una llamada real al modelo, y una entrega que
+  mata al worker no se arregla probando una cuarta vez.
+- **Una entrega fallida no gasta intento.** `failed` solo ocurre por excepción
+  —proveedor caído o bug nuestro—; un prompt malo saca nota baja, no falla.
+  Cobrarle el intento sería facturarle al docente nuestra propia caída.
 - **Sin cupos.** `UnlimitedQuota` hasta que se definan los números del tier
   gratuito (PRD pregunta abierta 4). La política ya es un puerto y está testeada.
 - **Sin calibración.** El TRD §6.3 lo pide antes de certificar a nadie: corregir
