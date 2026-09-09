@@ -1,0 +1,27 @@
+- generic [ref=f49e26]:
+  - generic [ref=f49e27]:
+    - link "ILIA" [ref=f49e28] [cursor=pointer]:
+      - /url: /
+    - generic [ref=f49e29]:
+      - generic [ref=f49e30]: Eduardo Calvache
+      - button "Cerrar sesión" [ref=f49e31] [cursor=pointer]
+  - generic [ref=f49e38]:
+    - generic [ref=f49e40]:
+      - link "← Volver al curso" [ref=f49e41] [cursor=pointer]:
+        - /url: /catalog/notebooklm-en-el-aula
+      - generic [ref=f49e42]: Foro del curso
+      - generic [ref=f49e43]: Preguntá lo que no te salga. Alguien más ya lo intentó.
+      - button "+ Nueva discusión" [ref=f49e44] [cursor=pointer]
+    - generic [ref=f49e47]:
+      - link "¿NotebookLM sirve con PDFs escaneados? Ana Perez · 1 respuesta · última actividad hace 2 h" [ref=f49e48] [cursor=pointer]:
+        - /url: /catalog/notebooklm-en-el-aula/forum/50c00f88-3dce-4774-84dd-ecda377d11a4
+        - generic [ref=f49e49]:
+          - generic [ref=f49e50]: ¿NotebookLM sirve con PDFs escaneados?
+          - generic [ref=f49e51]: Ana Perez · 1 respuesta · última actividad hace 2 h
+      - generic [ref=f49e52]:
+        - generic [ref=f49e53]: ¿Por qué se retira? Queda registrado.
+        - textbox "Motivo de la moderación" [ref=f49e54]:
+          - /placeholder: "Ej.: datos personales de estudiantes"
+        - generic [ref=f49e55]:
+          - button "Cancelar" [ref=f49e56] [cursor=pointer]
+          - button "Retirar" [disabled]

@@ -192,6 +192,25 @@ class ReplyToThread:
         return post
 
 
+async def may_moderate(courses: CourseRepository, *, user: User, course_id: UUID) -> bool:
+    """May this person moderate this course?
+
+    One definition, used both to enforce the rule and to tell the client whether
+    to offer the control. Deciding that twice — once here, once in the UI — is
+    how a moderation button ends up shown to someone the API will reject, or
+    hidden from someone who needed it.
+    """
+    if user.role is Role.ADMIN:
+        return True
+
+    if user.role is not Role.INSTRUCTOR:
+        return False
+
+    course = await courses.get_by_id(course_id)
+    # An instructor moderates their own courses, not everyone else's.
+    return course is not None and course.instructor_id == user.id
+
+
 class ModerateMessage:
     """Hide a thread or a reply.
 
@@ -247,13 +266,5 @@ class ModerateMessage:
         return post
 
     async def _require_moderator(self, user: User, course_id: UUID) -> None:
-        if user.role is Role.ADMIN:
-            return
-
-        if user.role is not Role.INSTRUCTOR:
-            raise NotAModeratorError()
-
-        course = await self._courses.get_by_id(course_id)
-        # An instructor moderates their own courses, not everyone else's.
-        if course is None or course.instructor_id != user.id:
+        if not await may_moderate(self._courses, user=user, course_id=course_id):
             raise NotAModeratorError()

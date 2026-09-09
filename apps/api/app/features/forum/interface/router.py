@@ -17,6 +17,7 @@ from app.features.forum.application.use_cases import (
     OpenThread,
     ReadThread,
     ReplyToThread,
+    may_moderate,
 )
 from app.features.forum.domain.entities import (
     MAX_BODY_CHARS,
@@ -37,9 +38,14 @@ class ThreadSummaryResponse(BaseModel):
     created_at: datetime | None
     last_activity_at: datetime | None
     is_hidden: bool
+    # Decided by the server with the same rule that enforces it, so the client
+    # never has to guess who may moderate.
+    can_moderate: bool = False
 
     @classmethod
-    def from_entity(cls, thread: ForumThread) -> "ThreadSummaryResponse":
+    def from_entity(
+        cls, thread: ForumThread, *, can_moderate: bool = False
+    ) -> "ThreadSummaryResponse":
         return cls(
             id=thread.id,
             title=thread.title,
@@ -48,6 +54,7 @@ class ThreadSummaryResponse(BaseModel):
             created_at=thread.created_at,
             last_activity_at=thread.last_activity_at,
             is_hidden=thread.is_hidden,
+            can_moderate=can_moderate,
         )
 
 
@@ -107,7 +114,15 @@ async def list_threads(
         user=user, slug=slug, module_id=module_id
     )
 
-    return [ThreadSummaryResponse.from_entity(item) for item in found]
+    # Every thread in a listing belongs to the same course, so the rule is
+    # evaluated once rather than per row.
+    moderator = bool(
+        found and await may_moderate(courses, user=user, course_id=found[0].course_id)
+    )
+
+    return [
+        ThreadSummaryResponse.from_entity(item, can_moderate=moderator) for item in found
+    ]
 
 
 @router.post(
@@ -161,8 +176,10 @@ async def read_thread(
         courses=courses, enrollments=enrollments, threads=threads, posts=posts
     ).execute(user=user, slug=slug, thread_id=thread_id)
 
+    moderator = await may_moderate(courses, user=user, course_id=result.thread.course_id)
+
     return ThreadDetailResponse(
-        **ThreadSummaryResponse.from_entity(result.thread).model_dump(),
+        **ThreadSummaryResponse.from_entity(result.thread, can_moderate=moderator).model_dump(),
         body=result.thread.visible_body,
         posts=[PostResponse.from_entity(item) for item in result.posts],
     )

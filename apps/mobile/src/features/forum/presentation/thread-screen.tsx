@@ -14,6 +14,7 @@ import { useTheme } from '@/core/theme';
 import { ErrorState, LoadingState } from '@/core/ui/state-view';
 import { useReply, useThread } from '@/features/forum/application/use-forum';
 import { MAX_BODY_CHARS, replyLabel, timeAgo } from '@/features/forum/domain/entities';
+import { ModerateControl } from '@/features/forum/presentation/moderate-control';
 
 export function ThreadScreen() {
   const theme = useTheme();
@@ -79,6 +80,10 @@ export function ThreadScreen() {
         <Text style={[styles.body, { color: theme.colors.text }]}>{thread.body}</Text>
       </View>
 
+      {thread.canModerate && !thread.isHidden ? (
+        <ModerateControl slug={courseSlug} kind="thread" id={thread.id} />
+      ) : null}
+
       {thread.posts.map((post) => (
         <View
           key={post.id}
@@ -107,6 +112,10 @@ export function ThreadScreen() {
           >
             {post.body}
           </Text>
+
+          {thread.canModerate && !post.isHidden ? (
+            <ModerateControl slug={courseSlug} kind="post" id={post.id} />
+          ) : null}
         </View>
       ))}
 

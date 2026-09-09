@@ -303,3 +303,56 @@ class TestModeration:
         )
 
         assert response.status_code == 403
+
+    def test_can_moderate_matches_who_the_api_actually_lets_moderate(
+        self, client: TestClient, app
+    ) -> None:  # type: ignore[no-untyped-def]
+        """The flag and the rule must never disagree.
+
+        If `can_moderate` said yes to someone the endpoint rejects, the client
+        would show a moderation button that 403s; if it said no to someone
+        allowed, abusive content would stay up because nobody was offered the
+        control.
+        """
+        token = enrolled(client)
+        thread = client.post(f"{FORUM}/ia-basica/threads", json=THREAD, headers=auth(token)).json()
+
+        # An enrolled teacher: the flag says no, and hiding is refused.
+        listed = client.get(f"{FORUM}/ia-basica/threads", headers=auth(token)).json()
+        assert listed[0]["can_moderate"] is False
+        refused = client.post(
+            f"{FORUM}/threads/{thread['id']}/hide",
+            json={"reason": "no deberia poder"},
+            headers=auth(token),
+        )
+        assert refused.status_code == 403
+
+        # An admin: the flag says yes, and hiding succeeds.
+        admin = register(client, "admin@ministerio.gob", "Admin")
+        promote(app, "admin@ministerio.gob", Role.ADMIN)
+        as_admin = client.get(f"{FORUM}/ia-basica/threads", headers=auth(admin)).json()
+        assert as_admin[0]["can_moderate"] is True
+        allowed = client.post(
+            f"{FORUM}/threads/{thread['id']}/hide",
+            json={"reason": "spam"},
+            headers=auth(admin),
+        )
+        assert allowed.status_code == 200
+
+    def test_the_flag_travels_on_the_thread_detail_too(
+        self, client: TestClient, app
+    ) -> None:  # type: ignore[no-untyped-def]
+        token = enrolled(client)
+        thread = client.post(f"{FORUM}/ia-basica/threads", json=THREAD, headers=auth(token)).json()
+
+        detail = client.get(
+            f"{FORUM}/ia-basica/threads/{thread['id']}", headers=auth(token)
+        ).json()
+        assert detail["can_moderate"] is False
+
+        admin = register(client, "admin2@ministerio.gob", "Admin Dos")
+        promote(app, "admin2@ministerio.gob", Role.ADMIN)
+        as_admin = client.get(
+            f"{FORUM}/ia-basica/threads/{thread['id']}", headers=auth(admin)
+        ).json()
+        assert as_admin["can_moderate"] is True

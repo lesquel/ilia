@@ -11,6 +11,12 @@ export interface ThreadSummary {
   createdAt: string | null;
   lastActivityAt: string | null;
   isHidden: boolean;
+  /**
+   * Whether this reader may moderate. Decided by the server with the same rule
+   * that enforces it — never inferred here from the role, because an instructor
+   * may moderate their own courses and not anyone else's.
+   */
+  canModerate: boolean;
 }
 
 export interface Post {

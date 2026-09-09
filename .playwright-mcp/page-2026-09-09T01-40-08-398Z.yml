@@ -1,0 +1,10 @@
+- generic [ref=f49e10]:
+  - generic [ref=f49e12]:
+    - link "← Volver al curso" [ref=f49e13] [cursor=pointer]:
+      - /url: /catalog/notebooklm-en-el-aula
+    - generic [ref=f49e14]: Foro del curso
+    - generic [ref=f49e15]: Preguntá lo que no te salga. Alguien más ya lo intentó.
+    - button "+ Nueva discusión" [ref=f49e16] [cursor=pointer]
+  - generic [ref=f49e18]:
+    - progressbar [ref=f49e19]
+    - generic [ref=f49e24]: Cargando el foro…

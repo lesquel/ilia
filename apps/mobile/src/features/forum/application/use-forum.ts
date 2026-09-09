@@ -71,3 +71,30 @@ export function useReply(
     },
   });
 }
+
+/**
+ * Hide a thread or a reply.
+ *
+ * Both listing and detail are invalidated: a thread hidden from the detail view
+ * must not still read as visible in the list behind it.
+ */
+export function useModerate(slug: string, repository: ForumRepository = forumRepository) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: { kind: 'thread' | 'post'; id: string; reason: string }) =>
+      input.kind === 'thread'
+        ? repository.hideThread(input.id, input.reason)
+        : repository.hidePost(input.id, input.reason),
+    onSuccess: (_result, input) => {
+      // Both views, and only this course's. A thread hidden from the detail
+      // must not still read as visible in the list behind it.
+      void queryClient.invalidateQueries({ queryKey: forumKeys.threads(slug) });
+      if (input.kind === 'thread') {
+        void queryClient.invalidateQueries({ queryKey: forumKeys.thread(slug, input.id) });
+      } else {
+        void queryClient.invalidateQueries({ queryKey: ['forum', 'thread', slug] });
+      }
+    },
+  });
+}

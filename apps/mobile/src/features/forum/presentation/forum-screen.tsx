@@ -16,6 +16,7 @@ import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
 import { useSession } from '@/features/auth';
 import { useEntitlements } from '@/features/billing';
 import { useOpenThread, useThreads } from '@/features/forum/application/use-forum';
+import { ModerateControl } from '@/features/forum/presentation/moderate-control';
 import {
   MAX_TITLE_CHARS,
   replyLabel,
@@ -226,6 +227,21 @@ function ThreadRow({ thread, slug }: { thread: ThreadSummary; slug: string }) {
   const theme = useTheme();
 
   return (
+    <View style={styles.rowWrap}>
+      <ThreadLink thread={thread} slug={slug} />
+      {/* Outside the link on purpose: nested inside it, every tap on the
+          moderation control would navigate to the thread instead. */}
+      {thread.canModerate && !thread.isHidden ? (
+        <ModerateControl slug={slug} kind="thread" id={thread.id} />
+      ) : null}
+    </View>
+  );
+}
+
+function ThreadLink({ thread, slug }: { thread: ThreadSummary; slug: string }) {
+  const theme = useTheme();
+
+  return (
     <Link href={`/catalog/${slug}/forum/${thread.id}`} asChild>
       <Pressable accessibilityRole="link">
         {({ pressed }) => (
@@ -261,6 +277,7 @@ function ThreadRow({ thread, slug }: { thread: ThreadSummary; slug: string }) {
 }
 
 const styles = StyleSheet.create({
+  rowWrap: { gap: 0 },
   screen: { flex: 1, paddingTop: 27.2, gap: 13.6 },
   content: {
     padding: 20.4,
