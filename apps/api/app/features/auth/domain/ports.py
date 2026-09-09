@@ -21,6 +21,8 @@ class UserRepository(Protocol):
 
     async def add(self, user: User) -> None: ...
 
+    async def update(self, user: User) -> None: ...
+
 
 class PasswordHasher(Protocol):
     def hash(self, plain_password: str) -> str: ...
@@ -41,6 +43,10 @@ class TokenClaims:
     subject: UUID
     role: str
     expires_at: datetime
+    # The token generation this token was issued under. A refresh token whose
+    # generation is behind the user's was issued before a password change, and
+    # is refused. Defaults to 0 so tokens issued before this existed still work.
+    generation: int = 0
 
 
 class TokenService(Protocol):

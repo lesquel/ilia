@@ -14,6 +14,7 @@ from app.core.config import Settings, get_app_settings
 from app.core.database import Database
 from app.features.auth.application.use_cases import (
     AuthenticateUser,
+    ChangePassword,
     GetCurrentUser,
     RefreshSession,
     RegisterUser,
@@ -28,6 +29,7 @@ from app.features.auth.infrastructure.security import (
     SystemClock,
 )
 from app.features.auth.infrastructure.sql_repository import SqlAlchemyUserRepository
+from app.features.auth.interface.throttle import build_auth_limiter
 from app.features.auth.interface.transport import read_access_token
 from app.shared.errors import PermissionDeniedError
 
@@ -51,6 +53,8 @@ def build_auth_container(settings: Settings, database: Database | None = None) -
     return {
         "users": users,
         "hasher": Argon2PasswordHasher(),
+        # One limiter for the whole process, built here so it outlives requests.
+        "limiter": build_auth_limiter(settings),
         "tokens": JwtTokenService(
             secret=settings.jwt_secret,
             algorithm=settings.jwt_algorithm,
@@ -95,6 +99,10 @@ def get_authenticate_user(
 
 def get_refresh_session(users: UsersDep, tokens: TokensDep) -> RefreshSession:
     return RefreshSession(users=users, tokens=tokens)
+
+
+def get_change_password(users: UsersDep, hasher: HasherDep) -> ChangePassword:
+    return ChangePassword(users=users, hasher=hasher)
 
 
 async def get_current_user(

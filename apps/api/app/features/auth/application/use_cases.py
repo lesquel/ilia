@@ -14,6 +14,7 @@ from app.features.auth.domain.errors import (
     InactiveAccountError,
     InvalidCredentialsError,
     InvalidTokenError,
+    SamePasswordError,
 )
 from app.features.auth.domain.ports import (
     Clock,
@@ -119,6 +120,12 @@ class RefreshSession:
         if not user.is_active:
             raise InactiveAccountError()
 
+        # Issued before a password change. Refusing it is what makes changing a
+        # password actually evict whoever else was signed in; without this the
+        # intruder keeps refreshing for another thirty days.
+        if claims.generation < user.token_generation:
+            raise InvalidTokenError()
+
         return Session(user=user, tokens=self._tokens.issue_pair(user))
 
 
@@ -132,4 +139,37 @@ class GetCurrentUser:
             raise InvalidTokenError()
         if not user.is_active:
             raise InactiveAccountError()
+        return user
+
+
+class ChangePassword:
+    """Change your own password (with a session already open).
+
+    Separate from any future reset-by-email flow, and useful without it: this
+    is the one someone reaches for after typing their password on a shared
+    staffroom computer.
+
+    The current password is required. A session cookie alone is not enough —
+    somebody who walked up to an unlocked laptop would otherwise take the
+    account permanently, and the real owner would have no way back.
+    """
+
+    def __init__(self, *, users: UserRepository, hasher: PasswordHasher) -> None:
+        self._users = users
+        self._hasher = hasher
+
+    async def execute(self, *, user_id: UUID, current_password: str, new_password: str) -> User:
+        user = await self._users.get_by_id(user_id)
+        if user is None:
+            raise InvalidTokenError()
+
+        if not self._hasher.verify(current_password, user.password_hash):
+            raise InvalidCredentialsError()
+
+        if current_password == new_password:
+            raise SamePasswordError()
+
+        user.change_password(self._hasher.hash(new_password))
+        await self._users.update(user)
+
         return user

@@ -33,9 +33,11 @@ export function AccountBar() {
       </Link>
 
       <View style={styles.right}>
-        <Text style={[styles.name, { color: theme.colors.neutral[600] }]} numberOfLines={1}>
+        {/* The name is the link: an account screen nobody can reach is an
+            account screen nobody has. */}
+        <Link href="/account" style={[styles.name, { color: theme.colors.neutral[600] }]}>
           {user.fullName}
-        </Text>
+        </Link>
         <Pressable
           accessibilityRole="button"
           disabled={logout.isPending}

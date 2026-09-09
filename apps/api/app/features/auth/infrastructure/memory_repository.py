@@ -40,3 +40,7 @@ class InMemoryUserRepository:
                 if existing.email == user.email:
                     raise ValueError("Email already registered")
             self._by_id[user.id] = user
+
+    async def update(self, user: User) -> None:
+        async with self._lock:
+            self._by_id[user.id] = user

@@ -60,6 +60,14 @@ class Settings(BaseSettings):
     llm_input_price_per_million: float = 0.0
     llm_output_price_per_million: float = 0.0
 
+    # --- Rate limiting ------------------------------------------------------
+
+    # Attempts allowed per window on the endpoints that hand out credentials.
+    # Ten in five minutes is far above what a person who forgot their password
+    # does, and far below what guessing one requires.
+    auth_rate_limit_attempts: int = 10
+    auth_rate_limit_window_seconds: int = 300
+
     # --- Auth ---------------------------------------------------------------
 
     # Override in every deployed environment. The default exists so `uv run` and

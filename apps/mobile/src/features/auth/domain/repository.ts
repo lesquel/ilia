@@ -1,4 +1,4 @@
-import type { Credentials, Registration, Session, User } from './entities';
+import type { Credentials, PasswordChange, Registration, Session, User } from './entities';
 
 /**
  * What the auth feature needs from the outside world.
@@ -11,6 +11,7 @@ export interface AuthRepository {
   login(credentials: Credentials): Promise<Session>;
   refresh(): Promise<Session>;
   logout(): Promise<void>;
+  changePassword(input: PasswordChange): Promise<void>;
   currentUser(): Promise<User>;
 }
 

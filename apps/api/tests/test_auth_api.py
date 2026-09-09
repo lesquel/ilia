@@ -205,3 +205,145 @@ class TestProtectedRoute:
         )
 
         assert response.status_code == 401
+
+
+class TestChangePassword:
+    """Changing your own password, and what that has to end.
+
+    There is no reset-by-email flow yet, so this is the only way a teacher can
+    replace a password they think someone else has seen.
+    """
+
+    def bearer(self, token: str) -> dict[str, str]:
+        return {**NATIVE, "Authorization": f"Bearer {token}"}
+
+    def test_a_session_is_required(self, client: TestClient) -> None:
+        response = client.post(
+            "/api/v1/auth/password",
+            json={"current_password": "una-clave-larga", "new_password": "otra-clave-larga"},
+            headers=NATIVE,
+        )
+
+        assert response.status_code == 401
+
+    def test_the_current_password_is_required(self, client: TestClient) -> None:
+        # A session alone is not enough. Somebody who walked up to an unlocked
+        # laptop would otherwise take the account for good.
+        token = register(client, NATIVE).json()["access_token"]
+
+        response = client.post(
+            "/api/v1/auth/password",
+            json={"current_password": "no-es-la-mia", "new_password": "otra-clave-larga"},
+            headers=self.bearer(token),
+        )
+
+        assert response.status_code == 401
+
+    def test_a_short_new_password_is_rejected(self, client: TestClient) -> None:
+        token = register(client, NATIVE).json()["access_token"]
+
+        response = client.post(
+            "/api/v1/auth/password",
+            json={"current_password": "una-clave-larga", "new_password": "corta"},
+            headers=self.bearer(token),
+        )
+
+        assert response.status_code == 422
+
+    def test_reusing_the_same_password_is_refused(self, client: TestClient) -> None:
+        # Accepting it would end every other session while leaving the password
+        # an intruder already knows.
+        token = register(client, NATIVE).json()["access_token"]
+
+        response = client.post(
+            "/api/v1/auth/password",
+            json={"current_password": "una-clave-larga", "new_password": "una-clave-larga"},
+            headers=self.bearer(token),
+        )
+
+        assert response.status_code == 409
+        assert response.json()["error"]["code"] == "same_password"
+
+    def test_the_new_password_works_and_the_old_one_stops(self, client: TestClient) -> None:
+        token = register(client, NATIVE).json()["access_token"]
+
+        changed = client.post(
+            "/api/v1/auth/password",
+            json={"current_password": "una-clave-larga", "new_password": "una-clave-nueva"},
+            headers=self.bearer(token),
+        )
+        assert changed.status_code == 204
+
+        login = {"email": ACCOUNT["email"]}
+        assert (
+            client.post(
+                "/api/v1/auth/login",
+                json={**login, "password": "una-clave-nueva"},
+                headers=NATIVE,
+            ).status_code
+            == 200
+        )
+        assert (
+            client.post(
+                "/api/v1/auth/login",
+                json={**login, "password": "una-clave-larga"},
+                headers=NATIVE,
+            ).status_code
+            == 401
+        )
+
+    def test_other_sessions_stop_refreshing(self, client: TestClient) -> None:
+        """The whole reason the feature exists.
+
+        Someone changing their password because they think another person has
+        it must not leave that person signed in. Access tokens are short-lived;
+        the refresh token is the one that would keep an intruder in for thirty
+        days, so that is the one this has to kill.
+        """
+        first = register(client, NATIVE).json()
+        intruder_refresh = first["refresh_token"]
+
+        # A second session, which is the one doing the change.
+        second = client.post(
+            "/api/v1/auth/login",
+            json={"email": ACCOUNT["email"], "password": "una-clave-larga"},
+            headers=NATIVE,
+        ).json()
+
+        # Before the change, the first session refreshes fine.
+        assert (
+            client.post(
+                "/api/v1/auth/refresh",
+                json={"refresh_token": intruder_refresh},
+                headers=NATIVE,
+            ).status_code
+            == 200
+        )
+
+        client.post(
+            "/api/v1/auth/password",
+            json={"current_password": "una-clave-larga", "new_password": "una-clave-nueva"},
+            headers=self.bearer(second["access_token"]),
+        )
+
+        refused = client.post(
+            "/api/v1/auth/refresh",
+            json={"refresh_token": intruder_refresh},
+            headers=NATIVE,
+        )
+        assert refused.status_code == 401
+
+    def test_the_session_doing_the_change_keeps_working(self, client: TestClient) -> None:
+        # The person is at the keyboard fixing a compromise. Signing them out of
+        # the browser they are using to fix it punishes the wrong person.
+        session = register(client, WEB)
+        changed = client.post(
+            "/api/v1/auth/password",
+            json={"current_password": "una-clave-larga", "new_password": "una-clave-nueva"},
+            headers=WEB,
+        )
+
+        assert changed.status_code == 204
+        assert "set-cookie" in {k.lower() for k in changed.headers}
+        assert client.get("/api/v1/auth/me", headers=WEB).status_code == 200
+        assert session.status_code == 201

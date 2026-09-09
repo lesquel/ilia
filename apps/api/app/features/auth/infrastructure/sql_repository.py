@@ -7,6 +7,7 @@ to make this exist. It simply took the place of `InMemoryUserRepository`.
 from uuid import UUID
 
 from sqlalchemy import select
+from sqlalchemy import update as sa_update
 from sqlalchemy.exc import IntegrityError
 
 from app.core.database import Database
@@ -25,6 +26,7 @@ def _to_entity(row: UserModel) -> User:
         role=Role(row.role),
         is_active=row.is_active,
         created_at=row.created_at,
+        token_generation=row.token_generation,
     )
 
 
@@ -55,6 +57,7 @@ class SqlAlchemyUserRepository:
                         role=user.role.value,
                         is_active=user.is_active,
                         created_at=user.created_at,
+                        token_generation=user.token_generation,
                     )
                 )
         except IntegrityError as exc:
@@ -62,3 +65,17 @@ class SqlAlchemyUserRepository:
             # both pass that check. The unique index is the real guarantee, and
             # this turns its error into the domain's own.
             raise EmailAlreadyRegisteredError() from exc
+
+    async def update(self, user: User) -> None:
+        async with self._db.session() as session:
+            await session.execute(
+                sa_update(UserModel)
+                .where(UserModel.id == user.id)
+                .values(
+                    full_name=user.full_name,
+                    password_hash=user.password_hash,
+                    role=user.role.value,
+                    is_active=user.is_active,
+                    token_generation=user.token_generation,
+                )
+            )

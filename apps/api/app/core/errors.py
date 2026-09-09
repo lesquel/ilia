@@ -53,9 +53,18 @@ def register_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(DomainError)
     async def _domain(_: Request, exc: DomainError) -> JSONResponse:
         status = _status_for(exc)
+        headers = {}
+
+        # A 429 without Retry-After leaves the client guessing, and a client
+        # that guesses retries too soon and stays locked out.
+        retry_after = getattr(exc, "retry_after_seconds", None)
+        if retry_after is not None:
+            headers["Retry-After"] = str(int(retry_after))
+
         return JSONResponse(
             status_code=status,
             content=_envelope(exc.code, exc.message, exc.detail),
+            headers=headers or None,
         )
 
     @app.exception_handler(RequestValidationError)

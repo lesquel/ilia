@@ -85,6 +85,7 @@ class JwtTokenService:
         payload: dict[str, Any] = {
             "sub": str(user.id),
             "role": user.role.value,
+            "gen": user.token_generation,
             "type": token_type,
             "iss": self._issuer,
             "iat": int(now.timestamp()),
@@ -117,5 +118,6 @@ class JwtTokenService:
         return TokenClaims(
             subject=subject,
             role=str(payload.get("role", "")),
+            generation=int(payload.get("gen") or 0),
             expires_at=datetime.fromtimestamp(float(payload["exp"]), tz=UTC),
         )

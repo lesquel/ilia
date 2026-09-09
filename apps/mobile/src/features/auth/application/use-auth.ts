@@ -2,7 +2,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { ApiError } from '@/core/errors/api-error';
 import { clearSessionScopedStorage } from '@/core/storage';
-import type { Credentials, Registration, User } from '@/features/auth/domain/entities';
+import type {
+  Credentials,
+  PasswordChange,
+  Registration,
+  User,
+} from '@/features/auth/domain/entities';
 import type { AuthRepository } from '@/features/auth/domain/repository';
 import { authRepository } from '@/features/auth/data/auth-repository';
 
@@ -88,5 +93,18 @@ export function useLogout(repository: AuthRepository = authRepository) {
       queryClient.setQueryData(authKeys.session, null);
       void queryClient.invalidateQueries();
     },
+  });
+}
+
+/**
+ * Change your own password.
+ *
+ * Every other session ends server-side; this one keeps working, because the
+ * person doing it is at the keyboard. Nothing is invalidated in the cache: the
+ * user did not change, only their credentials did.
+ */
+export function useChangePassword(repository: AuthRepository = authRepository) {
+  return useMutation({
+    mutationFn: (input: PasswordChange) => repository.changePassword(input),
   });
 }

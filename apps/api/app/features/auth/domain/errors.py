@@ -34,3 +34,16 @@ class InvalidTokenError(AuthenticationError):
 
     def __init__(self, message: str = "The session token is invalid or expired") -> None:
         super().__init__(message)
+
+
+class SamePasswordError(ConflictError):
+    """The new password is the one already in use.
+
+    Rejected rather than silently accepted: a no-op change would end every
+    other session while leaving the password an intruder already knows.
+    """
+
+    code = "same_password"
+
+    def __init__(self) -> None:
+        super().__init__("The new password must be different from the current one")

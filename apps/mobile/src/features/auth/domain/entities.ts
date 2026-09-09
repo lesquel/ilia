@@ -43,6 +43,11 @@ export interface Registration extends Credentials {
   fullName: string;
 }
 
+export interface PasswordChange {
+  currentPassword: string;
+  newPassword: string;
+}
+
 /**
  * A session as the app sees it.
  *

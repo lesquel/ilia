@@ -1,5 +1,11 @@
 import { HttpClient, httpClient } from '@/core/api/http-client';
-import type { Credentials, Registration, Session, User } from '@/features/auth/domain/entities';
+import type {
+  Credentials,
+  PasswordChange,
+  Registration,
+  Session,
+  User,
+} from '@/features/auth/domain/entities';
 import type { AuthRepository, TokenStore } from '@/features/auth/domain/repository';
 
 import { type SessionDto, type UserDto, toSession, toUser } from './dto';
@@ -55,6 +61,13 @@ export class HttpAuthRepository implements AuthRepository {
       // than one that fails loudly.
       await this.tokens.clear();
     }
+  }
+
+  async changePassword(input: PasswordChange): Promise<void> {
+    await this.http.post<void>('/auth/password', {
+      current_password: input.currentPassword,
+      new_password: input.newPassword,
+    });
   }
 
   async currentUser(): Promise<User> {

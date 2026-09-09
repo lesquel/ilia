@@ -14,6 +14,13 @@ class RegisterRequest(BaseModel):
     password: str = Field(min_length=8, max_length=128)
 
 
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    # The same floor as registration, deliberately repeated rather than shared:
+    # these are two different decisions that happen to agree today.
+    new_password: str = Field(min_length=8, max_length=128)
+
+
 class LoginRequest(BaseModel):
     email: str
     password: str

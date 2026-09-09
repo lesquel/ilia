@@ -1,0 +1,23 @@
+- generic [ref=f66e10]:
+  - generic [ref=f66e11]:
+    - link "ILIA" [ref=f66e12] [cursor=pointer]:
+      - /url: /
+    - generic [ref=f66e13]:
+      - link "Luis Zambrano" [ref=f66e14] [cursor=pointer]:
+        - /url: /account
+      - button "Cerrar sesión" [ref=f66e15] [cursor=pointer]
+  - generic [ref=f66e22]:
+    - generic [ref=f66e23]: Tu cuenta
+    - generic [ref=f66e24]: Luis Zambrano · luis@colegio.edu
+    - generic [ref=f66e25]: Cambiar contraseña
+    - generic [ref=f66e26]: Al cambiarla se cierran todas las demás sesiones. Si alguien más entró con tu cuenta, dejará de tener acceso. Esta pantalla sigue abierta.
+    - generic [ref=f66e27]: Contraseña actual
+    - textbox "Contraseña actual" [ref=f66e28]
+    - generic [ref=f66e29]:
+      - generic [ref=f66e30]: Contraseña nueva
+      - button "Mostrar" [ref=f66e31] [cursor=pointer]
+    - textbox "Contraseña nueva" [ref=f66e33]
+    - generic [ref=f66e34]: Mínimo 8 caracteres. Una frase larga es más segura y más fácil de recordar que símbolos raros.
+    - alert [ref=f66e39]: Listo. Tu contraseña cambió y las demás sesiones se cerraron.
+    - button "Cambiar contraseña" [disabled]
+    - generic [ref=f66e38]: "¿Olvidaste tu contraseña y no podés entrar? Todavía no hay recuperación por correo: escribinos y la restablecemos."

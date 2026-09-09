@@ -70,6 +70,21 @@ class User:
     is_active: bool = True
     created_at: datetime | None = None
     roles_history: list[Role] = field(default_factory=list)
+    # Bumped whenever every existing session must stop working. Refresh tokens
+    # carry the generation they were issued under, and `RefreshSession` already
+    # re-reads the user — so ending other sessions costs one integer comparison
+    # against a row it was reading anyway, and no denylist to keep.
+    token_generation: int = 0
+
+    def change_password(self, password_hash: str) -> None:
+        """Set a new password and end every other session.
+
+        The bump is the point. Someone changing their password because they
+        think another person has it would otherwise leave that person signed
+        in — a password change that does not evict the intruder is theatre.
+        """
+        self.password_hash = password_hash
+        self.token_generation += 1
 
     @classmethod
     def register(
