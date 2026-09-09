@@ -454,6 +454,52 @@ nivel se siguen editando con el curso publicado.
 Estaba bloqueado solo en la UI. Una regla que la API no hace cumplir no es una
 regla: es una sugerencia para quien la llame directo.
 
+## Almacenamiento de objetos
+
+Mismo patrón que el LLM: un puerto, adaptadores, elegidos por configuración.
+
+```sh
+ILIA_STORAGE_PROVIDER=s3        # vacío = adaptador local (solo desarrollo)
+ILIA_STORAGE_BUCKET=ilia-media
+ILIA_STORAGE_REGION=us-east-1
+ILIA_STORAGE_ACCESS_KEY=...
+ILIA_STORAGE_SECRET_KEY=...
+ILIA_STORAGE_ENDPOINT=          # para R2, MinIO, Spaces, B2
+```
+
+Un adaptador cubre **S3, Cloudflare R2, MinIO, DigitalOcean Spaces y Backblaze
+B2**: lo único que cambia es el endpoint y la región.
+
+### Decisiones
+
+**La API nunca sirve los bytes.** Un video de curso son decenas de megas y una
+municipalidad entera lo mira a las nueve de la mañana. Pasarlo por el proceso de
+Python convierte el trabajo de un CDN en nuestro cuello de botella y nuestra
+factura de ancho de banda. La API responde «dónde está y si podés», el
+almacenamiento sirve.
+
+**Las URLs expiran.** El contenido de los cursos es lo que venden los planes
+pagos. Una URL pública permanente es un enlace que una persona pega en un grupo
+y regala el catálogo entero: sin login, sin plan y sin forma de revertirlo. Se
+firma por pedido, **después** de verificar la inscripción — por eso el enlace es
+corto y no vive guardado en la lección.
+
+**Las subidas van directo al bucket.** Cien megas pasando por la API ocupan un
+worker durante minutos y no compran nada.
+
+**Firma SigV4 a mano, sin boto3.** Usamos un algoritmo de un SDK que trae
+decenas de megas y el modelo de servicio de doscientas APIs. Es una cadena de
+HMAC documentada, corta de leer — que importa más de lo habitual en el código
+que decide quién puede leer un archivo. Y una firma mal calculada **falla
+ruidosamente** (403): no existe el modo silencioso donde una firma mala da
+acceso. `tests/test_storage_sigv4.py` la verifica contra el ejemplo publicado
+por AWS.
+
+**El adaptador local se niega a arrancar en producción**, porque no firma nada y
+sirve por la API. Y se niega a subir archivos en vez de fingirlo: un adaptador
+de desarrollo que simula subidas esconde lo único que hay que probar contra un
+bucket real antes de lanzar.
+
 ### Lo que todavía es provisorio
 
 - **El proveedor de LLM se configura, no se elige en el código.** Sin

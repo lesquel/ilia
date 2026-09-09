@@ -63,6 +63,7 @@ interface LessonViewDto {
   duration_seconds: number;
   body: string;
   resource_ref: string | null;
+  media_url: string | null;
   is_completed: boolean;
   position: number;
   total_lessons: number;
@@ -157,6 +158,7 @@ export class HttpEnrollmentRepository implements EnrollmentRepository {
       durationSeconds: dto.duration_seconds,
       body: dto.body,
       resourceRef: dto.resource_ref,
+      mediaUrl: dto.media_url,
       isCompleted: dto.is_completed,
       position: dto.position,
       totalLessons: dto.total_lessons,

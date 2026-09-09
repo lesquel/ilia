@@ -60,6 +60,31 @@ class Settings(BaseSettings):
     llm_input_price_per_million: float = 0.0
     llm_output_price_per_million: float = 0.0
 
+    # --- Object storage -----------------------------------------------------
+
+    # Where lesson media lives. Empty runs the local adapter, which serves files
+    # from the API and is for development only.
+    #
+    # `s3` covers anything speaking the S3 API — AWS, Cloudflare R2, MinIO,
+    # DigitalOcean Spaces, Backblaze B2 — with `storage_endpoint` set for the
+    # ones that are not AWS.
+    storage_provider: str = ""
+    storage_bucket: str = ""
+    storage_region: str = "us-east-1"
+    storage_access_key: str = ""
+    storage_secret_key: str = ""
+    storage_endpoint: str = ""
+    # How long a playback link stays valid. Long enough to watch a lesson,
+    # short enough that a pasted link is not a permanent giveaway of paid
+    # content.
+    storage_url_ttl_seconds: int = 3600
+    # Only for the local adapter: the directory it serves and the absolute URL
+    # it hands out. Absolute because the web client runs on a different origin
+    # in development, and a relative path would resolve against the dev server
+    # rather than the API.
+    storage_local_dir: str = "media"
+    storage_local_base_url: str = "http://localhost:8000/media"
+
     # --- Rate limiting ------------------------------------------------------
 
     # Attempts allowed per window on the endpoints that hand out credentials.

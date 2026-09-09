@@ -5,11 +5,12 @@ teacher — and the identity comes from the token, never from the request body.
 A `user_id` parameter would let anyone enroll anybody.
 """
 
+from datetime import timedelta
 from uuid import UUID
 
 from fastapi import APIRouter, Request, status
 
-from app.features.auth.interface.dependencies import CurrentUser
+from app.features.auth.interface.dependencies import CurrentUser, SettingsDep
 from app.features.billing.application.use_cases import require_level
 from app.features.billing.interface.dependencies import EntitlementsDep
 from app.features.catalog.domain.entities import Slug
@@ -132,6 +133,8 @@ async def read_lesson(
     enrollments: EnrollmentsDep,
     progress: ProgressDep,
     contents: ContentsDep,
+    request: Request,
+    settings: SettingsDep,
 ) -> LessonViewResponse:
     """The material of one lesson.
 
@@ -142,4 +145,14 @@ async def read_lesson(
         courses=courses, enrollments=enrollments, progress=progress, contents=contents
     ).execute(user_id=user.id, slug=slug, lesson_id=lesson_id)
 
-    return LessonViewResponse.from_entity(view)
+    # The media link is minted here, after enrolment has been checked — which is
+    # the whole reason it is short-lived and issued per request rather than
+    # stored on the lesson.
+    media = None
+    if view.content.resource_ref:
+        media = request.app.state.storage.read_url(
+            view.content.resource_ref,
+            ttl=timedelta(seconds=settings.storage_url_ttl_seconds),
+        )
+
+    return LessonViewResponse.from_entity(view, media)

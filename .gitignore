@@ -53,3 +53,11 @@ apps/mobile/.web-build/
 
 # Local tooling cache
 .atl/
+
+# Local media for the development storage adapter. Real deployments use a
+# bucket; these are throwaway files someone dropped in to try the player.
+apps/api/media/
+
+# Playwright's scratch output from browser verification runs.
+.playwright-mcp/
+*.png

@@ -7,10 +7,12 @@ ports through dependency injection (TRD 5.1).
 
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.core.config import Settings, get_settings
 from app.core.database import Database
@@ -37,6 +39,7 @@ from app.features.forum.interface.router import router as forum_router
 from app.features.health.interface.router import router as health_router
 from app.features.instructor.interface.dependencies import build_instructor_container
 from app.features.instructor.interface.router import router as instructor_router
+from app.features.storage.infrastructure.registry import build_storage
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -118,6 +121,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             ),
             users=app.state.auth["users"],
         )
+
+    # One storage provider for the whole app, built at startup so a
+    # misconfiguration surfaces there and not when a teacher presses play.
+    app.state.storage = build_storage(settings)
+
+    # Serve the local media directory only when the local adapter is in use, and
+    # never in production — `build_storage` refuses the local adapter there, so
+    # this cannot mount by accident.
+    if getattr(app.state.storage, "provider", "") == "local":
+        directory = Path(settings.storage_local_dir)
+        directory.mkdir(parents=True, exist_ok=True)
+        app.mount("/media", StaticFiles(directory=directory), name="media")
 
     app.include_router(health_router)
     app.include_router(auth_router, prefix=settings.api_prefix)

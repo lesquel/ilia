@@ -9,6 +9,10 @@ import {
   useCompleteLesson,
   useLesson,
 } from '@/features/enrollment/application/use-enrollment';
+import {
+  LessonPlayer,
+  LessonPlayerUnavailable,
+} from '@/features/enrollment/presentation/lesson-player';
 
 export function LessonScreen() {
   const theme = useTheme();
@@ -57,21 +61,14 @@ export function LessonScreen() {
 
       <Text style={[styles.title, { color: theme.colors.text }]}>{lesson.title}</Text>
 
-      {/* The player is not built yet: object storage and signed URLs are still
-          an open decision (TRD 4.5). It only appears when there is actually a
-          resource waiting for it — announcing a missing player above a lesson
-          that does have written material just contradicts itself. */}
-      {lesson.resourceRef ? (
-        <View
-          style={[
-            styles.placeholder,
-            { borderColor: theme.colors.divider, borderRadius: theme.radius.md },
-          ]}
-        >
-          <Text style={[styles.placeholderText, { color: theme.colors.neutral[600] }]}>
-            El reproductor todavía no está disponible.
-          </Text>
-        </View>
+      {/* Only when there is media to play. Announcing a missing player above a
+          lesson that does have written material contradicts itself.
+          `mediaUrl` is signed and short-lived; `resourceRef` without one means
+          the storage could not resolve it. */}
+      {lesson.mediaUrl ? (
+        <LessonPlayer url={lesson.mediaUrl} />
+      ) : lesson.resourceRef ? (
+        <LessonPlayerUnavailable />
       ) : null}
 
       {lesson.body ? (

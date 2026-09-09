@@ -60,6 +60,12 @@ export interface LessonView {
   durationSeconds: number;
   body: string;
   resourceRef: string | null;
+  /**
+   * A temporary URL for the media, minted by the API after it checked the
+   * enrolment. Never built here: a client that composes storage keys is a
+   * client that can ask for someone else's lesson.
+   */
+  mediaUrl: string | null;
   isCompleted: boolean;
   position: number;
   totalLessons: number;

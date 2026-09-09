@@ -11,6 +11,7 @@ from app.features.enrollment.domain.entities import (
     LessonRef,
     LessonView,
 )
+from app.features.storage.domain.ports import SignedUrl
 
 
 class EnrollRequest(BaseModel):
@@ -108,6 +109,11 @@ class LessonViewResponse(BaseModel):
     duration_seconds: int
     body: str
     resource_ref: str | None
+    # A temporary URL for the media, resolved server-side from `resource_ref`.
+    # The client never builds it: a client that composes storage keys is a
+    # client that can ask for someone else's lesson.
+    media_url: str | None = None
+    media_expires_in: int | None = None
     is_completed: bool
     position: int
     total_lessons: int
@@ -115,7 +121,7 @@ class LessonViewResponse(BaseModel):
     next: NextLessonResponse | None
 
     @classmethod
-    def from_entity(cls, view: LessonView) -> "LessonViewResponse":
+    def from_entity(cls, view: LessonView, media: SignedUrl | None = None) -> "LessonViewResponse":
         return cls(
             lesson_id=view.lesson.lesson_id,
             title=view.lesson.lesson_title,
@@ -124,6 +130,8 @@ class LessonViewResponse(BaseModel):
             duration_seconds=view.duration_seconds,
             body=view.content.body,
             resource_ref=view.content.resource_ref,
+            media_url=media.url if media else None,
+            media_expires_in=media.expires_in_seconds if media else None,
             is_completed=view.is_completed,
             position=view.position,
             total_lessons=view.total_lessons,
