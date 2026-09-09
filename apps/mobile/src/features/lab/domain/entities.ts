@@ -50,6 +50,8 @@ export interface Evaluation {
   effectiveTotal: number;
   passed: boolean;
   wasOverridden: boolean;
+  /** Por qué se ajustó, en palabras del instructor. */
+  overrideReason: string | null;
   rubricVersion: number;
   dimensionScores: DimensionScore[];
   feedback: string;

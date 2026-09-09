@@ -116,6 +116,12 @@ class EvaluationResponse(BaseModel):
     effective_total: float
     passed: bool
     was_overridden: bool
+    # Why it was adjusted, in the instructor's own words. A grade changed for
+    # reasons the teacher cannot see is worse than one she can question — the
+    # same rule already applied to a revoked certificate, where "revoked" with
+    # no reason invites the holder to be assumed guilty of something
+    # unspecified.
+    override_reason: str | None = None
     rubric_version: int
     dimension_scores: list[ScoreResponse]
     feedback: str
@@ -131,6 +137,7 @@ class EvaluationResponse(BaseModel):
             effective_total=evaluation.effective_total,
             passed=evaluation.passed,
             was_overridden=evaluation.was_overridden,
+            override_reason=evaluation.override_reason,
             rubric_version=evaluation.rubric_version,
             dimension_scores=[
                 ScoreResponse(key=score.key, score=score.score, justification=score.justification)

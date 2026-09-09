@@ -559,6 +559,21 @@ Las actividades se cargan con una consulta aparte y no con una relación del ORM
 viven en las tablas de `evaluation`, y atar los dos modelos acoplaría el esquema
 del catálogo al de otra feature.
 
+## La corrección de una nota es respondible
+
+Una nota ajustada por el instructor **no pisa** la automática: quedan las dos,
+con motivo, autor y fecha. Sobreescribir destruiría el rastro que hace
+defendible la corrección, que es justamente lo que el TRD §9.3 dice que necesita
+la certificación.
+
+Y el motivo **le llega a la persona de la que se trata**. Una nota cambiada por
+razones que la docente no puede ver es peor que una que puede discutir — la
+misma regla que ya seguía el certificado anulado, donde «revocado» sin motivo
+invita a suponer culpable al titular de algo sin especificar.
+
+La justificación es obligatoria: el botón de guardar está deshabilitado sin
+ella. Una corrección sin justificación no es revisable.
+
 ### Lo que todavía es provisorio
 
 - **El proveedor de LLM se configura, no se elige en el código.** Sin

@@ -89,10 +89,25 @@ export function ResultScreen() {
         {evaluation.passed ? '¡Aprobaste esta actividad! 🎉' : 'Todavía no alcanza'}
       </Text>
 
+      {/* With the reason, not just the fact. A grade changed for reasons the
+          teacher cannot see is worse than one she can question — the same rule
+          the certificate follows when it says why it was revoked. */}
       {evaluation.wasOverridden ? (
-        <Text style={[styles.note, { color: theme.colors.accentRamp[700] }]}>
-          Esta nota fue ajustada por el instructor.
-        </Text>
+        <View
+          style={[
+            styles.override,
+            { borderColor: theme.colors.divider, borderRadius: theme.radius.md },
+          ]}
+        >
+          <Text style={[styles.note, { color: theme.colors.accentRamp[700] }]}>
+            Esta nota fue ajustada por el instructor.
+          </Text>
+          {evaluation.overrideReason ? (
+            <Text style={[styles.overrideReason, { color: theme.colors.neutral[700] }]}>
+              {evaluation.overrideReason}
+            </Text>
+          ) : null}
+        </View>
       ) : null}
 
       {/* Objective failures first: they are certain, specific, and fixable in
@@ -219,6 +234,8 @@ function DimensionRow({ score, name }: { score: DimensionScore; name: string }) 
 }
 
 const styles = StyleSheet.create({
+  override: { borderWidth: 1, padding: 13.6, gap: 3.4, marginTop: 6.8 },
+  overrideReason: { fontSize: 14, lineHeight: 21 },
   screen: { flex: 1 },
   centered: { alignItems: 'center', justifyContent: 'center', padding: 20.4, gap: 10.2 },
   content: {

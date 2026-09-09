@@ -7,6 +7,7 @@ nobody else's.
 
 import asyncio
 import os
+import time
 from collections.abc import Iterator
 from typing import ClassVar
 
@@ -946,3 +947,126 @@ class TestAuthoredSyllabus:
         ]
 
         assert modules[0]["lessons"][0]["has_media"] is False
+
+
+class TestOverrideIsAnswerable:
+    """What the teacher whose grade changed gets to see.
+
+    The instructor is told the correction is recorded "quién, cuándo y por qué".
+    The person it happened to should get the why as well — the same rule already
+    applied to a revoked certificate, where "revoked" with no reason invites the
+    holder to be assumed guilty of something unspecified.
+    """
+
+    def graded_submission(self, client: TestClient, instructor: str) -> tuple[str, str, str]:
+        course = client.post(f"{API}/courses", json=DRAFT, headers=auth(instructor)).json()
+        module = client.post(
+            f"{API}/courses/{course['id']}/modules",
+            json={"title": "Módulo"},
+            headers=auth(instructor),
+        ).json()
+        client.post(
+            f"{API}/courses/{course['id']}/modules/{module['id']}/lessons",
+            json={"title": "Lección", "kind": "text", "duration_seconds": 60, "body": "x"},
+            headers=auth(instructor),
+        )
+        activity = client.post(
+            f"{API}/courses/{course['id']}/modules/{module['id']}/activities",
+            json=TestAuthoringActivities.ACTIVITY,
+            headers=auth(instructor),
+        ).json()
+        client.post(f"{API}/courses/{course['id']}/publish", headers=auth(instructor))
+
+        student = register(client, "gabriela@escuela.edu", "Gabriela Loor")
+        client.post(
+            "/api/v1/enrollments",
+            json={"course_slug": DRAFT["slug"]},
+            headers=auth(student),
+        )
+        submission = client.post(
+            f"/api/v1/lab/activities/{activity['id']}/submissions",
+            json={
+                "prompt": (
+                    "Actuá como docente y devolveme en formato de lista una guía de "
+                    "cinco ejercicios de fracciones para practicar en casa."
+                )
+            },
+            headers=auth(student),
+        ).json()
+
+        # Evaluation is asynchronous: the submission comes back 202 and the
+        # queue scores it. Polling rather than sleeping a fixed amount, which is
+        # how a test becomes flaky on a slow machine.
+        self.wait_for_scoring(client, student, submission["id"])
+
+        return student, submission["id"], course["id"]
+
+    def wait_for_scoring(self, client: TestClient, token: str, submission_id: str) -> None:
+        for _ in range(50):
+            body = client.get(
+                f"/api/v1/lab/submissions/{submission_id}", headers=auth(token)
+            ).json()
+            if body.get("evaluation") is not None:
+                return
+            time.sleep(0.1)
+
+        raise AssertionError("The submission was never scored")
+
+    def test_the_reason_reaches_the_person_it_is_about(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        student, submission_id, _ = self.graded_submission(client, instructor)
+
+        client.post(
+            f"{API}/submissions/{submission_id}/override",
+            json={"total": 95, "reason": "El evaluador no reconoció el formato pedido."},
+            headers=auth(instructor),
+        )
+
+        result = client.get(
+            f"/api/v1/lab/submissions/{submission_id}", headers=auth(student)
+        ).json()
+
+        assert result["evaluation"]["was_overridden"] is True
+        assert result["evaluation"]["override_reason"] == (
+            "El evaluador no reconoció el formato pedido."
+        )
+
+    def test_an_untouched_grade_carries_no_reason(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        # Absence means nothing was changed, not that the reason is hidden.
+        student, submission_id, _ = self.graded_submission(client, instructor)
+
+        result = client.get(
+            f"/api/v1/lab/submissions/{submission_id}", headers=auth(student)
+        ).json()
+
+        assert result["evaluation"]["was_overridden"] is False
+        assert result["evaluation"]["override_reason"] is None
+
+    def test_the_automatic_score_survives_the_correction(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        """The override sits beside the original, never on top of it.
+
+        Overwriting would destroy the audit trail that makes the correction
+        defensible in the first place (TRD 9.3).
+        """
+        student, submission_id, _ = self.graded_submission(client, instructor)
+        before = client.get(
+            f"/api/v1/lab/submissions/{submission_id}", headers=auth(student)
+        ).json()["evaluation"]["total"]
+
+        client.post(
+            f"{API}/submissions/{submission_id}/override",
+            json={"total": 95, "reason": "Corregido a mano."},
+            headers=auth(instructor),
+        )
+
+        after = client.get(
+            f"/api/v1/lab/submissions/{submission_id}", headers=auth(student)
+        ).json()["evaluation"]
+
+        assert after["total"] == before
+        assert after["effective_total"] == 95

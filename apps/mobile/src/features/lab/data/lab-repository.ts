@@ -40,6 +40,7 @@ interface EvaluationDto {
   effective_total: number;
   passed: boolean;
   was_overridden: boolean;
+  override_reason?: string | null;
   rubric_version: number;
   dimension_scores: { key: string; score: number; justification: string }[];
   feedback: string;
@@ -94,6 +95,7 @@ function toEvaluation(dto: EvaluationDto): Evaluation {
     effectiveTotal: dto.effective_total,
     passed: dto.passed,
     wasOverridden: dto.was_overridden,
+    overrideReason: dto.override_reason ?? null,
     rubricVersion: dto.rubric_version,
     dimensionScores: dto.dimension_scores,
     feedback: dto.feedback,
