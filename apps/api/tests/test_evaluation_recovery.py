@@ -63,9 +63,7 @@ class FakeQueue:
         self.enqueued.append(submission_id)
 
 
-def submission(
-    *, status: SubmissionStatus, age_seconds: float, recoveries: int = 0
-) -> Submission:
+def submission(*, status: SubmissionStatus, age_seconds: float, recoveries: int = 0) -> Submission:
     return Submission(
         id=uuid4(),
         activity_id=uuid4(),

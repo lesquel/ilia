@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, Query, Request, status
 from pydantic import BaseModel, Field
 
 from app.features.auth.domain.entities import Role, User
@@ -37,6 +37,7 @@ from app.features.instructor.interface.dependencies import (
     WriterDep,
 )
 from app.shared.errors import ValidationError
+from app.shared.pagination import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE
 
 router = APIRouter(prefix="/instructor", tags=["instructor"])
 
@@ -257,12 +258,36 @@ class ReviewItemResponse(BaseModel):
         )
 
 
-@router.get("/submissions", response_model=list[ReviewItemResponse])
+class ReviewPageResponse(BaseModel):
+    """An inbox that says how much it is not showing.
+
+    An instructor seeing fifty rows with no total cannot tell a full inbox from
+    an empty-ish one, and plans their afternoon accordingly.
+    """
+
+    items: list[ReviewItemResponse]
+    total: int
+    limit: int
+    offset: int
+
+
+@router.get("/submissions", response_model=ReviewPageResponse)
 async def review_inbox(
-    user: Instructor, reviews: ReviewsDep, course_id: UUID | None = None
-) -> list[ReviewItemResponse]:
-    items = await ListSubmissionsForReview(reviews=reviews).execute(user=user, course_id=course_id)
-    return [ReviewItemResponse.from_entity(item) for item in items]
+    user: Instructor,
+    reviews: ReviewsDep,
+    course_id: UUID | None = None,
+    limit: Annotated[int, Query(ge=1, le=MAX_PAGE_SIZE)] = DEFAULT_PAGE_SIZE,
+    offset: Annotated[int, Query(ge=0)] = 0,
+) -> ReviewPageResponse:
+    page = await ListSubmissionsForReview(reviews=reviews).execute(
+        user=user, course_id=course_id, limit=limit, offset=offset
+    )
+    return ReviewPageResponse(
+        items=[ReviewItemResponse.from_entity(item) for item in page.items],
+        total=page.total,
+        limit=page.limit,
+        offset=page.offset,
+    )
 
 
 class OverrideRequest(BaseModel):

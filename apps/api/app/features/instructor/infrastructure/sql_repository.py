@@ -155,8 +155,30 @@ class SqlAlchemyReviewReader:
     def __init__(self, database: Database) -> None:
         self._db = database
 
+    async def inbox_size(self, *, instructor_id: UUID, course_id: UUID | None = None) -> int:
+        statement = (
+            select(func.count(SubmissionModel.id))
+            .join(ActivityModel, ActivityModel.id == SubmissionModel.activity_id)
+            .join(CourseModel, CourseModel.id == ActivityModel.course_id)
+            # Same ownership scope as the page itself. A total counted without
+            # it would tell an instructor how much work exists on courses they
+            # cannot see.
+            .where(CourseModel.instructor_id == instructor_id)
+        )
+
+        if course_id is not None:
+            statement = statement.where(ActivityModel.course_id == course_id)
+
+        async with self._db.session() as session:
+            return int((await session.execute(statement)).scalar_one())
+
     async def inbox(
-        self, *, instructor_id: UUID, course_id: UUID | None = None
+        self,
+        *,
+        instructor_id: UUID,
+        course_id: UUID | None = None,
+        limit: int = 50,
+        offset: int = 0,
     ) -> list[SubmissionForReview]:
         # Scoped by the course's owner, so an instructor's inbox can only ever
         # contain submissions from courses they own.
@@ -174,6 +196,8 @@ class SqlAlchemyReviewReader:
             .outerjoin(EvaluationModel, EvaluationModel.submission_id == SubmissionModel.id)
             .where(CourseModel.instructor_id == instructor_id)
             .order_by(SubmissionModel.created_at.desc())
+            .limit(limit)
+            .offset(offset)
         )
 
         if course_id is not None:

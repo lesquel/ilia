@@ -137,19 +137,43 @@ class SqlAlchemyUserDirectory:
     def __init__(self, database: Database) -> None:
         self._db = database
 
-    async def list_users(self, *, query: str | None = None, limit: int = 100) -> list[User]:
-        statement = select(UserModel).order_by(UserModel.created_at.desc()).limit(limit)
+    def _matching(self, query: str | None):  # type: ignore[no-untyped-def]
+        """The filter, shared by the page and its count.
 
-        if query:
-            pattern = f"%{query}%"
-            statement = statement.where(
-                or_(UserModel.full_name.ilike(pattern), UserModel.email.ilike(pattern))
-            )
+        Written once so the two can never disagree — a total computed with a
+        different filter than the rows is worse than no total at all.
+        """
+        if not query:
+            return None
+
+        pattern = f"%{query}%"
+        return or_(UserModel.full_name.ilike(pattern), UserModel.email.ilike(pattern))
+
+    async def list_users(
+        self, *, query: str | None = None, limit: int = 50, offset: int = 0
+    ) -> list[User]:
+        statement = (
+            select(UserModel).order_by(UserModel.created_at.desc()).limit(limit).offset(offset)
+        )
+
+        condition = self._matching(query)
+        if condition is not None:
+            statement = statement.where(condition)
 
         async with self._db.session() as session:
             rows = (await session.execute(statement)).scalars().all()
 
         return [_to_user(row) for row in rows]
+
+    async def count_users(self, *, query: str | None = None) -> int:
+        statement = select(func.count(UserModel.id))
+
+        condition = self._matching(query)
+        if condition is not None:
+            statement = statement.where(condition)
+
+        async with self._db.session() as session:
+            return int((await session.execute(statement)).scalar_one())
 
     async def count_admins(self) -> int:
         async with self._db.session() as session:
@@ -185,7 +209,11 @@ class SqlAlchemyAuditLog:
                 )
             )
 
-    async def recent(self, limit: int = 100) -> list[AuditEntry]:
+    async def count(self) -> int:
+        async with self._db.session() as session:
+            return int((await session.execute(select(func.count(AuditLogModel.id)))).scalar_one())
+
+    async def recent(self, limit: int = 50, offset: int = 0) -> list[AuditEntry]:
         async with self._db.session() as session:
             rows = (
                 (
@@ -193,6 +221,7 @@ class SqlAlchemyAuditLog:
                         select(AuditLogModel)
                         .order_by(AuditLogModel.occurred_at.desc())
                         .limit(limit)
+                        .offset(offset)
                     )
                 )
                 .scalars()

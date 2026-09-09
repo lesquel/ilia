@@ -27,7 +27,7 @@ import type { ReviewItem } from '@/features/instructor/domain/entities';
  */
 export function ReviewScreen() {
   const theme = useTheme();
-  const { items, isLoading, error } = useReviewInbox();
+  const { items, total, isLoading, error } = useReviewInbox();
 
   if (error) {
     return (
@@ -53,6 +53,8 @@ export function ReviewScreen() {
           <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
             Si el evaluador automático se equivocó, corregí la nota. Queda registrado quién,
             cuándo y por qué.
+            {/* The count, so a full inbox does not look like a short one. */}
+            {total > items.length ? ` Mostrando ${items.length} de ${total}.` : ''}
           </Text>
         </View>
       }

@@ -19,5 +19,8 @@ class InMemoryAuditLog:
     async def append(self, entry: AuditEntry) -> None:
         self._entries.append(entry)
 
-    async def recent(self, limit: int = 100) -> list[AuditEntry]:
-        return list(reversed(self._entries))[:limit]
+    async def count(self) -> int:
+        return len(self._entries)
+
+    async def recent(self, limit: int = 50, offset: int = 0) -> list[AuditEntry]:
+        return list(reversed(self._entries))[offset : offset + limit]

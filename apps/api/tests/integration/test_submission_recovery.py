@@ -29,7 +29,10 @@ pytestmark = pytest.mark.skipif(
 )
 
 NOW = datetime(2026, 9, 9, 12, 0, tzinfo=UTC)
-TABLES = "submission, activity, rubric_dimension, rubric, lesson, course_module, course, app_user, cohort"
+TABLES = (
+    "submission, activity, rubric_dimension, rubric, lesson, "
+    "course_module, course, app_user, cohort"
+)
 
 
 @pytest.fixture
@@ -97,9 +100,7 @@ async def no_activity_fk(database: Database):  # type: ignore[no-untyped-def]
 
 class TestClaiming:
     @pytest.mark.asyncio
-    async def test_two_replicas_cannot_claim_the_same_submission(
-        self, database: Database
-    ) -> None:
+    async def test_two_replicas_cannot_claim_the_same_submission(self, database: Database) -> None:
         """The reason this file exists.
 
         Both processes start, both look for abandoned work, and exactly one of
@@ -110,20 +111,14 @@ class TestClaiming:
         cutoff = NOW - timedelta(seconds=300)
 
         first, second = await asyncio.gather(
-            SqlAlchemySubmissionRepository(database).claim_abandoned(
-                older_than=cutoff, limit=10
-            ),
-            SqlAlchemySubmissionRepository(database).claim_abandoned(
-                older_than=cutoff, limit=10
-            ),
+            SqlAlchemySubmissionRepository(database).claim_abandoned(older_than=cutoff, limit=10),
+            SqlAlchemySubmissionRepository(database).claim_abandoned(older_than=cutoff, limit=10),
         )
 
         assert sorted(first + second) == [stranded]
 
     @pytest.mark.asyncio
-    async def test_fresh_work_is_left_to_whoever_is_doing_it(
-        self, database: Database
-    ) -> None:
+    async def test_fresh_work_is_left_to_whoever_is_doing_it(self, database: Database) -> None:
         await seed(database, status="running", age_seconds=5)
         repository = SqlAlchemySubmissionRepository(database)
 
@@ -179,9 +174,7 @@ class TestClaiming:
 
 class TestAttemptFairness:
     @pytest.mark.asyncio
-    async def test_our_failures_are_not_the_teachers_attempts(
-        self, database: Database
-    ) -> None:
+    async def test_our_failures_are_not_the_teachers_attempts(self, database: Database) -> None:
         """A failed submission only ever means we broke.
 
         A bad prompt earns a low score, not a failure — so charging an attempt

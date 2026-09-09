@@ -46,8 +46,9 @@ export function AdminScreen({ extra }: { extra?: ReactNode } = {}) {
 
   const [search, setSearch] = useState('');
   const [submitted, setSubmitted] = useState('');
-  const { users } = useManagedUsers(submitted);
-  const { entries } = useAuditLog();
+  const [userOffset, setUserOffset] = useState(0);
+  const { users, total: userTotal } = useManagedUsers(submitted, userOffset);
+  const { entries, total: auditTotal } = useAuditLog();
 
   if (error) {
     const denied = error instanceof ApiError && error.status === 403;
@@ -174,9 +175,33 @@ export function AdminScreen({ extra }: { extra?: ReactNode } = {}) {
         <UserRow key={user.id} user={user} query={submitted} />
       ))}
 
+      {/* Said out loud. A page of fifty with no total is indistinguishable from
+          a complete list of fifty, and someone looking for a name that is not
+          on it concludes it does not exist. */}
+      <View style={styles.pager}>
+        <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>
+          {userTotal === 0
+            ? 'Sin resultados'
+            : `Mostrando ${userOffset + 1}–${userOffset + users.length} de ${userTotal}`}
+        </Text>
+        <View style={styles.pagerActions}>
+          <Pager
+            label="Anteriores"
+            disabled={userOffset === 0}
+            onPress={() => setUserOffset(Math.max(0, userOffset - PAGE_SIZE))}
+          />
+          <Pager
+            label="Siguientes"
+            disabled={userOffset + users.length >= userTotal}
+            onPress={() => setUserOffset(userOffset + PAGE_SIZE)}
+          />
+        </View>
+      </View>
+
       <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Auditoría</Text>
       <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>
         Registro de acciones sensibles. Solo se agrega: nada de acá se puede editar.
+        {auditTotal > entries.length ? ` Mostrando las ${entries.length} más recientes de ${auditTotal}.` : ''}
       </Text>
 
       {entries.length === 0 ? (
@@ -204,6 +229,39 @@ export function AdminScreen({ extra }: { extra?: ReactNode } = {}) {
 
       {extra}
     </ScrollView>
+  );
+}
+
+/** Must match the API's DEFAULT_PAGE_SIZE. */
+const PAGE_SIZE = 50;
+
+function Pager({
+  label,
+  disabled,
+  onPress,
+}: {
+  label: string;
+  disabled: boolean;
+  onPress: () => void;
+}) {
+  const theme = useTheme();
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      disabled={disabled}
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.pagerButton,
+        {
+          borderColor: theme.colors.divider,
+          borderRadius: theme.radius.sm,
+          opacity: disabled ? 0.4 : pressed ? 0.7 : 1,
+        },
+      ]}
+    >
+      <Text style={[styles.pagerLabel, { color: theme.colors.text }]}>{label}</Text>
+    </Pressable>
   );
 }
 
@@ -312,6 +370,17 @@ const styles = StyleSheet.create({
   metricValue: { fontSize: 26, fontWeight: '600' },
   metricLabel: { fontSize: 12 },
   sectionTitle: { fontSize: 20, fontWeight: '600', marginTop: 20.4 },
+  pager: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 10.2,
+    flexWrap: 'wrap',
+    gap: 6.8,
+  },
+  pagerActions: { flexDirection: 'row', gap: 6.8 },
+  pagerButton: { borderWidth: 1, paddingHorizontal: 13.6, paddingVertical: 6.8, minHeight: 36 },
+  pagerLabel: { fontSize: 13, fontWeight: '600' },
   panel: { borderWidth: 1, padding: 20.4, gap: 6.8 },
   big: { fontSize: 26, fontWeight: '600' },
   meta: { fontSize: 13, lineHeight: 19 },

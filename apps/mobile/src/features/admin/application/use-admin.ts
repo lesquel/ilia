@@ -31,14 +31,26 @@ export function useUsage(days = 30, repository: AdminRepository = adminRepositor
   return { report: query.data ?? null, isLoading: query.isLoading, error: query.error };
 }
 
-export function useManagedUsers(query = '', repository: AdminRepository = adminRepository) {
+export function useManagedUsers(
+  query = '',
+  offset = 0,
+  repository: AdminRepository = adminRepository,
+) {
   const result = useQuery({
-    queryKey: adminKeys.users(query),
-    queryFn: () => repository.users(query),
+    queryKey: [...adminKeys.users(query), offset],
+    queryFn: () => repository.users(query, offset),
     retry: false,
   });
 
-  return { users: result.data ?? [], isLoading: result.isLoading, error: result.error };
+  return {
+    users: result.data?.items ?? [],
+    // Surfaced so the screen can say what it is not showing. A page that
+    // cannot report its total is a page that lies by omission.
+    total: result.data?.total ?? 0,
+    page: result.data ?? null,
+    isLoading: result.isLoading,
+    error: result.error,
+  };
 }
 
 export function useChangeRole(
@@ -59,12 +71,18 @@ export function useChangeRole(
   });
 }
 
-export function useAuditLog(repository: AdminRepository = adminRepository) {
+export function useAuditLog(offset = 0, repository: AdminRepository = adminRepository) {
   const query = useQuery({
-    queryKey: adminKeys.audit,
-    queryFn: () => repository.audit(),
+    queryKey: [...adminKeys.audit, offset],
+    queryFn: () => repository.audit(offset),
     retry: false,
   });
 
-  return { entries: query.data ?? [], isLoading: query.isLoading, error: query.error };
+  return {
+    entries: query.data?.items ?? [],
+    total: query.data?.total ?? 0,
+    page: query.data ?? null,
+    isLoading: query.isLoading,
+    error: query.error,
+  };
 }

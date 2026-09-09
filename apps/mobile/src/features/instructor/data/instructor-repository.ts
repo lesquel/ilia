@@ -1,4 +1,5 @@
 import { HttpClient, httpClient } from '@/core/api/http-client';
+import { mapPage, type Page, type PageDto } from '@/core/api/page';
 import type { Level } from '@/features/catalog/domain/entities';
 import type {
   AuthoredCourse,
@@ -62,7 +63,7 @@ export interface InstructorRepository {
   unpublish(courseId: string): Promise<AuthoredCourse>;
   addModule(courseId: string, title: string): Promise<string>;
   addLesson(courseId: string, moduleId: string, input: LessonInput): Promise<string>;
-  inbox(courseId?: string): Promise<ReviewItem[]>;
+  inbox(courseId?: string, offset?: number): Promise<Page<ReviewItem>>;
   override(submissionId: string, total: number, reason: string): Promise<void>;
   roster(courseId: string): Promise<RosterEntry[]>;
 }
@@ -121,10 +122,12 @@ export class HttpInstructorRepository implements InstructorRepository {
     return dto.id;
   }
 
-  async inbox(courseId?: string): Promise<ReviewItem[]> {
-    const query = courseId ? `?course_id=${encodeURIComponent(courseId)}` : '';
-    const rows = await this.http.get<
-      {
+  async inbox(courseId?: string, offset = 0): Promise<Page<ReviewItem>> {
+    const params = new URLSearchParams({ offset: String(offset) });
+    if (courseId) params.set('course_id', courseId);
+
+    const page = await this.http.get<
+      PageDto<{
         submission_id: string;
         activity_title: string;
         student_name: string;
@@ -135,10 +138,10 @@ export class HttpInstructorRepository implements InstructorRepository {
         effective_total: number | null;
         passed: boolean;
         was_overridden: boolean;
-      }[]
-    >(`/instructor/submissions${query}`);
+      }>
+    >(`/instructor/submissions?${params}`);
 
-    return rows.map((row) => ({
+    return mapPage(page, (row) => ({
       submissionId: row.submission_id,
       activityTitle: row.activity_title,
       studentName: row.student_name,

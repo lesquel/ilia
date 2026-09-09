@@ -1,4 +1,5 @@
 import { HttpClient, httpClient } from '@/core/api/http-client';
+import { mapPage, type Page, type PageDto } from '@/core/api/page';
 import type { Role } from '@/features/auth/domain/entities';
 import type {
   AuditEntry,
@@ -31,9 +32,9 @@ function toTotals(dto: UsageTotalsDto): UsageTotals {
 export interface AdminRepository {
   overview(): Promise<PlatformOverview>;
   usage(days?: number): Promise<UsageReport>;
-  users(query?: string): Promise<ManagedUser[]>;
+  users(query?: string, offset?: number): Promise<Page<ManagedUser>>;
   changeRole(userId: string, role: Role): Promise<ManagedUser>;
-  audit(): Promise<AuditEntry[]>;
+  audit(offset?: number): Promise<Page<AuditEntry>>;
 }
 
 export class HttpAdminRepository implements AdminRepository {
@@ -76,13 +77,21 @@ export class HttpAdminRepository implements AdminRepository {
     };
   }
 
-  async users(query?: string): Promise<ManagedUser[]> {
-    const search = query?.trim() ? `?q=${encodeURIComponent(query.trim())}` : '';
-    const rows = await this.http.get<
-      { id: string; email: string; full_name: string; role: string; is_active: boolean }[]
-    >(`/admin/users${search}`);
+  async users(query?: string, offset = 0): Promise<Page<ManagedUser>> {
+    const params = new URLSearchParams({ offset: String(offset) });
+    if (query?.trim()) params.set('q', query.trim());
 
-    return rows.map((row) => ({
+    const page = await this.http.get<
+      PageDto<{
+        id: string;
+        email: string;
+        full_name: string;
+        role: string;
+        is_active: boolean;
+      }>
+    >(`/admin/users?${params}`);
+
+    return mapPage(page, (row) => ({
       id: row.id,
       email: row.email,
       fullName: row.full_name,
@@ -109,9 +118,9 @@ export class HttpAdminRepository implements AdminRepository {
     };
   }
 
-  async audit(): Promise<AuditEntry[]> {
-    const rows = await this.http.get<
-      {
+  async audit(offset = 0): Promise<Page<AuditEntry>> {
+    const page = await this.http.get<
+      PageDto<{
         id: string;
         actor_name: string;
         action: string;
@@ -119,10 +128,10 @@ export class HttpAdminRepository implements AdminRepository {
         target_id: string | null;
         detail: Record<string, unknown>;
         occurred_at: string | null;
-      }[]
-    >('/admin/audit');
+      }>
+    >(`/admin/audit?offset=${offset}`);
 
-    return rows.map((row) => ({
+    return mapPage(page, (row) => ({
       id: row.id,
       actorName: row.actor_name,
       action: row.action,

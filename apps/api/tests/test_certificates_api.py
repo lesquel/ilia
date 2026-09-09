@@ -327,8 +327,8 @@ class TestRevocation:
             headers=auth(admin_token),
         )
 
-        entries = client.get("/api/v1/admin/audit", headers=auth(admin_token)).json()
-        revocations = [e for e in entries if e["action"] == "certificate_revoked"]
+        page = client.get("/api/v1/admin/audit", headers=auth(admin_token)).json()
+        revocations = [e for e in page["items"] if e["action"] == "certificate_revoked"]
 
         assert len(revocations) == 1
         detail = revocations[0]["detail"]

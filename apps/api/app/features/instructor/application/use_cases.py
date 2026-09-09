@@ -27,6 +27,7 @@ from app.features.instructor.domain.ports import (
     ScoreOverrideWriter,
     SubmissionForReview,
 )
+from app.shared.pagination import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, Page
 
 logger = structlog.get_logger()
 
@@ -245,9 +246,23 @@ class ListSubmissionsForReview:
         self._reviews = reviews
 
     async def execute(
-        self, *, user: User, course_id: UUID | None = None
-    ) -> list[SubmissionForReview]:
-        return await self._reviews.inbox(instructor_id=user.id, course_id=course_id)
+        self,
+        *,
+        user: User,
+        course_id: UUID | None = None,
+        limit: int = DEFAULT_PAGE_SIZE,
+        offset: int = 0,
+    ) -> Page[SubmissionForReview]:
+        size = max(1, min(limit, MAX_PAGE_SIZE))
+
+        return Page(
+            items=await self._reviews.inbox(
+                instructor_id=user.id, course_id=course_id, limit=size, offset=offset
+            ),
+            total=await self._reviews.inbox_size(instructor_id=user.id, course_id=course_id),
+            limit=size,
+            offset=offset,
+        )
 
 
 class OverrideScore:

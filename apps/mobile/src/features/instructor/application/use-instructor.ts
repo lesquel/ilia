@@ -90,16 +90,21 @@ export function useAddLesson(
 
 export function useReviewInbox(
   courseId?: string,
+  offset = 0,
   repository: InstructorRepository = instructorRepository,
 ) {
   const query = useQuery({
-    queryKey: instructorKeys.inbox(courseId),
-    queryFn: () => repository.inbox(courseId),
+    queryKey: [...instructorKeys.inbox(courseId), offset],
+    queryFn: () => repository.inbox(courseId, offset),
     retry: false,
   });
 
   return {
-    items: query.data ?? [],
+    items: query.data?.items ?? [],
+    // How many are actually waiting. An instructor seeing fifty rows with no
+    // total cannot tell a full inbox from an almost-empty one, and plans their
+    // afternoon on the difference.
+    total: query.data?.total ?? 0,
     isLoading: query.isLoading,
     error: query.error,
   };

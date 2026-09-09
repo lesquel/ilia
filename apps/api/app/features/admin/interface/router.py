@@ -28,6 +28,7 @@ from app.features.admin.interface.dependencies import (
 )
 from app.features.auth.domain.entities import Role, User
 from app.features.auth.interface.dependencies import require_role
+from app.shared.pagination import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -156,14 +157,37 @@ class UserResponse(BaseModel):
         )
 
 
-@router.get("/users", response_model=list[UserResponse])
+class PageMeta(BaseModel):
+    """Every paginated listing answers with its total.
+
+    Without it a page of fifty is indistinguishable from a complete list of
+    fifty, and an admin looking for someone concludes they are not there.
+    """
+
+    total: int
+    limit: int
+    offset: int
+
+
+class UserPageResponse(PageMeta):
+    items: list[UserResponse]
+
+
+@router.get("/users", response_model=UserPageResponse)
 async def users(
     admin: Admin,
     directory: DirectoryDep,
     q: Annotated[str | None, Query(max_length=120)] = None,
-) -> list[UserResponse]:
-    found = await ListUsers(directory=directory).execute(query=q)
-    return [UserResponse.from_entity(item) for item in found]
+    limit: Annotated[int, Query(ge=1, le=MAX_PAGE_SIZE)] = DEFAULT_PAGE_SIZE,
+    offset: Annotated[int, Query(ge=0)] = 0,
+) -> UserPageResponse:
+    page = await ListUsers(directory=directory).execute(query=q, limit=limit, offset=offset)
+    return UserPageResponse(
+        items=[UserResponse.from_entity(item) for item in page.items],
+        total=page.total,
+        limit=page.limit,
+        offset=page.offset,
+    )
 
 
 class RoleChangeRequest(BaseModel):
@@ -216,8 +240,22 @@ class AuditEntryResponse(BaseModel):
         )
 
 
-@router.get("/audit", response_model=list[AuditEntryResponse])
-async def audit_log(admin: Admin, audit: AuditDep) -> list[AuditEntryResponse]:
+class AuditPageResponse(PageMeta):
+    items: list[AuditEntryResponse]
+
+
+@router.get("/audit", response_model=AuditPageResponse)
+async def audit_log(
+    admin: Admin,
+    audit: AuditDep,
+    limit: Annotated[int, Query(ge=1, le=MAX_PAGE_SIZE)] = DEFAULT_PAGE_SIZE,
+    offset: Annotated[int, Query(ge=0)] = 0,
+) -> AuditPageResponse:
     """The record of sensitive actions. Append-only: nothing here can be edited."""
-    entries = await ListAuditLog(audit=audit).execute()
-    return [AuditEntryResponse.from_entity(entry) for entry in entries]
+    page = await ListAuditLog(audit=audit).execute(limit=limit, offset=offset)
+    return AuditPageResponse(
+        items=[AuditEntryResponse.from_entity(entry) for entry in page.items],
+        total=page.total,
+        limit=page.limit,
+        offset=page.offset,
+    )

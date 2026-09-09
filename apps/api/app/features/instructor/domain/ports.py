@@ -74,8 +74,17 @@ class SubmissionForReview:
 
 class ReviewReader(Protocol):
     async def inbox(
-        self, *, instructor_id: UUID, course_id: UUID | None = None
+        self,
+        *,
+        instructor_id: UUID,
+        course_id: UUID | None = None,
+        limit: int = 50,
+        offset: int = 0,
     ) -> list[SubmissionForReview]: ...
+
+    async def inbox_size(self, *, instructor_id: UUID, course_id: UUID | None = None) -> int:
+        """How many are waiting, so the page can say what it is not showing."""
+        ...
 
 
 class ScoreOverrideWriter(Protocol):

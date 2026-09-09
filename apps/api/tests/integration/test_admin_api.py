@@ -125,9 +125,10 @@ class TestUsers:
     def test_it_lists_everyone(self, client: TestClient, admin: str) -> None:
         register(client, "ana@colegio.edu")
 
-        users = client.get(f"{API}/users", headers=auth(admin)).json()
+        page = client.get(f"{API}/users", headers=auth(admin)).json()
 
-        assert {item["email"] for item in users} == {"admin@ilia.app", "ana@colegio.edu"}
+        assert {item["email"] for item in page["items"]} == {"admin@ilia.app", "ana@colegio.edu"}
+        assert page["total"] == 2
 
     def test_it_can_be_searched_by_name_or_email(self, client: TestClient, admin: str) -> None:
         register(client, "ana@colegio.edu", "Ana Pérez")
@@ -135,7 +136,10 @@ class TestUsers:
 
         found = client.get(f"{API}/users", params={"q": "zambrano"}, headers=auth(admin)).json()
 
-        assert [item["email"] for item in found] == ["luis@colegio.edu"]
+        assert [item["email"] for item in found["items"]] == ["luis@colegio.edu"]
+        # The total must respect the search, not report the whole directory:
+        # "1 de 3" next to one result would be nonsense.
+        assert found["total"] == 1
 
 
 class TestRoleChange:
@@ -177,13 +181,13 @@ class TestRoleChange:
             headers=auth(admin),
         )
 
-        entries = client.get(f"{API}/audit", headers=auth(admin)).json()
+        page = client.get(f"{API}/audit", headers=auth(admin)).json()
 
-        assert len(entries) == 1
-        assert entries[0]["action"] == "role_changed"
-        assert entries[0]["actor_name"] == "Ana Admin"
-        assert entries[0]["detail"]["from"] == "student"
-        assert entries[0]["detail"]["to"] == "instructor"
+        assert page["total"] == 1
+        assert page["items"][0]["action"] == "role_changed"
+        assert page["items"][0]["actor_name"] == "Ana Admin"
+        assert page["items"][0]["detail"]["from"] == "student"
+        assert page["items"][0]["detail"]["to"] == "instructor"
 
     def test_an_admin_cannot_change_their_own_role(self, client: TestClient, admin: str) -> None:
         # The alternative is a platform with nobody able to grant it back.
@@ -249,3 +253,47 @@ class TestUsageReport:
         body = client.get(f"{API}/usage", headers=auth(admin)).json()
 
         assert body["period_days"] == 30
+
+
+class TestPagination:
+    """Listings that say how much they are not showing.
+
+    Before this they truncated silently at a hundred, which is worse than
+    falling over: an admin saw a hundred rows and had no way to know there were
+    three thousand.
+    """
+
+    def test_a_page_reports_the_total_beyond_it(self, client: TestClient, admin: str) -> None:
+        for n in range(5):
+            register(client, f"docente{n}@colegio.edu", f"Docente {n}")
+
+        page = client.get(f"{API}/users", params={"limit": 2}, headers=auth(admin)).json()
+
+        assert len(page["items"]) == 2
+        assert page["total"] == 6  # the five plus the admin
+        assert page["limit"] == 2
+        assert page["offset"] == 0
+
+    def test_offsets_walk_the_whole_directory_without_repeats(
+        self, client: TestClient, admin: str
+    ) -> None:
+        for n in range(5):
+            register(client, f"docente{n}@colegio.edu", f"Docente {n}")
+
+        seen: list[str] = []
+        for offset in (0, 2, 4):
+            page = client.get(
+                f"{API}/users", params={"limit": 2, "offset": offset}, headers=auth(admin)
+            ).json()
+            seen += [item["email"] for item in page["items"]]
+
+        assert len(seen) == len(set(seen)) == 6
+
+    def test_an_oversized_page_is_capped_rather_than_honoured(
+        self, client: TestClient, admin: str
+    ) -> None:
+        # Otherwise `?limit=1000000` is a way to make the server do arbitrary
+        # work on request.
+        response = client.get(f"{API}/users", params={"limit": 10_000}, headers=auth(admin))
+
+        assert response.status_code == 422

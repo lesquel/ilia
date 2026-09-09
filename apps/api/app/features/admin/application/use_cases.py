@@ -25,6 +25,7 @@ from app.features.admin.domain.ports import (
 )
 from app.features.auth.domain.entities import Role, User
 from app.features.auth.domain.ports import Clock, UserRepository
+from app.shared.pagination import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, Page
 
 
 class GetOverview:
@@ -55,9 +56,18 @@ class ListUsers:
     def __init__(self, *, directory: UserDirectory) -> None:
         self._directory = directory
 
-    async def execute(self, *, query: str | None = None) -> list[User]:
-        cleaned = query.strip() if query else None
-        return await self._directory.list_users(query=cleaned or None)
+    async def execute(
+        self, *, query: str | None = None, limit: int = DEFAULT_PAGE_SIZE, offset: int = 0
+    ) -> Page[User]:
+        cleaned = (query.strip() if query else None) or None
+        size = max(1, min(limit, MAX_PAGE_SIZE))
+
+        return Page(
+            items=await self._directory.list_users(query=cleaned, limit=size, offset=offset),
+            total=await self._directory.count_users(query=cleaned),
+            limit=size,
+            offset=offset,
+        )
 
 
 class ChangeUserRole:
@@ -130,5 +140,12 @@ class ListAuditLog:
     def __init__(self, *, audit: AuditLog) -> None:
         self._audit = audit
 
-    async def execute(self, *, limit: int = 100) -> list[AuditEntry]:
-        return await self._audit.recent(limit=limit)
+    async def execute(self, *, limit: int = DEFAULT_PAGE_SIZE, offset: int = 0) -> Page[AuditEntry]:
+        size = max(1, min(limit, MAX_PAGE_SIZE))
+
+        return Page(
+            items=await self._audit.recent(limit=size, offset=offset),
+            total=await self._audit.count(),
+            limit=size,
+            offset=offset,
+        )
