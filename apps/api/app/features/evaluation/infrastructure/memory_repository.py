@@ -1,8 +1,14 @@
 """In-memory evaluation repositories, for fast tests and a database-less boot."""
 
+from datetime import datetime
 from uuid import UUID
 
-from app.features.evaluation.domain.entities import Activity, Evaluation, Submission
+from app.features.evaluation.domain.entities import (
+    Activity,
+    Evaluation,
+    Submission,
+    SubmissionStatus,
+)
 
 
 class InMemoryActivityRepository:
@@ -30,7 +36,9 @@ class InMemorySubmissionRepository:
         self._submissions[submission.id] = submission
 
     async def count_attempts(self, *, user_id: UUID, activity_id: UUID) -> int:
-        return len(await self.list_for_activity(user_id=user_id, activity_id=activity_id))
+        # Mirrors the SQL rule: our failures are not the teacher's attempts.
+        spent = await self.list_for_activity(user_id=user_id, activity_id=activity_id)
+        return sum(1 for item in spent if item.status is not SubmissionStatus.FAILED)
 
     async def list_for_activity(self, *, user_id: UUID, activity_id: UUID) -> list[Submission]:
         return sorted(
@@ -41,6 +49,25 @@ class InMemorySubmissionRepository:
             ),
             key=lambda item: item.attempt,
         )
+
+    async def claim_abandoned(self, *, older_than: datetime, limit: int) -> list[UUID]:
+        """No-op in memory: nothing survives the process, so nothing is abandoned.
+
+        Returning an empty list rather than raising keeps the recovery path
+        exercised in tests without inventing a fake concept of staleness for a
+        store that dies with the process anyway.
+        """
+        return []
+
+    async def claim_exhausted(self, *, older_than: datetime, limit: int) -> list[UUID]:
+        return []
+
+    async def give_up(self, submission_id: UUID, *, reason: str) -> None:
+        submission = self._submissions.get(submission_id)
+        if submission is None:
+            return
+        submission.status = SubmissionStatus.FAILED
+        submission.failure_reason = reason[:120]
 
 
 class InMemoryEvaluationRepository:

@@ -1,13 +1,16 @@
 """PostgreSQL implementation of the evaluation ports."""
 
+from datetime import datetime
 from uuid import UUID, uuid4
 
 from sqlalchemy import func, select
+from sqlalchemy import update as sa_update
 from sqlalchemy.orm import selectinload
 
 from app.core.database import Database
 from app.features.evaluation.domain.checks import CheckSpec
 from app.features.evaluation.domain.entities import (
+    MAX_RECOVERIES,
     Activity,
     Evaluation,
     Submission,
@@ -109,6 +112,8 @@ def _to_submission(row: SubmissionModel) -> Submission:
         prompt=row.prompt,
         attempt=row.attempt,
         status=SubmissionStatus(row.status),
+        recoveries=row.recoveries,
+        updated_at=row.updated_at,
         created_at=row.created_at,
         failure_reason=row.failure_reason,
     )
@@ -144,6 +149,7 @@ class SqlAlchemySubmissionRepository:
                 return
             row.status = submission.status.value
             row.failure_reason = submission.failure_reason
+            row.recoveries = submission.recoveries
 
     async def count_attempts(self, *, user_id: UUID, activity_id: UUID) -> int:
         async with self._db.session() as session:
@@ -151,9 +157,68 @@ class SqlAlchemySubmissionRepository:
                 select(func.count(SubmissionModel.id)).where(
                     SubmissionModel.user_id == user_id,
                     SubmissionModel.activity_id == activity_id,
+                    # Our failures are not the teacher's attempts.
+                    SubmissionModel.status != SubmissionStatus.FAILED.value,
                 )
             )
             return int(result.scalar_one())
+
+    async def claim_abandoned(self, *, older_than: datetime, limit: int) -> list[UUID]:
+        stale = (
+            select(SubmissionModel.id)
+            .where(
+                SubmissionModel.status.in_(
+                    [SubmissionStatus.PENDING.value, SubmissionStatus.RUNNING.value]
+                ),
+                SubmissionModel.updated_at < older_than,
+                SubmissionModel.recoveries < MAX_RECOVERIES,
+            )
+            .order_by(SubmissionModel.created_at)
+            .limit(limit)
+            # The whole point. Without SKIP LOCKED two replicas booting together
+            # would each select the same rows and each run the evaluation.
+            .with_for_update(skip_locked=True)
+        )
+
+        async with self._db.session() as session:
+            result = await session.execute(
+                sa_update(SubmissionModel)
+                .where(SubmissionModel.id.in_(stale.scalar_subquery()))
+                .values(
+                    status=SubmissionStatus.PENDING.value,
+                    recoveries=SubmissionModel.recoveries + 1,
+                    updated_at=func.now(),
+                )
+                .returning(SubmissionModel.id)
+            )
+            return [row[0] for row in result.all()]
+
+    async def claim_exhausted(self, *, older_than: datetime, limit: int) -> list[UUID]:
+        async with self._db.session() as session:
+            result = await session.execute(
+                select(SubmissionModel.id)
+                .where(
+                    SubmissionModel.status.in_(
+                        [SubmissionStatus.PENDING.value, SubmissionStatus.RUNNING.value]
+                    ),
+                    SubmissionModel.updated_at < older_than,
+                    SubmissionModel.recoveries >= MAX_RECOVERIES,
+                )
+                .limit(limit)
+            )
+            return [row[0] for row in result.all()]
+
+    async def give_up(self, submission_id: UUID, *, reason: str) -> None:
+        async with self._db.session() as session:
+            await session.execute(
+                sa_update(SubmissionModel)
+                .where(SubmissionModel.id == submission_id)
+                .values(
+                    status=SubmissionStatus.FAILED.value,
+                    failure_reason=reason[:120],
+                    updated_at=func.now(),
+                )
+            )
 
     async def list_for_activity(self, *, user_id: UUID, activity_id: UUID) -> list[Submission]:
         async with self._db.session() as session:

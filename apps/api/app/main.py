@@ -8,6 +8,7 @@ ports through dependency injection (TRD 5.1).
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
+import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -28,6 +29,7 @@ from app.features.certificates.interface.dependencies import build_certificate_c
 from app.features.certificates.interface.router import router as certificate_router
 from app.features.enrollment.interface.dependencies import build_enrollment_container
 from app.features.enrollment.interface.router import router as enrollment_router
+from app.features.evaluation.infrastructure.queue import recover_abandoned
 from app.features.evaluation.interface.dependencies import build_evaluation_container
 from app.features.evaluation.interface.router import router as evaluation_router
 from app.features.forum.interface.dependencies import build_forum_container
@@ -44,8 +46,24 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     database = Database(settings) if settings.database_url else None
 
     @asynccontextmanager
-    async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    async def lifespan(application: FastAPI) -> AsyncIterator[None]:
+        # Pick up whatever a previous process left mid-flight. With a real
+        # provider an evaluation takes seconds, so a deploy at the wrong moment
+        # would otherwise leave a teacher with no feedback and a spent attempt.
+        if database is not None:
+            try:
+                await recover_abandoned(
+                    application.state.evaluation["submissions"],
+                    application.state.evaluation["queue"],
+                )
+            except Exception:
+                # Recovery is best-effort. Refusing to start because old work
+                # could not be reclaimed would turn a small problem into an
+                # outage for everyone.
+                structlog.get_logger().exception("evaluation_recovery_failed")
+
         yield
+
         if database is not None:
             await database.dispose()
 

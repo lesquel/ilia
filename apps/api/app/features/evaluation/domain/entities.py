@@ -15,6 +15,12 @@ from app.features.evaluation.domain.scoring import DimensionScore
 MAX_PROMPT_CHARS = 4000
 
 
+# After this many recoveries a submission is given up on and marked failed.
+# Two restarts is a deploy or a crash; five is something that will not fix
+# itself by trying again.
+MAX_RECOVERIES = 3
+
+
 class SubmissionStatus(StrEnum):
     """Evaluation is asynchronous (TRD 3): a model call plus a judging step can
     take tens of seconds, and holding an HTTP request open for that makes the
@@ -71,6 +77,11 @@ class Submission:
     # Set once the run finishes. Failure is a state, not an exception the
     # student never hears about.
     failure_reason: str | None = None
+    # How many times this submission has been picked back up after a process
+    # died mid-flight. Bounded: a submission that crashes the worker every time
+    # would otherwise be retried for ever, and each retry costs a model call.
+    recoveries: int = 0
+    updated_at: datetime | None = None
 
     @classmethod
     def create(

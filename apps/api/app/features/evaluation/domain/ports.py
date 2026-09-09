@@ -7,6 +7,7 @@ scoring pipeline be tested without spending a single token.
 """
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Protocol
 from uuid import UUID
 
@@ -100,7 +101,32 @@ class SubmissionRepository(Protocol):
 
     async def update(self, submission: Submission) -> None: ...
 
-    async def count_attempts(self, *, user_id: UUID, activity_id: UUID) -> int: ...
+    async def count_attempts(self, *, user_id: UUID, activity_id: UUID) -> int:
+        """Attempts this teacher has spent on this activity.
+
+        A `failed` submission does not count. Failure only ever means our
+        provider broke or our code did — a bad prompt earns a low score, not a
+        failure — so charging an attempt for it bills the teacher for our
+        outage.
+        """
+        ...
+
+    async def claim_abandoned(self, *, older_than: datetime, limit: int) -> list[UUID]:
+        """Take ownership of submissions a dead process left mid-flight.
+
+        Atomic: two replicas starting at once must not both pick up the same
+        submission, or the teacher pays for two model calls and one of the
+        results is thrown away.
+        """
+        ...
+
+    async def claim_exhausted(self, *, older_than: datetime, limit: int) -> list[UUID]:
+        """Abandoned submissions that have run out of retries."""
+        ...
+
+    async def give_up(self, submission_id: UUID, *, reason: str) -> None:
+        """Stop retrying and say so, rather than looping for ever."""
+        ...
 
     async def list_for_activity(self, *, user_id: UUID, activity_id: UUID) -> list[Submission]: ...
 

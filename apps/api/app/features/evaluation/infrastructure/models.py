@@ -110,8 +110,18 @@ class SubmissionModel(Base):
     attempt: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="pending")
     failure_reason: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    recoveries: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    # Touched on every status change. This is what tells a starting process
+    # which submissions were abandoned by a previous one, as opposed to which
+    # are being worked on right now by a sibling replica.
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        onupdate=func.now(),
     )
 
 
