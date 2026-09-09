@@ -142,6 +142,36 @@ componentes pensados para un teléfono. Es un costo asumido, no un descuido.
   en nativo).
 - **Sin dictado por voz** (TRD §4.4, marcado como *[A confirmar]*).
 
+## Datos locales del dispositivo y cierre de sesión
+
+Dos almacenamientos separados a propósito, con reglas distintas:
+
+- **`core/storage/token-store`** — el token de sesión. Solo en nativo, sobre el
+  almacén seguro del sistema operativo. En web no se escribe nada: la cookie
+  `httpOnly` es la sesión y el navegador la administra.
+- **`core/storage/key-value-store`** — lo que no es un secreto. Borradores de
+  prompts sobre `AsyncStorage` en nativo y `localStorage` en web. Cada operación
+  va envuelta en `try/catch`: `localStorage` lanza excepción en navegación
+  privada y con la cuota llena, y que falle un borrador nunca puede tumbar el
+  editor.
+
+El prefijo `ilia.draft.` está declarado en `core/storage/session-scope.ts` como
+dato de sesión, y `clearSessionScopedStorage()` lo borra al cerrar sesión.
+
+Esto no es prolijidad: un prompt puede nombrar a los estudiantes del docente y
+sus notas (TRD §11). En una computadora compartida de sala de profesores ese
+texto no puede sobrevivir a la sesión.
+
+La lista de prefijos vive en `core` y no en cada feature a propósito. Un
+registro donde cada feature se inscribe al importarse queda más elegante y **no
+funciona**: alguien puede entrar y salir sin abrir nunca el laboratorio, ese
+módulo nunca se carga, y los borradores del docente anterior siguen ahí para el
+siguiente.
+
+Por eso mismo el botón de cerrar sesión (`AccountBar`) está montado en
+`app/_layout.tsx` sobre el `Stack` y no en el inicio: tiene que estar donde la
+persona esté cuando se levanta de la silla.
+
 ## Trampa conocida: `Link asChild` y los estilos
 
 `expo-router` con `asChild` renderiza el hijo **como** el `<a>` en web, y el

@@ -1,0 +1,14 @@
+- generic [ref=f30e28]:
+  - generic [ref=f30e29]: ILIA
+  - generic [ref=f30e30]: Iniciar sesión
+  - generic [ref=f30e31]: Entrá para continuar con tus cursos
+  - generic [ref=f30e32]: Correo
+  - textbox "Correo electrónico" [ref=f30e33]:
+    - /placeholder: docente@colegio.edu
+    - text: luis@colegio.edu
+  - generic [ref=f30e34]: Contraseña
+  - textbox "Contraseña" [ref=f30e35]:
+    - /placeholder: ••••••••
+    - text: Prompt2026!
+  - alert [ref=f30e37]: El correo o la contraseña no son correctos.
+  - button "Entrar" [ref=f30e38] [cursor=pointer]

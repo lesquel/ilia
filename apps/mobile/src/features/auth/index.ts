@@ -10,3 +10,4 @@ export { canActAs } from './domain/entities';
 export type { Credentials, Registration, Role, Session, User } from './domain/entities';
 export { useLogin, useLogout, useRegister, useSession, authKeys } from './application/use-auth';
 export { installAuthTokenProvider } from './data/install';
+export { AccountBar } from './presentation/account-bar';

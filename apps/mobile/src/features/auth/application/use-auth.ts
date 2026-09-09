@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { ApiError } from '@/core/errors/api-error';
+import { clearSessionScopedStorage } from '@/core/storage';
 import type { Credentials, Registration, User } from '@/features/auth/domain/entities';
 import type { AuthRepository } from '@/features/auth/domain/repository';
 import { authRepository } from '@/features/auth/data/auth-repository';
@@ -74,7 +75,13 @@ export function useLogout(repository: AuthRepository = authRepository) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => repository.logout(),
+    mutationFn: async () => {
+      await repository.logout();
+      // Device-local data belonging to this session — prompt drafts can carry a
+      // teacher's own pupils' names and marks (TRD §11). On a shared staffroom
+      // computer it must not outlive the session.
+      await clearSessionScopedStorage();
+    },
     onSettled: () => {
       // Clear on settle, not on success: if the request failed, the local cache
       // must still stop showing another teacher's data.

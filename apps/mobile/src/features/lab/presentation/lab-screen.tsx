@@ -1,5 +1,4 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -16,6 +15,7 @@ import { ApiError } from '@/core/errors/api-error';
 import { useTheme } from '@/core/theme';
 import { ErrorState, LoadingState } from '@/core/ui/state-view';
 import { useEntitlements } from '@/features/billing';
+import { useDraft } from '@/features/lab/application/use-draft';
 import { useActivity, useSubmitPrompt } from '@/features/lab/application/use-lab';
 import { MAX_PROMPT_CHARS, canSubmit } from '@/features/lab/domain/entities';
 
@@ -47,7 +47,7 @@ export function LabScreen() {
   const { activity, isLoading, error, refetch } = useActivity(id);
   const submit = useSubmitPrompt(id);
   const { entitlements } = useEntitlements();
-  const [prompt, setPrompt] = useState('');
+  const { text: prompt, setText: setPrompt, status, restored, clear } = useDraft(id);
 
   if (isLoading) {
     return (
@@ -73,7 +73,13 @@ export function LabScreen() {
     submit.mutate(prompt.trim(), {
       // Straight to the result, which polls until the evaluation lands. The
       // teacher can leave and come back — the submission is server-side.
-      onSuccess: (submission) => router.push(`/lab/submissions/${submission.id}`),
+      onSuccess: (submission) => {
+        // The prompt is on the server now, so the local copy has done its job.
+        // Keeping it would also leave pupils' names on the device longer than
+        // necessary (TRD §11).
+        void clear();
+        router.push(`/lab/submissions/${submission.id}`);
+      },
     });
   };
 
@@ -133,7 +139,20 @@ export function LabScreen() {
           ))}
         </View>
 
-        <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>Tu prompt</Text>
+        <View style={styles.labelRow}>
+          <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>Tu prompt</Text>
+          {/* Quiet by design: a save indicator that shouts is a save indicator
+              that distracts from the writing. */}
+          <Text style={[styles.draftStatus, { color: theme.colors.neutral[500] }]}>
+            {status === 'saving' ? 'Guardando…' : status === 'saved' ? 'Borrador guardado' : ''}
+          </Text>
+        </View>
+
+        {restored ? (
+          <Text style={[styles.restored, { color: theme.colors.accentRamp[700] }]}>
+            Recuperamos el borrador que habías empezado.
+          </Text>
+        ) : null}
 
         <TextInput
           value={prompt}
@@ -263,9 +282,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 21,
   },
+  labelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    marginTop: 13.6,
+  },
   label: {
     fontSize: 13,
-    marginTop: 13.6,
+  },
+  draftStatus: {
+    fontSize: 12,
+  },
+  restored: {
+    fontSize: 13,
   },
   editor: {
     borderWidth: 1,

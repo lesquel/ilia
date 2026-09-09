@@ -1,0 +1,19 @@
+- generic [ref=f36e18]:
+  - generic [ref=f36e19]:
+    - link "ILIA" [active] [ref=f36e20] [cursor=pointer]:
+      - /url: /
+    - generic [ref=f36e21]:
+      - generic [ref=f36e22]: Luis Zambrano
+      - button "Cerrar sesión" [ref=f36e23] [cursor=pointer]
+  - generic [ref=f36e29]:
+    - generic [ref=f36e30]: ILIA
+    - generic [ref=f36e31]: Aprendé inteligencia artificial haciendo
+    - generic [ref=f36e32]:
+      - link "Explorar cursos" [ref=f36e33] [cursor=pointer]:
+        - /url: /catalog
+      - link "Mis cursos" [ref=f36e36] [cursor=pointer]:
+        - /url: /my-courses
+      - link "Mis certificados" [ref=f36e39] [cursor=pointer]:
+        - /url: /certificates
+      - link "Iniciar sesión" [ref=f36e42] [cursor=pointer]:
+        - /url: /login

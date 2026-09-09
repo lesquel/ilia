@@ -2,11 +2,11 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useMemo } from 'react';
-import { useColorScheme } from 'react-native';
+import { SafeAreaView, useColorScheme } from 'react-native';
 
 import { createQueryClient } from '@/core/api/query-client';
 import { palette } from '@/core/theme';
-import { installAuthTokenProvider } from '@/features/auth';
+import { AccountBar, installAuthTokenProvider } from '@/features/auth';
 
 // Composition root. Runs once, before the first render, not on every mount.
 installAuthTokenProvider();
@@ -20,12 +20,17 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: colors.bg },
-        }}
-      />
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
+        {/* Above the Stack, so it survives navigation. Signing out is the only
+            action that must be reachable from every screen. */}
+        <AccountBar />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: colors.bg },
+          }}
+        />
+      </SafeAreaView>
     </QueryClientProvider>
   );
 }

@@ -1,0 +1,11 @@
+- generic [ref=f35e12]:
+  - generic [ref=f35e13]: ILIA
+  - generic [ref=f35e14]: Iniciar sesión
+  - generic [ref=f35e15]: Entrá para continuar con tus cursos
+  - generic [ref=f35e16]: Correo
+  - textbox "Correo electrónico" [ref=f35e17]:
+    - /placeholder: docente@colegio.edu
+  - generic [ref=f35e18]: Contraseña
+  - textbox "Contraseña" [ref=f35e19]:
+    - /placeholder: ••••••••
+  - button "Entrar" [disabled]

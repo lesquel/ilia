@@ -1,0 +1,20 @@
+- generic [ref=f35e22]:
+  - generic [ref=f35e23]:
+    - link "ILIA" [ref=f35e24] [cursor=pointer]:
+      - /url: /
+    - generic [ref=f35e25]:
+      - generic [ref=f35e26]: Luis Zambrano
+      - button "Cerrar sesión" [ref=f35e27] [cursor=pointer]
+  - generic [ref=f35e36]:
+    - generic [ref=f35e37]: ILIA
+    - generic [ref=f35e38]: Iniciar sesión
+    - generic [ref=f35e39]: Entrá para continuar con tus cursos
+    - generic [ref=f35e40]: Correo
+    - textbox "Correo electrónico" [ref=f35e41]:
+      - /placeholder: docente@colegio.edu
+      - text: luis@colegio.edu
+    - generic [ref=f35e42]: Contraseña
+    - textbox "Contraseña" [ref=f35e43]:
+      - /placeholder: ••••••••
+      - text: Prompt2026!
+    - button "Entrar" [ref=f35e44] [cursor=pointer]
