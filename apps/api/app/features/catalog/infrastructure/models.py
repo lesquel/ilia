@@ -43,8 +43,14 @@ class CourseModel(Base):
     level: Mapped[str] = mapped_column(String(20), nullable=False, default="beginner")
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="draft")
 
+    # Indexed: every instructor screen filters by it — their course list, the
+    # ownership check on each edit, and the review inbox. Without it those are
+    # sequential scans of every course on the platform.
     instructor_id: Mapped[UUID] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("app_user.id", ondelete="RESTRICT"), nullable=False
+        Uuid(as_uuid=True),
+        ForeignKey("app_user.id", ondelete="RESTRICT"),
+        nullable=False,
+        index=True,
     )
 
     created_at: Mapped[datetime] = mapped_column(

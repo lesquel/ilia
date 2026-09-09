@@ -9,12 +9,14 @@ from sqlalchemy import (
     DateTime,
     Float,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
     UniqueConstraint,
     Uuid,
     func,
+    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -88,6 +90,15 @@ class SubmissionModel(Base):
 
     __table_args__ = (
         UniqueConstraint("user_id", "activity_id", "attempt", name="uq_submission_attempt"),
+        # The recovery pass runs at every startup and looks for unfinished work.
+        # Partial, because `scored` and `failed` are the overwhelming majority
+        # and none of them is ever a candidate — the index stays small however
+        # many submissions the platform accumulates.
+        Index(
+            "ix_submission_unfinished",
+            "updated_at",
+            postgresql_where=text("status IN ('pending', 'running')"),
+        ),
     )
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)

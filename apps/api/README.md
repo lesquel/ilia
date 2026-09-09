@@ -574,6 +574,26 @@ invita a suponer culpable al titular de algo sin especificar.
 La justificación es obligatoria: el botón de guardar está deshabilitado sin
 ella. Una corrección sin justificación no es revisable.
 
+## Índices que hacen falta a escala
+
+Dos consultas escaneaban la tabla entera. Con los datos de desarrollo no se
+nota: **Postgres elige seq scan en tablas chicas y hace bien**. Por eso medirlas
+con cuatro cursos no prueba nada — hay que cargar volumen realista.
+
+- `course(instructor_id)`: lo filtra cada pantalla del instructor — su lista de
+  cursos, el chequeo de propiedad en cada edición y la bandeja de revisión.
+  Medido con 200 instructores × 25 cursos: pasa de `Seq Scan` a `Bitmap Heap
+  Scan`.
+- `submission(updated_at) WHERE status IN ('pending','running')`: lo recorre la
+  recuperación de la cola **en cada arranque**. Parcial a propósito: `scored` y
+  `failed` son la abrumadora mayoría y ninguno es candidato, así que el índice
+  queda chico por más entregas que acumule la plataforma. Medido con 80.000
+  entregas: encuentra las 87 sin terminar sin tocar las otras 79.913.
+
+Para medir de verdad: base aparte, `generate_series` con la **forma** real de
+los datos (muchos instructores con pocos cursos, no uno con todos), `ANALYZE`, y
+`EXPLAIN (ANALYZE)`.
+
 ### Lo que todavía es provisorio
 
 - **El proveedor de LLM se configura, no se elige en el código.** Sin
