@@ -55,6 +55,11 @@ class InMemoryProgressRepository:
             if enrollment_id in self._completed
         }
 
+    async def passed_activity_ids(self, *, user_id: UUID, course_id: UUID) -> set[UUID]:
+        # The in-memory store holds no evaluations: the syllabus simply shows no
+        # activity as passed, rather than inventing one that is.
+        return set()
+
     async def mark_completed(self, *, enrollment_id: UUID, lesson_id: UUID) -> None:
         # A set makes this idempotent for free, which is the contract.
         self._completed.setdefault(enrollment_id, set()).add(lesson_id)

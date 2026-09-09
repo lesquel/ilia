@@ -24,6 +24,19 @@ class ProgressRepository(Protocol):
         """
         ...
 
+    async def passed_activity_ids(self, *, user_id: UUID, course_id: UUID) -> set[UUID]:
+        """Activities this teacher has already passed in this course.
+
+        An activity counts as passed if **any** attempt passed — the same rule
+        the certificate criteria use. Someone who failed twice and got it right
+        on the third try has learned it, which is the point of allowing retries.
+
+        Without this the syllabus showed a completion mark next to every lesson
+        and nothing next to the activity, so a teacher who had passed the
+        exercise saw no acknowledgement of the hardest thing they did.
+        """
+        ...
+
     async def mark_completed(self, *, enrollment_id: UUID, lesson_id: UUID) -> None:
         """Idempotent: marking a lesson done twice is not an error.
 

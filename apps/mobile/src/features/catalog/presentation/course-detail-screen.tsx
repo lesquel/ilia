@@ -24,6 +24,7 @@ export interface CourseDetailScreenProps {
   /** Rendered under the syllabus. The forum is another feature; the route composes it. */
   footerSlot?: ReactNode;
   completedLessonIds?: string[];
+  passedActivityIds?: string[];
   onLessonPress?: (lessonId: string) => void;
 }
 
@@ -31,6 +32,7 @@ export function CourseDetailScreen({
   enrollmentSlot,
   footerSlot,
   completedLessonIds = [],
+  passedActivityIds = [],
   onLessonPress,
 }: CourseDetailScreenProps) {
   const theme = useTheme();
@@ -97,6 +99,7 @@ export function CourseDetailScreen({
             key={module.id}
             module={module}
             completedLessonIds={completedLessonIds}
+            passedActivityIds={passedActivityIds}
             onLessonPress={onLessonPress}
           />
         ))
@@ -110,10 +113,12 @@ export function CourseDetailScreen({
 function ModuleBlock({
   module,
   completedLessonIds,
+  passedActivityIds,
   onLessonPress,
 }: {
   module: Module;
   completedLessonIds: string[];
+  passedActivityIds: string[];
   onLessonPress?: (lessonId: string) => void;
 }) {
   const theme = useTheme();
@@ -186,17 +191,35 @@ function ModuleBlock({
           product pointed at it: a teacher finished the lessons and had no way
           to reach the exercise the course was built around. */}
       {module.activities.map((activity) => {
+        const passed = passedActivityIds.includes(activity.id);
         const row = (
           <View style={styles.lesson}>
-            <Text style={[styles.check, { color: theme.colors.accent }]}>◆</Text>
+            {/* Same mark as a lesson, on purpose. Showing a tick beside every
+                lesson and nothing beside the exercise left a teacher without
+                acknowledgement of the hardest thing they did. */}
+            <Text
+              style={[
+                styles.check,
+                { color: passed ? theme.colors.accent : theme.colors.neutral[400] },
+              ]}
+            >
+              {passed ? '◆' : '◇'}
+            </Text>
             <Text style={[styles.lessonKind, { color: theme.colors.accentRamp[700] }]}>
               PRÁCTICA
             </Text>
-            <Text style={[styles.lessonTitle, { color: theme.colors.text }]}>
+            <Text
+              style={[
+                styles.lessonTitle,
+                { color: passed ? theme.colors.neutral[600] : theme.colors.text },
+              ]}
+            >
               {activity.title}
             </Text>
             <Text style={[styles.lessonDuration, { color: theme.colors.neutral[600] }]}>
-              {activity.maxAttempts} {activity.maxAttempts === 1 ? 'intento' : 'intentos'}
+              {passed
+                ? 'Aprobada'
+                : `${activity.maxAttempts} ${activity.maxAttempts === 1 ? 'intento' : 'intentos'}`}
             </Text>
           </View>
         );
@@ -212,7 +235,9 @@ function ModuleBlock({
           <Link key={activity.id} href={`/lab/${activity.id}`} asChild>
             <Pressable
               accessibilityRole="link"
-              accessibilityLabel={`Actividad: ${activity.title}`}
+              accessibilityLabel={`Actividad: ${activity.title}, ${
+                passed ? 'aprobada' : 'pendiente'
+              }`}
               style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
             >
               {row}

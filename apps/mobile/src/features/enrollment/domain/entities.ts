@@ -15,6 +15,8 @@ export interface CourseProgress {
   percentage: number;
   isComplete: boolean;
   completedLessonIds: string[];
+  /** Actividades ya aprobadas, con la misma regla que usa el certificado. */
+  passedActivityIds: string[];
   /** Null once the course is finished — that absence swaps "continuar" for "completado". */
   nextLesson: NextLesson | null;
 }

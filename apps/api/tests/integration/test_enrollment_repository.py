@@ -119,6 +119,81 @@ async def seeded_course(database: Database, instructor: AuthUser):  # type: igno
     return course
 
 
+async def seed_activity_with_attempts(
+    database: Database,
+    instructor: AuthUser,
+    teacher: AuthUser,
+    *,
+    passed_on: list[bool],
+    for_other_user: bool = False,
+):  # type: ignore[no-untyped-def]
+    """A course with one activity and a series of graded attempts.
+
+    Written with raw SQL rather than through the repositories: the point is what
+    the query reads back, and building it through four features' use cases would
+    test those instead.
+    """
+    course = await seeded_course(database, instructor)
+
+    author = uuid4() if for_other_user else teacher.id
+    rubric_id, activity_id = uuid4(), uuid4()
+    module_id = course.modules[0].id
+
+    async with database.engine.begin() as connection:
+        if for_other_user:
+            await connection.execute(
+                text("""
+                    INSERT INTO app_user (id, email, full_name, password_hash, role, is_active)
+                    VALUES (:id, :email, 'Otra', 'argon2::fake', 'student', true)
+                """),
+                {"id": author, "email": f"{author}@colegio.edu"},
+            )
+
+        await connection.execute(
+            text("INSERT INTO rubric (id, version, name) VALUES (:id, 1, 'R')"),
+            {"id": rubric_id},
+        )
+        await connection.execute(
+            text("""
+                INSERT INTO activity
+                    (id, module_id, course_id, rubric_id, title, statement, max_attempts, checks)
+                VALUES (:id, :module_id, :course_id, :rubric_id, 'Actividad', 'Enunciado', 3, '{}')
+            """),
+            {
+                "id": activity_id,
+                "module_id": module_id,
+                "course_id": course.id,
+                "rubric_id": rubric_id,
+            },
+        )
+
+        for attempt, passed in enumerate(passed_on, start=1):
+            submission_id = uuid4()
+            await connection.execute(
+                text("""
+                    INSERT INTO submission
+                        (id, activity_id, user_id, prompt, attempt, status, recoveries)
+                    VALUES (:id, :activity_id, :user_id, 'x', :attempt, 'scored', 0)
+                """),
+                {
+                    "id": submission_id,
+                    "activity_id": activity_id,
+                    "user_id": author,
+                    "attempt": attempt,
+                },
+            )
+            await connection.execute(
+                text("""
+                    INSERT INTO evaluation
+                        (id, submission_id, rubric_version, total, passed, model, model_version)
+                    VALUES (:id, :submission_id, 1, 80, :passed, 'fake', '1')
+                """),
+                {"id": uuid4(), "submission_id": submission_id, "passed": passed},
+            )
+
+    return teacher.id, course.id, activity_id
+
+
 class TestEnrollmentRepository:
     async def test_stores_and_reads_back(
         self,
@@ -297,3 +372,56 @@ class TestCohortRepository:
 
     async def test_returns_none_for_an_unknown_code(self, database: Database) -> None:
         assert await SqlAlchemyCohortRepository(database).id_for_code("INVENTADO") is None
+
+
+class TestPassedActivities:
+    """Which activities the syllabus may mark as done.
+
+    The rule is deliberately the same one the certificate criteria use: a
+    syllabus that marked an activity passed and a certificate that said it was
+    not would be two answers to the same question.
+    """
+
+    @pytest.mark.asyncio
+    async def test_an_activity_counts_once_it_has_been_passed_by_any_attempt(
+        self, database: Database, instructor: AuthUser, teacher: AuthUser
+    ) -> None:
+        # A teacher who failed twice and got it right on the third has learned
+        # it, which is the point of allowing retries.
+        user_id, course_id, activity_id = await seed_activity_with_attempts(
+            database, instructor, teacher, passed_on=[False, False, True]
+        )
+
+        passed = await SqlAlchemyProgressRepository(database).passed_activity_ids(
+            user_id=user_id, course_id=course_id
+        )
+
+        assert passed == {activity_id}
+
+    @pytest.mark.asyncio
+    async def test_failed_attempts_alone_do_not_count(
+        self, database: Database, instructor: AuthUser, teacher: AuthUser
+    ) -> None:
+        user_id, course_id, _ = await seed_activity_with_attempts(
+            database, instructor, teacher, passed_on=[False, False]
+        )
+
+        passed = await SqlAlchemyProgressRepository(database).passed_activity_ids(
+            user_id=user_id, course_id=course_id
+        )
+
+        assert passed == set()
+
+    @pytest.mark.asyncio
+    async def test_another_teachers_pass_is_not_yours(
+        self, database: Database, instructor: AuthUser, teacher: AuthUser
+    ) -> None:
+        user_id, course_id, _ = await seed_activity_with_attempts(
+            database, instructor, teacher, passed_on=[True], for_other_user=True
+        )
+
+        passed = await SqlAlchemyProgressRepository(database).passed_activity_ids(
+            user_id=user_id, course_id=course_id
+        )
+
+        assert passed == set()

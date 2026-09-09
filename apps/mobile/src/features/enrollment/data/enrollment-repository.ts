@@ -21,6 +21,7 @@ interface ProgressDto {
   percentage: number;
   is_complete: boolean;
   completed_lesson_ids: string[];
+  passed_activity_ids?: string[];
   next_lesson: NextLessonDto | null;
 }
 
@@ -44,6 +45,7 @@ function toProgress(dto: ProgressDto): CourseProgress {
     percentage: dto.percentage,
     isComplete: dto.is_complete,
     completedLessonIds: dto.completed_lesson_ids,
+    passedActivityIds: dto.passed_activity_ids ?? [],
     nextLesson: dto.next_lesson
       ? {
           lessonId: dto.next_lesson.lesson_id,

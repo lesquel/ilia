@@ -43,6 +43,7 @@ export default function CourseRoute() {
         ) : null
       }
       completedLessonIds={progress?.completedLessonIds ?? []}
+      passedActivityIds={progress?.passedActivityIds ?? []}
       // Tapping a lesson opens it. Marking it done belongs in the reader, next
       // to the material — a checkbox in the syllabus would let a teacher tick
       // off a lesson they never read.

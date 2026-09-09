@@ -2,7 +2,7 @@
 
 from uuid import UUID, uuid4
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.exc import IntegrityError
 
@@ -11,6 +11,11 @@ from app.features.auth.infrastructure.models import CohortModel
 from app.features.catalog.infrastructure.models import LessonModel
 from app.features.enrollment.domain.entities import Enrollment, LessonContent
 from app.features.enrollment.domain.errors import AlreadyEnrolledError
+from app.features.evaluation.infrastructure.models import (
+    ActivityModel,
+    EvaluationModel,
+    SubmissionModel,
+)
 
 from .models import EnrollmentModel, LessonProgressModel
 
@@ -100,6 +105,27 @@ class SqlAlchemyProgressRepository:
             completions.setdefault(enrollment_id, set()).add(lesson_id)
 
         return completions
+
+    async def passed_activity_ids(self, *, user_id: UUID, course_id: UUID) -> set[UUID]:
+        """Activities passed in this course, by any attempt.
+
+        The same rule the certificate criteria use, deliberately: a syllabus
+        that marked an activity done and a certificate that said it was not
+        would be two answers to one question.
+        """
+        async with self._db.session() as session:
+            rows = await session.execute(
+                select(func.distinct(SubmissionModel.activity_id))
+                .select_from(SubmissionModel)
+                .join(EvaluationModel, EvaluationModel.submission_id == SubmissionModel.id)
+                .join(ActivityModel, ActivityModel.id == SubmissionModel.activity_id)
+                .where(
+                    SubmissionModel.user_id == user_id,
+                    ActivityModel.course_id == course_id,
+                    EvaluationModel.passed.is_(True),
+                )
+            )
+            return {row[0] for row in rows.all()}
 
     async def mark_completed(self, *, enrollment_id: UUID, lesson_id: UUID) -> None:
         # ON CONFLICT DO NOTHING rather than select-then-insert: idempotent in a

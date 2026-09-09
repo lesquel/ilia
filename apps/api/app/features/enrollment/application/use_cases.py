@@ -150,8 +150,9 @@ class GetCourseProgress:
             raise NotEnrolledError()
 
         completed = await self._progress.completed_lesson_ids(enrollment.id)
+        passed = await self._progress.passed_activity_ids(user_id=user_id, course_id=course.id)
 
-        return compute_progress(course, completed)
+        return compute_progress(course, completed, passed)
 
 
 class CompleteLesson:
@@ -181,8 +182,9 @@ class CompleteLesson:
         await self._progress.mark_completed(enrollment_id=enrollment.id, lesson_id=lesson_id)
 
         completed = await self._progress.completed_lesson_ids(enrollment.id)
+        passed = await self._progress.passed_activity_ids(user_id=user_id, course_id=course.id)
 
-        return compute_progress(course, completed)
+        return compute_progress(course, completed, passed)
 
 
 class GetLesson:

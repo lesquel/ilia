@@ -92,6 +92,7 @@ class CourseProgress:
     total_lessons: int
     completed_lesson_ids: frozenset[UUID]
     next_lesson: LessonRef | None
+    passed_activity_ids: frozenset[UUID] = frozenset()
 
     @property
     def completed_lessons(self) -> int:
@@ -114,7 +115,11 @@ class CourseProgress:
         return self.completed_lessons > 0
 
 
-def compute_progress(course: Course, completed_lesson_ids: set[UUID]) -> CourseProgress:
+def compute_progress(
+    course: Course,
+    completed_lesson_ids: set[UUID],
+    passed_activity_ids: set[UUID] | None = None,
+) -> CourseProgress:
     """Progress for one course.
 
     `next_lesson` is the first lesson in syllabus order that is not done — which
@@ -135,6 +140,7 @@ def compute_progress(course: Course, completed_lesson_ids: set[UUID]) -> CourseP
         total_lessons=len(order),
         completed_lesson_ids=frozenset(relevant),
         next_lesson=next_lesson,
+        passed_activity_ids=frozenset(passed_activity_ids or set()),
     )
 
 

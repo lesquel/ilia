@@ -45,6 +45,7 @@ class ProgressResponse(BaseModel):
     percentage: int
     is_complete: bool
     completed_lesson_ids: list[UUID]
+    passed_activity_ids: list[UUID] = []
     # Null once the course is finished — that absence is what the client uses to
     # swap "continuar" for "completado".
     next_lesson: NextLessonResponse | None
@@ -57,6 +58,7 @@ class ProgressResponse(BaseModel):
             percentage=progress.percentage,
             is_complete=progress.is_complete,
             completed_lesson_ids=sorted(progress.completed_lesson_ids, key=str),
+            passed_activity_ids=sorted(progress.passed_activity_ids, key=str),
             next_lesson=(
                 NextLessonResponse.from_entity(progress.next_lesson)
                 if progress.next_lesson
