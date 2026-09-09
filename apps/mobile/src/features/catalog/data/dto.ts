@@ -28,6 +28,7 @@ export interface LessonDto {
   kind: string;
   position: number;
   duration_seconds: number;
+  has_media?: boolean;
 }
 
 export interface ModuleDto {
@@ -82,6 +83,7 @@ function toModule(dto: ModuleDto): Module {
       kind: toLessonKind(lesson.kind),
       position: lesson.position,
       durationSeconds: lesson.duration_seconds,
+      hasMedia: lesson.has_media ?? false,
     })),
   };
 }

@@ -4,6 +4,7 @@ from datetime import datetime
 from uuid import UUID, uuid4
 
 from sqlalchemy import func, select
+from sqlalchemy import update as sa_update
 from sqlalchemy.orm import selectinload
 
 from app.core.database import Database
@@ -118,6 +119,23 @@ class SqlAlchemyCourseWriter:
                 )
             )
         return lesson_id
+
+    async def set_lesson_media(self, *, lesson_id: UUID, reference: str | None) -> None:
+        async with self._db.session() as session:
+            await session.execute(
+                sa_update(LessonModel)
+                .where(LessonModel.id == lesson_id)
+                .values(resource_ref=reference)
+            )
+
+    async def lesson_belongs_to(self, *, lesson_id: UUID, course_id: UUID) -> bool:
+        async with self._db.session() as session:
+            result = await session.execute(
+                select(LessonModel.id)
+                .join(ModuleModel, ModuleModel.id == LessonModel.module_id)
+                .where(LessonModel.id == lesson_id, ModuleModel.course_id == course_id)
+            )
+            return result.first() is not None
 
     async def list_for_instructor(self, instructor_id: UUID) -> list[Course]:
         statement = (

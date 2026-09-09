@@ -142,3 +142,64 @@ export function useRoster(
     error: query.error,
   };
 }
+
+/**
+ * Upload a lesson's media, in the three steps the flow actually has.
+ *
+ * 1. Ask the API where to put it. The key comes from the server — a client that
+ *    picks its own can write over another course's video.
+ * 2. PUT the file straight to the storage. Not through our API: a hundred
+ *    megabytes travelling through it would hold a worker for minutes.
+ * 3. Tell the API it landed, so the lesson points at it.
+ *
+ * Step 2 uses `fetch` rather than the app's HTTP client on purpose: the client
+ * attaches our session credentials, and sending those to a third-party storage
+ * host would hand them somewhere they do not belong.
+ */
+export function useUploadLessonMedia(
+  courseId: string,
+  repository: InstructorRepository = instructorRepository,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ lessonId, file }: { lessonId: string; file: File }) => {
+      const contentType = file.type || 'application/octet-stream';
+      const target = await repository.prepareMedia(courseId, lessonId, contentType);
+
+      const uploaded = await fetch(target.uploadUrl, {
+        method: 'PUT',
+        // Must match what was signed, or the storage refuses it.
+        headers: { 'Content-Type': contentType },
+        body: file,
+        credentials: 'omit',
+      });
+
+      if (!uploaded.ok) {
+        // The lesson is left untouched: attaching a reference to a file that
+        // did not arrive would give a teacher a player that plays nothing.
+        throw new Error(`upload_failed_${uploaded.status}`);
+      }
+
+      await repository.attachMedia(courseId, lessonId, target.reference);
+      return target.reference;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: instructorKeys.courses });
+    },
+  });
+}
+
+export function useRemoveLessonMedia(
+  courseId: string,
+  repository: InstructorRepository = instructorRepository,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (lessonId: string) => repository.attachMedia(courseId, lessonId, null),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: instructorKeys.courses });
+    },
+  });
+}

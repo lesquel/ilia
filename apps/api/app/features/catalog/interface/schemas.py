@@ -11,6 +11,8 @@ class LessonResponse(BaseModel):
     kind: str
     position: int
     duration_seconds: int
+    # Whether there is material to play, never where it lives.
+    has_media: bool = False
 
 
 class ModuleResponse(BaseModel):
@@ -32,6 +34,7 @@ class ModuleResponse(BaseModel):
                     kind=lesson.kind.value,
                     position=lesson.position,
                     duration_seconds=lesson.duration_seconds,
+                    has_media=lesson.has_media,
                 )
                 # Ordering is the domain's answer, not the database's. The query
                 # already sorts, but the rule belongs where it can be tested.

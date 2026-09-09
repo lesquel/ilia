@@ -500,6 +500,29 @@ sirve por la API. Y se niega a subir archivos en vez de fingirlo: un adaptador
 de desarrollo que simula subidas esconde lo único que hay que probar contra un
 bucket real antes de lanzar.
 
+### Subir el material de una lección
+
+Tres pasos, porque la subida no pasa por acá:
+
+1. `POST /instructor/courses/{id}/lessons/{id}/media` → devuelve una URL firmada
+   y **la clave que eligió el servidor**.
+2. El navegador hace `PUT` de ese archivo **directo al bucket**.
+3. `PUT /instructor/courses/{id}/lessons/{id}/media` con la referencia → la
+   lección apunta al objeto. `null` la quita.
+
+**La clave nunca viene del cliente.** Un cliente que elige su propia clave es un
+cliente que puede escribir encima del video de otro curso. Y al adjuntar se
+verifica que la referencia esté dentro del prefijo de esa lección: sin eso, un
+instructor podría adjuntar cualquier clave que pudiera nombrar — leyendo, o
+pisando, un curso que no puede ver.
+
+**El content-type va firmado** y hay una lista blanca. Permitir `text/html`
+sería un archivo servido desde nuestro propio dominio que no escribimos
+nosotros.
+
+Verificado contra MinIO real: subida `200`, objeto en el bucket, y la lectura
+posterior **`200` con firma / `403` sin ella**.
+
 ### Lo que todavía es provisorio
 
 - **El proveedor de LLM se configura, no se elige en el código.** Sin

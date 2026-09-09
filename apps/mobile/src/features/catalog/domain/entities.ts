@@ -25,6 +25,8 @@ export interface Lesson {
   kind: LessonKind;
   position: number;
   durationSeconds: number;
+  /** Whether there is material to play. Never where it lives. */
+  hasMedia: boolean;
 }
 
 export interface Module {

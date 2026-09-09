@@ -119,6 +119,10 @@ export class HttpClient {
   post<T>(path: string, body?: unknown, options?: Omit<RequestOptions, 'method'>): Promise<T> {
     return this.request<T>(path, { ...options, method: 'POST', body });
   }
+
+  put<T>(path: string, body?: unknown, options?: Omit<RequestOptions, 'method'>): Promise<T> {
+    return this.request<T>(path, { ...options, method: 'PUT', body });
+  }
 }
 
 export const httpClient = new HttpClient();

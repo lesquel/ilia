@@ -76,6 +76,8 @@ class Lesson:
     # is for, so these stay empty on the catalog endpoints.
     body: str = ""
     resource_ref: str | None = None
+    # Set on the catalog path, where `resource_ref` deliberately is not.
+    has_media: bool = False
 
 
 @dataclass

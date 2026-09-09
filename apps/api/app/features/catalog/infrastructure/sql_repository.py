@@ -198,6 +198,11 @@ def _to_entity(row: CourseModel, instructor_name: str) -> Course:
                         kind=LessonKind(lesson.kind),
                         position=lesson.position,
                         duration_seconds=lesson.duration_seconds,
+                        # Whether there is material, never where it lives. The
+                        # key is a storage path and stays out of a public
+                        # response; a boolean tells a reader which lessons have
+                        # a video without handing anyone the object.
+                        has_media=lesson.resource_ref is not None,
                     )
                     for lesson in module.lessons
                 ],

@@ -5,7 +5,7 @@ this instructor owns *this* course is decided in the application layer, because
 it needs the course to answer.
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Annotated
 from uuid import UUID
 
@@ -13,17 +13,19 @@ from fastapi import APIRouter, Depends, Query, Request, status
 from pydantic import BaseModel, Field
 
 from app.features.auth.domain.entities import Role, User
-from app.features.auth.interface.dependencies import require_role
+from app.features.auth.interface.dependencies import SettingsDep, require_role
 from app.features.catalog.domain.entities import Course, LessonKind, Level
 from app.features.catalog.interface.router import CoursesDep
 from app.features.instructor.application.use_cases import (
     AddLesson,
     AddModule,
+    AttachLessonMedia,
     CreateCourse,
     ListMyCourses,
     ListRoster,
     ListSubmissionsForReview,
     OverrideScore,
+    PrepareLessonMedia,
     PublishCourse,
     UnpublishCourse,
     UpdateCourse,
@@ -370,3 +372,77 @@ async def roster(
         user=user, course_id=course_id
     )
     return [RosterEntryResponse.from_entity(entry) for entry in entries]
+
+
+class MediaUploadRequest(BaseModel):
+    content_type: str = Field(min_length=1, max_length=120)
+
+
+class MediaUploadResponse(BaseModel):
+    """Where to PUT the file, and the key to send back afterwards.
+
+    The key is chosen by the server. A client that supplies its own is a client
+    that can write over another course's video.
+    """
+
+    upload_url: str
+    reference: str
+    expires_in: int
+
+
+class AttachMediaRequest(BaseModel):
+    # Null clears the lesson's media, which is how an instructor removes a video
+    # they uploaded by mistake.
+    reference: str | None = None
+
+
+@router.post("/courses/{course_id}/lessons/{lesson_id}/media", response_model=MediaUploadResponse)
+async def prepare_lesson_media(
+    course_id: UUID,
+    lesson_id: UUID,
+    payload: MediaUploadRequest,
+    request: Request,
+    settings: SettingsDep,
+    user: Instructor,
+    courses: CoursesDep,
+    writer: WriterDep,
+) -> MediaUploadResponse:
+    """A short-lived URL the browser uploads to, directly.
+
+    A hundred-megabyte file travelling through this process would hold a worker
+    for minutes and buy nothing.
+    """
+    upload = await PrepareLessonMedia(
+        courses=courses, writer=writer, storage=request.app.state.storage
+    ).execute(
+        user=user,
+        course_id=course_id,
+        lesson_id=lesson_id,
+        content_type=payload.content_type,
+        # Longer than a playback link: uploading a lesson video on school
+        # Wi-Fi is not a thirty-second job.
+        ttl=timedelta(seconds=max(settings.storage_url_ttl_seconds, 1800)),
+    )
+
+    return MediaUploadResponse(
+        upload_url=upload.url,
+        reference=upload.reference,
+        expires_in=upload.expires_in_seconds,
+    )
+
+
+@router.put(
+    "/courses/{course_id}/lessons/{lesson_id}/media", status_code=status.HTTP_204_NO_CONTENT
+)
+async def attach_lesson_media(
+    course_id: UUID,
+    lesson_id: UUID,
+    payload: AttachMediaRequest,
+    user: Instructor,
+    courses: CoursesDep,
+    writer: WriterDep,
+) -> None:
+    """Point the lesson at the uploaded object, once the browser confirms it."""
+    await AttachLessonMedia(courses=courses, writer=writer).execute(
+        user=user, course_id=course_id, lesson_id=lesson_id, reference=payload.reference
+    )

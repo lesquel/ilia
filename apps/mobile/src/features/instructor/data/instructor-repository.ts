@@ -66,6 +66,15 @@ export interface InstructorRepository {
   inbox(courseId?: string, offset?: number): Promise<Page<ReviewItem>>;
   override(submissionId: string, total: number, reason: string): Promise<void>;
   roster(courseId: string): Promise<RosterEntry[]>;
+  prepareMedia(courseId: string, lessonId: string, contentType: string): Promise<MediaUpload>;
+  attachMedia(courseId: string, lessonId: string, reference: string | null): Promise<void>;
+}
+
+/** Where to PUT the file, and the key the server chose for it. */
+export interface MediaUpload {
+  uploadUrl: string;
+  reference: string;
+  expiresIn: number;
 }
 
 export class HttpInstructorRepository implements InstructorRepository {
@@ -188,6 +197,42 @@ export class HttpInstructorRepository implements InstructorRepository {
       percentage: row.percentage,
       lastActivityAt: row.last_activity_at,
     }));
+  }
+
+  async prepareMedia(
+    courseId: string,
+    lessonId: string,
+    contentType: string,
+  ): Promise<MediaUpload> {
+    const dto = await this.http.post<{
+      upload_url: string;
+      reference: string;
+      expires_in: number;
+    }>(
+      `/instructor/courses/${encodeURIComponent(courseId)}/lessons/${encodeURIComponent(
+        lessonId,
+      )}/media`,
+      { content_type: contentType },
+    );
+
+    return {
+      uploadUrl: dto.upload_url,
+      reference: dto.reference,
+      expiresIn: dto.expires_in,
+    };
+  }
+
+  async attachMedia(
+    courseId: string,
+    lessonId: string,
+    reference: string | null,
+  ): Promise<void> {
+    await this.http.put<void>(
+      `/instructor/courses/${encodeURIComponent(courseId)}/lessons/${encodeURIComponent(
+        lessonId,
+      )}/media`,
+      { reference },
+    );
   }
 }
 

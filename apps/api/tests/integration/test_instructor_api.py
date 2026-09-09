@@ -77,6 +77,13 @@ def client() -> Iterator[TestClient]:
         database_url=TEST_DATABASE_URL,
         jwt_secret="test-secret-long-enough-for-hmac-sha256",
         cookie_secure=False,
+        # Fake S3 credentials so upload URLs can be signed. The local adapter
+        # refuses uploads on purpose, and the media tests need a provider that
+        # issues them — no request ever leaves the process: signing is local.
+        storage_provider="s3",
+        storage_bucket="ilia-test",
+        storage_access_key="AKIATEST",
+        storage_secret_key="secreto-de-prueba",
     )
 
     with TestClient(create_app(settings)) as test_client:
@@ -485,3 +492,198 @@ class TestCourseAddress:
         )
 
         assert response.status_code == 200
+
+
+class TestLessonMedia:
+    """Uploading a lesson's video.
+
+    The upload goes straight from the instructor's browser to the storage, so
+    the two things this API still owns are: who may upload, and where.
+    """
+
+    def lesson_of(self, client: TestClient, token: str) -> tuple[str, str]:
+        """A course with one lesson, returning both ids.
+
+        Built here rather than reused from `TestPublishing`: that helper does
+        not hand back the lesson id, and reading it from the public catalogue
+        would not work for a course that is still a draft.
+        """
+        course = client.post(f"{API}/courses", json=DRAFT, headers=auth(token)).json()
+        module = client.post(
+            f"{API}/courses/{course['id']}/modules",
+            json={"title": "Qué es un prompt"},
+            headers=auth(token),
+        ).json()
+        lesson = client.post(
+            f"{API}/courses/{course['id']}/modules/{module['id']}/lessons",
+            json={
+                "title": "Anatomía de un prompt",
+                "kind": "video",
+                "duration_seconds": 420,
+                "body": "Rol, contexto, tarea y formato.",
+            },
+            headers=auth(token),
+        ).json()
+        return course["id"], lesson["id"]
+
+    def test_it_hands_back_a_signed_url_and_a_key_it_chose(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        course_id, lesson_id = self.lesson_of(client, instructor)
+
+        response = client.post(
+            f"{API}/courses/{course_id}/lessons/{lesson_id}/media",
+            json={"content_type": "video/mp4"},
+            headers=auth(instructor),
+        )
+
+        assert response.status_code == 200
+        body = response.json()
+        # The key is namespaced by lesson and ends in the extension for the type
+        # that was signed.
+        assert body["reference"].startswith(f"lessons/{lesson_id}/")
+        assert body["reference"].endswith(".mp4")
+        assert body["expires_in"] >= 1800
+
+    def test_the_key_is_never_taken_from_the_client(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        # Two requests for the same lesson give different keys: the server picks
+        # them, and a browser holding the old file cannot keep serving it after
+        # the instructor replaces the video.
+        course_id, lesson_id = self.lesson_of(client, instructor)
+        payload = {"content_type": "video/mp4"}
+
+        first = client.post(
+            f"{API}/courses/{course_id}/lessons/{lesson_id}/media",
+            json=payload,
+            headers=auth(instructor),
+        ).json()
+        second = client.post(
+            f"{API}/courses/{course_id}/lessons/{lesson_id}/media",
+            json=payload,
+            headers=auth(instructor),
+        ).json()
+
+        assert first["reference"] != second["reference"]
+
+    def test_an_unsupported_type_is_refused(self, client: TestClient, instructor: str) -> None:
+        # The content type is signed into the URL. Allowing text/html would mean
+        # a file served from our own domain that we did not write.
+        course_id, lesson_id = self.lesson_of(client, instructor)
+
+        response = client.post(
+            f"{API}/courses/{course_id}/lessons/{lesson_id}/media",
+            json={"content_type": "text/html"},
+            headers=auth(instructor),
+        )
+
+        assert response.status_code == 422
+        assert response.json()["error"]["code"] == "unsupported_media_type"
+
+    def test_a_lesson_from_another_course_is_refused(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        # Otherwise passing a lesson id would be enough to attach media to
+        # somebody else's course.
+        course_id, lesson_id = self.lesson_of(client, instructor)
+        other = client.post(
+            f"{API}/courses",
+            json={**DRAFT, "slug": "otro-curso"},
+            headers=auth(instructor),
+        ).json()
+
+        response = client.post(
+            f"{API}/courses/{other['id']}/lessons/{lesson_id}/media",
+            json={"content_type": "video/mp4"},
+            headers=auth(instructor),
+        )
+
+        assert response.status_code == 404
+        assert course_id != other["id"]
+
+    def test_attaching_makes_the_media_reachable_to_an_enrolled_teacher(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        course_id, lesson_id = self.lesson_of(client, instructor)
+        prepared = client.post(
+            f"{API}/courses/{course_id}/lessons/{lesson_id}/media",
+            json={"content_type": "video/mp4"},
+            headers=auth(instructor),
+        ).json()
+
+        attached = client.put(
+            f"{API}/courses/{course_id}/lessons/{lesson_id}/media",
+            json={"reference": prepared["reference"]},
+            headers=auth(instructor),
+        )
+
+        assert attached.status_code == 204
+
+        client.post(f"{API}/courses/{course_id}/publish", headers=auth(instructor))
+        client.post(
+            "/api/v1/enrollments",
+            json={"course_slug": DRAFT["slug"]},
+            headers=auth(instructor),
+        )
+        lesson = client.get(
+            f"/api/v1/enrollments/me/{DRAFT['slug']}/lessons/{lesson_id}",
+            headers=auth(instructor),
+        ).json()
+
+        assert lesson.get("resource_ref") == prepared["reference"], lesson
+        # And the playable link is minted server-side, after enrolment.
+        assert lesson["media_url"]
+
+    def test_a_reference_outside_the_lesson_is_refused(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        """The check that makes the whole flow safe.
+
+        Without it an instructor could attach any key they could name — reading,
+        or overwriting, a course they cannot see.
+        """
+        course_id, lesson_id = self.lesson_of(client, instructor)
+
+        response = client.put(
+            f"{API}/courses/{course_id}/lessons/{lesson_id}/media",
+            json={"reference": "lessons/00000000-0000-0000-0000-000000000000/robado.mp4"},
+            headers=auth(instructor),
+        )
+
+        assert response.status_code == 403
+        assert response.json()["error"]["code"] == "foreign_media_reference"
+
+    def test_media_can_be_cleared(self, client: TestClient, instructor: str) -> None:
+        # How an instructor removes a video they uploaded by mistake.
+        course_id, lesson_id = self.lesson_of(client, instructor)
+        prepared = client.post(
+            f"{API}/courses/{course_id}/lessons/{lesson_id}/media",
+            json={"content_type": "video/mp4"},
+            headers=auth(instructor),
+        ).json()
+        client.put(
+            f"{API}/courses/{course_id}/lessons/{lesson_id}/media",
+            json={"reference": prepared["reference"]},
+            headers=auth(instructor),
+        )
+
+        cleared = client.put(
+            f"{API}/courses/{course_id}/lessons/{lesson_id}/media",
+            json={"reference": None},
+            headers=auth(instructor),
+        )
+
+        assert cleared.status_code == 204
+
+    def test_a_student_cannot_upload(self, client: TestClient, instructor: str) -> None:
+        course_id, lesson_id = self.lesson_of(client, instructor)
+        student = register(client, "alumna@colegio.edu", "Alumna")
+
+        response = client.post(
+            f"{API}/courses/{course_id}/lessons/{lesson_id}/media",
+            json={"content_type": "video/mp4"},
+            headers=auth(student),
+        )
+
+        assert response.status_code == 403

@@ -46,6 +46,18 @@ class CourseWriter(Protocol):
         body: str,
     ) -> UUID: ...
 
+    async def set_lesson_media(self, *, lesson_id: UUID, reference: str | None) -> None:
+        """Point a lesson at an uploaded object, or clear it."""
+        ...
+
+    async def lesson_belongs_to(self, *, lesson_id: UUID, course_id: UUID) -> bool:
+        """Whether this lesson is part of this course.
+
+        Checked before anything touches it: without this an instructor could
+        attach media to a lesson of somebody else's course by passing its id.
+        """
+        ...
+
     async def list_for_instructor(self, instructor_id: UUID) -> list[Course]:
         """Every course this instructor owns, drafts included.
 

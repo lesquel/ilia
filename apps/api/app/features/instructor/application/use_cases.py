@@ -1,6 +1,8 @@
 """Instructor use cases: authoring, review and roster."""
 
-from uuid import UUID
+from dataclasses import dataclass
+from datetime import timedelta
+from uuid import UUID, uuid4
 
 import structlog
 
@@ -13,6 +15,8 @@ from app.features.evaluation.domain.scoring import MAX_SCORE, MIN_SCORE
 from app.features.instructor.domain.authoring import can_unpublish, check_publish_readiness
 from app.features.instructor.domain.errors import (
     CourseNotReadyError,
+    ForeignMediaReferenceError,
+    LessonNotFoundError,
     ModuleNotFoundError,
     NotPublishedError,
     NotYourCourseError,
@@ -28,6 +32,8 @@ from app.features.instructor.domain.ports import (
     ScoreOverrideWriter,
     SubmissionForReview,
 )
+from app.features.storage.domain.ports import ObjectStorage
+from app.shared.errors import UnavailableError, ValidationError
 from app.shared.pagination import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, Page
 
 logger = structlog.get_logger()
@@ -339,3 +345,113 @@ class ListRoster:
     async def execute(self, *, user: User, course_id: UUID) -> list[RosterEntry]:
         course = await self._ownership.require(user=user, course_id=course_id)
         return await self._roster.roster(course.id)
+
+
+# What an instructor may upload. Not a free-for-all: the content type is signed
+# into the upload URL, and allowing `text/html` would mean a file served from
+# our own domain that we did not write.
+ALLOWED_MEDIA_TYPES: dict[str, str] = {
+    "video/mp4": "mp4",
+    "video/webm": "webm",
+    "audio/mpeg": "mp3",
+    "audio/mp4": "m4a",
+    "application/pdf": "pdf",
+}
+
+
+class UnsupportedMediaTypeError(ValidationError):
+    code = "unsupported_media_type"
+
+
+@dataclass(frozen=True)
+class MediaUpload:
+    url: str
+    reference: str
+    expires_in_seconds: int
+
+
+class PrepareLessonMedia:
+    """Hand back a URL the instructor's browser can upload straight to.
+
+    **The storage key is chosen here, never sent by the client.** A
+    client-supplied key is a client that can write over another course's video,
+    or read one back by asking for an upload URL to it.
+
+    The key carries a random segment so replacing a lesson's media does not
+    reuse the same URL — otherwise a browser that cached the old file would keep
+    playing it after the instructor swapped it.
+    """
+
+    def __init__(
+        self, *, courses: CourseRepository, writer: CourseWriter, storage: ObjectStorage
+    ) -> None:
+        self._ownership = CourseOwnership(courses=courses)
+        self._writer = writer
+        self._storage = storage
+
+    async def execute(
+        self,
+        *,
+        user: User,
+        course_id: UUID,
+        lesson_id: UUID,
+        content_type: str,
+        ttl: timedelta,
+    ) -> MediaUpload:
+        extension = ALLOWED_MEDIA_TYPES.get(content_type)
+        if extension is None:
+            raise UnsupportedMediaTypeError(
+                f"Unsupported media type {content_type!r}. "
+                f"Allowed: {', '.join(sorted(ALLOWED_MEDIA_TYPES))}"
+            )
+
+        course = await self._ownership.require(user=user, course_id=course_id)
+        if not await self._writer.lesson_belongs_to(lesson_id=lesson_id, course_id=course.id):
+            raise LessonNotFoundError()
+
+        reference = f"lessons/{lesson_id}/{uuid4().hex}.{extension}"
+
+        try:
+            signed = self._storage.write_url(reference, content_type=content_type, ttl=ttl)
+        except NotImplementedError as exc:
+            # The development adapter cannot issue uploads. An instructor
+            # deserves "storage is not configured" rather than a 500 that tells
+            # them nothing and looks like their file was the problem.
+            raise UnavailableError(
+                "Uploads need object storage configured. Contact an administrator"
+            ) from exc
+
+        return MediaUpload(
+            url=signed.url,
+            reference=reference,
+            expires_in_seconds=signed.expires_in_seconds,
+        )
+
+
+class AttachLessonMedia:
+    """Point the lesson at an object the browser has finished uploading.
+
+    Separate from `PrepareLessonMedia` because the upload happens between them,
+    directly against the storage: we only learn it succeeded when the browser
+    says so.
+
+    The reference is checked to be inside this lesson's own prefix. Without that
+    an instructor could attach any key they could name — including one belonging
+    to a course they cannot see.
+    """
+
+    def __init__(self, *, courses: CourseRepository, writer: CourseWriter) -> None:
+        self._ownership = CourseOwnership(courses=courses)
+        self._writer = writer
+
+    async def execute(
+        self, *, user: User, course_id: UUID, lesson_id: UUID, reference: str | None
+    ) -> None:
+        course = await self._ownership.require(user=user, course_id=course_id)
+        if not await self._writer.lesson_belongs_to(lesson_id=lesson_id, course_id=course.id):
+            raise LessonNotFoundError()
+
+        if reference is not None and not reference.startswith(f"lessons/{lesson_id}/"):
+            raise ForeignMediaReferenceError()
+
+        await self._writer.set_lesson_media(lesson_id=lesson_id, reference=reference)

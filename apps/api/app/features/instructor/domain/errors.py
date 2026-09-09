@@ -61,3 +61,25 @@ class PublishedSlugChangeError(ConflictError):
         super().__init__(
             "A published course's address cannot change. Withdraw it from the catalogue first"
         )
+
+
+class LessonNotFoundError(NotFoundError):
+    """No such lesson in this course."""
+
+    code = "lesson_not_found"
+
+    def __init__(self) -> None:
+        super().__init__("That lesson is not part of this course")
+
+
+class ForeignMediaReferenceError(PermissionDeniedError):
+    """The reference points outside this lesson.
+
+    Refused rather than ignored: an instructor attaching a key they could merely
+    name would be reading, or overwriting, a course they cannot see.
+    """
+
+    code = "foreign_media_reference"
+
+    def __init__(self) -> None:
+        super().__init__("That media reference does not belong to this lesson")

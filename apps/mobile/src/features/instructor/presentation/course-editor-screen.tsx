@@ -23,6 +23,7 @@ import {
   useUnpublishCourse,
 } from '@/features/instructor/application/use-instructor';
 import { CourseDetailsForm } from '@/features/instructor/presentation/course-details-form';
+import { LessonMediaControl } from '@/features/instructor/presentation/lesson-media-control';
 import { STATUS_LABELS, canPublish } from '@/features/instructor/domain/entities';
 
 export function CourseEditorScreen() {
@@ -177,12 +178,17 @@ export function CourseEditorScreen() {
             </Text>
           ) : (
             module.lessons.map((lesson) => (
-              <Text
-                key={lesson.id}
-                style={[styles.lesson, { color: theme.colors.neutral[700] }]}
-              >
-                • {lesson.title} · {formatDuration(lesson.durationSeconds)}
-              </Text>
+              <View key={lesson.id} style={styles.lessonRow}>
+                <Text style={[styles.lesson, { color: theme.colors.neutral[700] }]}>
+                  • {lesson.title} · {formatDuration(lesson.durationSeconds)}
+                  {lesson.hasMedia ? ' · con material' : ''}
+                </Text>
+                <LessonMediaControl
+                  courseId={course.id}
+                  lessonId={lesson.id}
+                  hasMedia={lesson.hasMedia}
+                />
+              </View>
             ))
           )}
 
@@ -322,6 +328,7 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 20, fontWeight: '600', marginTop: 13.6 },
   module: { borderWidth: 1, padding: 13.6, gap: 6.8 },
   moduleTitle: { fontSize: 16, fontWeight: '600' },
+  lessonRow: { gap: 3.4, marginBottom: 6.8 },
   lesson: { fontSize: 14 },
   composer: { gap: 6.8, marginTop: 6.8 },
   input: { borderWidth: 1, paddingHorizontal: 10.2, paddingVertical: 10.2, fontSize: 15 },
