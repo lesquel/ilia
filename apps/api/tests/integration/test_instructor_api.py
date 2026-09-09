@@ -472,9 +472,7 @@ class TestCourseAddress:
         assert response.status_code == 200
         assert response.json()["title"] == "Prompting para docentes (2026)"
 
-    def test_withdrawing_it_reopens_the_address(
-        self, client: TestClient, instructor: str
-    ) -> None:
+    def test_withdrawing_it_reopens_the_address(self, client: TestClient, instructor: str) -> None:
         # The way through: the breakage becomes a decision somebody took.
         course = self.build_complete_course(client, instructor)
         client.post(f"{API}/courses/{course['id']}/publish", headers=auth(instructor))
