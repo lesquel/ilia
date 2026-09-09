@@ -215,7 +215,13 @@ export function ForumScreen() {
         ) : (
           <EmptyState
             title="Todavía no hay discusiones"
-            hint="Sé el primero en preguntar. A alguien más le va a servir."
+            // Inviting someone to ask a question two lines under "tu plan no te
+            // deja publicar" is the screen arguing with itself.
+            hint={
+              canPost
+                ? 'Sé el primero en preguntar. A alguien más le va a servir.'
+                : 'Cuando alguien pregunte, vas a poder leer la conversación.'
+            }
           />
         )
       }

@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -66,7 +66,12 @@ export function LabScreen() {
     );
   }
 
-  const ready = canSubmit(activity, prompt) && !submit.isPending;
+  // `undefined` while entitlements load, `null` when the plan is unlimited.
+  const quotaLeft = entitlements?.evaluationsRemaining ?? null;
+  const outOfQuota = quotaLeft === 0;
+  const outOfAttempts = activity.attemptsLeft === 0;
+
+  const ready = canSubmit(activity, prompt) && !outOfQuota && !submit.isPending;
   const remaining = MAX_PROMPT_CHARS - prompt.length;
 
   const send = () => {
@@ -181,9 +186,8 @@ export function LabScreen() {
             {activity.maxAttempts === 1 ? 'intento' : 'intentos'} disponibles
             {/* The quota, before the wall. A teacher should see the limit
                 coming, not discover it on submit. */}
-            {entitlements?.evaluationsRemaining !== null &&
-            entitlements?.evaluationsRemaining !== undefined
-              ? ` · ${entitlements.evaluationsRemaining} evaluaciones este mes`
+            {quotaLeft !== null
+              ? ` · ${quotaLeft} ${quotaLeft === 1 ? 'evaluación' : 'evaluaciones'} este mes`
               : ''}
           </Text>
           <Text
@@ -205,10 +209,33 @@ export function LabScreen() {
           </Text>
         ) : null}
 
-        {activity.attemptsLeft === 0 ? (
+        {outOfAttempts ? (
           <Text style={[styles.error, { color: theme.colors.neutral[600] }]}>
             Ya usaste todos los intentos de esta actividad.
           </Text>
+        ) : null}
+
+        {/* Above the button, not after pressing it. Letting a teacher write two
+            hundred words and only then telling her she cannot send them is the
+            same mistake as failing her for a requirement nobody mentioned. */}
+        {outOfQuota && !outOfAttempts ? (
+          <View
+            style={[
+              styles.quotaGate,
+              { borderColor: theme.colors.divider, borderRadius: theme.radius.md },
+            ]}
+          >
+            <Text style={[styles.error, { color: theme.colors.text }]}>
+              Se te acabaron las evaluaciones de este mes.
+            </Text>
+            <Text style={[styles.metaText, { color: theme.colors.neutral[600] }]}>
+              El cupo se renueva el día 1. Lo que escribas ahora se guarda como borrador y te
+              espera.
+            </Text>
+            <Link href="/plans" style={[styles.planLink, { color: theme.colors.accent }]}>
+              Ver planes →
+            </Link>
+          </View>
         ) : null}
 
         <Pressable
@@ -335,4 +362,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
   },
+  quotaGate: { borderWidth: 1, padding: 13.6, gap: 3.4 },
+  planLink: { fontSize: 14, fontWeight: '600', marginTop: 3.4 },
 });
