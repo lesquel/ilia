@@ -11,6 +11,46 @@ Complementaria de la Alcaldía.
 > El nombre **ILIA** reemplaza a `PRAXIS.AI`, que era el placeholder usado en el
 > mockup y en las versiones 0.1 del PRD y el TRD.
 
+## Desplegar
+
+```sh
+cp docs/deploy.env.example .env   # y completá los valores
+docker compose up -d --build
+```
+
+Levanta cuatro cosas en orden: la base, las **migraciones hasta terminar**, la
+API y el cliente web. Nada arranca hasta que lo que necesita está sano.
+
+### Decisiones
+
+**Las migraciones son un contenedor aparte que corre una vez.** Si la API
+migrara al arrancar, N réplicas competirían por alterar las mismas tablas.
+
+**Los contenedores corren sin root y con filesystem de solo lectura.** Verificado:
+un `touch` dentro de la API se rechaza. Si algo necesitara escribir, es un bug
+que conviene encontrar acá y no en producción.
+
+**Un solo contenedor de API.** La cola de evaluación vive dentro del proceso y
+el limitador de intentos cuenta en su memoria: escalar a más réplicas necesita
+antes la decisión del almacén compartido (TRD §5.2). Está dicho en el compose.
+
+**La URL de la API se hornea en el bundle web.** Expo inserta las variables
+`EXPO_PUBLIC_*` en tiempo de build, así que es una imagen por entorno.
+Cambiarla implica reconstruir — es la consecuencia honesta de un export
+estático, no algo que se arregle con un placeholder que nadie recuerda
+reemplazar.
+
+**El healthcheck usa `/health/ready`, no `/health`.** Son preguntas distintas:
+`/health` responde «el proceso vive» y no depende de nada; `/health/ready`
+consulta la base. Un fallo en el primero significa reiniciame; en el segundo,
+dejá de mandarme tráfico **pero no me reinicies**, porque el problema no está
+acá. Confundirlos es cómo un parpadeo de la base se vuelve un bucle de
+reinicios en todas las réplicas a la vez.
+
+`/health/ready` también informa qué proveedor de LLM y de storage está activo —
+nombres, nunca claves. Ver `local-stub` ahí es cómo se detecta un despliegue que
+no está evaluando nada de verdad.
+
 ## Estado
 
 Fase temprana. La documentación de requisitos está completa (v0.1) y hay un

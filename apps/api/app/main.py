@@ -131,8 +131,21 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # this cannot mount by accident.
     if getattr(app.state.storage, "provider", "") == "local":
         directory = Path(settings.storage_local_dir)
-        directory.mkdir(parents=True, exist_ok=True)
-        app.mount("/media", StaticFiles(directory=directory), name="media")
+        try:
+            directory.mkdir(parents=True, exist_ok=True)
+            app.mount("/media", StaticFiles(directory=directory), name="media")
+        except OSError:
+            # A read-only filesystem, which is what a container should have.
+            # Refusing to boot over a development-only convenience would take
+            # the whole API down for a storage setting that is already wrong;
+            # media calls fail with an honest 503 instead.
+            structlog.get_logger().warning(
+                "local_media_directory_unavailable",
+                detail=(
+                    "Could not create the local media directory. Set "
+                    "ILIA_STORAGE_PROVIDER for anything but local development"
+                ),
+            )
 
     app.include_router(health_router)
     app.include_router(auth_router, prefix=settings.api_prefix)

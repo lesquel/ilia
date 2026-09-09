@@ -1,0 +1,21 @@
+# Everything the image does not need, and some things it must not have.
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Local development only. `media/` is the dev storage adapter's directory, and
+# shipping someone's throwaway uploads inside an image is how a test file ends
+# up in production.
+media/
+docker/
+
+# Credentials never belong in a build context: anything copied here can be read
+# back out of the image's layers.
+.env
+.env.*
+!.env.example
+
+tests/
