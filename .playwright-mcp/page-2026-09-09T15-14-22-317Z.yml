@@ -1,0 +1,7 @@
+- generic [ref=f68e9]:
+  - generic [ref=f68e10]: No encontramos esta página
+  - generic [ref=f68e11]: El enlace puede estar viejo o mal escrito.
+  - link "Ir al catálogo →" [ref=f68e12] [cursor=pointer]:
+    - /url: /catalog
+  - link "Volver al inicio" [ref=f68e13] [cursor=pointer]:
+    - /url: /

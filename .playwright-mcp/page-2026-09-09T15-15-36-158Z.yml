@@ -1,0 +1,13 @@
+- generic [ref=f73e10]:
+  - generic [ref=f73e12]:
+    - generic [ref=f73e13]: Explorar cursos
+    - generic [ref=f73e14]: Aprendé haciendo. Cada módulo termina en una actividad, no en un cuestionario.
+    - textbox "Buscar un curso" [ref=f73e15]
+    - generic [ref=f73e16]:
+      - button "Todos" [ref=f73e17] [cursor=pointer]
+      - button "Básico" [ref=f73e19] [cursor=pointer]
+      - button "Intermedio" [ref=f73e21] [cursor=pointer]
+      - button "Experto" [ref=f73e23] [cursor=pointer]
+  - generic [ref=f73e25]:
+    - progressbar [ref=f73e26]
+    - generic [ref=f73e31]: Buscando cursos…

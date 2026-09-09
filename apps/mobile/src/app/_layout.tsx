@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import { SafeAreaView, useColorScheme } from 'react-native';
 
 import { createQueryClient } from '@/core/api/query-client';
+import { ErrorBoundary } from '@/core/ui/error-boundary';
 import { palette } from '@/core/theme';
 import { AccountBar, installAuthTokenProvider } from '@/features/auth';
 
@@ -18,7 +19,10 @@ export default function RootLayout() {
   const queryClient = useMemo(() => createQueryClient(), []);
 
   return (
-    <QueryClientProvider client={queryClient}>
+    // Outside the providers on purpose: if the theme or the query client is
+    // what broke, a boundary inside them cannot render anything either.
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
         {/* Above the Stack, so it survives navigation. Signing out is the only
@@ -31,6 +35,7 @@ export default function RootLayout() {
           }}
         />
       </SafeAreaView>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }

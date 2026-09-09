@@ -169,6 +169,34 @@ for h in $(rg -o 'export function (use[A-Z]\w+)' -r '$1' -g '*.ts' src/features 
 done
 ```
 
+## Responsive
+
+Medido, no supuesto: a 375 px de ancho ninguna pantalla desborda
+horizontalmente, y a 1440 el catálogo usa sus tres columnas.
+
+El patrón es `maxWidth` + `alignSelf: 'center'` + `width: '100%'`: el contenido
+se centra y se encoge solo. Los `breakpoints` del mockup se usan donde el
+**layout cambia de forma** —el catálogo pasa de 1 a 2 a 3 columnas—, no donde
+solo hace falta un ancho de lectura cómodo. Un `maxWidth` no es un ancho fijo.
+
+Para verificarlo:
+
+```js
+// en la consola del navegador, con el viewport en 375 px
+const d = document.documentElement;
+d.scrollWidth - d.clientWidth  // 0 = no desborda
+```
+
+## Manejo de fallos
+
+- `ErrorBoundary` (`core/ui/error-boundary.tsx`) envuelve la app **por fuera**
+  de los providers: si lo que se rompió es el tema o el query client, un límite
+  por dentro tampoco podría renderizar. Su fallback no usa hooks ni tokens a
+  propósito — un fallback que puede romperse no es un fallback.
+- `app/+not-found.tsx` reemplaza el default de expo-router, que estaba en inglés
+  y enlazaba al sitemap interno: mal idioma para una docente que siguió un
+  enlace viejo, y expone la forma de la app a quien tipee mal una URL.
+
 ## Tests del cliente
 
 `npm test` (vitest). Cubren **solo la capa de dominio**, que es pura por
