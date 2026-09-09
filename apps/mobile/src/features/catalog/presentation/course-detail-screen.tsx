@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from 'expo-router';
+import { Link, useLocalSearchParams } from 'expo-router';
 import type { ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -178,6 +178,46 @@ function ModuleBlock({
           >
             {row}
           </Pressable>
+        );
+      })}
+
+      {/* The activity, last, because it is what the lessons lead up to. Without
+          this row the activity existed in the database and nothing in the
+          product pointed at it: a teacher finished the lessons and had no way
+          to reach the exercise the course was built around. */}
+      {module.activities.map((activity) => {
+        const row = (
+          <View style={styles.lesson}>
+            <Text style={[styles.check, { color: theme.colors.accent }]}>◆</Text>
+            <Text style={[styles.lessonKind, { color: theme.colors.accentRamp[700] }]}>
+              PRÁCTICA
+            </Text>
+            <Text style={[styles.lessonTitle, { color: theme.colors.text }]}>
+              {activity.title}
+            </Text>
+            <Text style={[styles.lessonDuration, { color: theme.colors.neutral[600] }]}>
+              {activity.maxAttempts} {activity.maxAttempts === 1 ? 'intento' : 'intentos'}
+            </Text>
+          </View>
+        );
+
+        // Same rule as the lessons: only interactive for someone enrolled. A
+        // visitor sees that the module ends in an exercise, which is a reason
+        // to enrol rather than a button that refuses them.
+        if (!onLessonPress) {
+          return <View key={activity.id}>{row}</View>;
+        }
+
+        return (
+          <Link key={activity.id} href={`/lab/${activity.id}`} asChild>
+            <Pressable
+              accessibilityRole="link"
+              accessibilityLabel={`Actividad: ${activity.title}`}
+              style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+            >
+              {row}
+            </Pressable>
+          </Link>
         );
       })}
     </View>

@@ -16,9 +16,11 @@ from app.features.catalog.domain.entities import (
     LessonKind,
     Level,
     Module,
+    ModuleActivity,
     Page,
     Slug,
 )
+from app.features.evaluation.infrastructure.models import ActivityModel
 
 from .cursor import decode_cursor, encode_cursor
 from .models import CourseModel, LessonModel, ModuleModel
@@ -142,7 +144,7 @@ class SqlAlchemyCourseRepository:
             return None
 
         course, instructor_name = row
-        return _to_entity(course, instructor_name)
+        return _to_entity(course, instructor_name, await self._activities_of(course))
 
     async def get_published_by_slug(self, slug: Slug) -> Course | None:
         statement = (
@@ -166,10 +168,47 @@ class SqlAlchemyCourseRepository:
             return None
 
         course, instructor_name = row
-        return _to_entity(course, instructor_name)
+        return _to_entity(course, instructor_name, await self._activities_of(course))
+
+    async def _activities_of(self, course: CourseModel) -> dict[UUID, list[ModuleActivity]]:
+        """The lab activities of a course, grouped by module.
+
+        A separate query rather than a relationship: activities belong to the
+        evaluation feature's tables, and wiring the two ORM models together
+        would tie the catalog's schema to another feature's.
+        """
+        module_ids = [module.id for module in course.modules]
+        if not module_ids:
+            return {}
+
+        async with self._db.session() as session:
+            rows = (
+                await session.execute(
+                    select(
+                        ActivityModel.module_id,
+                        ActivityModel.id,
+                        ActivityModel.title,
+                        ActivityModel.max_attempts,
+                    )
+                    .where(ActivityModel.module_id.in_(module_ids))
+                    .order_by(ActivityModel.title)
+                )
+            ).all()
+
+        grouped: dict[UUID, list[ModuleActivity]] = {}
+        for module_id, activity_id, title, max_attempts in rows:
+            grouped.setdefault(module_id, []).append(
+                ModuleActivity(id=activity_id, title=title, max_attempts=max_attempts)
+            )
+        return grouped
 
 
-def _to_entity(row: CourseModel, instructor_name: str) -> Course:
+def _to_entity(
+    row: CourseModel,
+    instructor_name: str,
+    activities: dict[UUID, list[ModuleActivity]] | None = None,
+) -> Course:
+    activities = activities or {}
     return Course(
         id=row.id,
         slug=Slug(row.slug),
@@ -206,6 +245,7 @@ def _to_entity(row: CourseModel, instructor_name: str) -> Course:
                     )
                     for lesson in module.lessons
                 ],
+                activities=activities.get(module.id, []),
             )
             for module in row.modules
         ],

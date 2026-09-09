@@ -1,5 +1,10 @@
 import { HttpClient, httpClient } from '@/core/api/http-client';
 import { mapPage, type Page, type PageDto } from '@/core/api/page';
+import {
+  toCourse as toCatalogCourse,
+  type CourseDetailDto,
+} from '@/features/catalog/data/dto';
+import type { Course } from '@/features/catalog/domain/entities';
 import type { Level } from '@/features/catalog/domain/entities';
 import type {
   AuthoredCourse,
@@ -66,6 +71,7 @@ export interface InstructorRepository {
   inbox(courseId?: string, offset?: number): Promise<Page<ReviewItem>>;
   override(submissionId: string, total: number, reason: string): Promise<void>;
   roster(courseId: string): Promise<RosterEntry[]>;
+  detail(courseId: string): Promise<Course>;
   addActivity(courseId: string, moduleId: string, input: ActivityInput): Promise<string>;
   prepareMedia(courseId: string, lessonId: string, contentType: string): Promise<MediaUpload>;
   attachMedia(courseId: string, lessonId: string, reference: string | null): Promise<void>;
@@ -280,6 +286,16 @@ export class HttpInstructorRepository implements InstructorRepository {
     );
 
     return dto.id;
+  }
+
+  async detail(courseId: string): Promise<Course> {
+    // The instructor's own endpoint, not the public catalogue: that one answers
+    // 404 for a draft, which is exactly what is being edited here.
+    return toCatalogCourse(
+      await this.http.get<CourseDetailDto>(
+        `/instructor/courses/${encodeURIComponent(courseId)}/detail`,
+      ),
+    );
   }
 }
 

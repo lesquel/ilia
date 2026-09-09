@@ -18,6 +18,7 @@ import { formatDuration } from '@/features/catalog/domain/entities';
 import {
   useAddLesson,
   useAddModule,
+  useAuthoredCourseDetail,
   useAuthoredCourses,
   usePublishCourse,
   useUnpublishCourse,
@@ -35,9 +36,10 @@ export function CourseEditorScreen() {
   const { courses, isLoading, error } = useAuthoredCourses();
   const course = courses.find((item) => item.id === id) ?? null;
 
-  // The syllabus comes from the catalog detail, which is the same shape the
-  // student sees — so an instructor edits exactly what will be read.
-  const { course: detail } = useCourse(course?.slug ?? '');
+  // The instructor's own endpoint, not the catalog's. The catalog answers 404
+  // for a draft — which is exactly what is being edited here — so the syllabus
+  // stayed empty no matter how much the instructor added.
+  const { course: detail } = useAuthoredCourseDetail(id);
 
   const publish = usePublishCourse(id);
   const unpublish = useUnpublishCourse(id);

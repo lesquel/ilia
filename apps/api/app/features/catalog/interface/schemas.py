@@ -15,11 +15,24 @@ class LessonResponse(BaseModel):
     has_media: bool = False
 
 
+class ActivityResponse(BaseModel):
+    """What the syllabus says about a lab activity.
+
+    Title and attempts only. The statement and the checks are the exercise
+    itself, and reading them belongs behind enrolment.
+    """
+
+    id: UUID
+    title: str
+    max_attempts: int
+
+
 class ModuleResponse(BaseModel):
     id: UUID
     title: str
     position: int
     lessons: list[LessonResponse]
+    activities: list[ActivityResponse] = []
 
     @classmethod
     def from_entity(cls, module: Module) -> "ModuleResponse":
@@ -39,6 +52,12 @@ class ModuleResponse(BaseModel):
                 # Ordering is the domain's answer, not the database's. The query
                 # already sorts, but the rule belongs where it can be tested.
                 for lesson in module.ordered_lessons
+            ],
+            activities=[
+                ActivityResponse(
+                    id=activity.id, title=activity.title, max_attempts=activity.max_attempts
+                )
+                for activity in module.activities
             ],
         )
 

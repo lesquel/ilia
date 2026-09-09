@@ -544,6 +544,21 @@ obtuvo una buena respuesta por suerte y quien escribió una buena instrucción n
 merecen la misma nota. Los pesos son relativos y se normalizan al calificar, así
 que quitar una dimensión no reescala la nota de nadie.
 
+## El temario anuncia la actividad
+
+`Module` lleva `activities` además de `lessons`. Sin eso la actividad existía en
+la base y **nada en el producto apuntaba a ella**: una docente terminaba las
+lecciones y no tenía forma de llegar al ejercicio para el que se armó el curso.
+
+La respuesta trae solo **título e intentos**, nunca el enunciado ni las
+comprobaciones. Eso es el ejercicio en sí, y leerlo va detrás de la inscripción.
+A quien todavía no se inscribió, ver que el módulo termina en una práctica le da
+un motivo para inscribirse — no un botón que lo rechaza.
+
+Las actividades se cargan con una consulta aparte y no con una relación del ORM:
+viven en las tablas de `evaluation`, y atar los dos modelos acoplaría el esquema
+del catálogo al de otra feature.
+
 ### Lo que todavía es provisorio
 
 - **El proveedor de LLM se configura, no se elige en el código.** Sin

@@ -29,11 +29,20 @@ export interface Lesson {
   hasMedia: boolean;
 }
 
+/** A lab activity, as the syllabus announces it. */
+export interface ModuleActivity {
+  id: string;
+  title: string;
+  maxAttempts: number;
+}
+
 export interface Module {
   id: string;
   title: string;
   position: number;
   lessons: Lesson[];
+  /** What the module ends in. Without these nothing pointed at the exercise. */
+  activities: ModuleActivity[];
 }
 
 export interface Course extends CourseSummary {

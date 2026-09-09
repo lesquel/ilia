@@ -16,6 +16,7 @@ from app.features.auth.domain.entities import Role, User
 from app.features.auth.interface.dependencies import SettingsDep, require_role
 from app.features.catalog.domain.entities import Course, LessonKind, Level
 from app.features.catalog.interface.router import CoursesDep
+from app.features.catalog.interface.schemas import CourseDetailResponse
 from app.features.evaluation.domain.rubric import DimensionKind
 from app.features.instructor.application.use_cases import (
     AddLesson,
@@ -30,6 +31,7 @@ from app.features.instructor.application.use_cases import (
     OverrideScore,
     PrepareLessonMedia,
     PublishCourse,
+    ReadAuthoredCourse,
     UnpublishCourse,
     UpdateCourse,
 )
@@ -521,3 +523,19 @@ async def add_activity(
     )
 
     return CreatedResponse(id=activity_id)
+
+
+@router.get("/courses/{course_id}/detail", response_model=CourseDetailResponse)
+async def read_authored_course(
+    course_id: UUID,
+    user: Instructor,
+    courses: CoursesDep,
+) -> CourseDetailResponse:
+    """The syllabus of a course you own, published or not.
+
+    The same shape the catalogue returns, so the editor renders exactly what a
+    teacher will read — but reachable while the course is still a draft, which
+    is the whole point of a draft.
+    """
+    course = await ReadAuthoredCourse(courses=courses).execute(user=user, course_id=course_id)
+    return CourseDetailResponse.from_course(course)

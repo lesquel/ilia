@@ -31,11 +31,18 @@ export interface LessonDto {
   has_media?: boolean;
 }
 
+export interface ActivityDto {
+  id: string;
+  title: string;
+  max_attempts: number;
+}
+
 export interface ModuleDto {
   id: string;
   title: string;
   position: number;
   lessons: LessonDto[];
+  activities?: ActivityDto[];
 }
 
 export interface CourseDetailDto extends CourseSummaryDto {
@@ -84,6 +91,11 @@ function toModule(dto: ModuleDto): Module {
       position: lesson.position,
       durationSeconds: lesson.duration_seconds,
       hasMedia: lesson.has_media ?? false,
+    })),
+    activities: (dto.activities ?? []).map((activity) => ({
+      id: activity.id,
+      title: activity.title,
+      maxAttempts: activity.max_attempts,
     })),
   };
 }

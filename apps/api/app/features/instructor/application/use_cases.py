@@ -577,3 +577,23 @@ class CreateActivity:
             rubric_name=cleaned_title,
             dimensions=payload,
         )
+
+
+class ReadAuthoredCourse:
+    """The full course as its author sees it, drafts included.
+
+    Separate from the public catalogue on purpose. The editor used to read the
+    syllabus from `GET /catalog/courses/{slug}`, which answers 404 for anything
+    unpublished — so an instructor building a draft watched their modules and
+    lessons vanish as they added them, and could reasonably conclude nothing was
+    being saved.
+
+    The public endpoint is right to hide drafts. It was the wrong endpoint for
+    the person writing one.
+    """
+
+    def __init__(self, *, courses: CourseRepository) -> None:
+        self._ownership = CourseOwnership(courses=courses)
+
+    async def execute(self, *, user: User, course_id: UUID) -> Course:
+        return await self._ownership.require(user=user, course_id=course_id)

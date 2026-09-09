@@ -875,3 +875,74 @@ class TestAuthoringActivities:
         )
 
         assert response.status_code == 403
+
+
+class TestAuthoredSyllabus:
+    """Reading the syllabus of a course you are still writing.
+
+    The editor used to read it from the public catalogue, which answers 404 for
+    anything unpublished. An instructor adding modules to a draft watched them
+    vanish and could reasonably conclude nothing was being saved.
+    """
+
+    def draft_with_a_module(self, client: TestClient, token: str) -> tuple[str, str]:
+        course = client.post(f"{API}/courses", json=DRAFT, headers=auth(token)).json()
+        module = client.post(
+            f"{API}/courses/{course['id']}/modules",
+            json={"title": "Planificar una semana"},
+            headers=auth(token),
+        ).json()
+        return course["id"], module["id"]
+
+    def test_a_draft_syllabus_is_readable_by_its_author(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        course_id, _ = self.draft_with_a_module(client, instructor)
+
+        response = client.get(f"{API}/courses/{course_id}/detail", headers=auth(instructor))
+
+        assert response.status_code == 200
+        assert [m["title"] for m in response.json()["modules"]] == ["Planificar una semana"]
+
+    def test_the_public_catalogue_still_hides_it(self, client: TestClient, instructor: str) -> None:
+        # The public endpoint was never wrong. It was the wrong endpoint for the
+        # person writing the draft.
+        self.draft_with_a_module(client, instructor)
+
+        assert client.get(f"/api/v1/catalog/courses/{DRAFT['slug']}").status_code == 404
+
+    def test_another_instructor_cannot_read_it(self, client: TestClient, instructor: str) -> None:
+        course_id, _ = self.draft_with_a_module(client, instructor)
+        other = register(client, "otra@instituto.edu", "Otra")
+        promote("otra@instituto.edu", Role.INSTRUCTOR)
+
+        response = client.get(f"{API}/courses/{course_id}/detail", headers=auth(other))
+
+        assert response.status_code == 403
+
+    def test_a_student_cannot_read_it(self, client: TestClient, instructor: str) -> None:
+        course_id, _ = self.draft_with_a_module(client, instructor)
+        student = register(client, "alumna3@colegio.edu", "Alumna")
+
+        assert (
+            client.get(f"{API}/courses/{course_id}/detail", headers=auth(student)).status_code
+            == 403
+        )
+
+    def test_lessons_and_their_media_flag_travel_with_it(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        # The editor needs `has_media` to know whether to offer "subir" or
+        # "reemplazar", and it cannot get it from an endpoint that 404s.
+        course_id, module_id = self.draft_with_a_module(client, instructor)
+        client.post(
+            f"{API}/courses/{course_id}/modules/{module_id}/lessons",
+            json={"title": "Anatomía de un prompt", "kind": "text", "duration_seconds": 300},
+            headers=auth(instructor),
+        )
+
+        modules = client.get(f"{API}/courses/{course_id}/detail", headers=auth(instructor)).json()[
+            "modules"
+        ]
+
+        assert modules[0]["lessons"][0]["has_media"] is False

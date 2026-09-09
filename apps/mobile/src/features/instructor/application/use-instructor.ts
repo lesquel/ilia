@@ -225,3 +225,24 @@ export function useAddActivity(
     },
   });
 }
+
+/**
+ * The syllabus of a course you are writing.
+ *
+ * Not `useCourse(slug)` from the catalog: that endpoint answers 404 for
+ * anything unpublished, so a draft's modules and lessons never appeared and an
+ * instructor could reasonably conclude nothing was being saved.
+ */
+export function useAuthoredCourseDetail(
+  courseId: string,
+  repository: InstructorRepository = instructorRepository,
+) {
+  const query = useQuery({
+    queryKey: [...instructorKeys.courses, courseId, 'detail'],
+    queryFn: () => repository.detail(courseId),
+    enabled: Boolean(courseId),
+    retry: false,
+  });
+
+  return { course: query.data ?? null, isLoading: query.isLoading, error: query.error };
+}

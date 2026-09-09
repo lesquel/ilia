@@ -80,12 +80,30 @@ class Lesson:
     has_media: bool = False
 
 
+@dataclass(frozen=True)
+class ModuleActivity:
+    """A lab activity, as the syllabus announces it.
+
+    Title and attempts only — never the statement or the checks. Those are the
+    exercise itself, and reading them belongs behind enrolment. What the public
+    syllabus needs to say is that the module ends in something you do.
+    """
+
+    id: UUID
+    title: str
+    max_attempts: int
+
+
 @dataclass
 class Module:
     id: UUID
     title: str
     position: int
     lessons: list[Lesson] = field(default_factory=list)
+    # Without this the activity existed and nothing in the product pointed at
+    # it: a teacher finished the lessons and had no way to reach the exercise
+    # the whole course was built around.
+    activities: list[ModuleActivity] = field(default_factory=list)
 
     @property
     def ordered_lessons(self) -> list[Lesson]:
