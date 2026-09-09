@@ -51,6 +51,25 @@ function ErrorFallback({ onRetry }: { onRetry: () => void }) {
       <Pressable accessibilityRole="button" onPress={onRetry} style={styles.button}>
         <Text style={styles.buttonLabel}>Reintentar</Text>
       </Pressable>
+
+      {/* A way out, because retrying re-renders the same component: if the bug
+          is deterministic rather than a blip, the only button on the screen
+          does nothing and the person is stuck.
+
+          A hard navigation instead of the router: whatever broke might be the
+          router, and an escape hatch that depends on the thing that failed is
+          not an escape hatch. */}
+      {typeof window !== 'undefined' ? (
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => {
+            window.location.href = '/';
+          }}
+          style={styles.secondary}
+        >
+          <Text style={styles.secondaryLabel}>Volver al inicio</Text>
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -82,4 +101,6 @@ const styles = StyleSheet.create({
     marginTop: 6.8,
   },
   buttonLabel: { color: '#f2f2f3', fontSize: 16, fontWeight: '600' },
+  secondary: { paddingVertical: 10.2, paddingHorizontal: 20.4, minHeight: 44, justifyContent: 'center' },
+  secondaryLabel: { color: '#4a4d50', fontSize: 15, fontWeight: '600' },
 });

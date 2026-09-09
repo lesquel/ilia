@@ -233,6 +233,17 @@ d.scrollWidth - d.clientWidth  // 0 = no desborda
   de los providers: si lo que se rompió es el tema o el query client, un límite
   por dentro tampoco podría renderizar. Su fallback no usa hooks ni tokens a
   propósito — un fallback que puede romperse no es un fallback.
+  Verificado atrapando un error real: una ruta temporal que lanza al renderizar.
+  **No sirve romper algo global** —`Array.prototype.map`, por ejemplo— porque eso
+  rompe también el fallback, y el resultado es una pantalla en blanco que parece
+  un fallo del boundary y es un artefacto de la prueba.
+
+  El fallback ofrece dos salidas. «Reintentar» sirve para un parpadeo; si el bug
+  es determinístico, reintentar redibuja el mismo componente roto y la persona
+  queda atrapada. Por eso hay además «Volver al inicio», con navegación dura y
+  no con el router: lo que se rompió podría ser el router, y una salida de
+  emergencia que depende de lo que falló no es una salida de emergencia.
+
 - `app/+not-found.tsx` reemplaza el default de expo-router, que estaba en inglés
   y enlazaba al sitemap interno: mal idioma para una docente que siguió un
   enlace viejo, y expone la forma de la app a quien tipee mal una URL.
