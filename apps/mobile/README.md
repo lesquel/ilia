@@ -156,6 +156,24 @@ rg -oP '@router\.(get|post|patch|put|delete)\(\s*"\K[^"]+' apps/api/app/features
 Ojo con los falsos positivos: una URL con query string (`/admin/users${search}`)
 no coincide literal con la ruta declarada. Verificá cada caso antes de reportarlo.
 
+## Acciones que fallan en silencio
+
+Una acción que falla sin decir nada es peor que una que explica: la persona cree
+que funcionó. Se detectan así:
+
+```sh
+for f in $(rg -l '\.mutate\(' -g '*.tsx' src); do
+  rg -q '\.isError|\.error' "$f" || echo "SIN MANEJO DE ERROR: $f"
+done
+```
+
+Ojo con el patrón que se busca: la primera versión de este barrido solo miraba
+`isError` y marcó como rota la pantalla de admin, que usa `change.error`.
+**Verificá el hallazgo antes de "arreglarlo".**
+
+`account-bar` aparece en la lista y está bien: el logout limpia la caché local
+en `onSettled`, así que un fallo de red igual te desloguea acá. Es deliberado.
+
 ## Casos de uso sin pantalla
 
 Un caso de uso construido y probado que ninguna pantalla invoca es una feature

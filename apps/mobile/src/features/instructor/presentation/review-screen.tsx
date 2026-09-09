@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 
+import { ApiError } from '@/core/errors/api-error';
 import { useTheme } from '@/core/theme';
 import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
 import {
@@ -25,6 +26,24 @@ import type { ReviewItem } from '@/features/instructor/domain/entities';
  * able to disagree with the machine, the grade is only as trustworthy as the
  * model (TRD §9.3).
  */
+/** Wording chosen from the API's stable code, never from its message. */
+function overrideMessage(error: unknown): string {
+  if (!(error instanceof ApiError)) return 'No pudimos guardar la corrección.';
+
+  switch (error.code) {
+    case 'not_your_course':
+      return 'Esa entrega es de un curso que no es tuyo.';
+    case 'validation_error':
+      return 'Revisá la nota: tiene que estar entre 0 y 100, con una justificación.';
+    case 'not_found':
+      return 'Esa entrega ya no existe.';
+    case 'network_error':
+      return 'No pudimos conectarnos. La corrección no se guardó: probá de nuevo.';
+    default:
+      return 'No pudimos guardar la corrección. La nota quedó como estaba.';
+  }
+}
+
 export function ReviewScreen() {
   const theme = useTheme();
   const { items, total, isLoading, error } = useReviewInbox();
@@ -155,6 +174,18 @@ function ReviewRow({ item }: { item: ReviewItem }) {
               { borderColor: theme.colors.divider, color: theme.colors.text },
             ]}
           />
+          {/* A correction that failed silently is the worst outcome here: the
+              instructor believes the grade was fixed, and the teacher never
+              receives it. */}
+          {override.isError ? (
+            <Text
+              style={[styles.error, { color: theme.colors.accentRamp[700] }]}
+              accessibilityRole="alert"
+            >
+              {overrideMessage(override.error)}
+            </Text>
+          ) : null}
+
           <View style={styles.actions}>
             <Pressable onPress={() => setOpen(false)} accessibilityRole="button">
               <Text style={[styles.link, { color: theme.colors.neutral[600] }]}>Cancelar</Text>
@@ -201,6 +232,7 @@ function ReviewRow({ item }: { item: ReviewItem }) {
 }
 
 const styles = StyleSheet.create({
+  error: { fontSize: 13, marginTop: 6.8 },
   screen: { flex: 1, paddingTop: 27.2 },
   content: {
     padding: 20.4,

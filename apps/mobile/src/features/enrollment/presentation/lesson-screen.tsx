@@ -86,6 +86,18 @@ export function LessonScreen() {
         </View>
       )}
 
+      {/* Progress is the only signal a teacher has that the course is moving.
+          A tick that silently did not save would have her repeat a lesson she
+          already finished, or think she is further along than she is. */}
+      {complete.isError ? (
+        <Text
+          style={[styles.completeError, { color: theme.colors.accentRamp[700] }]}
+          accessibilityRole="alert"
+        >
+          No pudimos guardar que la completaste. Probá de nuevo.
+        </Text>
+      ) : null}
+
       <Pressable
         accessibilityRole="button"
         disabled={complete.isPending || lesson.isCompleted}
@@ -158,6 +170,7 @@ export function LessonScreen() {
 }
 
 const styles = StyleSheet.create({
+  completeError: { fontSize: 14, marginTop: 10.2, textAlign: 'center' },
   screen: {
     flex: 1,
   },
