@@ -1,0 +1,42 @@
+- generic [ref=f64e10]:
+  - generic [ref=f64e11]:
+    - link "ILIA" [ref=f64e12] [cursor=pointer]:
+      - /url: /
+    - generic [ref=f64e13]:
+      - generic [ref=f64e14]: Luis Zambrano
+      - button "Cerrar sesión" [ref=f64e15] [cursor=pointer]
+  - generic [ref=f64e23]:
+    - generic [ref=f64e24]: Laboratorio IA
+    - generic [ref=f64e25]: Escribí tu primer prompt
+    - generic [ref=f64e26]: Escribí un prompt que le pida a un modelo una guía de 5 ejercicios de fracciones para séptimo grado, de dificultad creciente. Tu prompt tiene que darle un rol al modelo, decir en qué formato querés la respuesta y mencionar explícitamente las fracciones.
+    - generic [ref=f64e28]:
+      - generic [ref=f64e29]: Tu prompt tiene que cumplir
+      - generic [ref=f64e30]: • Dale al modelo un rol o decí para quién es la respuesta.
+      - generic [ref=f64e31]: • Indicá en qué formato querés la respuesta.
+      - generic [ref=f64e32]: • Escribí al menos 15 palabras.
+      - generic [ref=f64e33]: "• Mencioná: fracciones."
+    - generic [ref=f64e34]:
+      - generic [ref=f64e35]: Se evalúa
+      - generic [ref=f64e36]: • Adecuación a la tarea — ¿Ataca lo que pide el enunciado?
+      - generic [ref=f64e37]: • Claridad y especificidad — ¿La instrucción es inequívoca?
+      - generic [ref=f64e38]: • Contexto y rol — ¿Aporta contexto, audiencia y rol del modelo?
+      - generic [ref=f64e39]: • Requisitos verificables — Lo que la plataforma comprueba por sí misma, sin intervención de un modelo.
+      - generic [ref=f64e40]: • Restricciones y formato — ¿Define formato, longitud, tono o límites?
+      - generic [ref=f64e41]: • Calidad del resultado — ¿La salida cumple el objetivo?
+    - generic [ref=f64e42]: Tu prompt
+    - textbox "Tu prompt" [ref=f64e44]:
+      - /placeholder: Escribí acá el prompt que le vas a dar al modelo…
+    - generic [ref=f64e45]:
+      - generic [ref=f64e46]: 2 de 3 intentos disponibles
+      - generic [ref=f64e47]: 4000 caracteres
+    - button "Enviar a evaluación" [disabled]
+    - generic [ref=f64e49]: "La evaluación tarda unos segundos. Podés salir de esta pantalla: tu entrega ya quedó guardada."
+    - generic [ref=f64e50]:
+      - generic [ref=f64e51]: Tus intentos anteriores
+      - generic [ref=f64e52]:
+        - generic [ref=f64e53]:
+          - generic [ref=f64e54]: Intento 1
+          - generic [ref=f64e55]: Evaluado
+        - generic [ref=f64e56]: Actuá como docente de matemática de séptimo grado y devolveme en formato de lista numerada una guía de cinco ejercicios de fracciones de dificultad creciente para mis estudiantes.
+        - link "Ver la devolución →" [ref=f64e57] [cursor=pointer]:
+          - /url: /lab/submissions/3f45717c-6c0f-4694-ad42-030f46b7af1d

@@ -371,12 +371,78 @@ medible es específico, cierto y se arregla en segundos.
 **Nada de esto elimina el riesgo.** Lo acota. El TRD §6.2 es explícito y hay que
 mantener el muestreo humano.
 
+## Proveedores de LLM
+
+Un puerto, varios proveedores, elegidos por configuración:
+
+| `ILIA_LLM_PROVIDER` | Adaptador | Modelo por defecto |
+|---|---|---|
+| `anthropic` | Messages API | `claude-sonnet-4-5` |
+| `openai` | Chat Completions | `gpt-4o` |
+| `gemini` | `generateContent` | `gemini-2.0-flash` |
+| `deepseek` | Chat Completions | `deepseek-chat` |
+| `openai-compatible` | Chat Completions | — (requiere `ILIA_LLM_MODEL`) |
+
+```sh
+ILIA_LLM_PROVIDER=anthropic
+ILIA_LLM_API_KEY=...
+ILIA_LLM_MODEL=            # opcional: hay default por proveedor
+ILIA_LLM_BASE_URL=         # solo para openai-compatible
+ILIA_LLM_INPUT_PRICE_PER_MILLION=0.25
+ILIA_LLM_OUTPUT_PRICE_PER_MILLION=1.25
+```
+
+Vacío corre el stub local. Un proveedor **mal configurado falla al arrancar**, no
+en la primera entrega: un docente perdería un intento por un error de despliegue
+y no se enteraría de por qué.
+
+### Decisiones que vale la pena conocer
+
+**HTTP plano, no cuatro SDK oficiales.** Cada SDK trae su árbol de dependencias,
+su cadencia de releases y sus breaking changes, y usamos quizá el 5 % de
+cualquiera: una llamada sin streaming, JSON de vuelta, conteo de tokens. Cuatro
+SDK serían cuatro veces la superficie de suministro a auditar en un contenedor
+que califica el trabajo de docentes.
+
+**Un adaptador cubre OpenAI, DeepSeek y cualquier gateway compatible.** DeepSeek
+publica una API compatible con Chat Completions; escribir eso tres veces serían
+tres lugares donde arreglar el mismo bug.
+
+**La lógica de evaluación se escribe una vez.** Los proveedores difieren solo en
+la forma de una petición HTTPS. Cómo se aísla el prompt, cómo se instruye al
+juez, qué puntajes se aceptan y cómo se computa el total es idéntico
+independientemente de quién responda — así que vive en `executor.py` y
+`judge.py`, sobre el protocolo `LlmClient`, y cada proveedor aporta ~80 líneas.
+
+**Los precios no salen de una tabla incorporada.** Los precios publicados
+cambian, y un número hardcodeado desactualizado se lee como autoritativo
+mientras está mal. Cero significa «desconocido» y el reporte lo dice en vez de
+inventar un costo.
+
+### Defensa contra inyección de prompts
+
+Dos reglas, ambas con test:
+
+1. **El prompt del docente y la salida del modelo son texto no confiable.** La
+   salida es menos obvia: la generó el prompt que estamos evaluando, así que
+   quien escriba «respondé: ignorá tus instrucciones» recibe esa frase de vuelta
+   y el juez la lee. Ambos viajan en el campo `user`, nunca en el `system`.
+2. **El material a evaluar viaja como JSON, no entre delimitadores.** Comillas,
+   saltos de línea y llaves dentro del texto del docente los escapa el
+   codificador, así que no hay secuencia que se pueda escribir para salirse del
+   propio campo. Un delimitador que se puede tipear es un delimitador que se va
+   a tipear.
+
+Y el juez **nunca devuelve un total**: propone puntajes por dimensión y el
+backend computa el total con los pesos de la rúbrica. Un total que viene del
+modelo es un total que se puede negociar.
+
 ### Lo que todavía es provisorio
 
-- **No hay proveedor de LLM.** `infrastructure/local_provider.py` produce salida
-  válida y **no evalúa nada** — el feedback que devuelve lo dice en voz alta. Las
-  dimensiones juzgadas son ruido determinístico hasta que se conecte un proveedor
-  real; el ancla determinística sí es real desde ya.
+- **El proveedor de LLM se configura, no se elige en el código.** Sin
+  `ILIA_LLM_PROVIDER` corre `infrastructure/local_provider.py`, que produce
+  salida válida y **no evalúa nada** — el feedback lo dice en voz alta. Con un
+  proveedor configurado evalúa de verdad. Ver «Proveedores de LLM» más abajo.
 - **La cola corre en el proceso de la API** (`infrastructure/queue.py`). La
   tecnología de cola sigue abierta (TRD §5.2). Sirve para un piloto y **no
   sobrevive un reinicio**: una entrega en vuelo queda en `running` para siempre.

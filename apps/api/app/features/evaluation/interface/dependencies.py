@@ -11,8 +11,15 @@ from app.features.evaluation.domain.ports import (
     ActivityRepository,
     EvaluationQueue,
     EvaluationRepository,
+    PromptExecutor,
+    PromptJudge,
     QuotaPolicy,
     SubmissionRepository,
+)
+from app.features.evaluation.infrastructure.llm import (
+    LlmPromptExecutor,
+    LlmPromptJudge,
+    build_llm_client,
 )
 from app.features.evaluation.infrastructure.local_provider import (
     LocalPromptExecutor,
@@ -52,11 +59,22 @@ def build_evaluation_container(
         evaluations = InMemoryEvaluationRepository()
         usage = InMemoryUsageRecorder()
 
-    # No provider is configured yet (TRD 2.6), so the pipeline runs against the
-    # local stub. It produces schema-valid output and grades nothing — the
-    # feedback it returns says so out loud.
-    executor = LocalPromptExecutor()
-    judge = LocalPromptJudge()
+    # A configured provider grades for real; without one the pipeline runs
+    # against the local stub, which produces schema-valid output and grades
+    # nothing — and says so out loud in the feedback the teacher reads.
+    client = build_llm_client(settings)
+    executor: PromptExecutor
+    judge: PromptJudge
+    if client is not None:
+        executor = LlmPromptExecutor(client)
+        judge = LlmPromptJudge(client)
+    else:
+        structlog.get_logger().warning(
+            "evaluation_using_local_stub",
+            detail="ILIA_LLM_PROVIDER is not set; submissions are not really graded",
+        )
+        executor = LocalPromptExecutor()
+        judge = LocalPromptJudge()
 
     run = RunEvaluation(
         activities=activities,

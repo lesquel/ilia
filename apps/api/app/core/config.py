@@ -36,11 +36,27 @@ class Settings(BaseSettings):
     # quick look at the API, useless for anything real (it forgets on restart).
     database_url: str | None = None
 
-    # --- LLM cost -----------------------------------------------------------
+    # --- LLM provider -------------------------------------------------------
 
-    # Price per million tokens, for the admin cost report (PRD A-03).
-    # Zero until a provider is chosen (TRD 2.6): a hard-coded price would make
-    # an invented cost report look authoritative.
+    # Which provider grades submissions. Empty (the default) runs the local
+    # stub, which produces schema-valid output and grades nothing — and says so
+    # in the feedback the teacher reads.
+    #
+    # One provider is active at a time. Supporting several simultaneously would
+    # mean two teachers submitting the same prompt could get different marks
+    # depending on routing, and neither could be told why.
+    llm_provider: str = ""
+    llm_api_key: str = ""
+    llm_model: str = ""
+    # Only for openai-compatible providers behind a gateway or a private
+    # deployment. Left empty, each provider uses its documented endpoint.
+    llm_base_url: str = ""
+
+    # Price per million tokens for the *configured* model, for the admin cost
+    # report (PRD A-03). Not derived from a built-in table: published prices
+    # change, and a stale hard-coded number reads as authoritative while being
+    # wrong. Zero means "unknown", and the report says so rather than inventing
+    # a cost.
     llm_input_price_per_million: float = 0.0
     llm_output_price_per_million: float = 0.0
 

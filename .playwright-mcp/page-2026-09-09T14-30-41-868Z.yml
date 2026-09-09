@@ -1,0 +1,11 @@
+- generic [ref=f64e10]:
+  - generic [ref=f64e11]:
+    - link "ILIA" [ref=f64e12] [cursor=pointer]:
+      - /url: /
+    - generic [ref=f64e13]:
+      - generic [ref=f64e14]: Luis Zambrano
+      - button "Cerrar sesión" [ref=f64e15] [cursor=pointer]
+  - generic [ref=f64e61]:
+    - progressbar [ref=f64e62]
+    - generic [ref=f64e67]: Evaluando tu prompt…
+    - generic [ref=f64e68]: "Esto puede tardar unos segundos. Podés salir: cuando vuelvas va a estar acá."
