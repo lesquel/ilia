@@ -156,6 +156,28 @@ rg -oP '@router\.(get|post|patch|put|delete)\(\s*"\K[^"]+' apps/api/app/features
 Ojo con los falsos positivos: una URL con query string (`/admin/users${search}`)
 no coincide literal con la ruta declarada. Verificá cada caso antes de reportarlo.
 
+## Accesibilidad
+
+Barrido en el navegador: elementos interactivos **visibles** sin nombre
+accesible. Uno sin nombre se ve perfecto y es invisible para un lector de
+pantalla.
+
+```js
+[...document.querySelectorAll('[role="button"],[role="link"],button,a,input,textarea')]
+  .filter((el) => {
+    if (getComputedStyle(el).display === 'none') return false;
+    return !el.getAttribute('aria-label') && !(el.innerText || '').trim();
+  });
+```
+
+El filtro de `display: none` importa: los `input[type=file]` ocultos del control
+de material aparecen sin nombre y **están bien** — fuera del árbol de
+accesibilidad, con un botón etiquetado que los dispara.
+
+Lo que sí encontró: los `Switch` del compositor de actividades. Su etiqueta era
+un `Text` hermano, que un lector de pantalla no tiene forma de asociar —
+anunciaba «interruptor, apagado» y nada más. El nombre va **en el control**.
+
 ## Acciones que fallan en silencio
 
 Una acción que falla sin decir nada es peor que una que explica: la persona cree

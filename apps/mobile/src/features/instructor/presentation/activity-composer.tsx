@@ -296,15 +296,26 @@ export function ActivityComposer({ courseId, moduleId }: { courseId: string; mod
         accessibilityLabel="Palabras mínimas"
       />
 
+      {/* The label is a sibling `Text`, which a screen reader has no way to
+          associate with the switch: it would announce "interruptor, apagado"
+          and nothing else. The name has to be on the control itself. */}
       <View style={styles.switchRow}>
-        <Switch value={requiresFormat} onValueChange={setRequiresFormat} />
+        <Switch
+          value={requiresFormat}
+          onValueChange={setRequiresFormat}
+          accessibilityLabel="Debe indicar en qué formato quiere la respuesta"
+        />
         <Text style={[styles.switchLabel, { color: theme.colors.neutral[700] }]}>
           Debe indicar en qué formato quiere la respuesta
         </Text>
       </View>
 
       <View style={styles.switchRow}>
-        <Switch value={requiresRole} onValueChange={setRequiresRole} />
+        <Switch
+          value={requiresRole}
+          onValueChange={setRequiresRole}
+          accessibilityLabel="Debe darle un rol o una audiencia al modelo"
+        />
         <Text style={[styles.switchLabel, { color: theme.colors.neutral[700] }]}>
           Debe darle un rol o una audiencia al modelo
         </Text>
