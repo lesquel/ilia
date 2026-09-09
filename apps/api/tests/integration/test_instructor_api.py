@@ -8,6 +8,7 @@ nobody else's.
 import asyncio
 import os
 from collections.abc import Iterator
+from typing import ClassVar
 
 import pytest
 from fastapi.testclient import TestClient
@@ -683,6 +684,193 @@ class TestLessonMedia:
         response = client.post(
             f"{API}/courses/{course_id}/lessons/{lesson_id}/media",
             json={"content_type": "video/mp4"},
+            headers=auth(student),
+        )
+
+        assert response.status_code == 403
+
+
+class TestAuthoringActivities:
+    """Creating the thing the product exists for.
+
+    Until this endpoint existed an instructor could build a course, publish it,
+    and have nothing in it for a teacher to actually do — the activities in
+    development were inserted by hand with SQL. A course was a reading list.
+    """
+
+    # A module-level constant, not a class attribute: a mutable default shared
+    # across tests is one test away from another one's leftovers.
+    ACTIVITY: ClassVar[dict[str, object]] = {
+        "title": "Escribí tu primer prompt",
+        "statement": "Pedile a un modelo una guía de 5 ejercicios de fracciones.",
+        "max_attempts": 3,
+        "dimensions": [
+            {
+                "key": "claridad",
+                "name": "Claridad y especificidad",
+                "description": "¿La instrucción es inequívoca?",
+                "kind": "prompt",
+                "weight": 2.0,
+            },
+            {
+                "key": "resultado",
+                "name": "Calidad del resultado",
+                "description": "¿La salida cumple el objetivo?",
+                "kind": "result",
+                "weight": 1.0,
+            },
+        ],
+        "required_terms": [["fracciones", "fraccionarios"]],
+        "min_length": 15,
+        "requires_format": True,
+        "requires_role": True,
+    }
+
+    def module_of(self, client: TestClient, token: str) -> tuple[str, str]:
+        course = client.post(f"{API}/courses", json=DRAFT, headers=auth(token)).json()
+        module = client.post(
+            f"{API}/courses/{course['id']}/modules",
+            json={"title": "Qué es un prompt"},
+            headers=auth(token),
+        ).json()
+        return course["id"], module["id"]
+
+    def create(self, client: TestClient, token: str, **over: object):  # type: ignore[no-untyped-def]
+        course_id, module_id = self.module_of(client, token)
+        return course_id, client.post(
+            f"{API}/courses/{course_id}/modules/{module_id}/activities",
+            json={**self.ACTIVITY, **over},
+            headers=auth(token),
+        )
+
+    def test_an_instructor_can_author_one(self, client: TestClient, instructor: str) -> None:
+        _, response = self.create(client, instructor)
+
+        assert response.status_code == 201
+        assert response.json()["id"]
+
+    def test_the_activity_is_reachable_by_an_enrolled_teacher(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        """The whole point: authored here, done there.
+
+        This is the step that was missing — everything else already worked
+        against activities somebody had inserted with SQL.
+        """
+        _, response = self.create(client, instructor)
+        activity_id = response.json()["id"]
+
+        # The course still needs a lesson to be publishable.
+        modules = client.get(f"{API}/courses", headers=auth(instructor)).json()
+        assert modules
+
+        activity = client.get(
+            f"/api/v1/lab/activities/{activity_id}", headers=auth(instructor)
+        ).json()
+
+        assert activity["title"] == self.ACTIVITY["title"]
+        assert activity["max_attempts"] == 3
+        # The dimensions the instructor wrote, plus the one they did not.
+        keys = {item["key"] for item in activity["dimensions"]}
+        assert {"claridad", "resultado"} <= keys
+
+    def test_the_deterministic_anchor_is_always_added(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        """Not optional, and not the instructor's to remove.
+
+        Without it a compromised judge decides the entire mark. That is not
+        hypothetical: it is the finding that made `passed` require both the
+        total and the requirements, rather than the total alone.
+        """
+        _, response = self.create(client, instructor)
+        activity = client.get(
+            f"/api/v1/lab/activities/{response.json()['id']}", headers=auth(instructor)
+        ).json()
+
+        assert "deterministic" in {item["key"] for item in activity["dimensions"]}
+
+    def test_an_instructor_cannot_redefine_the_anchor(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        # Weighting it to zero would quietly remove the part of the grade a
+        # model cannot talk up.
+        _, response = self.create(
+            client,
+            instructor,
+            dimensions=[
+                *self.ACTIVITY["dimensions"],  # type: ignore[misc]
+                {
+                    "key": "deterministic",
+                    "name": "Irrelevante",
+                    "description": "",
+                    "kind": "prompt",
+                    "weight": 0.01,
+                },
+            ],
+        )
+
+        activity = client.get(
+            f"/api/v1/lab/activities/{response.json()['id']}", headers=auth(instructor)
+        ).json()
+        anchor = next(item for item in activity["dimensions"] if item["key"] == "deterministic")
+
+        assert anchor["name"] == "Requisitos verificables"
+
+    def test_the_requirements_reach_the_teacher_before_they_write(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        # Failing a check nobody mentioned is a trick, not a lesson.
+        _, response = self.create(client, instructor)
+        activity = client.get(
+            f"/api/v1/lab/activities/{response.json()['id']}", headers=auth(instructor)
+        ).json()
+
+        stated = " ".join(activity["requirements"]).lower()
+        assert "fracciones" in stated
+        assert "formato" in stated
+
+    def test_an_activity_needs_at_least_one_dimension(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        _, response = self.create(client, instructor, dimensions=[])
+
+        assert response.status_code == 422
+
+    def test_duplicate_dimension_keys_are_refused(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        twice = dict(self.ACTIVITY["dimensions"][0])  # type: ignore[index,arg-type]
+        _, response = self.create(client, instructor, dimensions=[twice, dict(twice)])
+
+        assert response.status_code == 422
+        assert response.json()["error"]["code"] == "invalid_activity"
+
+    def test_a_module_from_another_course_is_refused(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        # Otherwise passing a module id would be enough to add an activity to
+        # somebody else's course.
+        _, module_id = self.module_of(client, instructor)
+        other = client.post(
+            f"{API}/courses", json={**DRAFT, "slug": "otro-curso"}, headers=auth(instructor)
+        ).json()
+
+        response = client.post(
+            f"{API}/courses/{other['id']}/modules/{module_id}/activities",
+            json=self.ACTIVITY,
+            headers=auth(instructor),
+        )
+
+        assert response.status_code == 404
+
+    def test_a_student_cannot_author_activities(self, client: TestClient, instructor: str) -> None:
+        course_id, module_id = self.module_of(client, instructor)
+        student = register(client, "alumna2@colegio.edu", "Alumna")
+
+        response = client.post(
+            f"{API}/courses/{course_id}/modules/{module_id}/activities",
+            json=self.ACTIVITY,
             headers=auth(student),
         )
 

@@ -1,3 +1,4 @@
+import type { ActivityInput } from '@/features/instructor/data/instructor-repository';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { catalogKeys } from '@/features/catalog/application/use-catalog';
@@ -198,6 +199,27 @@ export function useRemoveLessonMedia(
 
   return useMutation({
     mutationFn: (lessonId: string) => repository.attachMedia(courseId, lessonId, null),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: instructorKeys.courses });
+    },
+  });
+}
+
+/**
+ * Author a lab activity.
+ *
+ * The rubric travels with it: an activity without one is an activity a teacher
+ * can open and that cannot grade them.
+ */
+export function useAddActivity(
+  courseId: string,
+  repository: InstructorRepository = instructorRepository,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ moduleId, input }: { moduleId: string; input: ActivityInput }) =>
+      repository.addActivity(courseId, moduleId, input),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: instructorKeys.courses });
     },

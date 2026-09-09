@@ -16,11 +16,14 @@ from app.features.auth.domain.entities import Role, User
 from app.features.auth.interface.dependencies import SettingsDep, require_role
 from app.features.catalog.domain.entities import Course, LessonKind, Level
 from app.features.catalog.interface.router import CoursesDep
+from app.features.evaluation.domain.rubric import DimensionKind
 from app.features.instructor.application.use_cases import (
     AddLesson,
     AddModule,
     AttachLessonMedia,
+    CreateActivity,
     CreateCourse,
+    DimensionDraft,
     ListMyCourses,
     ListRoster,
     ListSubmissionsForReview,
@@ -446,3 +449,75 @@ async def attach_lesson_media(
     await AttachLessonMedia(courses=courses, writer=writer).execute(
         user=user, course_id=course_id, lesson_id=lesson_id, reference=payload.reference
     )
+
+
+class DimensionRequest(BaseModel):
+    key: str = Field(min_length=1, max_length=60, pattern=r"^[a-z][a-z0-9_]*$")
+    name: str = Field(min_length=1, max_length=160)
+    description: str = Field(default="", max_length=500)
+    # What this dimension judges: the teacher's prompt, or the model's output.
+    # The split is the product's whole point (PRD 9.1) — someone who got a good
+    # answer by luck and someone who wrote a good instruction are not the same.
+    kind: DimensionKind = DimensionKind.PROMPT
+    # Relative. Weights are normalised at scoring time, so removing a dimension
+    # does not silently rescale everyone else's grade.
+    weight: float = Field(default=1.0, gt=0, le=100)
+
+
+class ActivityRequest(BaseModel):
+    title: str = Field(min_length=1, max_length=200)
+    statement: str = Field(min_length=1, max_length=5000)
+    max_attempts: int = Field(default=3, ge=1, le=10)
+    dimensions: list[DimensionRequest] = Field(min_length=1, max_length=8)
+
+    # The deterministic checks. Optional, and the ones a teacher can act on in
+    # ten seconds: "no dijiste en qué formato querés la respuesta".
+    # Each group is a set of synonyms — matching any one of them counts.
+    required_terms: list[list[str]] = Field(default_factory=list, max_length=20)
+    min_length: int = Field(default=0, ge=0, le=4000)
+    requires_format: bool = False
+    requires_role: bool = False
+
+
+@router.post(
+    "/courses/{course_id}/modules/{module_id}/activities",
+    response_model=CreatedResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def add_activity(
+    course_id: UUID,
+    module_id: UUID,
+    payload: ActivityRequest,
+    user: Instructor,
+    courses: CoursesDep,
+    writer: WriterDep,
+) -> CreatedResponse:
+    """Author a lab activity, with its rubric.
+
+    One call, not two: an activity without a rubric is one a teacher can open
+    and that cannot grade them.
+    """
+    activity_id = await CreateActivity(courses=courses, writer=writer).execute(
+        user=user,
+        course_id=course_id,
+        module_id=module_id,
+        title=payload.title,
+        statement=payload.statement,
+        max_attempts=payload.max_attempts,
+        dimensions=[
+            DimensionDraft(
+                key=item.key,
+                name=item.name,
+                description=item.description,
+                kind=item.kind.value,
+                weight=item.weight,
+            )
+            for item in payload.dimensions
+        ],
+        required_terms=payload.required_terms,
+        min_length=payload.min_length,
+        requires_format=payload.requires_format,
+        requires_role=payload.requires_role,
+    )
+
+    return CreatedResponse(id=activity_id)

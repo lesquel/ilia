@@ -11,6 +11,7 @@ from app.features.auth.domain.ports import Clock
 from app.features.catalog.domain.entities import Course, CourseStatus, LessonKind, Level, Slug
 from app.features.catalog.domain.errors import CourseNotFoundError
 from app.features.catalog.domain.ports import CourseRepository
+from app.features.evaluation.domain.checks import DETERMINISTIC_KEY
 from app.features.evaluation.domain.scoring import MAX_SCORE, MIN_SCORE
 from app.features.instructor.domain.authoring import can_unpublish, check_publish_readiness
 from app.features.instructor.domain.errors import (
@@ -455,3 +456,124 @@ class AttachLessonMedia:
             raise ForeignMediaReferenceError()
 
         await self._writer.set_lesson_media(lesson_id=lesson_id, reference=reference)
+
+
+# Every rubric gets this dimension, whether the instructor asked for it or not.
+# It is the part of the grade a model cannot talk up: without it a compromised
+# judge decides the whole mark, which is the finding that made
+# `ScoreBreakdown.passed` require two conditions instead of one.
+DETERMINISTIC_DIMENSION = {
+    "key": DETERMINISTIC_KEY,
+    "name": "Requisitos verificables",
+    "description": ("Lo que la plataforma comprueba por sí misma, sin intervención de un modelo."),
+    "kind": "prompt",
+    "weight": 1.0,
+}
+
+MIN_DIMENSIONS = 1
+MAX_DIMENSIONS = 8
+MAX_ATTEMPTS_CEILING = 10
+
+
+class InvalidActivityError(ValidationError):
+    code = "invalid_activity"
+
+
+@dataclass(frozen=True)
+class DimensionDraft:
+    key: str
+    name: str
+    description: str
+    kind: str
+    weight: float
+
+
+class CreateActivity:
+    """Author a lab activity: the thing the whole product exists for.
+
+    Until this existed an instructor could build a course, publish it, and have
+    nothing in it for a teacher to actually do — the activities in development
+    were inserted by hand with SQL. A course was a reading list.
+    """
+
+    def __init__(self, *, courses: CourseRepository, writer: CourseWriter) -> None:
+        self._ownership = CourseOwnership(courses=courses)
+        self._writer = writer
+
+    async def execute(
+        self,
+        *,
+        user: User,
+        course_id: UUID,
+        module_id: UUID,
+        title: str,
+        statement: str,
+        max_attempts: int,
+        dimensions: list[DimensionDraft],
+        required_terms: list[list[str]],
+        min_length: int,
+        requires_format: bool,
+        requires_role: bool,
+    ) -> UUID:
+        course = await self._ownership.require(user=user, course_id=course_id)
+
+        if not await self._writer.module_belongs_to(module_id=module_id, course_id=course.id):
+            raise ModuleNotFoundError()
+
+        cleaned_title = title.strip()
+        cleaned_statement = statement.strip()
+        if not cleaned_title or not cleaned_statement:
+            raise InvalidActivityError("An activity needs a title and a statement")
+
+        if not 1 <= max_attempts <= MAX_ATTEMPTS_CEILING:
+            raise InvalidActivityError(f"Attempts must be between 1 and {MAX_ATTEMPTS_CEILING}")
+
+        # The instructor's own dimensions, minus any attempt to redefine the
+        # deterministic one. Letting them weight it to zero would quietly remove
+        # the anchor the grade depends on.
+        authored = [item for item in dimensions if item.key != DETERMINISTIC_KEY]
+
+        if not MIN_DIMENSIONS <= len(authored) <= MAX_DIMENSIONS:
+            raise InvalidActivityError(
+                f"An activity needs between {MIN_DIMENSIONS} and {MAX_DIMENSIONS} dimensions"
+            )
+
+        keys = [item.key for item in authored]
+        if len(keys) != len(set(keys)):
+            raise InvalidActivityError("Dimension keys must be unique")
+
+        if any(item.weight <= 0 for item in authored):
+            raise InvalidActivityError("Every dimension needs a weight above zero")
+
+        payload = [
+            {
+                "key": item.key,
+                "name": item.name.strip(),
+                "description": item.description.strip(),
+                "kind": item.kind,
+                "weight": item.weight,
+            }
+            for item in authored
+        ] + [DETERMINISTIC_DIMENSION]
+
+        return await self._writer.add_activity(
+            module_id=module_id,
+            course_id=course.id,
+            title=cleaned_title,
+            statement=cleaned_statement,
+            max_attempts=max_attempts,
+            checks={
+                # Empty groups dropped: a required term nobody typed would fail
+                # every submission for a reason the teacher cannot see.
+                "required_terms": [
+                    [term.strip() for term in group if term.strip()]
+                    for group in required_terms
+                    if any(term.strip() for term in group)
+                ],
+                "min_length": max(0, min_length),
+                "requires_format": requires_format,
+                "requires_role": requires_role,
+            },
+            rubric_name=cleaned_title,
+            dimensions=payload,
+        )

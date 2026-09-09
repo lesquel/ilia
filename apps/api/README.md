@@ -523,6 +523,27 @@ nosotros.
 Verificado contra MinIO real: subida `200`, objeto en el bucket, y la lectura
 posterior **`200` con firma / `403` sin ella**.
 
+## Autoría de actividades de laboratorio
+
+`POST /instructor/courses/{id}/modules/{id}/activities` crea la actividad **y su
+rúbrica en una sola operación**. Una actividad sin rúbrica es una que un docente
+puede abrir y que no puede calificarlo; dejar una ventana donde exista una sin la
+otra es dejar esa ventana abierta en producción.
+
+**El ancla determinística se agrega siempre**, la pida el instructor o no, y no
+se puede redefinir. Sin ella un juez comprometido decide la nota entera — que no
+es hipotético: es el hallazgo que hizo que `passed` exija dos condiciones y no
+una. Si el instructor manda una dimensión con la clave `deterministic`, se
+descarta y se usa la nuestra.
+
+**Los requisitos verificables se le muestran al docente antes de escribir.**
+Reprobar por una comprobación que nadie mencionó es una trampa, no una clase.
+
+Cada dimensión declara si juzga **el prompt** o **el resultado** (PRD 9.1): quien
+obtuvo una buena respuesta por suerte y quien escribió una buena instrucción no
+merecen la misma nota. Los pesos son relativos y se normalizan al calificar, así
+que quitar una dimensión no reescala la nota de nadie.
+
 ### Lo que todavía es provisorio
 
 - **El proveedor de LLM se configura, no se elige en el código.** Sin

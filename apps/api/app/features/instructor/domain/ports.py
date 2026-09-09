@@ -50,6 +50,29 @@ class CourseWriter(Protocol):
         """Point a lesson at an uploaded object, or clear it."""
         ...
 
+    async def add_activity(
+        self,
+        *,
+        module_id: UUID,
+        course_id: UUID,
+        title: str,
+        statement: str,
+        max_attempts: int,
+        checks: dict[str, object],
+        rubric_name: str,
+        dimensions: list[dict[str, object]],
+    ) -> UUID:
+        """Create a lab activity together with its rubric.
+
+        One operation, not two. An activity without a rubric cannot be graded,
+        and a rubric with no activity is nothing — leaving a window where one
+        exists without the other would mean a teacher can open an activity that
+        cannot score them.
+        """
+        ...
+
+    async def module_belongs_to(self, *, module_id: UUID, course_id: UUID) -> bool: ...
+
     async def lesson_belongs_to(self, *, lesson_id: UUID, course_id: UUID) -> bool:
         """Whether this lesson is part of this course.
 

@@ -23,6 +23,7 @@ import {
   useUnpublishCourse,
 } from '@/features/instructor/application/use-instructor';
 import { CourseDetailsForm } from '@/features/instructor/presentation/course-details-form';
+import { ActivityComposer } from '@/features/instructor/presentation/activity-composer';
 import { LessonMediaControl } from '@/features/instructor/presentation/lesson-media-control';
 import { STATUS_LABELS, canPublish } from '@/features/instructor/domain/entities';
 
@@ -191,6 +192,10 @@ export function CourseEditorScreen() {
               </View>
             ))
           )}
+
+          {/* The activity is what the course is for; the lessons lead up to
+              it. Offered on every module, right where the lessons are. */}
+          <ActivityComposer courseId={course.id} moduleId={module.id} />
 
           {lessonFor === module.id ? (
             <View style={styles.composer}>

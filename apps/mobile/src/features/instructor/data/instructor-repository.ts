@@ -66,8 +66,31 @@ export interface InstructorRepository {
   inbox(courseId?: string, offset?: number): Promise<Page<ReviewItem>>;
   override(submissionId: string, total: number, reason: string): Promise<void>;
   roster(courseId: string): Promise<RosterEntry[]>;
+  addActivity(courseId: string, moduleId: string, input: ActivityInput): Promise<string>;
   prepareMedia(courseId: string, lessonId: string, contentType: string): Promise<MediaUpload>;
   attachMedia(courseId: string, lessonId: string, reference: string | null): Promise<void>;
+}
+
+/** One rubric dimension the instructor writes. */
+export interface DimensionInput {
+  key: string;
+  name: string;
+  description: string;
+  /** What it judges: the teacher's prompt, or the model's output (PRD 9.1). */
+  kind: 'prompt' | 'result';
+  weight: number;
+}
+
+export interface ActivityInput {
+  title: string;
+  statement: string;
+  maxAttempts: number;
+  dimensions: DimensionInput[];
+  /** Each group is a set of synonyms — matching any one of them counts. */
+  requiredTerms: string[][];
+  minLength: number;
+  requiresFormat: boolean;
+  requiresRole: boolean;
 }
 
 /** Where to PUT the file, and the key the server chose for it. */
@@ -233,6 +256,30 @@ export class HttpInstructorRepository implements InstructorRepository {
       )}/media`,
       { reference },
     );
+  }
+
+  async addActivity(
+    courseId: string,
+    moduleId: string,
+    input: ActivityInput,
+  ): Promise<string> {
+    const dto = await this.http.post<{ id: string }>(
+      `/instructor/courses/${encodeURIComponent(courseId)}/modules/${encodeURIComponent(
+        moduleId,
+      )}/activities`,
+      {
+        title: input.title,
+        statement: input.statement,
+        max_attempts: input.maxAttempts,
+        dimensions: input.dimensions,
+        required_terms: input.requiredTerms,
+        min_length: input.minLength,
+        requires_format: input.requiresFormat,
+        requires_role: input.requiresRole,
+      },
+    );
+
+    return dto.id;
   }
 }
 

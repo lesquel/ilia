@@ -23,6 +23,8 @@ from app.features.enrollment.infrastructure.models import (
 from app.features.evaluation.infrastructure.models import (
     ActivityModel,
     EvaluationModel,
+    RubricDimensionModel,
+    RubricModel,
     SubmissionModel,
 )
 from app.features.instructor.domain.ports import (
@@ -136,6 +138,61 @@ class SqlAlchemyCourseWriter:
                 .where(LessonModel.id == lesson_id, ModuleModel.course_id == course_id)
             )
             return result.first() is not None
+
+    async def module_belongs_to(self, *, module_id: UUID, course_id: UUID) -> bool:
+        async with self._db.session() as session:
+            result = await session.execute(
+                select(ModuleModel.id).where(
+                    ModuleModel.id == module_id, ModuleModel.course_id == course_id
+                )
+            )
+            return result.first() is not None
+
+    async def add_activity(
+        self,
+        *,
+        module_id: UUID,
+        course_id: UUID,
+        title: str,
+        statement: str,
+        max_attempts: int,
+        checks: dict[str, object],
+        rubric_name: str,
+        dimensions: list[dict[str, object]],
+    ) -> UUID:
+        activity_id = uuid4()
+        rubric_id = uuid4()
+
+        # One session, so one transaction. An activity without its rubric would
+        # be an activity a teacher can open and that cannot grade them.
+        async with self._db.session() as session:
+            session.add(RubricModel(id=rubric_id, version=1, name=rubric_name))
+            session.add_all(
+                RubricDimensionModel(
+                    id=uuid4(),
+                    rubric_id=rubric_id,
+                    key=str(dimension["key"]),
+                    name=str(dimension["name"]),
+                    description=str(dimension["description"]),
+                    kind=str(dimension["kind"]),
+                    weight=float(dimension["weight"]),  # type: ignore[arg-type]
+                )
+                for dimension in dimensions
+            )
+            session.add(
+                ActivityModel(
+                    id=activity_id,
+                    module_id=module_id,
+                    course_id=course_id,
+                    rubric_id=rubric_id,
+                    title=title,
+                    statement=statement,
+                    max_attempts=max_attempts,
+                    checks=checks,
+                )
+            )
+
+        return activity_id
 
     async def list_for_instructor(self, instructor_id: UUID) -> list[Course]:
         statement = (
