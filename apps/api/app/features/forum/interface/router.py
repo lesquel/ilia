@@ -116,13 +116,9 @@ async def list_threads(
 
     # Every thread in a listing belongs to the same course, so the rule is
     # evaluated once rather than per row.
-    moderator = bool(
-        found and await may_moderate(courses, user=user, course_id=found[0].course_id)
-    )
+    moderator = bool(found and await may_moderate(courses, user=user, course_id=found[0].course_id))
 
-    return [
-        ThreadSummaryResponse.from_entity(item, can_moderate=moderator) for item in found
-    ]
+    return [ThreadSummaryResponse.from_entity(item, can_moderate=moderator) for item in found]
 
 
 @router.post(

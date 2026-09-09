@@ -186,9 +186,7 @@ class RevokeCertificate:
         self._audit = audit
         self._clock = clock
 
-    async def execute(
-        self, *, certificate_id: UUID, admin: User, reason: str
-    ) -> Certificate:
+    async def execute(self, *, certificate_id: UUID, admin: User, reason: str) -> Certificate:
         certificate = await self._certificates.get(certificate_id)
         if certificate is None:
             raise CertificateNotFoundError()

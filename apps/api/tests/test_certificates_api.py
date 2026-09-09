@@ -295,11 +295,17 @@ class TestRevocation:
             == 403
         )
 
-    def test_an_unknown_or_malformed_code_answers_the_same_way(self, client: TestClient, app) -> None:  # type: ignore[no-untyped-def]
+    def test_an_unknown_or_malformed_code_answers_the_same_way(
+        self, client: TestClient, app
+    ) -> None:  # type: ignore[no-untyped-def]
         admin_token = self.make_admin(client, app)
 
-        unknown = client.get(f"{CERTS}/lookup", params={"code": "ABCD-EFGH-JKMN"}, headers=auth(admin_token))
-        malformed = client.get(f"{CERTS}/lookup", params={"code": "no-es-un-codigo"}, headers=auth(admin_token))
+        unknown = client.get(
+            f"{CERTS}/lookup", params={"code": "ABCD-EFGH-JKMN"}, headers=auth(admin_token)
+        )
+        malformed = client.get(
+            f"{CERTS}/lookup", params={"code": "no-es-un-codigo"}, headers=auth(admin_token)
+        )
 
         assert unknown.status_code == 404
         assert malformed.status_code == 404

@@ -339,15 +339,11 @@ class TestModeration:
         )
         assert allowed.status_code == 200
 
-    def test_the_flag_travels_on_the_thread_detail_too(
-        self, client: TestClient, app
-    ) -> None:  # type: ignore[no-untyped-def]
+    def test_the_flag_travels_on_the_thread_detail_too(self, client: TestClient, app) -> None:  # type: ignore[no-untyped-def]
         token = enrolled(client)
         thread = client.post(f"{FORUM}/ia-basica/threads", json=THREAD, headers=auth(token)).json()
 
-        detail = client.get(
-            f"{FORUM}/ia-basica/threads/{thread['id']}", headers=auth(token)
-        ).json()
+        detail = client.get(f"{FORUM}/ia-basica/threads/{thread['id']}", headers=auth(token)).json()
         assert detail["can_moderate"] is False
 
         admin = register(client, "admin2@ministerio.gob", "Admin Dos")
