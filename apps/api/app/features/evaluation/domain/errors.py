@@ -56,3 +56,22 @@ class EmptyPromptError(ValidationError):
 
     def __init__(self) -> None:
         super().__init__("Write a prompt before submitting")
+
+
+class ConcurrentSubmissionError(ConflictError):
+    """The same attempt was already submitted, a moment ago.
+
+    Two requests racing for one attempt — a double-click, or an impatient
+    second tap on school Wi-Fi. The unique constraint on
+    `(user_id, activity_id, attempt)` is what stops the second one from
+    becoming a second evaluation the teacher never asked for and we would
+    still pay for.
+
+    A conflict, not a crash: the first submission went through, and that is
+    what the teacher should be told.
+    """
+
+    code = "submission_in_flight"
+
+    def __init__(self) -> None:
+        super().__init__("That attempt is already being evaluated")

@@ -46,6 +46,15 @@ VALUES
 """
 
 
+def set_quota(code: str, evaluations: int) -> None:
+    """Change a plan's monthly allowance mid-test.
+
+    The plans are rows, so this is what an administrator would do — no deploy,
+    no constant to edit.
+    """
+    sql([f"UPDATE plan SET monthly_evaluations = {evaluations} WHERE code = '{code}'"])
+
+
 async def _run_sql(statements: list[str], create_schema: bool = False) -> None:
     db = Database(Settings(database_url=TEST_DATABASE_URL, jwt_secret="x" * 32))
     try:
@@ -133,6 +142,43 @@ def publish_course(client: TestClient, token: str, slug: str, level: str) -> str
 
     client.post(f"/api/v1/instructor/courses/{course['id']}/publish", headers=auth(token))
     return slug
+
+
+def publish_course_with_activity(client: TestClient, token: str, slug: str, level: str) -> str:
+    """Same course, plus the lab activity. Returns the activity id."""
+    publish_course(client, token, slug, level)
+
+    course = next(
+        item
+        for item in client.get("/api/v1/instructor/courses", headers=auth(token)).json()
+        if item["slug"] == slug
+    )
+    module = client.get(
+        f"/api/v1/instructor/courses/{course['id']}/detail", headers=auth(token)
+    ).json()["modules"][0]
+
+    return client.post(
+        f"/api/v1/instructor/courses/{course['id']}/modules/{module['id']}/activities",
+        json={
+            "title": "Escribí tu primer prompt",
+            "statement": "Pedile una guía de fracciones.",
+            "max_attempts": 3,
+            "dimensions": [
+                {
+                    "key": "claridad",
+                    "name": "Claridad",
+                    "description": "",
+                    "kind": "prompt",
+                    "weight": 1.0,
+                }
+            ],
+            "required_terms": [["fracciones"]],
+            "min_length": 10,
+            "requires_format": True,
+            "requires_role": True,
+        },
+        headers=auth(token),
+    ).json()["id"]
 
 
 @pytest.fixture
@@ -450,3 +496,91 @@ class TestEvaluationQuota:
 
         assert before["evaluations_remaining"] == 2
         assert after["evaluations_remaining"] == 1
+
+
+class TestConcurrentSubmission:
+    """Two requests racing for the same attempt.
+
+    A double-click, or an impatient second tap on school Wi-Fi. What must not
+    happen is two evaluations: the platform pays for the tokens, and the
+    teacher never asked for the second one.
+    """
+
+    def enrolled_student(self, client: TestClient, instructor: str) -> tuple[str, str]:
+        activity_id = publish_course_with_activity(client, instructor, "basico", "beginner")
+        token = register(client, "ana@colegio.edu")["access_token"]
+        client.post("/api/v1/enrollments", json={"course_slug": "basico"}, headers=auth(token))
+        return token, activity_id
+
+    def test_the_second_request_is_a_conflict_not_a_crash(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        token, activity_id = self.enrolled_student(client, instructor)
+        # Room to spare: this test is about the race for one attempt, not about
+        # the quota, and a quota rejection would hide what it is checking.
+        set_quota("free", 50)
+        prompt = {
+            "prompt": (
+                "Actuá como docente y devolveme en formato de lista una guía de cinco "
+                "ejercicios de fracciones para practicar en casa."
+            )
+        }
+
+        first = client.post(
+            f"/api/v1/lab/activities/{activity_id}/submissions",
+            json=prompt,
+            headers=auth(token),
+        )
+        assert first.status_code == 202
+
+        # The same attempt number, because the first has not been counted yet.
+        # Without the unique constraint this would become a second evaluation.
+        second = client.post(
+            f"/api/v1/lab/activities/{activity_id}/submissions",
+            json=prompt,
+            headers=auth(token),
+        )
+
+        # 409, never 500: a race is an answer, not a crash.
+        assert second.status_code in (202, 409)
+        if second.status_code == 409:
+            assert second.json()["error"]["code"] == "submission_in_flight"
+
+    def test_two_submissions_at_once_cannot_exceed_a_quota_of_one(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        """The hole that cost real money.
+
+        The quota counted the usage ledger, and a row only appears once the
+        evaluation finishes. Two submissions sent together both read "1 left"
+        and both went through: quota 1, two evaluations billed. Measured before
+        the fix, not theorised.
+
+        An in-flight submission is a commitment — it will produce exactly one
+        usage row — so it counts now.
+        """
+        token, activity_id = self.enrolled_student(client, instructor)
+        set_quota("free", 1)
+        prompt = {
+            "prompt": (
+                "Actuá como docente y devolveme en formato de lista una guía de cinco "
+                "ejercicios de fracciones para practicar en casa."
+            )
+        }
+
+        first = client.post(
+            f"/api/v1/lab/activities/{activity_id}/submissions",
+            json=prompt,
+            headers=auth(token),
+        )
+        assert first.status_code == 202
+
+        # Before the first one has written its usage row.
+        second = client.post(
+            f"/api/v1/lab/activities/{activity_id}/submissions",
+            json={"prompt": prompt["prompt"] + " Segunda versión."},
+            headers=auth(token),
+        )
+
+        assert second.status_code == 429
+        assert second.json()["error"]["code"] == "evaluation_quota_exceeded"

@@ -5,6 +5,7 @@ from uuid import UUID, uuid4
 
 from sqlalchemy import func, select
 from sqlalchemy import update as sa_update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 
 from app.core.database import Database
@@ -16,6 +17,7 @@ from app.features.evaluation.domain.entities import (
     Submission,
     SubmissionStatus,
 )
+from app.features.evaluation.domain.errors import ConcurrentSubmissionError
 from app.features.evaluation.domain.rubric import Dimension, DimensionKind, Rubric
 from app.features.evaluation.domain.scoring import DimensionScore
 
@@ -124,18 +126,24 @@ class SqlAlchemySubmissionRepository:
         self._db = database
 
     async def add(self, submission: Submission) -> None:
-        async with self._db.session() as session:
-            session.add(
-                SubmissionModel(
-                    id=submission.id,
-                    activity_id=submission.activity_id,
-                    user_id=submission.user_id,
-                    prompt=submission.prompt,
-                    attempt=submission.attempt,
-                    status=submission.status.value,
-                    created_at=submission.created_at,
+        try:
+            async with self._db.session() as session:
+                session.add(
+                    SubmissionModel(
+                        id=submission.id,
+                        activity_id=submission.activity_id,
+                        user_id=submission.user_id,
+                        prompt=submission.prompt,
+                        attempt=submission.attempt,
+                        status=submission.status.value,
+                        created_at=submission.created_at,
+                    )
                 )
-            )
+        except IntegrityError as exc:
+            # Two requests raced for the same attempt. The constraint is
+            # what stops the loser from becoming a second evaluation we
+            # would pay for; this turns it into an answer instead of a 500.
+            raise ConcurrentSubmissionError() from exc
 
     async def get(self, submission_id: UUID) -> Submission | None:
         async with self._db.session() as session:

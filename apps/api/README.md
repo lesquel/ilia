@@ -594,6 +594,27 @@ Para medir de verdad: base aparte, `generate_series` con la **forma** real de
 los datos (muchos instructores con pocos cursos, no uno con todos), `ANALYZE`, y
 `EXPLAIN (ANALYZE)`.
 
+## El cupo cuenta compromisos, no solo gastos
+
+Medido, no supuesto: con cupo 1 y dos entregas enviadas a la vez, **se cobraban
+dos**. El contador leía el historial de consumo, y esa fila solo aparece cuando
+la evaluación termina — que contra un proveedor real son segundos.
+
+Ahora cuenta lo gastado **más lo comprometido**: una entrega en vuelo va a
+producir exactamente una fila de consumo, así que descontarla ya es lo que hace
+que el límite sea un límite.
+
+Y el orden importa: la fila de consumo se escribe **antes** de marcar la entrega
+como `scored`. Al revés queda una ventana donde la entrega ya no está en vuelo y
+su consumo todavía no existe — y ahí no la cuenta ninguno de los dos lados. Ese
+era el resto del agujero.
+
+**Una carrera es una respuesta, no un crash.** Dos pedidos por el mismo intento
+chocan contra la restricción única `(user_id, activity_id, attempt)`, que es lo
+que evita una segunda evaluación que nadie pidió. Antes salía como 500 con traza;
+ahora es un 409 `submission_in_flight` y la docente lee «ese intento ya se está
+evaluando».
+
 ### Lo que todavía es provisorio
 
 - **El proveedor de LLM se configura, no se elige en el código.** Sin

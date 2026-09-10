@@ -210,9 +210,10 @@ class RunEvaluation:
         )
         await self._evaluations.add(evaluation)
 
-        submission.status = SubmissionStatus.SCORED
-        await self._submissions.update(submission)
-
+        # Usage first, then the status. The other order leaves a window where
+        # the submission is no longer in flight and its usage row does not exist
+        # yet — and in that window the quota counts it neither as committed nor
+        # as spent, so a second submission slips through a limit of one.
         await self._usage.record(
             user_id=submission.user_id,
             submission_id=submission.id,
@@ -220,6 +221,9 @@ class RunEvaluation:
             input_tokens=output.input_tokens + verdict.input_tokens,
             output_tokens=output.output_tokens + verdict.output_tokens,
         )
+
+        submission.status = SubmissionStatus.SCORED
+        await self._submissions.update(submission)
 
         # An anomalously high mark is worth a second look (TRD 6.2.4): it is the
         # shape a successful injection leaves behind.

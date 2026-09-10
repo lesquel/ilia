@@ -24,6 +24,10 @@ function messageFor(error: unknown): string {
   if (!(error instanceof ApiError)) return 'No pudimos enviar tu prompt.';
 
   switch (error.code) {
+    case 'submission_in_flight':
+      // A double tap on school Wi-Fi. The first one went through, which is
+      // what she needs to know.
+      return 'Ese intento ya se está evaluando. Esperá unos segundos.';
     case 'no_attempts_left':
       return 'Ya usaste todos los intentos de esta actividad.';
     case 'evaluation_quota_exceeded':

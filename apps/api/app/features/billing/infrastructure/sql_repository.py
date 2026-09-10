@@ -9,7 +9,7 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from app.core.database import Database
 from app.features.billing.domain.entities import Plan, PlanCatalog, Subscription
 from app.features.catalog.domain.entities import Level
-from app.features.evaluation.infrastructure.models import LlmUsageModel
+from app.features.evaluation.infrastructure.models import LlmUsageModel, SubmissionModel
 
 from .models import PlanModel, SubscriptionModel
 
@@ -104,10 +104,17 @@ class SqlAlchemySubscriptionRepository:
 
 
 class SqlEvaluationCounter:
-    """Counts evaluations from the usage ledger.
+    """Counts evaluations already spent **and** already committed.
 
-    The ledger is what the bill is reconciled against, so counting from it means
-    the quota and the invoice can never disagree.
+    The usage ledger is what the bill is reconciled against, so it is the base.
+    But a row only appears once the evaluation finishes, and an evaluation takes
+    seconds against a real provider — so counting the ledger alone lets two
+    submissions sent at the same moment both pass a quota of one, and the
+    platform pays for both. Measured, not theorised: quota 1, two submissions
+    fired together, two rows billed.
+
+    An in-flight submission is a commitment: it will produce exactly one usage
+    row. Counting it now is what makes the limit a limit.
     """
 
     def __init__(self, database: Database) -> None:
@@ -115,10 +122,23 @@ class SqlEvaluationCounter:
 
     async def count_since(self, *, user_id: UUID, since: datetime) -> int:
         async with self._db.session() as session:
-            result = await session.execute(
+            spent = await session.execute(
                 select(func.count(LlmUsageModel.id)).where(
                     LlmUsageModel.user_id == user_id,
                     LlmUsageModel.occurred_at >= since,
                 )
             )
-            return int(result.scalar_one())
+
+            # Submissions still being evaluated, which have not written their
+            # usage row yet. `failed` is excluded: those never produced usage,
+            # and charging for our own outage is what the attempt count already
+            # refuses to do.
+            committed = await session.execute(
+                select(func.count(SubmissionModel.id)).where(
+                    SubmissionModel.user_id == user_id,
+                    SubmissionModel.created_at >= since,
+                    SubmissionModel.status.in_(["pending", "running"]),
+                )
+            )
+
+            return int(spent.scalar_one()) + int(committed.scalar_one())
