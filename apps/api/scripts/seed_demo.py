@@ -14,6 +14,7 @@ from uuid import uuid4
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
+from app.content.teacher_catalog import TEACHER_ACTIVITIES, TEACHER_COURSES
 from app.core.config import get_settings
 from app.core.database import Database
 from app.features.auth.domain.entities import Email
@@ -55,18 +56,12 @@ DEMO_DIMENSIONS = [
     ),
 ]
 
-DEMO_ACTIVITY_TITLE = "Escribe tu primer prompt"
-DEMO_ACTIVITY_STATEMENT = (
-    "Escribe un prompt que le pida a un modelo una guía de 5 ejercicios "
-    "de fracciones para séptimo grado, de dificultad creciente.\n\n"
-    "Tu prompt tiene que darle un rol al modelo, decir en qué formato "
-    "quieres la respuesta y mencionar explícitamente las fracciones."
-)
-
-
-def _course_description(summary: str) -> str:
+def _course_description(course_data: dict) -> str:
+    written = str(course_data.get("description") or "").strip()
+    if written:
+        return written
     return (
-        f"{summary}. Curso práctico: cada módulo termina en una "
+        f"{course_data['summary']}. Curso práctico: cada módulo termina en una "
         "actividad ejecutable, no en un cuestionario."
     )
 
@@ -103,123 +98,38 @@ DEMO_PLANS = [
     },
 ]
 
-DEMO_COURSES = [
-    {
-        "slug": "prompting-para-docentes",
-        "title": "Prompting para docentes",
-        "summary": "Ahorra horas por semana en material de clase",
-        "level": "beginner",
-        "modules": [
-            (
-                "Qué es un prompt",
-                [
-                    (
-                        "Anatomía de un prompt",
-                        "video",
-                        420,
-                        "Un prompt útil tiene cuatro partes: el ROL que le pides al modelo "
-                        "que asuma, el CONTEXTO de tu clase, la TAREA concreta y el FORMATO "
-                        "en el que quieres la respuesta.\n\n"
-                        "Compáralo:\n\n"
-                        '"Haz un ejercicio de fracciones."\n\n'
-                        "contra\n\n"
-                        '"Eres docente de matemática de séptimo. Escribe 5 ejercicios de suma '
-                        "de fracciones con distinto denominador, de dificultad creciente, "
-                        'con la respuesta al final en una tabla."\n\n'
-                        "El segundo no es más largo por adorno: cada palabra que agregaste "
-                        "elimina una decisión que el modelo iba a tomar por ti.",
+DEMO_COURSES = TEACHER_COURSES
+
+
+def _sync_modules(course: CourseModel, modules_data: list) -> None:
+    """Create missing modules/lessons and refresh titles and bodies."""
+    by_position = {module.position: module for module in course.modules}
+    for position, (module_title, lessons) in enumerate(modules_data, start=1):
+        module = by_position.get(position)
+        if module is None:
+            module = ModuleModel(id=uuid4(), title=module_title, position=position, lessons=[])
+            course.modules.append(module)
+        else:
+            module.title = module_title
+        lessons_by_position = {lesson.position: lesson for lesson in module.lessons}
+        for lesson_position, (lesson_title, kind, duration, body) in enumerate(lessons, start=1):
+            lesson = lessons_by_position.get(lesson_position)
+            if lesson is None:
+                module.lessons.append(
+                    LessonModel(
+                        id=uuid4(),
+                        title=lesson_title,
+                        kind=kind,
+                        position=lesson_position,
+                        duration_seconds=duration,
+                        body=body,
                     )
-                ],
-            ),
-            (
-                "Aplícalo a tu clase",
-                [
-                    (
-                        "Generar una guía de ejercicios",
-                        "video",
-                        600,
-                        "Vamos a armar una guía completa partiendo del temario que ya tienes. "
-                        "La clave es darle al modelo tu contexto real: el curso, el nivel, "
-                        "cuánto tiempo tienes y qué ya vieron tus alumnos.",
-                    ),
-                    (
-                        "Resumir un texto largo",
-                        "text",
-                        300,
-                        "Pedir 'resúmeme esto' devuelve un resumen genérico. Pide en cambio "
-                        "para quién es el resumen y para qué lo vas a usar.\n\n"
-                        "Prueba: 'Resume este texto en 5 viñetas para alumnos de 14 años que "
-                        "nunca vieron el tema, y agrega una pregunta de comprensión por "
-                        "viñeta.'",
-                    ),
-                    (
-                        "Comprueba lo aprendido",
-                        "quiz",
-                        180,
-                        "Antes de seguir: escribe un prompt para generar material de tu "
-                        "próxima clase que incluya las cuatro partes: rol, contexto, tarea "
-                        "y formato.",
-                    ),
-                ],
-            ),
-        ],
-    },
-    {
-        "slug": "notebooklm-en-el-aula",
-        "title": "NotebookLM en el aula",
-        "summary": "Convierte tus apuntes en material de estudio",
-        "level": "intermediate",
-        "modules": [
-            (
-                "Primeros pasos",
-                [
-                    (
-                        "Cargar tus fuentes",
-                        "video",
-                        360,
-                        "NotebookLM trabaja solo con las fuentes que tú le das. Eso es una "
-                        "limitación y también su mayor ventaja: no inventa desde internet, "
-                        "responde desde tu material.",
-                    )
-                ],
-            ),
-            (
-                "Casos reales",
-                [
-                    (
-                        "Armar una clase completa",
-                        "slides",
-                        540,
-                        "Carga el capítulo del libro, tus apuntes y la planificación. "
-                        "Después pídele una guía de estudio, preguntas de repaso y un "
-                        "resumen para las familias.",
-                    )
-                ],
-            ),
-        ],
-    },
-    {
-        "slug": "evaluacion-asistida-por-ia",
-        "title": "Evaluación asistida por IA",
-        "summary": "Diseña rúbricas y corrige con criterio",
-        "level": "expert",
-        "modules": [
-            (
-                "Rúbricas",
-                [
-                    (
-                        "Qué mide una buena rúbrica",
-                        "text",
-                        480,
-                        "Una rúbrica que solo dice 'excelente / bueno / regular' no mide "
-                        "nada: mide la impresión de quien corrige. Una que sirve nombra "
-                        "dimensiones observables y qué se ve en cada nivel.",
-                    )
-                ],
-            )
-        ],
-    },
-]
+                )
+            else:
+                lesson.title = lesson_title
+                lesson.kind = kind
+                lesson.duration_seconds = duration
+                lesson.body = body
 
 
 async def main() -> None:
@@ -279,21 +189,8 @@ async def main() -> None:
             if existing_course is not None:
                 existing_course.title = str(course_data["title"])
                 existing_course.summary = str(course_data["summary"])
-                existing_course.description = _course_description(str(course_data["summary"]))
-                modules_data: list[tuple[str, list[tuple[str, str, int, str]]]] = course_data[
-                    "modules"
-                ]  # type: ignore[assignment]
-                for module in existing_course.modules:
-                    if module.position < 1 or module.position > len(modules_data):
-                        continue
-                    module_title, lessons = modules_data[module.position - 1]
-                    module.title = module_title
-                    for lesson in module.lessons:
-                        if lesson.position < 1 or lesson.position > len(lessons):
-                            continue
-                        lesson_title, _kind, _duration, body = lessons[lesson.position - 1]
-                        lesson.title = lesson_title
-                        lesson.body = body
+                existing_course.description = _course_description(course_data)
+                _sync_modules(existing_course, course_data["modules"])
                 continue
 
             course = CourseModel(
@@ -301,7 +198,7 @@ async def main() -> None:
                 slug=str(course_data["slug"]),
                 title=str(course_data["title"]),
                 summary=str(course_data["summary"]),
-                description=_course_description(str(course_data["summary"])),
+                description=_course_description(course_data),
                 level=str(course_data["level"]),
                 status="published",
                 instructor_id=instructor.id,
@@ -343,35 +240,11 @@ async def main() -> None:
             if exists.scalar_one_or_none() is None:
                 session.add(PlanModel(id=uuid4(), **plan))
 
-    # An activity on the first course, so the Lab has something to run.
     async with database.session() as session:
-        course_row = (
-            await session.execute(
-                select(CourseModel).where(CourseModel.slug == "prompting-para-docentes")
-            )
-        ).scalar_one()
-        already = await session.execute(
-            select(ActivityModel).where(ActivityModel.course_id == course_row.id)
-        )
-        existing_activity = already.scalars().first()
-        if existing_activity is not None:
-            existing_activity.title = DEMO_ACTIVITY_TITLE
-            existing_activity.statement = DEMO_ACTIVITY_STATEMENT
-        else:
-            module_row = (
-                (
-                    await session.execute(
-                        select(ModuleModel)
-                        .where(ModuleModel.course_id == course_row.id)
-                        .order_by(ModuleModel.position)
-                    )
-                )
-                .scalars()
-                .first()
-            )
-
-            rubric = RubricModel(id=uuid4(), version=1, name="Rúbrica base de prompting")
-            rubric.dimensions = [
+        shared_rubric = (await session.execute(select(RubricModel).limit(1))).scalar_one_or_none()
+        if shared_rubric is None:
+            shared_rubric = RubricModel(id=uuid4(), version=1, name="Rúbrica base de prompting")
+            shared_rubric.dimensions = [
                 RubricDimensionModel(
                     id=uuid4(),
                     key=key,
@@ -382,30 +255,67 @@ async def main() -> None:
                 )
                 for key, name, description, kind, weight in DEMO_DIMENSIONS
             ]
-            session.add(rubric)
+            session.add(shared_rubric)
+            await session.flush()
 
+        for activity_data in TEACHER_ACTIVITIES:
+            course_row = (
+                await session.execute(
+                    select(CourseModel).where(CourseModel.slug == activity_data["course_slug"])
+                )
+            ).scalar_one()
+            already = await session.execute(
+                select(ActivityModel).where(
+                    ActivityModel.course_id == course_row.id,
+                    ActivityModel.title == activity_data["title"],
+                )
+            )
+            existing_activity = already.scalars().first()
+            if existing_activity is not None:
+                existing_activity.statement = activity_data["statement"]
+                existing_activity.checks = activity_data["checks"]
+                continue
+
+            # One activity per course in the first seed: reuse the row if the
+            # title changed (old demo title) so we do not leave orphans.
+            previous = await session.execute(
+                select(ActivityModel).where(ActivityModel.course_id == course_row.id)
+            )
+            previous_activity = previous.scalars().first()
+            if previous_activity is not None:
+                previous_activity.title = activity_data["title"]
+                previous_activity.statement = activity_data["statement"]
+                previous_activity.checks = activity_data["checks"]
+                continue
+
+            module_row = (
+                (
+                    await session.execute(
+                        select(ModuleModel)
+                        .where(ModuleModel.course_id == course_row.id)
+                        .order_by(ModuleModel.position.desc())
+                    )
+                )
+                .scalars()
+                .first()
+            )
             session.add(
                 ActivityModel(
                     id=uuid4(),
                     module_id=module_row.id,
                     course_id=course_row.id,
-                    rubric_id=rubric.id,
-                    title=DEMO_ACTIVITY_TITLE,
-                    statement=DEMO_ACTIVITY_STATEMENT,
+                    rubric_id=shared_rubric.id,
+                    title=activity_data["title"],
+                    statement=activity_data["statement"],
                     max_attempts=3,
-                    checks={
-                        "requires_role": True,
-                        "requires_format": True,
-                        "required_terms": [["fracciones", "quebrados"]],
-                        "min_length": 15,
-                    },
+                    checks=activity_data["checks"],
                 )
             )
 
     await database.dispose()
     print(f"Seeded {len(DEMO_COURSES)} courses for {instructor.full_name}")
     print(f"Cohort code: {DEMO_COHORT_CODE}")
-    print(f"Activity: {DEMO_ACTIVITY_TITLE}")
+    print(f"Activities: {', '.join(a['title'] for a in TEACHER_ACTIVITIES)}")
     print(f"Plans: {', '.join(str(p['code']) for p in DEMO_PLANS)} (cupos [A confirmar])")
 
 
