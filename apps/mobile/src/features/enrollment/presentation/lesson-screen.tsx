@@ -9,6 +9,7 @@ import {
   useCompleteLesson,
   useLesson,
 } from '@/features/enrollment/application/use-enrollment';
+import { LessonArticle } from '@/features/enrollment/presentation/lesson-article';
 import {
   LessonPlayer,
   LessonPlayerUnavailable,
@@ -72,7 +73,7 @@ export function LessonScreen() {
       ) : null}
 
       {lesson.body ? (
-        <Text style={[styles.body, { color: theme.colors.text }]}>{lesson.body}</Text>
+        <LessonArticle body={lesson.body} />
       ) : (
         <View
           style={[
@@ -204,10 +205,6 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     fontSize: 14,
-  },
-  body: {
-    fontSize: 16,
-    lineHeight: 26,
   },
   completeButton: {
     borderWidth: 1,
