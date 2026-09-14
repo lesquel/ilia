@@ -1,6 +1,7 @@
 import { Link, Stack } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { BrandMark } from '@/core/ui/brand-mark';
 import { useTheme } from '@/core/theme';
 
 /**
@@ -18,6 +19,7 @@ export default function NotFound() {
     <>
       <Stack.Screen options={{ title: 'Página no encontrada' }} />
       <View style={[styles.screen, { backgroundColor: theme.colors.bg }]}>
+        <BrandMark variant="monogram" height={48} />
         <Text style={[styles.title, { color: theme.colors.text }]}>
           No encontramos esta página
         </Text>

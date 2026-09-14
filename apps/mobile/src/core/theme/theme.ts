@@ -1,5 +1,3 @@
-import { useColorScheme } from 'react-native';
-
 import { type Palette, palette, radius, shadow, space, typography } from './tokens';
 
 export interface Theme {
@@ -10,11 +8,13 @@ export interface Theme {
   typography: typeof typography;
 }
 
+/**
+ * Light only. The official lockup lives on paper; following the OS into
+ * dark mode turned the institute into a night app, which is not the brand.
+ */
 export function useTheme(): Theme {
-  const scheme = useColorScheme();
-
   return {
-    colors: scheme === 'dark' ? palette.dark : palette.light,
+    colors: palette.light,
     space,
     radius,
     shadow,

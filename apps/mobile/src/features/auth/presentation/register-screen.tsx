@@ -12,7 +12,9 @@ import {
   View,
 } from 'react-native';
 
+import { INSTITUTE_FULL_NAME } from '@/core/brand';
 import { ApiError } from '@/core/errors/api-error';
+import { BrandMark } from '@/core/ui/brand-mark';
 import { useTheme } from '@/core/theme';
 import { useRegister } from '@/features/auth/application/use-auth';
 import { safeDestination } from '@/features/auth/domain/entities';
@@ -90,9 +92,15 @@ export function RegisterScreen() {
     >
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <View style={styles.card}>
-          <Text style={[styles.brand, { color: theme.colors.text }]}>
-            IL<Text style={{ color: theme.colors.accent }}>IA</Text>
-          </Text>
+          <Link href="/" asChild>
+            <Pressable
+              accessibilityRole="link"
+              accessibilityLabel={`${INSTITUTE_FULL_NAME}, inicio`}
+              style={styles.brandHit}
+            >
+              <BrandMark variant="lockup" height={96} />
+            </Pressable>
+          </Link>
 
           <Text style={[styles.title, { color: theme.colors.text }]}>Crear cuenta</Text>
           <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
@@ -212,7 +220,7 @@ export function RegisterScreen() {
 const styles = StyleSheet.create({
   scroll: { flexGrow: 1, justifyContent: 'center', padding: 20.4 },
   card: { width: '100%', maxWidth: 420, alignSelf: 'center' },
-  brand: { fontSize: 28, fontWeight: '600', letterSpacing: 1, marginBottom: 27.2 },
+  brandHit: { alignSelf: 'flex-start', marginBottom: 27.2 },
   title: { fontSize: 30, fontWeight: '600', marginBottom: 6.8 },
   subtitle: { fontSize: 15, marginBottom: 27.2 },
   label: { fontSize: 13, marginBottom: 6.8 },

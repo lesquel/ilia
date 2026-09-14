@@ -61,3 +61,4 @@ apps/api/media/
 # Playwright's scratch output from browser verification runs.
 .playwright-mcp/
 *.png
+!apps/mobile/assets/**/*.png

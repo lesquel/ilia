@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20.4,
     gap: 10.2,
-    backgroundColor: '#f2f2f3',
+    backgroundColor: '#ffffff',
   },
   title: { fontSize: 22, fontWeight: '600', color: '#1d1f20', textAlign: 'center' },
   body: {
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     maxWidth: 420,
   },
   button: {
-    backgroundColor: '#5980a6',
+    backgroundColor: '#1b70fe',
     borderRadius: 7,
     paddingVertical: 13.6,
     paddingHorizontal: 27.2,

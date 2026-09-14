@@ -2,6 +2,7 @@ import { Link } from 'expo-router';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
+import { BrandMark } from '@/core/ui/brand-mark';
 import { useLogout, useSession } from '@/features/auth/application/use-auth';
 
 /**
@@ -28,8 +29,10 @@ export function AccountBar() {
         { backgroundColor: theme.colors.neutral[100], borderBottomColor: theme.colors.divider },
       ]}
     >
-      <Link href="/" style={[styles.brand, { color: theme.colors.text }]}>
-        ILIA
+      <Link href="/" asChild>
+        <Pressable accessibilityRole="link" accessibilityLabel="ILIA, inicio">
+          <BrandMark variant="monogram" height={28} />
+        </Pressable>
       </Link>
 
       <View style={styles.right}>
@@ -64,7 +67,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10.2,
     borderBottomWidth: 1,
   },
-  brand: { fontSize: 15, fontWeight: '600', letterSpacing: 1 },
   right: { flexDirection: 'row', alignItems: 'center', gap: 13.6, flexShrink: 1 },
   name: { fontSize: 13, flexShrink: 1 },
   action: { minHeight: 32, justifyContent: 'center' },

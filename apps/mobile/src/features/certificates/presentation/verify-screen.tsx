@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
+import { BrandMark } from '@/core/ui/brand-mark';
 import { LoadingState } from '@/core/ui/state-view';
 import { useVerification } from '@/features/certificates/application/use-certificates';
 import { formatIssueDate } from '@/features/certificates/domain/entities';
@@ -33,9 +34,7 @@ export function VerifyScreen() {
       style={{ backgroundColor: theme.colors.bg }}
       contentContainerStyle={styles.content}
     >
-      <Text style={[styles.brand, { color: theme.colors.text }]}>
-        IL<Text style={{ color: theme.colors.accent }}>IA</Text>
-      </Text>
+      <BrandMark variant="monogram" height={40} />
 
       <Text style={[styles.title, { color: theme.colors.text }]}>Verificar un certificado</Text>
       <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
@@ -157,7 +156,6 @@ const styles = StyleSheet.create({
     gap: 10.2,
     paddingTop: 40,
   },
-  brand: { fontSize: 24, fontWeight: '600', letterSpacing: 1, marginBottom: 13.6 },
   title: { fontSize: 30, fontWeight: '600' },
   subtitle: { fontSize: 15, lineHeight: 22, marginBottom: 6.8 },
   searchRow: { flexDirection: 'row', gap: 6.8, flexWrap: 'wrap' },

@@ -2,7 +2,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useMemo } from 'react';
-import { SafeAreaView, useColorScheme } from 'react-native';
+import { SafeAreaView } from 'react-native';
 
 import { createQueryClient } from '@/core/api/query-client';
 import { ErrorBoundary } from '@/core/ui/error-boundary';
@@ -13,8 +13,7 @@ import { AccountBar, installAuthTokenProvider } from '@/features/auth';
 installAuthTokenProvider();
 
 export default function RootLayout() {
-  const scheme = useColorScheme();
-  const colors = scheme === 'dark' ? palette.dark : palette.light;
+  const colors = palette.light;
 
   const queryClient = useMemo(() => createQueryClient(), []);
 
@@ -23,7 +22,7 @@ export default function RootLayout() {
     // what broke, a boundary inside them cannot render anything either.
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-      <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+      <StatusBar style="dark" />
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
         {/* Above the Stack, so it survives navigation. Signing out is the only
             action that must be reachable from every screen. */}

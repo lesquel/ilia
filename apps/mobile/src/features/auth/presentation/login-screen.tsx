@@ -10,10 +10,13 @@ import {
   Text,
   TextInput,
   View,
+  useWindowDimensions,
 } from 'react-native';
 
+import { INSTITUTE_FULL_NAME } from '@/core/brand';
 import { ApiError } from '@/core/errors/api-error';
-import { useTheme } from '@/core/theme';
+import { BrandMark } from '@/core/ui/brand-mark';
+import { breakpoint, useTheme } from '@/core/theme';
 import { useLogin } from '@/features/auth/application/use-auth';
 import { safeDestination } from '@/features/auth/domain/entities';
 
@@ -41,6 +44,8 @@ export function LoginScreen() {
   const theme = useTheme();
   const router = useRouter();
   const login = useLogin();
+  const { width } = useWindowDimensions();
+  const isWide = width >= breakpoint.compact;
   // Where the person was heading before being asked to sign in.
   const { next } = useLocalSearchParams<{ next?: string }>();
   // Cast past expo-router's typed routes: the destination is a runtime value,
@@ -77,11 +82,28 @@ export function LoginScreen() {
       style={{ flex: 1, backgroundColor: theme.colors.bg }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={[styles.scroll, isWide ? styles.scrollWide : undefined]}
+        keyboardShouldPersistTaps="handled"
+      >
+        {isWide ? (
+          <View style={styles.identityPane}>
+            <BrandMark variant="lockup" height={240} />
+            <Text style={styles.identityLine}>{INSTITUTE_FULL_NAME}</Text>
+          </View>
+        ) : null}
+
+        <View style={[styles.formPane, isWide ? styles.formPaneWide : undefined]}>
         <View style={styles.card}>
-          <Text style={[styles.brand, { color: theme.colors.text }]}>
-            IL<Text style={{ color: theme.colors.accent }}>IA</Text>
-          </Text>
+          <Link href="/" asChild>
+            <Pressable
+              accessibilityRole="link"
+              accessibilityLabel={`${INSTITUTE_FULL_NAME}, inicio`}
+              style={styles.brandHit}
+            >
+              <BrandMark variant="monogram" height={40} />
+            </Pressable>
+          </Link>
 
           <Text style={[styles.title, { color: theme.colors.text }]}>Iniciar sesión</Text>
           <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
@@ -155,6 +177,7 @@ export function LoginScreen() {
             </Link>
           </Text>
         </View>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -166,15 +189,45 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20.4,
   },
+  scrollWide: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    padding: 0,
+  },
+  identityPane: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 40.8,
+    gap: 20.4,
+  },
+  formPane: {
+    width: '100%',
+    justifyContent: 'center',
+  },
+  formPaneWide: {
+    flex: 1,
+    padding: 20.4,
+  },
+  identityLine: {
+    color: '#000000',
+    fontSize: 11,
+    fontWeight: '600',
+    letterSpacing: 1.6,
+    textTransform: 'uppercase',
+    textAlign: 'center',
+    maxWidth: 280,
+  },
   card: {
     width: '100%',
     maxWidth: 420,
     alignSelf: 'center',
+    padding: 20.4,
+    gap: 0,
   },
-  brand: {
-    fontSize: 28,
-    fontWeight: '600',
-    letterSpacing: 1,
+  brandHit: {
+    alignSelf: 'flex-start',
     marginBottom: 27.2,
   },
   title: {
