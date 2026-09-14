@@ -69,7 +69,7 @@ export function InstructorCoursesScreen() {
         {denied ? (
           <EmptyState
             title="Esta sección es para instructores"
-            hint="Si deberías tener acceso, pedile a un administrador que te cambie el rol."
+            hint="Si deberías tener acceso, pídele a un administrador que te cambie el rol."
           />
         ) : (
           <ErrorState error={error} onRetry={() => void refetch()} />
@@ -203,7 +203,7 @@ export function InstructorCoursesScreen() {
         ) : (
           <EmptyState
             title="Todavía no creaste ningún curso"
-            hint="Empezá por un borrador. No se publica hasta que vos lo digas."
+            hint="Empieza por un borrador. No se publica hasta que tú lo digas."
           />
         )
       }

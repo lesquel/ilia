@@ -18,7 +18,7 @@ function messageFor(error: unknown): string {
     case 'too_many_attempts':
       return 'Demasiados intentos. Esperá unos minutos y probá de nuevo.';
     case 'network_error':
-      return 'No pudimos conectarnos. Revisá tu conexión.';
+      return 'No pudimos conectarnos. Revisa tu conexión.';
     default:
       return 'No pudimos cambiar tu contraseña.';
   }
@@ -165,8 +165,8 @@ export function AccountScreen() {
       {/* Stated rather than hidden: someone who cannot get in needs to know
           that today the answer is a person, not a link. */}
       <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>
-        ¿Olvidaste tu contraseña y no podés entrar? Todavía no hay recuperación por correo:
-        escribinos y la restablecemos.
+        ¿Olvidaste tu contraseña y no puedes entrar? Todavía no hay recuperación por correo:
+        escríbenos y la restablecemos.
       </Text>
     </ScrollView>
   );

@@ -702,7 +702,7 @@ class TestAuthoringActivities:
     # A module-level constant, not a class attribute: a mutable default shared
     # across tests is one test away from another one's leftovers.
     ACTIVITY: ClassVar[dict[str, object]] = {
-        "title": "Escribí tu primer prompt",
+        "title": "Escribe tu primer prompt",
         "statement": "Pedile a un modelo una guía de 5 ejercicios de fracciones.",
         "max_attempts": 3,
         "dimensions": [

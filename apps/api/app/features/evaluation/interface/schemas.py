@@ -60,15 +60,15 @@ def _requirements(activity: Activity) -> list[str]:
     requirements: list[str] = []
 
     if checks.requires_role:
-        requirements.append("Dale al modelo un rol o decí para quién es la respuesta.")
+        requirements.append("Dale al modelo un rol o di para quién es la respuesta.")
     if checks.requires_format:
-        requirements.append("Indicá en qué formato querés la respuesta.")
+        requirements.append("Indica en qué formato quieres la respuesta.")
     if checks.min_length:
-        requirements.append(f"Escribí al menos {checks.min_length} palabras.")
+        requirements.append(f"Escribe al menos {checks.min_length} palabras.")
     if checks.max_length:
         requirements.append(f"No superes las {checks.max_length} palabras.")
     for group in checks.required_terms:
-        requirements.append(f"Mencioná: {group[0]}.")
+        requirements.append(f"Menciona: {group[0]}.")
 
     return requirements
 

@@ -13,30 +13,29 @@ import {
   useWindowDimensions,
 } from 'react-native';
 
-import { INSTITUTE_FULL_NAME } from '@/core/brand';
 import { ApiError } from '@/core/errors/api-error';
-import { BrandMark } from '@/core/ui/brand-mark';
 import { breakpoint, useTheme } from '@/core/theme';
+import { AuthShell } from '@/features/auth/presentation/auth-shell';
 import { useLogin } from '@/features/auth/application/use-auth';
 import { safeDestination } from '@/features/auth/domain/entities';
 
 /** Wording the teacher reads, chosen here from the backend's stable error code. */
 function messageFor(error: unknown): string {
   if (!(error instanceof ApiError)) {
-    return 'Ocurrió un error inesperado. Volvé a intentarlo.';
+    return 'Ocurrió un error inesperado. Vuelve a intentarlo.';
   }
 
   switch (error.code) {
     case 'invalid_credentials':
       return 'El correo o la contraseña no son correctos.';
     case 'inactive_account':
-      return 'Esta cuenta está deshabilitada. Escribinos para reactivarla.';
+      return 'Esta cuenta está deshabilitada. Escríbenos para reactivarla.';
     case 'network_error':
-      return 'No pudimos conectarnos. Revisá tu conexión e intentá de nuevo.';
+      return 'No pudimos conectarnos. Revisa tu conexión e inténtalo de nuevo.';
     case 'unavailable':
-      return 'El servicio no está disponible en este momento. Probá en unos minutos.';
+      return 'El servicio no está disponible en este momento. Prueba en unos minutos.';
     default:
-      return 'No pudimos iniciar sesión. Volvé a intentarlo.';
+      return 'No pudimos iniciar sesión. Vuelve a intentarlo.';
   }
 }
 
@@ -44,9 +43,9 @@ export function LoginScreen() {
   const theme = useTheme();
   const router = useRouter();
   const login = useLogin();
+  // Where the person was heading before being asked to sign in.
   const { width } = useWindowDimensions();
   const isWide = width >= breakpoint.compact;
-  // Where the person was heading before being asked to sign in.
   const { next } = useLocalSearchParams<{ next?: string }>();
   // Cast past expo-router's typed routes: the destination is a runtime value,
   // and `safeDestination` is what makes it safe — it only ever returns an
@@ -82,32 +81,15 @@ export function LoginScreen() {
       style={{ flex: 1, backgroundColor: theme.colors.bg }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
+      <AuthShell>
       <ScrollView
-        contentContainerStyle={[styles.scroll, isWide ? styles.scrollWide : undefined]}
+        contentContainerStyle={[styles.scroll, isWide ? undefined : styles.scrollCompact]}
         keyboardShouldPersistTaps="handled"
       >
-        {isWide ? (
-          <View style={styles.identityPane}>
-            <BrandMark variant="lockup" height={240} />
-            <Text style={styles.identityLine}>{INSTITUTE_FULL_NAME}</Text>
-          </View>
-        ) : null}
-
-        <View style={[styles.formPane, isWide ? styles.formPaneWide : undefined]}>
         <View style={styles.card}>
-          <Link href="/" asChild>
-            <Pressable
-              accessibilityRole="link"
-              accessibilityLabel={`${INSTITUTE_FULL_NAME}, inicio`}
-              style={styles.brandHit}
-            >
-              <BrandMark variant="monogram" height={40} />
-            </Pressable>
-          </Link>
-
           <Text style={[styles.title, { color: theme.colors.text }]}>Iniciar sesión</Text>
           <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
-            Entrá para continuar con tus cursos
+            Entra para continuar con tus cursos
           </Text>
 
           <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>Correo</Text>
@@ -168,7 +150,7 @@ export function LoginScreen() {
           </Pressable>
 
           <Text style={[styles.footer, { color: theme.colors.neutral[600] }]}>
-            ¿Todavía no tenés cuenta?{' '}
+            ¿Todavía no tienes cuenta?{' '}
             <Link
               href={next ? `/register?next=${encodeURIComponent(next)}` : '/register'}
               style={{ color: theme.colors.accent }}
@@ -177,8 +159,8 @@ export function LoginScreen() {
             </Link>
           </Text>
         </View>
-        </View>
       </ScrollView>
+      </AuthShell>
     </KeyboardAvoidingView>
   );
 }
@@ -187,48 +169,16 @@ const styles = StyleSheet.create({
   scroll: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: 20.4,
   },
-  scrollWide: {
-    flexDirection: 'row',
-    alignItems: 'stretch',
-    padding: 0,
-  },
-  identityPane: {
-    flex: 1,
-    backgroundColor: '#ffffff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 40.8,
-    gap: 20.4,
-  },
-  formPane: {
-    width: '100%',
-    justifyContent: 'center',
-  },
-  formPaneWide: {
-    flex: 1,
-    padding: 20.4,
-  },
-  identityLine: {
-    color: '#000000',
-    fontSize: 11,
-    fontWeight: '600',
-    letterSpacing: 1.6,
-    textTransform: 'uppercase',
-    textAlign: 'center',
-    maxWidth: 280,
+  scrollCompact: {
+    justifyContent: 'flex-start',
+    paddingTop: 8,
   },
   card: {
     width: '100%',
     maxWidth: 420,
     alignSelf: 'center',
-    padding: 20.4,
     gap: 0,
-  },
-  brandHit: {
-    alignSelf: 'flex-start',
-    marginBottom: 27.2,
   },
   title: {
     fontSize: 30,

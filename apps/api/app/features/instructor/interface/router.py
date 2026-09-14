@@ -473,7 +473,7 @@ class ActivityRequest(BaseModel):
     dimensions: list[DimensionRequest] = Field(min_length=1, max_length=8)
 
     # The deterministic checks. Optional, and the ones a teacher can act on in
-    # ten seconds: "no dijiste en qué formato querés la respuesta".
+    # ten seconds: "no dijiste en qué formato quieres la respuesta".
     # Each group is a set of synonyms — matching any one of them counts.
     required_terms: list[list[str]] = Field(default_factory=list, max_length=20)
     min_length: int = Field(default=0, ge=0, le=4000)

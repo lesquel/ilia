@@ -34,7 +34,7 @@ function overrideMessage(error: unknown): string {
     case 'not_your_course':
       return 'Esa entrega es de un curso que no es tuyo.';
     case 'validation_error':
-      return 'Revisá la nota: tiene que estar entre 0 y 100, con una justificación.';
+      return 'Revisa la nota: tiene que estar entre 0 y 100, con una justificación.';
     case 'not_found':
       return 'Esa entrega ya no existe.';
     case 'network_error':
@@ -70,7 +70,7 @@ export function ReviewScreen() {
           </Link>
           <Text style={[styles.title, { color: theme.colors.text }]}>Entregas</Text>
           <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
-            Si el evaluador automático se equivocó, corregí la nota. Queda registrado quién,
+            Si el evaluador automático se equivocó, corrige la nota. Queda registrado quién,
             cuándo y por qué.
             {/* The count, so a full inbox does not look like a short one. */}
             {total > items.length ? ` Mostrando ${items.length} de ${total}.` : ''}
@@ -83,7 +83,7 @@ export function ReviewScreen() {
         ) : (
           <EmptyState
             title="Todavía no hay entregas"
-            hint="Van a aparecer acá cuando alguien resuelva una actividad de tus cursos."
+            hint="Van a aparecer aquí cuando alguien resuelva una actividad de tus cursos."
           />
         )
       }
@@ -166,7 +166,7 @@ function ReviewRow({ item }: { item: ReviewItem }) {
             multiline
             textAlignVertical="top"
             accessibilityLabel="Justificación de la corrección"
-            placeholder="Por qué corregís la nota. Es obligatorio y queda registrado."
+            placeholder="Por qué corriges la nota. Es obligatorio y queda registrado."
             placeholderTextColor={theme.colors.neutral[500]}
             style={[
               styles.input,

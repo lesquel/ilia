@@ -41,7 +41,7 @@ export function CatalogScreen() {
     <View style={styles.header}>
       <Text style={[styles.title, { color: theme.colors.text }]}>Explorar cursos</Text>
       <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
-        Aprendé haciendo. Cada módulo termina en una actividad, no en un cuestionario.
+        Aprende haciendo. Cada módulo termina en una actividad, no en un cuestionario.
       </Text>
 
       <TextInput
@@ -111,7 +111,7 @@ export function CatalogScreen() {
         ) : (
           <EmptyState
             title="No encontramos cursos"
-            hint="Probá con otra búsqueda o quitá los filtros."
+            hint="Prueba con otra búsqueda o quita los filtros."
           />
         )
       }

@@ -9,25 +9,25 @@ import { breakpoint, useTheme } from '@/core/theme';
 import { useSession } from '@/features/auth';
 import { CourseCard, useCourses } from '@/features/catalog';
 
-const instituteHeroPhotograph = require('../../../../assets/brand/ilia-hero-institute.png');
+const instituteHeroPhotograph = require('../../../../assets/brand/ilia-hero-lab.png');
 
 const FEATURED_COURSE_COUNT = 3;
 
 const LEARNING_STEPS = [
   {
     number: '01',
-    title: 'Aprendé',
-    body: 'Lecciones cortas: texto, vídeo y presentaciones, organizadas en módulos que caben entre clases.',
+    title: 'Aprende',
+    body: 'Lecciones cortas: texto, video y presentaciones, en módulos que caben entre clases.',
   },
   {
     number: '02',
-    title: 'Practicá',
+    title: 'Practica',
     body: 'Cada módulo cierra con una actividad de prompting. No hay cuestionario de opción múltiple.',
   },
   {
     number: '03',
-    title: 'Demostrá',
-    body: 'Escribís el prompt, la plataforma lo ejecuta y te devuelve una nota con rúbrica y requisitos objetivos.',
+    title: 'Demuestra',
+    body: 'Escribes el prompt, la plataforma lo ejecuta y te devuelve una nota con rúbrica y requisitos objetivos.',
   },
 ] as const;
 
@@ -40,7 +40,7 @@ const PLATFORM_INCLUSIONS = [
   {
     number: '02',
     title: 'Laboratorio de prompts',
-    body: 'El ejercicio es escribir la instrucción. Se evalúa lo que pedís y lo que obtenés.',
+    body: 'El ejercicio es escribir la instrucción. Se evalúa lo que pides y lo que obtienes.',
   },
   {
     number: '03',
@@ -64,9 +64,15 @@ const PLATFORM_INCLUSIONS = [
   },
 ] as const;
 
+const LAB_PREVIEW_SCORES = [
+  { label: 'Claridad', value: '82' },
+  { label: 'Contexto', value: '78' },
+  { label: 'Formato', value: '90' },
+] as const;
+
 /**
- * Public front door. A visitor should understand what ILIA is and see real
- * courses — not a directory of every signed-in screen.
+ * Public front door. A visitor should understand the product — writing
+ * prompts, getting a grade — not just see an institute brochure.
  */
 export function LandingScreen() {
   const theme = useTheme();
@@ -88,7 +94,7 @@ export function LandingScreen() {
         <View style={[styles.nav, isWide ? undefined : styles.navStacked]}>
           <Link href="/" asChild>
             <Pressable accessibilityRole="link" accessibilityLabel={`${INSTITUTE_FULL_NAME}, inicio`}>
-              <BrandMark variant="monogram" height={isWide ? 48 : 40} />
+              <BrandMark variant="monogram" height={isWide ? 44 : 36} />
             </Pressable>
           </Link>
 
@@ -111,64 +117,121 @@ export function LandingScreen() {
 
         <View style={[styles.hero, isWide ? styles.heroWide : undefined]}>
           <View style={styles.heroCopy}>
-            <Text style={[styles.kicker, { color: theme.colors.accent }]}>
-              {INSTITUTE_FULL_NAME}
-            </Text>
-            <View style={[styles.brandRule, { backgroundColor: theme.colors.accent }]} />
+            <View style={styles.kickerRow}>
+              <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
+              <Text style={[styles.kicker, { color: theme.colors.accent }]}>Laboratorio de IA</Text>
+            </View>
             <Text
               style={[
                 styles.headline,
-                { color: theme.colors.text, fontSize: isWide ? 48 : 32, lineHeight: isWide ? 52 : 36 },
+                {
+                  color: theme.colors.text,
+                  fontSize: isWide ? 56 : 34,
+                  lineHeight: isWide ? 60 : 38,
+                },
               ]}
             >
-              Formación en inteligencia artificial que se demuestra haciendo
+              Se aprende IA escribiendo, no eligiendo A, B o C.
             </Text>
             <Text style={[styles.lede, { color: theme.colors.neutral[600] }]}>
-              Un instituto, no un curso suelto. Escribís prompts, la plataforma
-              mide la calidad de lo que pedís y de lo que obtenés. No hay examen
-              de opción múltiple.
+              Escribes un prompt. La plataforma lo ejecuta y califica lo que
+              pediste y lo que obtuviste. La nota se puede defender: no depende
+              de un examen de memoria.
             </Text>
             <View style={styles.heroActions}>
               <ButtonLink href="/catalog" label="Explorar cursos" kind="primary" />
               {isSessionLoading ? null : showGuestActions ? (
-                <ButtonLink href="/register" label="Comenzar ahora" kind="secondary" />
+                <ButtonLink href="/register" label="Empezar ahora" kind="ghost" />
               ) : (
-                <ButtonLink href="/my-courses" label="Ir a mis cursos" kind="secondary" />
+                <ButtonLink href="/my-courses" label="Ir a mis cursos" kind="ghost" />
               )}
             </View>
           </View>
 
-          <View style={styles.heroIdentity}>
-            {isWide ? (
-              <Image
-                source={instituteHeroPhotograph}
-                style={[styles.heroPhotograph, { borderRadius: theme.radius.lg }]}
-                contentFit="cover"
-                accessibilityLabel="Interior del instituto, luz de mañana"
-              />
-            ) : null}
+          <View style={styles.heroStage}>
+            <Image
+              source={instituteHeroPhotograph}
+              style={[styles.heroPhotograph, { borderRadius: theme.radius.lg }]}
+              contentFit="cover"
+              accessibilityLabel="Laboratorio de ILIA: un docente escribe un prompt y recibe una evaluación"
+            />
             <View
               style={[
-                styles.lockupPlate,
+                styles.labWindow,
                 {
                   backgroundColor: theme.colors.surface,
                   borderColor: theme.colors.divider,
                   borderRadius: theme.radius.lg,
-                  ...theme.shadow.md,
+                  ...theme.shadow.lg,
                 },
               ]}
             >
-              <BrandMark variant="lockup" height={isWide ? 220 : 160} />
+              <View style={styles.labWindowChrome}>
+                <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
+                <Text style={[styles.labWindowKicker, { color: theme.colors.neutral[500] }]}>
+                  Sesión en vivo · evaluación
+                </Text>
+              </View>
+              <Text style={[styles.labPrompt, { color: theme.colors.neutral[700] }]}>
+                prompt ▸ actúa como docente de séptimo. Arma 5 ejercicios de
+                fracciones, de menor a mayor dificultad, en una tabla con
+                consigna y respuesta esperada.
+              </Text>
+              <View style={styles.labScores}>
+                {LAB_PREVIEW_SCORES.map((score) => (
+                  <View
+                    key={score.label}
+                    style={[styles.labScore, { borderColor: theme.colors.divider }]}
+                  >
+                    <Text style={[styles.labScoreLabel, { color: theme.colors.neutral[500] }]}>
+                      {score.label}
+                    </Text>
+                    <Text style={[styles.labScoreValue, { color: theme.colors.text }]}>
+                      {score.value}
+                    </Text>
+                  </View>
+                ))}
+                <View
+                  style={[
+                    styles.labScore,
+                    { backgroundColor: theme.colors.accent, borderColor: theme.colors.accent },
+                  ]}
+                >
+                  <Text style={[styles.labScoreLabel, { color: '#ffffff', opacity: 0.8 }]}>
+                    Total
+                  </Text>
+                  <Text style={[styles.labScoreValue, { color: '#ffffff' }]}>84</Text>
+                </View>
+              </View>
             </View>
           </View>
         </View>
+      </View>
 
-        <View style={[styles.section, { borderTopColor: theme.colors.divider }]}>
+      <View style={[styles.proofStrip, { borderColor: theme.colors.divider }]}>
+        <View style={styles.page}>
+          <View style={[styles.proofRow, isWide ? undefined : { flexDirection: 'column' }]}>
+            <ProofClaim
+              title="Sin opción múltiple"
+              body="La evidencia es el prompt y el resultado, no una casilla."
+            />
+            <ProofClaim
+              title="La nota se ancla"
+              body="Lo que se puede medir, la plataforma lo mide. El modelo no vota eso."
+            />
+            <ProofClaim
+              title="Certificado público"
+              body="Una escuela verifica el código sin crear cuenta."
+            />
+          </View>
+        </View>
+      </View>
+
+      <View style={styles.page}>
+        <View style={styles.section}>
           <View style={styles.sectionHeading}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
-              Cursos destacados
-            </Text>
-            <TextLink href="/catalog" label="Ver todos →" />
+            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>En el aire ahora</Text>
+            <TextLink href="/catalog" label="Ver catálogo →" />
           </View>
 
           {error && featuredCourses.length === 0 ? (
@@ -191,8 +254,8 @@ export function LandingScreen() {
                   key={course.id}
                   style={
                     courseColumns > 1
-                      ? { width: `${100 / courseColumns}%`, paddingRight: 13.6, paddingBottom: 13.6 }
-                      : { paddingBottom: 13.6 }
+                      ? { width: `${100 / courseColumns}%`, paddingRight: 16, paddingBottom: 16 }
+                      : { paddingBottom: 16 }
                   }
                 >
                   <CourseCard course={course} />
@@ -202,75 +265,51 @@ export function LandingScreen() {
           )}
         </View>
 
-        <View style={[styles.section, { borderTopColor: theme.colors.divider }]}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Aprendé haciendo</Text>
-          <Text style={[styles.lede, { color: theme.colors.neutral[600], marginBottom: 20.4 }]}>
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Cómo funciona</Text>
+          <Text style={[styles.lede, { color: theme.colors.neutral[600], marginBottom: 24 }]}>
             Cada módulo termina en una actividad ejecutable. Cada curso, en una
             evaluación que se puede defender.
           </Text>
-          <View
-            style={[
-              styles.steps,
-              {
-                borderColor: theme.colors.divider,
-                flexDirection: isWide ? 'row' : 'column',
-                borderRadius: theme.radius.lg,
-                overflow: 'hidden',
-                backgroundColor: theme.colors.surface,
-              },
-            ]}
-          >
-            {LEARNING_STEPS.map((step, index) => (
+          <View style={[styles.steps, isWide ? { flexDirection: 'row' } : undefined]}>
+            {LEARNING_STEPS.map((step) => (
               <View
                 key={step.number}
                 style={[
                   styles.step,
-                  isWide && index < LEARNING_STEPS.length - 1
-                    ? { borderRightWidth: 1, borderRightColor: theme.colors.divider }
-                    : undefined,
-                  !isWide && index < LEARNING_STEPS.length - 1
-                    ? { borderBottomWidth: 1, borderBottomColor: theme.colors.divider }
-                    : undefined,
+                  {
+                    backgroundColor: theme.colors.surface,
+                    borderColor: theme.colors.divider,
+                    borderRadius: theme.radius.lg,
+                  },
                 ]}
               >
-                <Text style={[styles.stepNumber, { color: theme.colors.accent }]}>{step.number}</Text>
+                <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
+                <Text style={[styles.stepNumber, { color: theme.colors.text }]}>{step.number}</Text>
                 <Text style={[styles.stepTitle, { color: theme.colors.text }]}>{step.title}</Text>
                 <Text style={[styles.stepBody, { color: theme.colors.neutral[600] }]}>{step.body}</Text>
               </View>
             ))}
           </View>
         </View>
-
       </View>
 
-      <View style={[styles.inclusionsBand, { backgroundColor: theme.colors.accentRamp[100] }]}>
-        <View style={[styles.brandRule, styles.inclusionsRule]} />
+      <View style={[styles.inclusionsBand, { backgroundColor: theme.colors.surface }]}>
         <View style={styles.page}>
           <Text style={[styles.inclusionsTitle, { color: theme.colors.text }]}>
-            Qué incluye el instituto
+            Qué incluye la plataforma
           </Text>
-          <View
-            style={[
-              styles.inclusionsGrid,
-              {
-                borderColor: theme.colors.divider,
-                flexDirection: isWide ? 'row' : 'column',
-                flexWrap: 'wrap',
-                borderRadius: theme.radius.lg,
-                overflow: 'hidden',
-                backgroundColor: theme.colors.surface,
-              },
-            ]}
-          >
+          <View style={[styles.inclusionsGrid, isWide ? undefined : { flexDirection: 'column' }]}>
             {PLATFORM_INCLUSIONS.map((inclusion) => (
               <View
                 key={inclusion.number}
                 style={[
                   styles.inclusion,
                   {
-                    backgroundColor: theme.colors.surface,
-                    width: isWide ? '33.333%' : '100%',
+                    backgroundColor: theme.colors.bg,
                     borderColor: theme.colors.divider,
+                    borderRadius: theme.radius.lg,
+                    width: isWide ? '31.5%' : '100%',
                   },
                 ]}
               >
@@ -289,6 +328,18 @@ export function LandingScreen() {
         </View>
       </View>
     </ScrollView>
+  );
+}
+
+function ProofClaim({ title, body }: { title: string; body: string }) {
+  const theme = useTheme();
+
+  return (
+    <View style={styles.proofClaim}>
+      <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
+      <Text style={[styles.proofTitle, { color: theme.colors.text }]}>{title}</Text>
+      <Text style={[styles.proofBody, { color: theme.colors.neutral[600] }]}>{body}</Text>
+    </View>
   );
 }
 
@@ -320,10 +371,11 @@ function ButtonLink({
 }: {
   href: '/catalog' | '/login' | '/register' | '/my-courses';
   label: string;
-  kind: 'primary' | 'secondary';
+  kind: 'primary' | 'secondary' | 'ghost';
 }) {
   const theme = useTheme();
   const isPrimary = kind === 'primary';
+  const isGhost = kind === 'ghost';
 
   return (
     <Link href={href} asChild>
@@ -333,8 +385,8 @@ function ButtonLink({
             style={[
               styles.button,
               {
-                backgroundColor: isPrimary ? theme.colors.accent : 'transparent',
-                borderColor: isPrimary ? theme.colors.accent : theme.colors.divider,
+                backgroundColor: isPrimary ? theme.colors.text : 'transparent',
+                borderColor: isGhost || !isPrimary ? theme.colors.divider : theme.colors.text,
                 borderRadius: theme.radius.md,
                 opacity: pressed ? 0.85 : 1,
               },
@@ -343,7 +395,7 @@ function ButtonLink({
             <Text
               style={[
                 styles.buttonLabel,
-                { color: isPrimary ? '#f2f2f3' : theme.colors.text },
+                { color: isPrimary ? '#ffffff' : theme.colors.text },
               ]}
             >
               {label}
@@ -361,8 +413,9 @@ const styles = StyleSheet.create({
   },
   page: {
     width: '100%',
-    maxWidth: 1280,
+    maxWidth: 1200,
     alignSelf: 'center',
+    paddingHorizontal: 20.4,
   },
   nav: {
     flexDirection: 'row',
@@ -370,8 +423,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 13.6,
-    paddingHorizontal: 20.4,
-    paddingVertical: 20.4,
+    paddingVertical: 18,
   },
   navStacked: {
     flexDirection: 'column',
@@ -387,55 +439,57 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   textLink: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
   },
   hero: {
-    paddingHorizontal: 20.4,
-    paddingBottom: 40.8,
-    gap: 27.2,
+    paddingTop: 12,
+    paddingBottom: 48,
+    gap: 32,
   },
   heroWide: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 40,
   },
   heroCopy: {
     flex: 1,
-    gap: 13.6,
+    gap: 16,
+  },
+  kickerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  signalSquare: {
+    width: 8,
+    height: 8,
   },
   kicker: {
-    alignSelf: 'flex-start',
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '600',
     letterSpacing: 1.8,
     textTransform: 'uppercase',
-    maxWidth: 420,
-  },
-  brandRule: {
-    width: 48,
-    height: 2,
   },
   headline: {
-    fontSize: 42,
-    fontWeight: '600',
-    lineHeight: 46,
-    letterSpacing: -0.4,
+    fontWeight: '700',
+    letterSpacing: -1.4,
   },
   lede: {
-    fontSize: 17,
-    lineHeight: 26,
+    fontSize: 18,
+    lineHeight: 28,
     maxWidth: 520,
   },
   heroActions: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10.2,
-    marginTop: 6.8,
+    gap: 10,
+    marginTop: 8,
   },
   button: {
     borderWidth: 1,
-    paddingVertical: 13.6,
-    paddingHorizontal: 20.4,
+    paddingVertical: 14,
+    paddingHorizontal: 22,
     minHeight: 48,
     justifyContent: 'center',
     alignItems: 'center',
@@ -444,94 +498,153 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  heroIdentity: {
-    flex: 1,
-    gap: 20.4,
+  heroStage: {
+    flex: 1.15,
+    position: 'relative',
+    minHeight: 280,
   },
   heroPhotograph: {
     width: '100%',
     aspectRatio: 16 / 10,
   },
-  lockupPlate: {
+  labWindow: {
+    marginTop: -48,
+    marginHorizontal: 16,
     borderWidth: 1,
-    paddingVertical: 20.4,
+    padding: 16,
+    gap: 12,
+  },
+  labWindowChrome: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: 8,
+  },
+  labWindowKicker: {
+    fontSize: 11,
+    fontWeight: '600',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+  },
+  labPrompt: {
+    fontSize: 14,
+    lineHeight: 21,
+  },
+  labScores: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  labScore: {
+    flex: 1,
+    borderWidth: 1,
+    padding: 8,
+  },
+  labScoreLabel: {
+    fontSize: 10,
+    fontWeight: '600',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+    marginBottom: 2,
+  },
+  labScoreValue: {
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  proofStrip: {
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    paddingVertical: 28,
+  },
+  proofRow: {
+    flexDirection: 'row',
+    gap: 28,
+  },
+  proofClaim: {
+    flex: 1,
+    gap: 8,
+  },
+  proofTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  proofBody: {
+    fontSize: 14,
+    lineHeight: 21,
   },
   section: {
-    paddingHorizontal: 20.4,
-    paddingVertical: 40.8,
-    borderTopWidth: 1,
-    borderTopColor: 'transparent',
+    paddingVertical: 48,
   },
   sectionHeading: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'baseline',
     justifyContent: 'space-between',
-    gap: 10.2,
-    marginBottom: 20.4,
+    gap: 10,
+    marginBottom: 22,
   },
   sectionTitle: {
-    fontSize: 28,
-    fontWeight: '600',
+    fontSize: 32,
+    fontWeight: '700',
+    letterSpacing: -0.6,
   },
   courseGrid: {
-    marginRight: -13.6,
+    marginRight: -16,
   },
   steps: {
-    borderWidth: 1,
+    gap: 14,
   },
   step: {
     flex: 1,
-    padding: 27.2,
-    gap: 6.8,
+    borderWidth: 1,
+    padding: 24,
+    gap: 8,
   },
   stepNumber: {
-    fontSize: 36,
-    fontWeight: '600',
-    lineHeight: 40,
+    fontSize: 13,
+    fontWeight: '700',
+    letterSpacing: 1.4,
   },
   stepTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 22,
+    fontWeight: '700',
   },
   stepBody: {
     fontSize: 14,
     lineHeight: 21,
   },
   inclusionsBand: {
+    paddingVertical: 48,
     paddingHorizontal: 20.4,
-    paddingVertical: 40.8,
-  },
-  inclusionsRule: {
-    width: 48,
-    backgroundColor: '#1b70fe',
-    marginBottom: 20.4,
-    marginLeft: 20.4,
-    borderRadius: 999,
   },
   inclusionsTitle: {
-    fontSize: 28,
-    fontWeight: '600',
-    marginBottom: 20.4,
+    fontSize: 32,
+    fontWeight: '700',
+    letterSpacing: -0.6,
+    marginBottom: 22,
+    maxWidth: 1200,
+    alignSelf: 'center',
+    width: '100%',
   },
   inclusionsGrid: {
-    borderWidth: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 14,
+    maxWidth: 1200,
+    alignSelf: 'center',
+    width: '100%',
   },
   inclusion: {
-    padding: 20.4,
+    padding: 20,
     borderWidth: 1,
-    gap: 6.8,
+    gap: 8,
   },
   inclusionNumber: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: '700',
     letterSpacing: 1.4,
   },
   inclusionTitle: {
     fontSize: 17,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   inclusionBody: {
     fontSize: 13,

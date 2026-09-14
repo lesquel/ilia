@@ -156,7 +156,7 @@ export function CourseEditorScreen() {
       {publishError ? (
         <Text style={[styles.error, { color: theme.colors.accentRamp[700] }]}>
           {publishError instanceof ApiError && publishError.code === 'course_not_ready'
-            ? 'El curso todavía no está listo. Mirá la lista de arriba.'
+            ? 'El curso todavía no está listo. Mira la lista de arriba.'
             : 'No pudimos publicar el curso.'}
         </Text>
       ) : null}

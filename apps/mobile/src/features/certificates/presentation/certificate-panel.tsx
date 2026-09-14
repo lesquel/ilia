@@ -42,7 +42,7 @@ export function CertificatePanel({ slug, courseTitle }: { slug: string; courseTi
         ]}
       >
         <Text style={[styles.title, { color: theme.colors.accentRamp[800] }]}>
-          Ya tenés tu certificado 🎓
+          Ya tienes tu certificado 🎓
         </Text>
         <Text selectable style={[styles.code, { color: theme.colors.accentRamp[800] }]}>
           {existing.code}
@@ -122,7 +122,7 @@ export function CertificatePanel({ slug, courseTitle }: { slug: string; courseTi
         <Text style={[styles.missing, { color: theme.colors.accentRamp[800] }]}>
           {issue.error instanceof ApiError && issue.error.code === 'criteria_not_met'
             ? 'Todavía falta algo. Recargá la página para ver qué.'
-            : 'No pudimos emitir el certificado. Probá de nuevo.'}
+            : 'No pudimos emitir el certificado. Prueba de nuevo.'}
         </Text>
       ) : null}
 

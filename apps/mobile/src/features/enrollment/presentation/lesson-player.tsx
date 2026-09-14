@@ -55,7 +55,7 @@ export function LessonPlayerUnavailable() {
       ]}
     >
       <Text style={[styles.placeholderText, { color: theme.colors.neutral[600] }]}>
-        No pudimos cargar el material de esta lección. Probá recargar la página.
+        No pudimos cargar el material de esta lección. Prueba recargar la página.
       </Text>
     </View>
   );

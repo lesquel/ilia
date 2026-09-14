@@ -24,7 +24,7 @@ export function MyCertificatesScreen() {
     return (
       <View style={[styles.screen, { backgroundColor: theme.colors.bg }]}>
         <EmptyState
-          title="Iniciá sesión para ver tus certificados"
+          title="Inicia sesión para ver tus certificados"
           hint="Tus certificados quedan guardados en tu cuenta."
         />
         {/* Carrying the destination, so signing in returns here rather than
@@ -67,8 +67,8 @@ export function MyCertificatesScreen() {
           <LoadingState label="Cargando tus certificados…" />
         ) : (
           <EmptyState
-            title="Todavía no tenés certificados"
-            hint="Completá las lecciones y aprobá las actividades de un curso para obtener el tuyo."
+            title="Todavía no tienes certificados"
+            hint="Completa las lecciones y aprueba las actividades de un curso para obtener el tuyo."
           />
         )
       }

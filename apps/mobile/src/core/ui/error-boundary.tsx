@@ -44,7 +44,7 @@ function ErrorFallback({ onRetry }: { onRetry: () => void }) {
     <View style={styles.screen}>
       <Text style={styles.title}>Algo se rompió de nuestro lado</Text>
       <Text style={styles.body}>
-        No es algo que hayas hecho mal. Probá de nuevo; si vuelve a pasar, escribinos y contanos
+        No es algo que hayas hecho mal. Prueba de nuevo; si vuelve a pasar, escríbenos y cuéntanos
         qué estabas haciendo.
       </Text>
 

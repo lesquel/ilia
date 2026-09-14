@@ -43,9 +43,9 @@ function messageFor(error: unknown): string {
 
   switch (error.code) {
     case 'network_error':
-      return 'No pudimos conectarnos. Revisá tu conexión.';
+      return 'No pudimos conectarnos. Revisa tu conexión.';
     case 'unavailable':
-      return 'El servicio no está disponible ahora mismo. Probá en unos minutos.';
+      return 'El servicio no está disponible ahora mismo. Prueba en unos minutos.';
     case 'not_found':
     case 'course_not_found':
       return 'No encontramos lo que buscabas.';

@@ -30,13 +30,17 @@ export function CourseCard({ course }: { course: CourseSummary }) {
             style={[
               styles.card,
               {
-                backgroundColor: theme.colors.neutral[100],
+                backgroundColor: theme.colors.surface,
                 borderColor: theme.colors.divider,
                 borderRadius: theme.radius.lg,
                 opacity: pressed ? 0.85 : 1,
+                overflow: 'hidden',
               },
             ]}
           >
+            <View style={styles.markBar}>
+              <View style={styles.signalSquare} />
+            </View>
             <View style={styles.badgeRow}>
               <View
                 style={[
@@ -47,7 +51,7 @@ export function CourseCard({ course }: { course: CourseSummary }) {
                   },
                 ]}
               >
-                <Text style={[styles.badgeText, { color: theme.colors.accentRamp[800] }]}>
+                <Text style={[styles.badgeText, { color: theme.colors.accent }]}>
                   {LEVEL_LABELS[course.level]}
                 </Text>
               </View>
@@ -84,7 +88,22 @@ const styles = StyleSheet.create({
     flex: 1,
     borderWidth: 1,
     padding: 20.4,
+    paddingTop: 16,
     gap: 6.8,
+  },
+  markBar: {
+    height: 8,
+    marginTop: -20.4,
+    marginHorizontal: -20.4,
+    marginBottom: 16,
+    backgroundColor: '#111111',
+    justifyContent: 'center',
+    paddingLeft: 16,
+  },
+  signalSquare: {
+    width: 8,
+    height: 8,
+    backgroundColor: '#1b70fe',
   },
   badgeRow: {
     flexDirection: 'row',

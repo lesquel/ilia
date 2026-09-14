@@ -6,7 +6,7 @@ runs and the certification would have nothing to stand on. These checks are the
 part of the mark that does not move.
 
 They are also the most actionable feedback in the product: "no dijiste en qué
-formato querés la respuesta" is something a teacher can fix in ten seconds.
+formato quieres la respuesta" is something a teacher can fix in ten seconds.
 """
 
 import re
@@ -159,7 +159,7 @@ def run_checks(prompt: str, spec: CheckSpec) -> CheckOutcome:
             CheckResult(
                 key="format",
                 passed=_mentions_any(folded, FORMAT_HINTS),
-                message="El prompt no dice en qué formato querés la respuesta.",
+                message="El prompt no dice en qué formato quieres la respuesta.",
             )
         )
 

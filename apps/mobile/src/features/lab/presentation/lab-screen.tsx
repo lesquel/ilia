@@ -35,9 +35,9 @@ function messageFor(error: unknown): string {
     case 'prompt_too_long':
       return `El prompt no puede superar los ${MAX_PROMPT_CHARS} caracteres.`;
     case 'empty_prompt':
-      return 'Escribí un prompt antes de enviar.';
+      return 'Escribe un prompt antes de enviar.';
     case 'network_error':
-      return 'No pudimos conectarnos. Revisá tu conexión.';
+      return 'No pudimos conectarnos. Revisa tu conexión.';
     default:
       return 'No pudimos enviar tu prompt.';
   }
@@ -170,7 +170,7 @@ export function LabScreen() {
           multiline
           textAlignVertical="top"
           maxLength={MAX_PROMPT_CHARS}
-          placeholder="Escribí acá el prompt que le vas a dar al modelo…"
+          placeholder="Escribe aquí el prompt que le vas a dar al modelo…"
           placeholderTextColor={theme.colors.neutral[500]}
           accessibilityLabel="Tu prompt"
           style={[

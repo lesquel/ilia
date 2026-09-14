@@ -58,7 +58,7 @@ export function AdminScreen({ extra }: { extra?: ReactNode } = {}) {
         {denied ? (
           <EmptyState
             title="Esta sección es para administradores"
-            hint="Si deberías tener acceso, pedile a otro administrador que te cambie el rol."
+            hint="Si deberías tener acceso, pídele a otro administrador que te cambie el rol."
           />
         ) : (
           <ErrorState error={error} />
@@ -200,7 +200,7 @@ export function AdminScreen({ extra }: { extra?: ReactNode } = {}) {
 
       <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Auditoría</Text>
       <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>
-        Registro de acciones sensibles. Solo se agrega: nada de acá se puede editar.
+        Registro de acciones sensibles. Solo se agrega: nada de aquí se puede editar.
         {auditTotal > entries.length ? ` Mostrando las ${entries.length} más recientes de ${auditTotal}.` : ''}
       </Text>
 
@@ -292,7 +292,7 @@ function UserRow({ user, query }: { user: ManagedUser; query: string }) {
   const message =
     change.error instanceof ApiError
       ? change.error.code === 'cannot_demote_yourself'
-        ? 'No podés cambiar tu propio rol.'
+        ? 'No puedes cambiar tu propio rol.'
         : change.error.code === 'last_admin'
           ? 'Tiene que quedar al menos un administrador.'
           : 'No pudimos cambiar el rol.'

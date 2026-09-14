@@ -26,7 +26,7 @@ export function MyCoursesScreen() {
     return (
       <View style={[styles.screen, { backgroundColor: theme.colors.bg }]}>
         <EmptyState
-          title="Iniciá sesión para ver tus cursos"
+          title="Inicia sesión para ver tus cursos"
           hint="Tu progreso queda guardado en tu cuenta."
         />
         {/* Carrying the destination, so signing in returns here rather than
@@ -70,7 +70,7 @@ export function MyCoursesScreen() {
         ) : (
           <EmptyState
             title="Todavía no te inscribiste en ningún curso"
-            hint="Explorá el catálogo y empezá por la ruta básica."
+            hint="Explora el catálogo y empieza por la ruta básica."
           />
         )
       }

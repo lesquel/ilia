@@ -266,7 +266,7 @@ def _suggestion_for(
     if weakest is not None:
         return f"Trabajá sobre «{weakest.name}»: {weakest.description}"
 
-    return "Volvé a intentarlo dándole más contexto al modelo."
+    return "Vuelve a intentarlo dándole más contexto al modelo."
 
 
 class GetSubmissionResult:

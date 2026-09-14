@@ -14,11 +14,11 @@ function messageFor(error: unknown): string {
     case 'slug_taken':
       return 'Ya hay otro curso con esa dirección. Elegí otra.';
     case 'published_slug_change':
-      return 'No se puede cambiar la dirección de un curso publicado. Retiralo del catálogo primero.';
+      return 'No se puede cambiar la dirección de un curso publicado. Retíralo del catálogo primero.';
     case 'invalid_slug':
       return 'La dirección sólo admite minúsculas sin acentos, números y guiones.';
     case 'validation_error':
-      return 'Revisá los campos: el título y el resumen no pueden quedar vacíos.';
+      return 'Revisa los campos: el título y el resumen no pueden quedar vacíos.';
     default:
       return 'No pudimos guardar los cambios.';
   }
@@ -110,7 +110,7 @@ export function CourseDetailsForm({ course }: { course: AuthoredCourse }) {
       />
       <Text style={[styles.hint, { color: theme.colors.neutral[600] }]}>
         {slugLocked
-          ? 'No se puede cambiar mientras el curso esté publicado: los enlaces que ya tienen tus estudiantes dejarían de funcionar. Retiralo del catálogo si necesitás cambiarla.'
+          ? 'No se puede cambiar mientras el curso esté publicado: los enlaces que ya tienen tus estudiantes dejarían de funcionar. Retíralo del catálogo si necesitas cambiarla.'
           : `Va a quedar como /catalog/${slug || 'direccion-del-curso'}`}
       </Text>
 

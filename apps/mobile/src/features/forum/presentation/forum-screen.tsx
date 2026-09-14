@@ -66,7 +66,7 @@ export function ForumScreen() {
         {denied ? (
           <EmptyState
             title="El foro es para quienes están en el curso"
-            hint="Inscribite y vas a poder leer y preguntar."
+            hint="Inscríbete y vas a poder leer y preguntar."
           />
         ) : (
           <ErrorState error={error} onRetry={() => void refetch()} />
@@ -107,7 +107,7 @@ export function ForumScreen() {
               ]}
             >
               <Text style={[styles.subtitle, { color: theme.colors.neutral[700] }]}>
-                Con tu plan actual podés leer el foro, pero no publicar.
+                Con tu plan actual puedes leer el foro, pero no publicar.
               </Text>
               <Link href="/plans" style={[styles.link, { color: theme.colors.accent }]}>
                 Ver planes →
@@ -145,7 +145,7 @@ export function ForumScreen() {
                 onChangeText={setBody}
                 multiline
                 textAlignVertical="top"
-                placeholder="Contá qué probaste y qué pasó."
+                placeholder="Cuenta qué probaste y qué pasó."
                 placeholderTextColor={theme.colors.neutral[500]}
                 accessibilityLabel="Cuerpo de la discusión"
                 style={[

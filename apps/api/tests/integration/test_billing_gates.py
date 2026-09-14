@@ -160,7 +160,7 @@ def publish_course_with_activity(client: TestClient, token: str, slug: str, leve
     return client.post(
         f"/api/v1/instructor/courses/{course['id']}/modules/{module['id']}/activities",
         json={
-            "title": "Escribí tu primer prompt",
+            "title": "Escribe tu primer prompt",
             "statement": "Pedile una guía de fracciones.",
             "max_attempts": 3,
             "dimensions": [

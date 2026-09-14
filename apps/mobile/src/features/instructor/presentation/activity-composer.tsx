@@ -31,7 +31,7 @@ function messageFor(error: unknown): string {
 
   switch (error.code) {
     case 'invalid_activity':
-      return 'Revisá las dimensiones: cada una necesita una clave distinta y un peso mayor a cero.';
+      return 'Revisa las dimensiones: cada una necesita una clave distinta y un peso mayor a cero.';
     case 'module_not_found':
       return 'Ese módulo no es de este curso.';
     case 'validation_error':
@@ -132,7 +132,7 @@ export function ActivityComposer({ courseId, moduleId }: { courseId: string; mod
         style={inputStyle}
         value={title}
         onChangeText={setTitle}
-        placeholder="Escribí tu primer prompt"
+        placeholder="Escribe tu primer prompt"
         placeholderTextColor={theme.colors.neutral[500]}
         accessibilityLabel="Título de la actividad"
       />

@@ -25,7 +25,7 @@ function messageFor(error: unknown): string {
     case 'plan_level_not_allowed':
       return 'Tu plan no incluye los cursos de este nivel.';
     case 'network_error':
-      return 'No pudimos conectarnos. Revisá tu conexión.';
+      return 'No pudimos conectarnos. Revisa tu conexión.';
     default:
       return 'No pudimos completar la inscripción.';
   }
@@ -140,7 +140,7 @@ export function EnrollPanel({ slug, level }: { slug: string; level?: Level }) {
   return (
     <View style={[styles.panel, { borderColor: theme.colors.divider }]}>
       <Text style={[styles.hint, { color: theme.colors.neutral[700] }]}>
-        ¿Venís de una charla presencial? Poné el código para que tu capacitación quede
+        ¿Vienes de una charla presencial? Pon el código para que tu capacitación quede
         registrada.
       </Text>
 

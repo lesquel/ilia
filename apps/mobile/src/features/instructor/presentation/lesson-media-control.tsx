@@ -17,7 +17,7 @@ function messageFor(error: unknown): string {
       case 'unsupported_media_type':
         return 'Ese tipo de archivo no se admite. Subí un video MP4 o WebM, un audio o un PDF.';
       case 'unavailable':
-        return 'El almacenamiento todavía no está configurado. Avisale a un administrador.';
+        return 'El almacenamiento todavía no está configurado. Avísale a un administrador.';
       case 'foreign_media_reference':
       case 'lesson_not_found':
         return 'Esa lección no es de este curso.';
@@ -29,7 +29,7 @@ function messageFor(error: unknown): string {
   if (error instanceof Error && error.message.startsWith('upload_failed')) {
     // The API said where to put it and the storage refused. Usually a link that
     // expired while a big file was still travelling on school Wi-Fi.
-    return 'La subida no se completó. Probá de nuevo; si el archivo es grande, puede haber expirado el enlace.';
+    return 'La subida no se completó. Prueba de nuevo; si el archivo es grande, puede haber expirado el enlace.';
   }
 
   return 'No pudimos subir el archivo.';

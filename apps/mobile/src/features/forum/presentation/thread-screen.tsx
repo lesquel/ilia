@@ -135,7 +135,7 @@ export function ThreadScreen() {
           ]}
         >
           <Text style={[styles.replyLabel, { color: theme.colors.neutral[700] }]}>
-            Con tu plan actual podés leer el foro, pero no responder.
+            Con tu plan actual puedes leer el foro, pero no responder.
           </Text>
           <Link href="/plans" style={[styles.planLink, { color: theme.colors.accent }]}>
             Ver planes →
@@ -150,7 +150,7 @@ export function ThreadScreen() {
         multiline
         textAlignVertical="top"
         maxLength={MAX_BODY_CHARS}
-        placeholder="Contá qué te funcionó a vos."
+        placeholder="Cuenta qué te funcionó a ti."
         placeholderTextColor={theme.colors.neutral[500]}
         accessibilityLabel="Tu respuesta"
         style={[

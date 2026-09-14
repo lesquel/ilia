@@ -94,7 +94,7 @@ export function LessonScreen() {
           style={[styles.completeError, { color: theme.colors.accentRamp[700] }]}
           accessibilityRole="alert"
         >
-          No pudimos guardar que la completaste. Probá de nuevo.
+          No pudimos guardar que la completaste. Prueba de nuevo.
         </Text>
       ) : null}
 

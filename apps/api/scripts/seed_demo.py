@@ -12,6 +12,7 @@ from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from app.core.config import get_settings
 from app.core.database import Database
@@ -54,7 +55,20 @@ DEMO_DIMENSIONS = [
     ),
 ]
 
-DEMO_ACTIVITY_TITLE = "Escribí tu primer prompt"
+DEMO_ACTIVITY_TITLE = "Escribe tu primer prompt"
+DEMO_ACTIVITY_STATEMENT = (
+    "Escribe un prompt que le pida a un modelo una guía de 5 ejercicios "
+    "de fracciones para séptimo grado, de dificultad creciente.\n\n"
+    "Tu prompt tiene que darle un rol al modelo, decir en qué formato "
+    "quieres la respuesta y mencionar explícitamente las fracciones."
+)
+
+
+def _course_description(summary: str) -> str:
+    return (
+        f"{summary}. Curso práctico: cada módulo termina en una "
+        "actividad ejecutable, no en un cuestionario."
+    )
 
 # **[A confirmar]** — PRD pregunta abierta 4 deja el cupo del tier gratuito y el
 # precio del pago sin definir. Estos números son un punto de partida para poder
@@ -93,7 +107,7 @@ DEMO_COURSES = [
     {
         "slug": "prompting-para-docentes",
         "title": "Prompting para docentes",
-        "summary": "Ahorrá horas por semana en material de clase",
+        "summary": "Ahorra horas por semana en material de clase",
         "level": "beginner",
         "modules": [
             (
@@ -103,46 +117,46 @@ DEMO_COURSES = [
                         "Anatomía de un prompt",
                         "video",
                         420,
-                        "Un prompt útil tiene cuatro partes: el ROL que le pedís al modelo "
+                        "Un prompt útil tiene cuatro partes: el ROL que le pides al modelo "
                         "que asuma, el CONTEXTO de tu clase, la TAREA concreta y el FORMATO "
-                        "en el que querés la respuesta.\n\n"
-                        "Comparalo:\n\n"
-                        '"Hacé un ejercicio de fracciones."\n\n'
+                        "en el que quieres la respuesta.\n\n"
+                        "Compáralo:\n\n"
+                        '"Haz un ejercicio de fracciones."\n\n'
                         "contra\n\n"
-                        '"Sos docente de matemática de séptimo. Escribí 5 ejercicios de suma '
+                        '"Eres docente de matemática de séptimo. Escribe 5 ejercicios de suma '
                         "de fracciones con distinto denominador, de dificultad creciente, "
                         'con la respuesta al final en una tabla."\n\n'
                         "El segundo no es más largo por adorno: cada palabra que agregaste "
-                        "elimina una decisión que el modelo iba a tomar por vos.",
+                        "elimina una decisión que el modelo iba a tomar por ti.",
                     )
                 ],
             ),
             (
-                "Aplicalo a tu clase",
+                "Aplícalo a tu clase",
                 [
                     (
                         "Generar una guía de ejercicios",
                         "video",
                         600,
-                        "Vamos a armar una guía completa partiendo del temario que ya tenés. "
+                        "Vamos a armar una guía completa partiendo del temario que ya tienes. "
                         "La clave es darle al modelo tu contexto real: el curso, el nivel, "
-                        "cuánto tiempo tenés y qué ya vieron tus alumnos.",
+                        "cuánto tiempo tienes y qué ya vieron tus alumnos.",
                     ),
                     (
                         "Resumir un texto largo",
                         "text",
                         300,
-                        "Pedir 'resumime esto' devuelve un resumen genérico. Pedí en cambio "
+                        "Pedir 'resúmeme esto' devuelve un resumen genérico. Pide en cambio "
                         "para quién es el resumen y para qué lo vas a usar.\n\n"
-                        "Probá: 'Resumí este texto en 5 viñetas para alumnos de 14 años que "
-                        "nunca vieron el tema, y agregá una pregunta de comprensión por "
+                        "Prueba: 'Resume este texto en 5 viñetas para alumnos de 14 años que "
+                        "nunca vieron el tema, y agrega una pregunta de comprensión por "
                         "viñeta.'",
                     ),
                     (
-                        "Comprobá lo aprendido",
+                        "Comprueba lo aprendido",
                         "quiz",
                         180,
-                        "Antes de seguir: escribí un prompt para generar material de tu "
+                        "Antes de seguir: escribe un prompt para generar material de tu "
                         "próxima clase que incluya las cuatro partes: rol, contexto, tarea "
                         "y formato.",
                     ),
@@ -153,7 +167,7 @@ DEMO_COURSES = [
     {
         "slug": "notebooklm-en-el-aula",
         "title": "NotebookLM en el aula",
-        "summary": "Convertí tus apuntes en material de estudio",
+        "summary": "Convierte tus apuntes en material de estudio",
         "level": "intermediate",
         "modules": [
             (
@@ -163,7 +177,7 @@ DEMO_COURSES = [
                         "Cargar tus fuentes",
                         "video",
                         360,
-                        "NotebookLM trabaja solo con las fuentes que vos le das. Eso es una "
+                        "NotebookLM trabaja solo con las fuentes que tú le das. Eso es una "
                         "limitación y también su mayor ventaja: no inventa desde internet, "
                         "responde desde tu material.",
                     )
@@ -176,8 +190,8 @@ DEMO_COURSES = [
                         "Armar una clase completa",
                         "slides",
                         540,
-                        "Cargá el capítulo del libro, tus apuntes y la planificación. "
-                        "Después pedile una guía de estudio, preguntas de repaso y un "
+                        "Carga el capítulo del libro, tus apuntes y la planificación. "
+                        "Después pídele una guía de estudio, preguntas de repaso y un "
                         "resumen para las familias.",
                     )
                 ],
@@ -187,7 +201,7 @@ DEMO_COURSES = [
     {
         "slug": "evaluacion-asistida-por-ia",
         "title": "Evaluación asistida por IA",
-        "summary": "Diseñá rúbricas y corregí con criterio",
+        "summary": "Diseña rúbricas y corrige con criterio",
         "level": "expert",
         "modules": [
             (
@@ -257,9 +271,29 @@ async def main() -> None:
             # Idempotent: running the seed twice must not explode on the slug
             # unique index, because someone will run it twice.
             already_there = await session.execute(
-                select(CourseModel.id).where(CourseModel.slug == str(course_data["slug"]))
+                select(CourseModel)
+                .options(selectinload(CourseModel.modules).selectinload(ModuleModel.lessons))
+                .where(CourseModel.slug == str(course_data["slug"]))
             )
-            if already_there.scalar_one_or_none() is not None:
+            existing_course = already_there.scalar_one_or_none()
+            if existing_course is not None:
+                existing_course.title = str(course_data["title"])
+                existing_course.summary = str(course_data["summary"])
+                existing_course.description = _course_description(str(course_data["summary"]))
+                modules_data: list[tuple[str, list[tuple[str, str, int, str]]]] = course_data[
+                    "modules"
+                ]  # type: ignore[assignment]
+                for module in existing_course.modules:
+                    if module.position < 1 or module.position > len(modules_data):
+                        continue
+                    module_title, lessons = modules_data[module.position - 1]
+                    module.title = module_title
+                    for lesson in module.lessons:
+                        if lesson.position < 1 or lesson.position > len(lessons):
+                            continue
+                        lesson_title, _kind, _duration, body = lessons[lesson.position - 1]
+                        lesson.title = lesson_title
+                        lesson.body = body
                 continue
 
             course = CourseModel(
@@ -267,10 +301,7 @@ async def main() -> None:
                 slug=str(course_data["slug"]),
                 title=str(course_data["title"]),
                 summary=str(course_data["summary"]),
-                description=(
-                    f"{course_data['summary']}. Curso práctico: cada módulo termina en una "
-                    "actividad ejecutable, no en un cuestionario."
-                ),
+                description=_course_description(str(course_data["summary"])),
                 level=str(course_data["level"]),
                 status="published",
                 instructor_id=instructor.id,
@@ -314,15 +345,19 @@ async def main() -> None:
 
     # An activity on the first course, so the Lab has something to run.
     async with database.session() as session:
+        course_row = (
+            await session.execute(
+                select(CourseModel).where(CourseModel.slug == "prompting-para-docentes")
+            )
+        ).scalar_one()
         already = await session.execute(
-            select(ActivityModel).where(ActivityModel.title == DEMO_ACTIVITY_TITLE)
+            select(ActivityModel).where(ActivityModel.course_id == course_row.id)
         )
-        if already.scalar_one_or_none() is None:
-            course_row = (
-                await session.execute(
-                    select(CourseModel).where(CourseModel.slug == "prompting-para-docentes")
-                )
-            ).scalar_one()
+        existing_activity = already.scalars().first()
+        if existing_activity is not None:
+            existing_activity.title = DEMO_ACTIVITY_TITLE
+            existing_activity.statement = DEMO_ACTIVITY_STATEMENT
+        else:
             module_row = (
                 (
                     await session.execute(
@@ -356,12 +391,7 @@ async def main() -> None:
                     course_id=course_row.id,
                     rubric_id=rubric.id,
                     title=DEMO_ACTIVITY_TITLE,
-                    statement=(
-                        "Escribí un prompt que le pida a un modelo una guía de 5 ejercicios "
-                        "de fracciones para séptimo grado, de dificultad creciente.\n\n"
-                        "Tu prompt tiene que darle un rol al modelo, decir en qué formato "
-                        "querés la respuesta y mencionar explícitamente las fracciones."
-                    ),
+                    statement=DEMO_ACTIVITY_STATEMENT,
                     max_attempts=3,
                     checks={
                         "requires_role": True,

@@ -70,7 +70,7 @@ async def seed_course(
     slug: str,
     *,
     title: str | None = None,
-    summary: str = "Ahorrá tiempo en tus tareas de clase",
+    summary: str = "Ahorra tiempo en tus tareas de clase",
     level: Level = Level.BEGINNER,
     status: CourseStatus = CourseStatus.PUBLISHED,
     days: int = 0,

@@ -42,7 +42,7 @@ export function ResultScreen() {
         <ActivityIndicator color={theme.colors.accent} />
         <Text style={[styles.waitTitle, { color: theme.colors.text }]}>Evaluando tu prompt…</Text>
         <Text style={[styles.waitHint, { color: theme.colors.neutral[600] }]}>
-          Esto puede tardar unos segundos. Podés salir: cuando vuelvas va a estar acá.
+          Esto puede tardar unos segundos. Puedes salir: cuando vuelvas va a estar aquí.
         </Text>
       </View>
     );
@@ -55,7 +55,7 @@ export function ResultScreen() {
           No pudimos evaluar tu entrega
         </Text>
         <Text style={[styles.waitHint, { color: theme.colors.neutral[600] }]}>
-          Fue un problema nuestro, no tuyo. Probá de nuevo en unos minutos.
+          Fue un problema nuestro, no tuyo. Prueba de nuevo en unos minutos.
         </Text>
       </View>
     );

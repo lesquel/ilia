@@ -10,12 +10,12 @@ import {
   Text,
   TextInput,
   View,
+  useWindowDimensions,
 } from 'react-native';
 
-import { INSTITUTE_FULL_NAME } from '@/core/brand';
 import { ApiError } from '@/core/errors/api-error';
-import { BrandMark } from '@/core/ui/brand-mark';
-import { useTheme } from '@/core/theme';
+import { breakpoint, useTheme } from '@/core/theme';
+import { AuthShell } from '@/features/auth/presentation/auth-shell';
 import { useRegister } from '@/features/auth/application/use-auth';
 import { safeDestination } from '@/features/auth/domain/entities';
 
@@ -25,20 +25,20 @@ const MAX_NAME = 120;
 
 function messageFor(error: unknown): string {
   if (!(error instanceof ApiError)) {
-    return 'Ocurrió un error inesperado. Volvé a intentarlo.';
+    return 'Ocurrió un error inesperado. Vuelve a intentarlo.';
   }
 
   switch (error.code) {
     case 'email_already_registered':
-      return 'Ya existe una cuenta con ese correo. Probá iniciar sesión.';
+      return 'Ya existe una cuenta con ese correo. Prueba iniciar sesión.';
     case 'validation_error':
-      return 'Revisá los datos: el correo tiene que ser válido y la contraseña de al menos 8 caracteres.';
+      return 'Revisa los datos: el correo tiene que ser válido y la contraseña de al menos 8 caracteres.';
     case 'network_error':
-      return 'No pudimos conectarnos. Revisá tu conexión e intentá de nuevo.';
+      return 'No pudimos conectarnos. Revisa tu conexión e inténtalo de nuevo.';
     case 'unavailable':
-      return 'El servicio no está disponible en este momento. Probá en unos minutos.';
+      return 'El servicio no está disponible en este momento. Prueba en unos minutos.';
     default:
-      return 'No pudimos crear tu cuenta. Volvé a intentarlo.';
+      return 'No pudimos crear tu cuenta. Vuelve a intentarlo.';
   }
 }
 
@@ -46,6 +46,8 @@ export function RegisterScreen() {
   const theme = useTheme();
   const router = useRouter();
   const register = useRegister();
+  const { width } = useWindowDimensions();
+  const isWide = width >= breakpoint.compact;
   const { next } = useLocalSearchParams<{ next?: string }>();
   // Cast past expo-router's typed routes: the destination is a runtime value,
   // and `safeDestination` is what makes it safe — it only ever returns an
@@ -90,21 +92,15 @@ export function RegisterScreen() {
       style={{ flex: 1, backgroundColor: theme.colors.bg }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+      <AuthShell>
+      <ScrollView
+        contentContainerStyle={[styles.scroll, isWide ? undefined : styles.scrollCompact]}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.card}>
-          <Link href="/" asChild>
-            <Pressable
-              accessibilityRole="link"
-              accessibilityLabel={`${INSTITUTE_FULL_NAME}, inicio`}
-              style={styles.brandHit}
-            >
-              <BrandMark variant="lockup" height={96} />
-            </Pressable>
-          </Link>
-
           <Text style={[styles.title, { color: theme.colors.text }]}>Crear cuenta</Text>
           <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
-            Empezá a aprender inteligencia artificial haciendo
+            Empieza a aprender inteligencia artificial haciendo
           </Text>
 
           <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>Nombre y apellido</Text>
@@ -203,7 +199,7 @@ export function RegisterScreen() {
           </Pressable>
 
           <Text style={[styles.footer, { color: theme.colors.neutral[600] }]}>
-            ¿Ya tenés cuenta?{' '}
+            ¿Ya tienes cuenta?{' '}
             <Link
               href={next ? `/login?next=${encodeURIComponent(next)}` : '/login'}
               style={{ color: theme.colors.accent }}
@@ -213,14 +209,15 @@ export function RegisterScreen() {
           </Text>
         </View>
       </ScrollView>
+      </AuthShell>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: { flexGrow: 1, justifyContent: 'center', padding: 20.4 },
+  scroll: { flexGrow: 1, justifyContent: 'center' },
+  scrollCompact: { justifyContent: 'flex-start', paddingTop: 8 },
   card: { width: '100%', maxWidth: 420, alignSelf: 'center' },
-  brandHit: { alignSelf: 'flex-start', marginBottom: 27.2 },
   title: { fontSize: 30, fontWeight: '600', marginBottom: 6.8 },
   subtitle: { fontSize: 15, marginBottom: 27.2 },
   label: { fontSize: 13, marginBottom: 6.8 },

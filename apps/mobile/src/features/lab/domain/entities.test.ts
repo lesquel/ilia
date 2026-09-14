@@ -5,7 +5,7 @@ import { MAX_PROMPT_CHARS, canSubmit, type Activity } from './entities';
 function activity(attemptsLeft: number): Activity {
   return {
     id: 'a1',
-    title: 'Escribí tu primer prompt',
+    title: 'Escribe tu primer prompt',
     statement: 'Pedile una guía de fracciones.',
     requirements: [],
     dimensions: [],

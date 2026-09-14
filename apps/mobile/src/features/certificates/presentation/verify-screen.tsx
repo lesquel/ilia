@@ -38,7 +38,7 @@ export function VerifyScreen() {
 
       <Text style={[styles.title, { color: theme.colors.text }]}>Verificar un certificado</Text>
       <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
-        Escribí el código que aparece en el certificado. No hace falta tener cuenta.
+        Escribe el código que aparece en el certificado. No hace falta tener cuenta.
       </Text>
 
       <View style={styles.searchRow}>
@@ -91,7 +91,7 @@ export function VerifyScreen() {
             No encontramos ningún certificado con ese código
           </Text>
           <Text style={[styles.detail, { color: theme.colors.neutral[600] }]}>
-            Revisá que esté completo y bien escrito.
+            Revisa que esté completo y bien escrito.
           </Text>
         </View>
       ) : null}
