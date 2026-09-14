@@ -86,6 +86,24 @@ export const LEVEL_LABELS: Record<Level, string> = {
   expert: 'Experto',
 };
 
+const PATH_ORDER: Record<Level, number> = {
+  beginner: 0,
+  intermediate: 1,
+  expert: 2,
+};
+
+/**
+ * The catalog is a route, not a blog. Newest-published-first puts the expert
+ * course on the left and the starting course on the right.
+ */
+export function sortCoursesAlongLearningPath<Course extends { level: Level }>(
+  courses: Course[],
+): Course[] {
+  return [...courses].sort(
+    (left, right) => PATH_ORDER[left.level] - PATH_ORDER[right.level],
+  );
+}
+
 export const LESSON_KIND_LABELS: Record<LessonKind, string> = {
   video: 'Vídeo',
   slides: 'Presentación',

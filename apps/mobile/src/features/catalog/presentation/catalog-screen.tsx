@@ -13,7 +13,12 @@ import {
 import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
 import { breakpoint, useTheme } from '@/core/theme';
 import { useCourses } from '@/features/catalog/application/use-catalog';
-import { LEVELS, LEVEL_LABELS, type Level } from '@/features/catalog/domain/entities';
+import {
+  LEVELS,
+  LEVEL_LABELS,
+  sortCoursesAlongLearningPath,
+  type Level,
+} from '@/features/catalog/domain/entities';
 
 import { CourseCard } from './course-card';
 
@@ -32,6 +37,7 @@ export function CatalogScreen() {
 
   const { courses, isLoading, error, hasMore, isLoadingMore, loadMore, refetch } =
     useCourses(filters);
+  const coursesAlongPath = useMemo(() => sortCoursesAlongLearningPath(courses), [courses]);
 
   // Same breakpoints as the mockup's container queries: one column on a phone,
   // two on a tablet, three on a desktop.
@@ -92,7 +98,7 @@ export function CatalogScreen() {
     <FlatList
       style={{ backgroundColor: theme.colors.bg }}
       contentContainerStyle={styles.content}
-      data={courses}
+      data={coursesAlongPath}
       // `columns` changes with the window, and FlatList cannot change numColumns
       // on the fly — the key forces a fresh list instead of an invariant error.
       key={`columns-${columns}`}

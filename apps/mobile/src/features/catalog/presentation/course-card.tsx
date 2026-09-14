@@ -1,15 +1,54 @@
 import { Link } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import type { LucideIcon } from 'lucide-react-native';
+import {
+  ArrowRight,
+  BookOpen,
+  ClipboardCheck,
+  Clock,
+  MessageSquare,
+  NotebookPen,
+} from 'lucide-react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
+import { Icon } from '@/core/ui/icon';
 import {
   LEVEL_LABELS,
   formatDuration,
   type CourseSummary,
+  type Level,
 } from '@/features/catalog/domain/entities';
+
+const PATH_STEP: Record<Level, string> = {
+  beginner: '1',
+  intermediate: '2',
+  expert: '3',
+};
+
+const COURSE_GLYPH: Record<Level, LucideIcon> = {
+  beginner: MessageSquare,
+  intermediate: NotebookPen,
+  expert: ClipboardCheck,
+};
+
+function cardLift() {
+  if (Platform.OS === 'web') {
+    return { boxShadow: '0 10px 28px rgba(17, 17, 17, 0.06)' };
+  }
+
+  return {
+    shadowColor: '#111111',
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 3,
+  };
+}
 
 export function CourseCard({ course }: { course: CourseSummary }) {
   const theme = useTheme();
+  const isStartHere = course.level === 'beginner';
+  const CourseGlyph = COURSE_GLYPH[course.level];
 
   return (
     // `Link` and not an onPress handler: on web this renders a real anchor, so
@@ -33,46 +72,81 @@ export function CourseCard({ course }: { course: CourseSummary }) {
                 backgroundColor: theme.colors.surface,
                 borderColor: theme.colors.divider,
                 borderRadius: theme.radius.lg,
-                opacity: pressed ? 0.85 : 1,
+                opacity: pressed ? 0.92 : 1,
                 overflow: 'hidden',
+                ...cardLift(),
               },
             ]}
           >
-            <View style={styles.markBar}>
-              <View style={styles.signalSquare} />
-            </View>
-            <View style={styles.badgeRow}>
-              <View
-                style={[
-                  styles.badge,
-                  {
-                    backgroundColor: theme.colors.accentRamp[100],
-                    borderRadius: theme.radius.sm,
-                  },
-                ]}
-              >
-                <Text style={[styles.badgeText, { color: theme.colors.accent }]}>
+            <View
+              style={[styles.cover, { backgroundColor: theme.colors.accentRamp[100] }]}
+            >
+              <View style={styles.coverCopy}>
+                <Text style={[styles.pathNumber, { color: theme.colors.accent }]}>
+                  {PATH_STEP[course.level]}
+                </Text>
+                <Text style={[styles.levelLabel, { color: theme.colors.accentRamp[700] }]}>
                   {LEVEL_LABELS[course.level]}
                 </Text>
               </View>
+              <View
+                style={[
+                  styles.glyphWell,
+                  {
+                    backgroundColor: theme.colors.surface,
+                    borderRadius: theme.radius.md,
+                  },
+                ]}
+              >
+                <Icon glyph={CourseGlyph} size={22} color={theme.colors.accent} />
+              </View>
             </View>
 
-            <Text style={[styles.title, { color: theme.colors.text }]} numberOfLines={2}>
-              {course.title}
-            </Text>
+            <View style={styles.body}>
+              {isStartHere ? (
+                <Text style={[styles.startHint, { color: theme.colors.accent }]}>
+                  Empieza aquí
+                </Text>
+              ) : null}
 
-            <Text
-              style={[styles.summary, { color: theme.colors.neutral[600] }]}
-              numberOfLines={2}
-            >
-              {course.summary}
-            </Text>
+              <Text style={[styles.title, { color: theme.colors.text }]} numberOfLines={2}>
+                {course.title}
+              </Text>
 
-            <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>
-              {course.instructorName} · {course.lessonCount}{' '}
-              {course.lessonCount === 1 ? 'lección' : 'lecciones'} ·{' '}
-              {formatDuration(course.durationSeconds)}
-            </Text>
+              <Text
+                style={[styles.summary, { color: theme.colors.neutral[600] }]}
+                numberOfLines={3}
+              >
+                {course.summary}
+              </Text>
+
+              <View style={styles.metaRow}>
+                <View style={styles.metaItem}>
+                  <Icon glyph={BookOpen} size={14} color={theme.colors.neutral[600]} />
+                  <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>
+                    {course.lessonCount}{' '}
+                    {course.lessonCount === 1 ? 'lección' : 'lecciones'}
+                  </Text>
+                </View>
+                <View style={styles.metaItem}>
+                  <Icon glyph={Clock} size={14} color={theme.colors.neutral[600]} />
+                  <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>
+                    {formatDuration(course.durationSeconds)}
+                  </Text>
+                </View>
+              </View>
+
+              <Text style={[styles.instructor, { color: theme.colors.neutral[600] }]}>
+                {course.instructorName}
+              </Text>
+
+              <View style={styles.footer}>
+                <Text style={[styles.footerLabel, { color: theme.colors.accent }]}>
+                  Ver el curso
+                </Text>
+                <Icon glyph={ArrowRight} size={16} color={theme.colors.accent} />
+              </View>
+            </View>
           </View>
         )}
       </Pressable>
@@ -87,47 +161,76 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     borderWidth: 1,
-    padding: 20.4,
-    paddingTop: 16,
-    gap: 6.8,
   },
-  markBar: {
-    height: 8,
-    marginTop: -20.4,
-    marginHorizontal: -20.4,
-    marginBottom: 16,
-    backgroundColor: '#111111',
-    justifyContent: 'center',
-    paddingLeft: 16,
-  },
-  signalSquare: {
-    width: 8,
-    height: 8,
-    backgroundColor: '#1b70fe',
-  },
-  badgeRow: {
+  cover: {
+    minHeight: 104,
+    paddingHorizontal: 20.4,
+    paddingVertical: 18,
     flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  badge: {
-    paddingHorizontal: 6.8,
-    paddingVertical: 3.4,
+  coverCopy: {
+    gap: 2,
   },
-  badgeText: {
-    fontSize: 11,
+  pathNumber: {
+    fontSize: 40,
     fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    lineHeight: 40,
+    letterSpacing: -1,
+  },
+  levelLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  glyphWell: {
+    width: 48,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  body: {
+    padding: 20.4,
+    gap: 8,
+  },
+  startHint: {
+    fontSize: 12,
+    fontWeight: '600',
   },
   title: {
     fontSize: 20,
     fontWeight: '600',
+    lineHeight: 26,
   },
   summary: {
     fontSize: 14,
     lineHeight: 20,
   },
+  metaRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginTop: 4,
+  },
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
   meta: {
-    fontSize: 12,
-    marginTop: 3.4,
+    fontSize: 13,
+  },
+  instructor: {
+    fontSize: 13,
+  },
+  footer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 6,
+  },
+  footerLabel: {
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

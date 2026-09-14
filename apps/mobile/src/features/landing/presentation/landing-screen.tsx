@@ -7,7 +7,7 @@ import { ErrorState, LoadingState } from '@/core/ui/state-view';
 import { BrandMark } from '@/core/ui/brand-mark';
 import { breakpoint, useTheme } from '@/core/theme';
 import { useSession } from '@/features/auth';
-import { CourseCard, useCourses } from '@/features/catalog';
+import { CourseCard, sortCoursesAlongLearningPath, useCourses } from '@/features/catalog';
 
 const instituteHeroPhotograph = require('../../../../assets/brand/ilia-hero-lab.png');
 
@@ -82,7 +82,10 @@ export function LandingScreen() {
 
   const isWide = width >= breakpoint.compact;
   const courseColumns = width >= breakpoint.medium ? 3 : width >= breakpoint.compact ? 2 : 1;
-  const featuredCourses = courses.slice(0, FEATURED_COURSE_COUNT);
+  const featuredCourses = sortCoursesAlongLearningPath(courses).slice(
+    0,
+    FEATURED_COURSE_COUNT,
+  );
   const showGuestActions = !isSessionLoading && !isAuthenticated;
 
   return (
