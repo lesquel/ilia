@@ -8,6 +8,13 @@
 
 export { canActAs } from './domain/entities';
 export type { Credentials, Registration, Role, Session, User } from './domain/entities';
+export {
+  resolveAppLocation,
+  appNavItemsForRole,
+  firstGivenName,
+  givenNameInitial,
+} from './domain/app-location';
+export type { AppLocation } from './domain/app-location';
 export { useLogin, useLogout, useRegister, useSession, authKeys } from './application/use-auth';
 export { installAuthTokenProvider } from './data/install';
 export { AccountBar } from './presentation/account-bar';
