@@ -21,29 +21,26 @@ PROMPTING_LESSONS_M1: list[Lesson] = [
         "Esta semana te ahorras una tarde",
         "text",
         _minutes(4),
-        "Este curso no es sobre inteligencia artificial en general. Es sobre "
-        "el pedido que le haces a un modelo para que te arme material que "
-        "sí puedes llevar a tu próxima hora.\n\n"
-        "Si llegas de la jornada y te quedan dos horas de planificación, "
-        "el modelo puede redactar un borrador. Tú decides qué se fotocopia. "
-        "Esa división —el modelo escribe, tú respondes por el aula— es el "
-        "criterio de todo lo que sigue.\n\n"
-        "En esta hora vas a ver por qué un prompt corto produce material "
-        "de nadie; cómo se pide con rol, audiencia, tarea y formato; "
-        "cómo se mejora el primer borrador; y vas a escribir el prompt "
-        "de tu propia clase. No hay examen de opción múltiple. La "
-        "evidencia es ese prompt.\n\n"
-        "Trae a la cabeza un tema real: el de mañana o el del lunes. Si no "
-        "tienes uno, usa fracciones de séptimo. El método es el mismo "
-        "para lengua, sociales o ciencias.",
+        "Esto no va de inteligencia artificial. Va de pedirle a un modelo "
+        "una hoja que sí puedas usar en la próxima hora.\n\n"
+        "Si llegas de la jornada y te quedan dos horas de planear, el "
+        "modelo te arma un borrador. Tú decides qué se fotocopia. Esa es "
+        "la regla de todo el curso: él escribe, tú respondes por el aula.\n\n"
+        "Hoy vas a ver por qué un pedido corto sale genérico, cómo se pide "
+        "con rol, aula, tarea y formato, y cómo se mejora el primer "
+        "borrador. Al final escribes el prompt de tu clase. No hay examen. "
+        "La evidencia es ese prompt.\n\n"
+        "Piensa en un tema de verdad: el de mañana o el del lunes. Si no "
+        "tienes uno, usa fracciones de séptimo. El método es el mismo en "
+        "lengua, sociales o ciencias.",
     ),
     (
         "Qué puede y qué no puede un modelo",
         "text",
         _minutes(5),
-        "Un modelo de lenguaje predice texto que suena plausible. No ha "
-        "estado en tu aula. No sabe quién faltó, ni qué ya vieron, ni si "
-        "el libro de la escuela dice «quebrados» o «fracciones».\n\n"
+        "El modelo no estuvo en tu aula. Predice texto que suena bien, "
+        "nada más. No sabe quién faltó, ni qué ya vieron, ni si en tu "
+        "libro dicen «quebrados» o «fracciones».\n\n"
         "Por eso sirve para:\n"
         "• Borradores de guías, ejemplos y preguntas.\n"
         "• Reformular al nivel de tus estudiantes.\n"
@@ -65,9 +62,8 @@ PROMPTING_LESSONS_M1: list[Lesson] = [
         "Anatomía de un prompt que sirve",
         "text",
         _minutes(7),
-        "Las guías para docentes de 2026 —OpenAI, Google y el Ministerio "
-        "de Educación del Reino Unido— coinciden en lo mismo, con otros "
-        "nombres: di la tarea, el aula y cómo lo quieres de vuelta. "
+        "OpenAI, Google y el ministerio inglés dicen lo mismo, cada uno "
+        "con su nombre: di la tarea, el aula y cómo lo quieres de vuelta. "
         "Si falta una pieza, el modelo la rellena con un promedio de "
         "internet.\n\n"
         "1. ROL. Quién es el modelo. «Eres docente de matemática de "

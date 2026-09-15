@@ -16,14 +16,17 @@ import { Icon } from '@/core/ui/icon';
 import { MascotGuide, type MascotMood } from '@/core/ui/mascot-guide';
 import { examplePlainText, parseLessonBody } from '@/features/enrollment/domain/lesson-body';
 import {
+  ideaScenePlainText,
   sceneKindLabel,
   scenesFromLesson,
+  shouldShowIdeaArt,
   type LessonScene,
 } from '@/features/enrollment/domain/lesson-scenes';
 import {
   ExampleCard,
   LessonBlockView,
 } from '@/features/enrollment/presentation/lesson-article';
+import { IdeaSceneArt } from '@/features/enrollment/presentation/idea-scene-art';
 
 type LabPhase = 'idle' | 'composing' | 'processing' | 'revealed';
 
@@ -142,7 +145,12 @@ export function LessonStudio({
           showsVerticalScrollIndicator={false}
         >
           <FadingStage visible stageKey={lineKey}>
-            <SceneStage scene={currentScene} labPhase={labPhase} isWide={isWide} />
+            <SceneStage
+              scene={currentScene}
+              labPhase={labPhase}
+              isWide={isWide}
+              sceneIndex={sceneIndex}
+            />
           </FadingStage>
         </ScrollView>
         <View style={styles.presenter} pointerEvents="none">
@@ -322,20 +330,20 @@ function FadingStage({
     return <View style={styles.stageWait} />;
   }
 
-  return <Animated.View style={{ opacity }}>{children}</Animated.View>;
+  return <Animated.View style={{ opacity, flex: 1 }}>{children}</Animated.View>;
 }
 
 function mascotLineFor(scene: LessonScene, labPhase: LabPhase, sceneIndex: number): string {
   if (scene.type === 'lab') {
-    if (labPhase === 'idle') return 'Este recuadro es el pedido. Pulsa escribir.';
-    if (labPhase === 'composing') return 'Mira cómo queda el prompt, completo.';
-    if (labPhase === 'processing') return 'Ahora arma la hoja. Tú no te mueves.';
-    return 'Esto es lo que pediste. Léelo antes de fotocopiar.';
+    if (labPhase === 'idle') return 'Ahí va el pedido. Dale a escribir y lo ves entero.';
+    if (labPhase === 'composing') return 'Así queda cuando no te ahorras las piezas.';
+    if (labPhase === 'processing') return 'Ahora arma la hoja. Tú no tienes que hacer nada.';
+    return 'Esto salió. Léelo antes de fotocopiarlo.';
   }
   if (scene.type === 'compare') return 'Uno no sirve. El otro sí. Fíjate en la diferencia.';
-  if (scene.type === 'reveal') return 'Un ejemplo para llevarte, no para memorizar.';
-  if (sceneIndex === 0) return 'Primero la idea. Después escribimos el prompt.';
-  return 'Otra idea. Espérame a que termine de hablar.';
+  if (scene.type === 'reveal') return 'Esto te lo puedes llevar. No hace falta memorizarlo.';
+  if (sceneIndex === 0) return 'Te cuento la idea. Después escribimos el pedido.';
+  return 'Otra más. Espera que termine.';
 }
 
 function primaryAction(
@@ -373,19 +381,37 @@ function SceneStage({
   scene,
   labPhase,
   isWide,
+  sceneIndex,
 }: {
   scene: LessonScene;
   labPhase: LabPhase;
   isWide: boolean;
+  sceneIndex: number;
 }) {
   if (scene.type === 'narrate') {
-    return (
+    const showIdeaArt = shouldShowIdeaArt(scene);
+    const copy = (
       <LessonBlockView
         block={scene.block}
         isLead
         isWide={isWide}
         size="slide"
       />
+    );
+
+    if (!showIdeaArt) {
+      return copy;
+    }
+
+    return (
+      <View style={[styles.ideaBeat, isWide ? styles.ideaBeatWide : undefined]}>
+        <IdeaSceneArt
+          plainText={ideaScenePlainText(scene)}
+          sceneIndex={sceneIndex}
+          compact={!isWide}
+        />
+        <View style={styles.ideaCopy}>{copy}</View>
+      </View>
     );
   }
 
@@ -423,7 +449,7 @@ function LabStage({
       <View style={styles.labChrome}>
         <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
         <Text style={[styles.labKicker, { color: theme.colors.neutral[500] }]}>
-          Laboratorio · no se envía a un modelo
+          Laboratorio · esto no se manda a un modelo
         </Text>
       </View>
 
@@ -440,7 +466,7 @@ function LabStage({
         <Text style={[styles.composerHint, { color: theme.colors.neutral[500] }]}>prompt ▸</Text>
         {promptOnScreen.length === 0 ? (
           <Text style={[styles.composerPlaceholder, { color: theme.colors.neutral[500] }]}>
-            Pulsa «Escribir el prompt» para ver el pedido de esta escena.
+            Dale a escribir el prompt y ves el pedido.
           </Text>
         ) : (
           <Text style={[styles.composerText, { color: theme.colors.text }]}>{promptOnScreen}</Text>
@@ -459,7 +485,7 @@ function LabStage({
       {labPhase === 'revealed' ? (
         <View style={styles.labResult}>
           <Text style={[styles.labResultKicker, { color: theme.colors.accent }]}>
-            Con este prompt esperamos
+            Con este pedido sale
           </Text>
           <ExampleCard example={scene.result} tone="result" />
         </View>
@@ -557,6 +583,23 @@ const styles = StyleSheet.create({
   slideCopyInnerWide: {
     paddingRight: 36,
     paddingBottom: 24,
+  },
+  ideaBeat: {
+    flexGrow: 1,
+    minHeight: 420,
+    gap: 20,
+  },
+  ideaBeatWide: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    gap: 36,
+    paddingRight: 168,
+    minHeight: 520,
+  },
+  ideaCopy: {
+    flex: 1,
+    minWidth: 0,
+    justifyContent: 'center',
   },
   presenter: {
     position: 'absolute',

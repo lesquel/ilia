@@ -29,12 +29,35 @@ export function scenesFromLesson(blocks: LessonBlock[]): LessonScene[] {
 export function sceneKindLabel(scene: LessonScene): string {
   switch (scene.type) {
     case 'narrate':
-      return 'La idea';
+      return 'Idea';
     case 'lab':
-      return 'El laboratorio';
+      return 'Laboratorio';
     case 'compare':
       return 'Compara';
     case 'reveal':
-      return 'El ejemplo';
+      return 'Ejemplo';
   }
+}
+
+const SHORT_IDEA_CHARACTER_LIMIT = 260;
+
+export function shouldShowIdeaArt(scene: LessonScene): boolean {
+  if (scene.type !== 'narrate' || scene.block.type !== 'paragraph') {
+    return false;
+  }
+
+  const plainText = scene.block.inlines
+    .map((part) => part.text)
+    .join('')
+    .trim();
+
+  return plainText.length > 0 && plainText.length <= SHORT_IDEA_CHARACTER_LIMIT;
+}
+
+export function ideaScenePlainText(scene: Extract<LessonScene, { type: 'narrate' }>): string {
+  if (scene.block.type !== 'paragraph') {
+    return '';
+  }
+
+  return scene.block.inlines.map((part) => part.text).join('');
 }

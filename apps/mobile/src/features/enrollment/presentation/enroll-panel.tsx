@@ -59,7 +59,7 @@ export function EnrollPanel({ slug, level }: { slug: string; level?: Level }) {
     return (
       <View style={[styles.panel, { borderColor: theme.colors.divider }]}>
         <Text style={[styles.hint, { color: theme.colors.neutral[700] }]}>
-          Creá una cuenta para inscribirte y guardar tu progreso.
+          Crea una cuenta para inscribirte y guardar tu progreso.
         </Text>
         <Link href="/login" asChild>
           <Pressable accessibilityRole="link">

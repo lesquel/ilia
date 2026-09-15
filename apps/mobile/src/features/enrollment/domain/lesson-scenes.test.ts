@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
 import { parseLessonBody } from './lesson-body';
-import { sceneKindLabel, scenesFromLesson } from './lesson-scenes';
+import {
+  sceneKindLabel,
+  scenesFromLesson,
+  shouldShowIdeaArt,
+} from './lesson-scenes';
 
 describe('scenesFromLesson', () => {
   it('turns a prompt-and-result lesson into idea beats plus a lab', () => {
@@ -15,10 +19,36 @@ describe('scenesFromLesson', () => {
     const scenes = scenesFromLesson(blocks);
 
     expect(scenes.map((scene) => scene.type)).toEqual(['narrate', 'narrate', 'lab']);
-    expect(sceneKindLabel(scenes[2]!)).toBe('El laboratorio');
+    expect(sceneKindLabel(scenes[2]!)).toBe('Laboratorio');
     const lab = scenes[2];
     if (lab?.type !== 'lab') throw new Error('expected lab');
     expect(lab.prompt.title).toContain('hora');
     expect(lab.result.title.toLocaleLowerCase('es')).toContain('esperamos');
+  });
+});
+
+describe('shouldShowIdeaArt', () => {
+  it('shows art on a short idea and hides it on a lab', () => {
+    const blocks = parseLessonBody(
+      'Esto no va de inteligencia artificial. Va de pedirle una hoja.\n\n' +
+        ':::ejemplo Prompt\nEres docente de séptimo.\n:::\n\n' +
+        ':::ejemplo Esperamos: la hoja\n| # | Consigna |\n| 1 | 1/2 + 1/4 |\n:::',
+    );
+    const scenes = scenesFromLesson(blocks);
+
+    expect(shouldShowIdeaArt(scenes[0]!)).toBe(true);
+    expect(shouldShowIdeaArt(scenes[1]!)).toBe(false);
+  });
+
+  it('hides art when the idea is a long paragraph', () => {
+    const longIdea =
+      'Hoy vas a ver por qué un pedido corto sale genérico, cómo se pide ' +
+      'con rol, aula, tarea y formato, cómo se mejora el primer borrador, ' +
+      'qué pasa si no dices los 45 minutos y por qué el modelo rellena ' +
+      'con un promedio de internet cada hueco que dejas. Al final escribes ' +
+      'el prompt de tu clase. No hay examen. La evidencia es ese prompt.';
+    const scenes = scenesFromLesson(parseLessonBody(longIdea));
+
+    expect(shouldShowIdeaArt(scenes[0]!)).toBe(false);
   });
 });
