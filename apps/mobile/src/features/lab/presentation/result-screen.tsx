@@ -4,11 +4,13 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { useTheme } from '@/core/theme';
 import { ProgressBar } from '@/core/ui/progress-bar';
 import { ErrorState, LoadingState } from '@/core/ui/state-view';
+import { PassCertificateCard } from '@/features/certificates';
 import {
   useActivity,
   useSubmissionResult,
 } from '@/features/lab/application/use-lab';
 import { dimensionName, scoreTone, type DimensionScore } from '@/features/lab/domain/entities';
+import { GeneratedSheet } from '@/features/lab/presentation/generated-sheet';
 
 export function ResultScreen() {
   const theme = useTheme();
@@ -86,8 +88,19 @@ export function ResultScreen() {
       </Text>
 
       <Text style={[styles.verdict, { color: theme.colors.text }]}>
-        {evaluation.passed ? '¡Aprobaste esta actividad! 🎉' : 'Todavía no alcanza'}
+        {evaluation.passed ? 'Esta práctica cuenta.' : 'Todavía no alcanza'}
       </Text>
+
+      {evaluation.passed && activity?.courseSlug ? (
+        <PassCertificateCard
+          slug={activity.courseSlug}
+          courseTitle={activity.courseTitle || activity.title}
+        />
+      ) : null}
+
+      {evaluation.generatedText.trim() ? (
+        <GeneratedSheet text={evaluation.generatedText} />
+      ) : null}
 
       {/* With the reason, not just the fact. A grade changed for reasons the
           teacher cannot see is worse than one she can question — the same rule
@@ -175,7 +188,7 @@ export function ResultScreen() {
         {submission.prompt}
       </Text>
 
-      {activity && activity.attemptsLeft > 0 ? (
+      {activity && activity.attemptsLeft > 0 && !evaluation.passed ? (
         <Pressable
           accessibilityRole="button"
           onPress={() => router.replace(`/lab/${submission.activityId}`)}

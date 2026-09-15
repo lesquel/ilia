@@ -830,6 +830,9 @@ class TestAuthoringActivities:
         stated = " ".join(activity["requirements"]).lower()
         assert "fracciones" in stated
         assert "formato" in stated
+        assert activity["checks"]["requires_format"] is True
+        assert activity["checks"]["requires_role"] is True
+        assert activity["checks"]["required_terms"][0][0] == "fracciones"
 
     def test_an_activity_needs_at_least_one_dimension(
         self, client: TestClient, instructor: str

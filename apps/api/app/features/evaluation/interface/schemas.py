@@ -10,6 +10,16 @@ from app.features.evaluation.domain.entities import (
 )
 
 
+class ActivityChecksResponse(BaseModel):
+    """The mechanical checks, so the folio margin can light the same notes."""
+
+    requires_role: bool
+    requires_format: bool
+    min_length: int
+    max_length: int
+    required_terms: list[list[str]]
+
+
 class ActivityResponse(BaseModel):
     """The activity as the Lab shows it.
 
@@ -25,6 +35,9 @@ class ActivityResponse(BaseModel):
     attempts_left: int
     dimensions: list["DimensionResponse"]
     requirements: list[str]
+    checks: ActivityChecksResponse
+    course_slug: str = ""
+    course_title: str = ""
 
     @classmethod
     def from_entity(cls, activity: Activity, attempts_used: int) -> "ActivityResponse":
@@ -46,6 +59,15 @@ class ActivityResponse(BaseModel):
                 for dimension in activity.rubric.dimensions
             ],
             requirements=_requirements(activity),
+            checks=ActivityChecksResponse(
+                requires_role=activity.checks.requires_role,
+                requires_format=activity.checks.requires_format,
+                min_length=activity.checks.min_length,
+                max_length=activity.checks.max_length,
+                required_terms=activity.checks.required_terms,
+            ),
+            course_slug=activity.course_slug,
+            course_title=activity.course_title,
         )
 
 
@@ -129,6 +151,7 @@ class EvaluationResponse(BaseModel):
     check_failures: list[str]
     model: str
     model_version: str
+    generated_text: str = ""
 
     @classmethod
     def from_entity(cls, evaluation: Evaluation) -> "EvaluationResponse":
@@ -148,6 +171,7 @@ class EvaluationResponse(BaseModel):
             check_failures=list(evaluation.check_failures),
             model=evaluation.model,
             model_version=evaluation.model_version,
+            generated_text=evaluation.generated_text,
         )
 
 

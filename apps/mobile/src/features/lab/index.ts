@@ -3,6 +3,7 @@
 export { MAX_PROMPT_CHARS, canSubmit, isInFlight, scoreTone } from './domain/entities';
 export type {
   Activity,
+  ActivityChecks,
   DimensionScore,
   Evaluation,
   RubricDimension,
@@ -10,6 +11,7 @@ export type {
   SubmissionResult,
   SubmissionStatus,
 } from './domain/entities';
+export { EMPTY_ACTIVITY_CHECKS } from './domain/entities';
 export {
   labKeys,
   useActivity,

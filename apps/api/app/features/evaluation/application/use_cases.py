@@ -207,6 +207,7 @@ class RunEvaluation:
             model=verdict.model,
             model_version=verdict.model_version,
             evaluated_at=self._clock.now(),
+            generated_text=output.text,
         )
         await self._evaluations.add(evaluation)
 
@@ -264,7 +265,7 @@ def _suggestion_for(
 
     weakest = weakest_dimension(activity.rubric, breakdown)
     if weakest is not None:
-        return f"Trabajá sobre «{weakest.name}»: {weakest.description}"
+        return f"Trabaja sobre «{weakest.name}»: {weakest.description}"
 
     return "Vuelve a intentarlo dándole más contexto al modelo."
 

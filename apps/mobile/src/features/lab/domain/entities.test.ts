@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { MAX_PROMPT_CHARS, canSubmit, type Activity } from './entities';
+import { EMPTY_ACTIVITY_CHECKS, MAX_PROMPT_CHARS, canSubmit, type Activity } from './entities';
 
 function activity(attemptsLeft: number): Activity {
   return {
@@ -8,6 +8,9 @@ function activity(attemptsLeft: number): Activity {
     title: 'Escribe tu primer prompt',
     statement: 'Pedile una guía de fracciones.',
     requirements: [],
+    checks: EMPTY_ACTIVITY_CHECKS,
+    courseSlug: 'prompting-para-docentes',
+    courseTitle: 'Prompting para docentes',
     dimensions: [],
     attemptsUsed: 3 - attemptsLeft,
     attemptsLeft,

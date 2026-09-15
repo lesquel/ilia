@@ -38,7 +38,7 @@ class Provider(StrEnum):
 # it is not better at. Override with `ILIA_LLM_MODEL`.
 DEFAULT_MODELS: dict[Provider, str] = {
     Provider.ANTHROPIC: "claude-sonnet-4-5",
-    Provider.OPENAI: "gpt-4o",
+    Provider.OPENAI: "gpt-4o-mini",
     Provider.GEMINI: "gemini-2.0-flash",
     Provider.DEEPSEEK: "deepseek-chat",
 }

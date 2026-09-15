@@ -201,6 +201,21 @@ class TestUsageRecording:
         assert evaluation.model_version == "1"
         assert evaluation.rubric_version == activity.rubric.version
 
+    async def test_the_generated_sheet_is_kept_with_the_grade(self) -> None:
+        # The teacher came for the material. Judging it and throwing it away
+        # would leave them with a number and no hoja.
+        activity = activity_with(rubric_with("claridad"))
+        run, repos = build_run_evaluation(activity, executor=EchoExecutor(), judge=CompliantJudge())
+        submission = await submit(repos, activity, prompt=GOOD_PROMPT)
+
+        evaluation = await run.execute(submission.id)
+
+        assert evaluation is not None
+        assert "Respuesta generada a partir de:" in evaluation.generated_text
+        stored = await repos.evaluations.get_for_submission(submission.id)
+        assert stored is not None
+        assert stored.generated_text == evaluation.generated_text
+
 
 class TestGetSubmissionResult:
     async def test_returns_the_submission_and_its_evaluation(self) -> None:

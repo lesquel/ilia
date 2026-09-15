@@ -15,3 +15,4 @@ export {
   useVerification,
 } from './application/use-certificates';
 export { RevokePanel } from './presentation/revoke-panel';
+export { PassCertificateCard } from './presentation/pass-certificate-card';

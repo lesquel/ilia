@@ -12,6 +12,22 @@ export interface RubricDimension {
   weight: number;
 }
 
+export interface ActivityChecks {
+  requiresRole: boolean;
+  requiresFormat: boolean;
+  minLength: number;
+  maxLength: number;
+  requiredTerms: string[][];
+}
+
+export const EMPTY_ACTIVITY_CHECKS: ActivityChecks = {
+  requiresRole: false,
+  requiresFormat: false,
+  minLength: 0,
+  maxLength: 0,
+  requiredTerms: [],
+};
+
 export interface Activity {
   id: string;
   title: string;
@@ -28,6 +44,10 @@ export interface Activity {
    * told them has been tricked, not taught.
    */
   requirements: string[];
+  /** Same spec the judge runs. The folio margin lights these, not a paraphrase. */
+  checks: ActivityChecks;
+  courseSlug: string;
+  courseTitle: string;
 }
 
 export interface Submission {
@@ -59,6 +79,8 @@ export interface Evaluation {
   checkFailures: string[];
   model: string;
   modelVersion: string;
+  /** The sheet the prompt produced. Empty on older readings that never stored it. */
+  generatedText: string;
 }
 
 export interface SubmissionResult {

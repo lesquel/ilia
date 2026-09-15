@@ -9,6 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 
 from app.core.database import Database
+from app.features.catalog.infrastructure.models import CourseModel
 from app.features.evaluation.domain.checks import CheckSpec
 from app.features.evaluation.domain.entities import (
     MAX_RECOVERIES,
@@ -26,6 +27,7 @@ from .models import (
     EvaluationModel,
     EvaluationScoreModel,
     LlmUsageModel,
+    ModelOutputModel,
     RubricModel,
     SubmissionModel,
 )
@@ -64,7 +66,9 @@ def _to_rubric(row: RubricModel) -> Rubric:
     )
 
 
-def _to_activity(row: ActivityModel) -> Activity:
+def _to_activity(
+    row: ActivityModel, *, course_slug: str = "", course_title: str = ""
+) -> Activity:
     return Activity(
         id=row.id,
         module_id=row.module_id,
@@ -74,6 +78,8 @@ def _to_activity(row: ActivityModel) -> Activity:
         rubric=_to_rubric(row.rubric),
         checks=_to_check_spec(row.checks or {}),
         max_attempts=row.max_attempts,
+        course_slug=course_slug,
+        course_title=course_title,
     )
 
 
@@ -83,27 +89,35 @@ class SqlAlchemyActivityRepository:
 
     async def get(self, activity_id: UUID) -> Activity | None:
         statement = (
-            select(ActivityModel)
+            select(ActivityModel, CourseModel.slug, CourseModel.title)
+            .join(CourseModel, CourseModel.id == ActivityModel.course_id)
             .where(ActivityModel.id == activity_id)
             .options(selectinload(ActivityModel.rubric).selectinload(RubricModel.dimensions))
         )
 
         async with self._db.session() as session:
-            row = (await session.execute(statement)).scalar_one_or_none()
+            packed = (await session.execute(statement)).one_or_none()
 
-        return _to_activity(row) if row else None
+        if packed is None:
+            return None
+        row, course_slug, course_title = packed
+        return _to_activity(row, course_slug=course_slug, course_title=course_title)
 
     async def get_by_module(self, module_id: UUID) -> list[Activity]:
         statement = (
-            select(ActivityModel)
+            select(ActivityModel, CourseModel.slug, CourseModel.title)
+            .join(CourseModel, CourseModel.id == ActivityModel.course_id)
             .where(ActivityModel.module_id == module_id)
             .options(selectinload(ActivityModel.rubric).selectinload(RubricModel.dimensions))
         )
 
         async with self._db.session() as session:
-            rows = (await session.execute(statement)).scalars().all()
+            packed_rows = (await session.execute(statement)).all()
 
-        return [_to_activity(row) for row in rows]
+        return [
+            _to_activity(row, course_slug=course_slug, course_title=course_title)
+            for row, course_slug, course_title in packed_rows
+        ]
 
 
 def _to_submission(row: SubmissionModel) -> Submission:
@@ -270,6 +284,16 @@ class SqlAlchemyEvaluationRepository:
                 for score in evaluation.dimension_scores
             ]
             session.add(row)
+            if evaluation.generated_text:
+                session.add(
+                    ModelOutputModel(
+                        id=uuid4(),
+                        submission_id=evaluation.submission_id,
+                        text=evaluation.generated_text,
+                        model=evaluation.model,
+                        model_version=evaluation.model_version,
+                    )
+                )
 
     async def get_for_submission(self, submission_id: UUID) -> Evaluation | None:
         statement = (
@@ -280,34 +304,40 @@ class SqlAlchemyEvaluationRepository:
 
         async with self._db.session() as session:
             row = (await session.execute(statement)).scalar_one_or_none()
-
-        if row is None:
-            return None
-
-        return Evaluation(
-            id=row.id,
-            submission_id=row.submission_id,
-            rubric_version=row.rubric_version,
-            total=row.total,
-            passed=row.passed,
-            dimension_scores=[
-                DimensionScore(
-                    key=score.dimension_key,
-                    score=score.score,
-                    justification=score.justification or "Sin justificación.",
+            if row is None:
+                return None
+            generated = (
+                await session.execute(
+                    select(ModelOutputModel).where(ModelOutputModel.submission_id == submission_id)
                 )
-                for score in row.scores
-            ],
-            feedback=row.feedback,
-            suggestion=row.suggestion,
-            check_failures=list(row.check_failures or []),
-            model=row.model,
-            model_version=row.model_version,
-            evaluated_at=row.evaluated_at,
-            override_total=row.override_total,
-            override_reason=row.override_reason,
-            override_by=row.override_by,
-        )
+            ).scalar_one_or_none()
+            scores = list(row.scores)
+            generated_text = generated.text if generated else ""
+            return Evaluation(
+                id=row.id,
+                submission_id=row.submission_id,
+                rubric_version=row.rubric_version,
+                total=row.total,
+                passed=row.passed,
+                dimension_scores=[
+                    DimensionScore(
+                        key=score.dimension_key,
+                        score=score.score,
+                        justification=score.justification or "Sin justificación.",
+                    )
+                    for score in scores
+                ],
+                feedback=row.feedback,
+                suggestion=row.suggestion,
+                check_failures=list(row.check_failures or []),
+                model=row.model,
+                model_version=row.model_version,
+                evaluated_at=row.evaluated_at,
+                override_total=row.override_total,
+                override_reason=row.override_reason,
+                override_by=row.override_by,
+                generated_text=generated_text,
+            )
 
 
 class SqlAlchemyUsageRecorder:

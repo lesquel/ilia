@@ -1,11 +1,13 @@
 import { HttpClient, httpClient } from '@/core/api/http-client';
 import type {
   Activity,
+  ActivityChecks,
   Evaluation,
   Submission,
   SubmissionResult,
   SubmissionStatus,
 } from '@/features/lab/domain/entities';
+import { EMPTY_ACTIVITY_CHECKS } from '@/features/lab/domain/entities';
 
 interface DimensionDto {
   key: string;
@@ -24,6 +26,15 @@ interface ActivityDto {
   attempts_left: number;
   dimensions: DimensionDto[];
   requirements: string[];
+  checks?: {
+    requires_role: boolean;
+    requires_format: boolean;
+    min_length: number;
+    max_length: number;
+    required_terms: string[][];
+  };
+  course_slug?: string;
+  course_title?: string;
 }
 
 interface SubmissionDto {
@@ -48,6 +59,7 @@ interface EvaluationDto {
   check_failures: string[];
   model: string;
   model_version: string;
+  generated_text?: string;
 }
 
 const STATUSES: SubmissionStatus[] = ['pending', 'running', 'scored', 'failed'];
@@ -75,6 +87,20 @@ function toActivity(dto: ActivityDto): Activity {
       weight: item.weight,
     })),
     requirements: dto.requirements,
+    checks: toActivityChecks(dto.checks),
+    courseSlug: dto.course_slug ?? '',
+    courseTitle: dto.course_title ?? '',
+  };
+}
+
+function toActivityChecks(dto: ActivityDto['checks']): ActivityChecks {
+  if (!dto) return EMPTY_ACTIVITY_CHECKS;
+  return {
+    requiresRole: dto.requires_role,
+    requiresFormat: dto.requires_format,
+    minLength: dto.min_length,
+    maxLength: dto.max_length,
+    requiredTerms: dto.required_terms,
   };
 }
 
@@ -103,6 +129,7 @@ function toEvaluation(dto: EvaluationDto): Evaluation {
     checkFailures: dto.check_failures,
     model: dto.model,
     modelVersion: dto.model_version,
+    generatedText: dto.generated_text ?? '',
   };
 }
 

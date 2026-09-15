@@ -44,6 +44,8 @@ class Activity:
     checks: CheckSpec = field(default_factory=CheckSpec)
     # **[A confirmar]** — the PRD leaves the number open (open question 3).
     max_attempts: int = 3
+    course_slug: str = ""
+    course_title: str = ""
 
     def attempts_left(self, used: int) -> int:
         return max(0, self.max_attempts - used)
@@ -138,6 +140,10 @@ class Evaluation:
     override_total: float | None = None
     override_reason: str | None = None
     override_by: UUID | None = None
+    # The sheet the prompt actually produced. The teacher came for the
+    # material, not only the mark; throwing it away after judging it is a
+    # trick.
+    generated_text: str = ""
 
     @property
     def effective_total(self) -> float:
