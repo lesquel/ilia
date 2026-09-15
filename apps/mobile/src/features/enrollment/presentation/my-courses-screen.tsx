@@ -1,10 +1,17 @@
+import { Image } from 'expo-image';
 import { Link } from 'expo-router';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
 import { ProgressBar } from '@/core/ui/progress-bar';
 import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
-import { LEVEL_LABELS } from '@/features/catalog/domain/entities';
+import {
+  LEVEL_LABELS,
+  nextCourseAlongLearningPath,
+  type CourseSummary,
+} from '@/features/catalog/domain/entities';
+import { coverForCourseSlug } from '@/features/catalog/presentation/course-covers';
+import { useCourses } from '@/features/catalog';
 import { useSession } from '@/features/auth';
 import { useMyCourses } from '@/features/enrollment/application/use-enrollment';
 import { callToAction, type EnrolledCourse } from '@/features/enrollment/domain/entities';
@@ -13,6 +20,7 @@ export function MyCoursesScreen() {
   const theme = useTheme();
   const { isAuthenticated, isLoading: isCheckingSession } = useSession();
   const { courses, isLoading, error, refetch } = useMyCourses();
+  const { courses: catalog } = useCourses();
 
   if (isCheckingSession) {
     return (
@@ -29,8 +37,6 @@ export function MyCoursesScreen() {
           title="Inicia sesión para ver tus cursos"
           hint="Tu progreso queda guardado en tu cuenta."
         />
-        {/* Carrying the destination, so signing in returns here rather than
-            dropping the person on the catalogue. */}
         <Link
           href="/login?next=/my-courses"
           style={[styles.link, { color: theme.colors.accent }]}
@@ -49,18 +55,25 @@ export function MyCoursesScreen() {
     );
   }
 
+  const hasOnlyFinishedCourses =
+    courses.length > 0 && courses.every((item) => item.progress.isComplete);
+
   return (
     <FlatList
       style={{ backgroundColor: theme.colors.bg }}
       contentContainerStyle={styles.content}
       data={courses}
       keyExtractor={(item) => item.course.id}
-      renderItem={({ item }) => <EnrolledCourseCard enrolled={item} />}
+      renderItem={({ item }) => (
+        <EnrolledCourseCard enrolled={item} catalog={catalog} />
+      )}
       ListHeaderComponent={
         <View style={styles.header}>
           <Text style={[styles.title, { color: theme.colors.text }]}>Mis cursos</Text>
           <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
-            Retomá donde quedaste.
+            {hasOnlyFinishedCourses
+              ? 'Ya terminaste lo que tenías abierto. Sigue por la ruta.'
+              : 'Retoma donde quedaste.'}
           </Text>
         </View>
       }
@@ -78,73 +91,135 @@ export function MyCoursesScreen() {
   );
 }
 
-function EnrolledCourseCard({ enrolled }: { enrolled: EnrolledCourse }) {
+function EnrolledCourseCard({
+  enrolled,
+  catalog,
+}: {
+  enrolled: EnrolledCourse;
+  catalog: CourseSummary[];
+}) {
   const theme = useTheme();
   const { course, progress } = enrolled;
+  const cover = coverForCourseSlug(course.slug);
+  const followingCourse = progress.isComplete
+    ? nextCourseAlongLearningPath(course, catalog)
+    : undefined;
 
   return (
     <View
       style={[
         styles.card,
         {
-          backgroundColor: theme.colors.neutral[100],
+          backgroundColor: theme.colors.surface,
           borderColor: theme.colors.divider,
           borderRadius: theme.radius.lg,
         },
       ]}
     >
-      <Text style={[styles.level, { color: theme.colors.accentRamp[700] }]}>
-        {LEVEL_LABELS[course.level]}
-      </Text>
+      <View style={[styles.cover, { backgroundColor: theme.colors.accentRamp[100] }]}>
+        {cover ? (
+          <Image
+            source={cover}
+            style={StyleSheet.absoluteFillObject}
+            contentFit="cover"
+            accessibilityIgnoresInvertColors
+          />
+        ) : null}
+      </View>
 
-      <Text style={[styles.courseTitle, { color: theme.colors.text }]}>{course.title}</Text>
-
-      <ProgressBar
-        percentage={progress.percentage}
-        label={`${progress.completedLessons} de ${progress.totalLessons} lecciones · ${progress.percentage}%`}
-      />
-
-      {/* The resume pointer, spelled out. "Continuar" alone makes the teacher
-          open the course to find out what they are continuing. */}
-      {progress.nextLesson ? (
-        <Text style={[styles.next, { color: theme.colors.neutral[600] }]} numberOfLines={1}>
-          Sigue: {progress.nextLesson.moduleTitle} · {progress.nextLesson.lessonTitle}
+      <View style={styles.cardBody}>
+        <Text style={[styles.level, { color: theme.colors.accentRamp[700] }]}>
+          {LEVEL_LABELS[course.level]}
+          {progress.isComplete ? ' · terminado' : ''}
         </Text>
-      ) : progress.isComplete ? (
-        <Text style={[styles.next, { color: theme.colors.accentRamp[700] }]}>
-          Curso completado 🎉
-        </Text>
-      ) : null}
 
-      {/* Straight to the lesson the teacher left off at. Landing on the course
-          page and making them find it again is the friction PRD E-04 exists to
-          remove. */}
-      <Link
-        href={
-          progress.nextLesson
-            ? `/catalog/${course.slug}/lessons/${progress.nextLesson.lessonId}`
-            : `/catalog/${course.slug}`
-        }
-        asChild
-      >
-        <Pressable accessibilityRole="link">
-          {({ pressed }) => (
-            <View
+        <Text style={[styles.courseTitle, { color: theme.colors.text }]}>{course.title}</Text>
+
+        {progress.isComplete ? (
+          <Text style={[styles.closing, { color: theme.colors.neutral[700] }]}>
+            {followingCourse
+              ? `Este ya está. Sigue con ${followingCourse.title}.`
+              : 'Terminaste la ruta. Puedes repasar o bajar el certificado en el curso.'}
+          </Text>
+        ) : (
+          <>
+            <ProgressBar
+              percentage={progress.percentage}
+              label={`${progress.completedLessons} de ${progress.totalLessons} lecciones`}
+            />
+            {progress.nextLesson ? (
+              <Text style={[styles.next, { color: theme.colors.neutral[600] }]} numberOfLines={2}>
+                Sigue: {progress.nextLesson.moduleTitle} · {progress.nextLesson.lessonTitle}
+              </Text>
+            ) : null}
+          </>
+        )}
+
+        {progress.isComplete && followingCourse ? (
+          <ActionLink
+            href={`/catalog/${followingCourse.slug}`}
+            label={`Sigue: ${followingCourse.title}`}
+            kind="primary"
+          />
+        ) : null}
+
+        <ActionLink
+          href={
+            progress.nextLesson
+              ? `/catalog/${course.slug}/lessons/${progress.nextLesson.lessonId}`
+              : `/catalog/${course.slug}`
+          }
+          label={progress.isComplete ? 'Abrir el curso' : callToAction(progress)}
+          kind={progress.isComplete && followingCourse ? 'ghost' : 'primary'}
+        />
+
+        {progress.isComplete ? (
+          <ActionLink href="/certificates" label="Ver certificados" kind="ghost" />
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
+function ActionLink({
+  href,
+  label,
+  kind,
+}: {
+  href: string;
+  label: string;
+  kind: 'primary' | 'ghost';
+}) {
+  const theme = useTheme();
+  const isPrimary = kind === 'primary';
+
+  return (
+    <Link href={href} asChild>
+      <Pressable accessibilityRole="link">
+        {({ pressed }) => (
+          <View
+            style={[
+              styles.button,
+              {
+                backgroundColor: isPrimary ? theme.colors.text : 'transparent',
+                borderColor: isPrimary ? theme.colors.text : theme.colors.divider,
+                borderRadius: theme.radius.md,
+                opacity: pressed ? 0.85 : 1,
+              },
+            ]}
+          >
+            <Text
               style={[
-                styles.button,
-                {
-                  backgroundColor: theme.colors.accent,
-                  borderRadius: theme.radius.md,
-                  opacity: pressed ? 0.85 : 1,
-                },
+                styles.buttonLabel,
+                { color: isPrimary ? '#ffffff' : theme.colors.text },
               ]}
             >
-              <Text style={styles.buttonLabel}>{callToAction(progress)}</Text>
-            </View>
-          )}
-        </Pressable>
-      </Link>
-    </View>
+              {label}
+            </Text>
+          </View>
+        )}
+      </Pressable>
+    </Link>
   );
 }
 
@@ -158,7 +233,7 @@ const styles = StyleSheet.create({
     maxWidth: 800,
     width: '100%',
     alignSelf: 'center',
-    gap: 13.6,
+    gap: 16,
   },
   header: {
     gap: 6.8,
@@ -178,8 +253,15 @@ const styles = StyleSheet.create({
   },
   card: {
     borderWidth: 1,
-    padding: 20.4,
-    gap: 10.2,
+    overflow: 'hidden',
+  },
+  cover: {
+    height: 168,
+    position: 'relative',
+  },
+  cardBody: {
+    padding: 20,
+    gap: 10,
   },
   level: {
     fontSize: 11,
@@ -188,21 +270,25 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   courseTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '600',
+  },
+  closing: {
+    fontSize: 15,
+    lineHeight: 22,
   },
   next: {
     fontSize: 13,
   },
   button: {
-    marginTop: 3.4,
-    paddingVertical: 10.2,
+    borderWidth: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 44,
+    minHeight: 48,
   },
   buttonLabel: {
-    color: '#f2f2f3',
     fontSize: 15,
     fontWeight: '600',
   },

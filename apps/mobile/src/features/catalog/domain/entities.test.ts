@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { sortCoursesAlongLearningPath, type Level } from './entities';
+import {
+  nextCourseAlongLearningPath,
+  sortCoursesAlongLearningPath,
+  type Level,
+} from './entities';
 
 describe('sortCoursesAlongLearningPath', () => {
   it('puts the starting course first, not the one published last', () => {
@@ -15,5 +19,18 @@ describe('sortCoursesAlongLearningPath', () => {
       'notebooklm',
       'evaluacion',
     ]);
+  });
+});
+
+describe('nextCourseAlongLearningPath', () => {
+  it('points at the next level, not back at the one just finished', () => {
+    const catalog = [
+      { id: '1', slug: 'prompting', level: 'beginner' as Level },
+      { id: '2', slug: 'notebooklm', level: 'intermediate' as Level },
+      { id: '3', slug: 'evaluacion', level: 'expert' as Level },
+    ];
+
+    expect(nextCourseAlongLearningPath(catalog[0]!, catalog)?.slug).toBe('notebooklm');
+    expect(nextCourseAlongLearningPath(catalog[2]!, catalog)).toBeUndefined();
   });
 });

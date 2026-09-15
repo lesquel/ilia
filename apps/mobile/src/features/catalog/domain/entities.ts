@@ -104,6 +104,16 @@ export function sortCoursesAlongLearningPath<Course extends { level: Level }>(
   );
 }
 
+export function nextCourseAlongLearningPath<Course extends { id: string; level: Level }>(
+  current: Course,
+  catalog: Course[],
+): Course | undefined {
+  const ordered = sortCoursesAlongLearningPath(catalog);
+  const currentIndex = ordered.findIndex((course) => course.id === current.id);
+  if (currentIndex < 0) return undefined;
+  return ordered[currentIndex + 1];
+}
+
 export const LESSON_KIND_LABELS: Record<LessonKind, string> = {
   video: 'Vídeo',
   slides: 'Presentación',
