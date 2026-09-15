@@ -1,14 +1,28 @@
 /**
  * Turns a lesson body into blocks a reader can scan.
  *
- * The catalog writes plain text with blank lines, bullets and a "Regla".
- * Dumping that into one <Text> is a wall. This file only classifies; it
- * does not decide how it looks.
+ * The catalog writes plain text with blank lines, bullets, a "Regla" and
+ * fenced worked examples (`:::ejemplo`). Dumping that into one <Text> is a
+ * wall. This file only classifies; it does not decide how it looks.
  */
 
 export type LessonInline = {
   text: string;
   strong?: boolean;
+};
+
+export type ExampleKind = 'prompt' | 'output' | 'table' | 'artifact';
+
+export type LessonTable = {
+  headers: string[];
+  rows: string[][];
+};
+
+export type WorkedExample = {
+  title: string;
+  kind: ExampleKind;
+  inlines: LessonInline[];
+  table: LessonTable | null;
 };
 
 export type LessonBlock =
@@ -22,7 +36,23 @@ export type LessonBlock =
       avoidItems: LessonInline[][];
     }
   | { type: 'callout'; kind: 'rule'; inlines: LessonInline[] }
-  | { type: 'quote'; inlines: LessonInline[] };
+  | { type: 'quote'; inlines: LessonInline[] }
+  | { type: 'example'; example: WorkedExample }
+  | { type: 'examplePair'; weak: WorkedExample; strong: WorkedExample }
+  | { type: 'promptResult'; prompt: WorkedExample; result: WorkedExample };
+
+const EXAMPLE_FENCE =
+  /:::ejemplo(?:[ \t]+([^\n]+))?[ \t]*\n([\s\S]*?)\n[ \t]*:::/g;
+
+export function examplePlainText(example: WorkedExample): string {
+  if (example.table) {
+    const headerLine = example.table.headers.join(' · ');
+    const bodyLines = example.table.rows.map((row) => row.join(' · '));
+    return [headerLine, ...bodyLines].join('\n');
+  }
+
+  return example.inlines.map((part) => part.text).join('');
+}
 
 export function parseInline(text: string): LessonInline[] {
   return text
@@ -35,14 +65,105 @@ export function parseInline(text: string): LessonInline[] {
 }
 
 export function parseLessonBody(body: string): LessonBlock[] {
-  const chunks = body
-    .trim()
-    .split(/\n{2,}/)
-    .map((chunk) => chunk.trim())
-    .filter(Boolean);
+  const segments = splitProseAndExamples(body.trim());
+  const blocks: LessonBlock[] = [];
 
-  const blocks = chunks.map(classifyChunk);
-  return mergeServeAndAvoidLists(blocks);
+  for (const segment of segments) {
+    if (segment.kind === 'example') {
+      blocks.push({ type: 'example', example: parseWorkedExample(segment.title, segment.body) });
+      continue;
+    }
+
+    const chunks = segment.body
+      .split(/\n{2,}/)
+      .map((chunk) => chunk.trim())
+      .filter(Boolean);
+    blocks.push(...chunks.map(classifyChunk));
+  }
+
+  return mergeAdjacentBlocks(blocks);
+}
+
+function splitProseAndExamples(
+  body: string,
+): Array<{ kind: 'prose'; body: string } | { kind: 'example'; title: string; body: string }> {
+  const segments: Array<
+    { kind: 'prose'; body: string } | { kind: 'example'; title: string; body: string }
+  > = [];
+  let cursor = 0;
+  EXAMPLE_FENCE.lastIndex = 0;
+
+  for (const match of body.matchAll(EXAMPLE_FENCE)) {
+    const matchStart = match.index ?? 0;
+    const proseBefore = body.slice(cursor, matchStart).trim();
+    if (proseBefore.length > 0) {
+      segments.push({ kind: 'prose', body: proseBefore });
+    }
+    segments.push({
+      kind: 'example',
+      title: (match[1] ?? 'Ejemplo').trim(),
+      body: match[2]?.trim() ?? '',
+    });
+    cursor = matchStart + match[0].length;
+  }
+
+  const proseAfter = body.slice(cursor).trim();
+  if (proseAfter.length > 0) {
+    segments.push({ kind: 'prose', body: proseAfter });
+  }
+
+  return segments;
+}
+
+function parseWorkedExample(title: string, body: string): WorkedExample {
+  const table = parsePipeTable(body);
+  return {
+    title,
+    kind: table ? 'table' : inferExampleKind(title),
+    inlines: table ? [] : parseInline(body),
+    table,
+  };
+}
+
+function inferExampleKind(title: string): ExampleKind {
+  const normalized = title.toLocaleLowerCase('es');
+  if (looksLikeExpectedResult(title)) return 'output';
+  if (normalized.includes('prompt')) return 'prompt';
+  if (
+    normalized.includes('devuelve') ||
+    normalized.includes('salida') ||
+    normalized.includes('resultado') ||
+    normalized.includes('nota ') ||
+    normalized.includes('guía') ||
+    normalized.includes('guia') ||
+    normalized.includes('hoja')
+  ) {
+    return 'output';
+  }
+  return 'artifact';
+}
+
+function parsePipeTable(text: string): LessonTable | null {
+  const rows = text
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith('|'))
+    .map(splitTableRow)
+    .filter((cells) => cells.length > 0 && !cells.every((cell) => /^[-:]+$/.test(cell)));
+
+  if (rows.length < 2) return null;
+
+  const [headers, ...bodyRows] = rows;
+  const columnCount = headers.length;
+  if (columnCount === 0) return null;
+  if (bodyRows.some((row) => row.length !== columnCount)) return null;
+
+  return { headers, rows: bodyRows };
+}
+
+function splitTableRow(line: string): string[] {
+  const trimmed = line.replace(/^\|/, '').replace(/\|$/, '');
+  return trimmed.split('|').map((cell) => cell.trim());
 }
 
 function classifyChunk(chunk: string): LessonBlock {
@@ -90,7 +211,7 @@ function headingCount(lines: string[], isItem: (line: string) => boolean): numbe
   return lines.some((line) => !isItem(line)) ? 1 : 0;
 }
 
-function mergeServeAndAvoidLists(blocks: LessonBlock[]): LessonBlock[] {
+function mergeAdjacentBlocks(blocks: LessonBlock[]): LessonBlock[] {
   const merged: LessonBlock[] = [];
 
   for (let index = 0; index < blocks.length; index += 1) {
@@ -116,6 +237,36 @@ function mergeServeAndAvoidLists(blocks: LessonBlock[]): LessonBlock[] {
       continue;
     }
 
+    if (
+      current?.type === 'example' &&
+      next?.type === 'example' &&
+      looksLikePromptExample(current.example) &&
+      looksLikeExpectedResult(next.example.title)
+    ) {
+      merged.push({
+        type: 'promptResult',
+        prompt: current.example,
+        result: next.example,
+      });
+      index += 1;
+      continue;
+    }
+
+    if (
+      current?.type === 'example' &&
+      next?.type === 'example' &&
+      looksLikeWeakExample(current.example.title) &&
+      looksLikeStrongExample(next.example.title)
+    ) {
+      merged.push({
+        type: 'examplePair',
+        weak: current.example,
+        strong: next.example,
+      });
+      index += 1;
+      continue;
+    }
+
     if (current) merged.push(current);
   }
 
@@ -131,4 +282,33 @@ function looksLikeServe(heading: string | null): boolean {
 function looksLikeAvoid(heading: string | null): boolean {
   if (!heading) return false;
   return heading.toLocaleLowerCase('es').includes('no sirve');
+}
+
+function looksLikePromptExample(example: WorkedExample): boolean {
+  return example.kind === 'prompt' || example.title.toLocaleLowerCase('es').includes('prompt');
+}
+
+export function looksLikeExpectedResult(title: string): boolean {
+  return title.toLocaleLowerCase('es').startsWith('esperamos');
+}
+
+export function displayExampleTitle(title: string): string {
+  return title.replace(/^esperamos:\s*/i, '').trim();
+}
+
+function looksLikeWeakExample(title: string): boolean {
+  const normalized = title.toLocaleLowerCase('es');
+  return normalized.includes('flojo') || normalized.includes('antes');
+}
+
+function looksLikeStrongExample(title: string): boolean {
+  const normalized = title.toLocaleLowerCase('es');
+  return (
+    normalized.includes('que sí') ||
+    normalized.includes('que si') ||
+    normalized.includes('útil') ||
+    normalized.includes('util') ||
+    normalized.includes('después') ||
+    normalized.includes('despues')
+  );
 }

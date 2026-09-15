@@ -1,13 +1,6 @@
+import { Image } from 'expo-image';
 import { Link } from 'expo-router';
-import type { LucideIcon } from 'lucide-react-native';
-import {
-  ArrowRight,
-  BookOpen,
-  ClipboardCheck,
-  Clock,
-  MessageSquare,
-  NotebookPen,
-} from 'lucide-react-native';
+import { ArrowRight, BookOpen, Clock } from 'lucide-react-native';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
@@ -18,17 +11,12 @@ import {
   type CourseSummary,
   type Level,
 } from '@/features/catalog/domain/entities';
+import { coverForCourseSlug } from '@/features/catalog/presentation/course-covers';
 
 const PATH_STEP: Record<Level, string> = {
   beginner: '1',
   intermediate: '2',
   expert: '3',
-};
-
-const COURSE_GLYPH: Record<Level, LucideIcon> = {
-  beginner: MessageSquare,
-  intermediate: NotebookPen,
-  expert: ClipboardCheck,
 };
 
 function cardLift() {
@@ -48,7 +36,7 @@ function cardLift() {
 export function CourseCard({ course }: { course: CourseSummary }) {
   const theme = useTheme();
   const isStartHere = course.level === 'beginner';
-  const CourseGlyph = COURSE_GLYPH[course.level];
+  const cover = coverForCourseSlug(course.slug);
 
   return (
     // `Link` and not an onPress handler: on web this renders a real anchor, so
@@ -81,6 +69,14 @@ export function CourseCard({ course }: { course: CourseSummary }) {
             <View
               style={[styles.cover, { backgroundColor: theme.colors.accentRamp[100] }]}
             >
+              {cover ? (
+                <Image
+                  source={cover}
+                  style={StyleSheet.absoluteFillObject}
+                  contentFit="cover"
+                  accessibilityIgnoresInvertColors
+                />
+              ) : null}
               <View style={styles.coverCopy}>
                 <Text style={[styles.pathNumber, { color: theme.colors.accent }]}>
                   {PATH_STEP[course.level]}
@@ -88,17 +84,6 @@ export function CourseCard({ course }: { course: CourseSummary }) {
                 <Text style={[styles.levelLabel, { color: theme.colors.accentRamp[700] }]}>
                   {LEVEL_LABELS[course.level]}
                 </Text>
-              </View>
-              <View
-                style={[
-                  styles.glyphWell,
-                  {
-                    backgroundColor: theme.colors.surface,
-                    borderRadius: theme.radius.md,
-                  },
-                ]}
-              >
-                <Icon glyph={CourseGlyph} size={22} color={theme.colors.accent} />
               </View>
             </View>
 
@@ -163,12 +148,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   cover: {
-    minHeight: 104,
+    minHeight: 168,
     paddingHorizontal: 20.4,
     paddingVertical: 18,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
+    overflow: 'hidden',
   },
   coverCopy: {
     gap: 2,
@@ -182,12 +166,6 @@ const styles = StyleSheet.create({
   levelLabel: {
     fontSize: 13,
     fontWeight: '600',
-  },
-  glyphWell: {
-    width: 48,
-    height: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   body: {
     padding: 20.4,

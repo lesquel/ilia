@@ -54,6 +54,56 @@ describe('parseLessonBody', () => {
 
     expect(blocks[1]?.type).toBe('quote');
   });
+
+  it('turns a fenced example into a table the teacher can copy', () => {
+    const blocks = parseLessonBody(
+      'El modelo no siente el reloj.\n\n' +
+        ':::ejemplo Plan de 45 minutos (fracciones, 7.º)\n' +
+        '| Tiempo | Momento | Qué hace quién |\n' +
+        '| 8 min | Apertura | El docente proyecta 1/2 y 2/4. |\n' +
+        '| 5 min | Cierre | Un estudiante dicta la regla. |\n' +
+        ':::',
+    );
+
+    expect(blocks.map((block) => block.type)).toEqual(['paragraph', 'example']);
+    const example = blocks[1];
+    if (example?.type !== 'example') throw new Error('expected example');
+    expect(example.example.title).toContain('45 minutos');
+    expect(example.example.kind).toBe('table');
+    expect(example.example.table?.headers).toEqual(['Tiempo', 'Momento', 'Qué hace quién']);
+    expect(example.example.table?.rows).toHaveLength(2);
+  });
+
+  it('pairs a weak prompt with the one that works', () => {
+    const blocks = parseLessonBody(
+      ':::ejemplo Prompt flojo\nHaz un ejercicio de fracciones.\n:::\n\n' +
+        ':::ejemplo Prompt que sí\nEres docente de matemática de séptimo. Arma 5 ejercicios.\n:::',
+    );
+
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0]?.type).toBe('examplePair');
+    if (blocks[0]?.type !== 'examplePair') throw new Error('expected pair');
+    expect(blocks[0].weak.kind).toBe('prompt');
+    expect(blocks[0].strong.kind).toBe('prompt');
+  });
+
+  it('pairs a structured prompt with the sheet that prompt should return', () => {
+    const blocks = parseLessonBody(
+      ':::ejemplo Prompt que sí\nEres docente de matemática de séptimo. Arma 5 ejercicios.\n:::\n\n' +
+        ':::ejemplo Esperamos: hoja de 5 ejercicios\n' +
+        '| # | Consigna | Respuesta |\n' +
+        '| 1 | En el mercado, ¿cuánto es 1/4 + 1/2? | 3/4 |\n' +
+        '| 2 | Ana camina 2/3 y luego 1/6. ¿Cuánto recorrió? | 5/6 |\n' +
+        ':::',
+    );
+
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0]?.type).toBe('promptResult');
+    if (blocks[0]?.type !== 'promptResult') throw new Error('expected promptResult');
+    expect(blocks[0].prompt.kind).toBe('prompt');
+    expect(blocks[0].result.kind).toBe('table');
+    expect(blocks[0].result.table?.rows).toHaveLength(2);
+  });
 });
 
 describe('parseInline', () => {

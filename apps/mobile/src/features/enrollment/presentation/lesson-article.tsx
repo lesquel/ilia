@@ -1,12 +1,28 @@
-import { Check, Quote, ShieldAlert, X } from 'lucide-react-native';
-import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import {
+  ArrowDown,
+  Check,
+  Lightbulb,
+  MessageSquare,
+  Quote,
+  ShieldAlert,
+  Sparkles,
+  Table2,
+  X,
+} from 'lucide-react-native';
+import type { LucideIcon } from 'lucide-react-native';
+import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import { breakpoint, useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
 import {
+  displayExampleTitle,
+  looksLikeExpectedResult,
   parseLessonBody,
+  type ExampleKind,
   type LessonBlock,
   type LessonInline,
+  type LessonTable,
+  type WorkedExample,
 } from '@/features/enrollment/domain/lesson-body';
 
 const READABLE_FONT =
@@ -44,14 +60,16 @@ export function LessonArticle({ body }: { body: string }) {
   );
 }
 
-function LessonBlockView({
+export function LessonBlockView({
   block,
   isLead,
   isWide,
+  size = 'article',
 }: {
   block: LessonBlock;
   isLead: boolean;
   isWide: boolean;
+  size?: 'article' | 'slide';
 }) {
   const theme = useTheme();
 
@@ -62,6 +80,7 @@ function LessonBlockView({
           style={[
             styles.paragraph,
             isLead ? styles.lead : undefined,
+            size === 'slide' ? styles.slideParagraph : undefined,
             { color: isLead ? theme.colors.text : theme.colors.neutral[800] },
           ]}
         >
@@ -149,7 +168,204 @@ function LessonBlockView({
           />
         </View>
       );
+
+    case 'example':
+      return <ExampleCard example={block.example} />;
+
+    case 'examplePair':
+      return (
+        <View style={[styles.examplePair, isWide ? styles.examplePairWide : undefined]}>
+          <ExampleCard example={block.weak} tone="weak" />
+          <ExampleCard example={block.strong} tone="strong" />
+        </View>
+      );
+
+    case 'promptResult':
+      return (
+        <View style={styles.promptResult}>
+          <ExampleCard example={block.prompt} />
+          <View style={styles.resultBridge}>
+            <Icon glyph={ArrowDown} size={16} color={theme.colors.accent} />
+            <Text style={[styles.resultBridgeLabel, { color: theme.colors.accent }]}>
+              Con este prompt esperamos
+            </Text>
+          </View>
+          <ExampleCard example={block.result} tone="result" />
+        </View>
+      );
   }
+}
+
+const EXAMPLE_GLYPH: Record<ExampleKind, LucideIcon> = {
+  prompt: MessageSquare,
+  output: Sparkles,
+  table: Table2,
+  artifact: Lightbulb,
+};
+
+export function ExampleCard({
+  example,
+  tone = 'plain',
+}: {
+  example: WorkedExample;
+  tone?: 'plain' | 'weak' | 'strong' | 'result';
+}) {
+  const theme = useTheme();
+  const isResult = tone === 'result' || looksLikeExpectedResult(example.title);
+  const kicker =
+    tone === 'weak'
+      ? 'No copies esto'
+      : tone === 'strong'
+        ? 'Esto sí'
+        : isResult
+          ? 'Resultado'
+          : example.kind === 'prompt'
+            ? 'Prompt'
+            : 'Ejemplo';
+  const kickerColor =
+    tone === 'weak' ? theme.colors.neutral[700] : theme.colors.accentRamp[700];
+  const headBackground =
+    tone === 'weak'
+      ? theme.colors.neutral[100]
+      : isResult
+        ? theme.colors.accentRamp[100]
+        : theme.colors.neutral[100];
+
+  return (
+    <View
+      style={[
+        styles.example,
+        {
+          backgroundColor: isResult ? theme.colors.accentRamp[100] : theme.colors.surface,
+          borderColor: theme.colors.divider,
+          borderRadius: theme.radius.md,
+        },
+      ]}
+    >
+      <View style={[styles.exampleHead, { backgroundColor: headBackground }]}>
+        <Icon glyph={EXAMPLE_GLYPH[example.kind]} size={16} color={kickerColor} />
+        <View style={styles.exampleHeadCopy}>
+          <Text style={[styles.exampleKicker, { color: kickerColor }]}>{kicker}</Text>
+          <Text style={[styles.exampleTitle, { color: theme.colors.text }]}>
+            {displayExampleTitle(example.title)}
+          </Text>
+        </View>
+      </View>
+      <View style={styles.exampleBody}>
+        {example.table ? (
+          looksLikeExerciseSheet(example.table) ? (
+            <ExerciseSheet table={example.table} />
+          ) : (
+            <ExampleTable table={example.table} />
+          )
+        ) : (
+          <Text
+            style={[
+              example.kind === 'prompt' ? styles.promptText : styles.exampleText,
+              { color: theme.colors.text },
+            ]}
+          >
+            <InlineText inlines={example.inlines} />
+          </Text>
+        )}
+      </View>
+    </View>
+  );
+}
+
+function looksLikeExerciseSheet(table: LessonTable): boolean {
+  const headers = table.headers.map((header) => header.toLocaleLowerCase('es')).join(' ');
+  return /consigna|ejercicio|pregunta|ítem|item/.test(headers);
+}
+
+function ExerciseSheet({ table }: { table: LessonTable }) {
+  const theme = useTheme();
+  const promptColumn = table.headers.findIndex((header) =>
+    /consigna|ejercicio|pregunta|ítem|item/.test(header.toLocaleLowerCase('es')),
+  );
+  const answerColumn = table.headers.findIndex((header) =>
+    /respuesta|clave|qué debe|que debe/.test(header.toLocaleLowerCase('es')),
+  );
+  const numberColumn = table.headers.findIndex((header) => {
+    const normalized = header.toLocaleLowerCase('es').trim();
+    return normalized === '#' || normalized === 'n' || normalized === 'nº' || normalized === 'n.º';
+  });
+
+  return (
+    <View style={styles.sheet}>
+      {table.rows.map((row, rowIndex) => {
+        const exerciseNumber = numberColumn >= 0 ? row[numberColumn] : String(rowIndex + 1);
+        const prompt = row[promptColumn] ?? row[0];
+        const answer = answerColumn >= 0 ? row[answerColumn] : null;
+
+        return (
+          <View
+            key={`${exerciseNumber}-${prompt}`}
+            style={[
+              styles.sheetItem,
+              { borderBottomColor: theme.colors.divider, backgroundColor: theme.colors.surface },
+            ]}
+          >
+            <Text style={[styles.sheetNumber, { color: theme.colors.accent }]}>{exerciseNumber}.</Text>
+            <View style={styles.sheetCopy}>
+              <Text style={[styles.sheetPrompt, { color: theme.colors.text }]}>{prompt}</Text>
+              {answer ? (
+                <Text style={[styles.sheetAnswer, { color: theme.colors.neutral[700] }]}>
+                  Clave: {answer}
+                </Text>
+              ) : null}
+            </View>
+          </View>
+        );
+      })}
+    </View>
+  );
+}
+
+function ExampleTable({ table }: { table: LessonTable }) {
+  const theme = useTheme();
+
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+      <View style={styles.table}>
+        <View style={[styles.tableRow, { backgroundColor: theme.colors.neutral[100] }]}>
+          {table.headers.map((header) => (
+            <Text
+              key={header}
+              style={[styles.tableHeader, { color: theme.colors.text, width: tableColumnWidth(table) }]}
+            >
+              {header}
+            </Text>
+          ))}
+        </View>
+        {table.rows.map((row, rowIndex) => (
+          <View
+            key={`${row[0]}-${rowIndex}`}
+            style={[
+              styles.tableRow,
+              {
+                borderTopColor: theme.colors.divider,
+                backgroundColor: rowIndex % 2 === 0 ? theme.colors.surface : theme.colors.neutral[100],
+              },
+            ]}
+          >
+            {row.map((cell, cellIndex) => (
+              <Text
+                key={`${rowIndex}-${cellIndex}-${cell}`}
+                style={[styles.tableCell, { color: theme.colors.neutral[800], width: tableColumnWidth(table) }]}
+              >
+                {cell}
+              </Text>
+            ))}
+          </View>
+        ))}
+      </View>
+    </ScrollView>
+  );
+}
+
+function tableColumnWidth(table: LessonTable): number {
+  return table.headers.length >= 4 ? 160 : table.headers.length === 3 ? 200 : 240;
 }
 
 function ContrastCard({
@@ -228,6 +444,11 @@ const styles = StyleSheet.create({
     fontSize: 19,
     lineHeight: 30,
     fontWeight: '500',
+  },
+  slideParagraph: {
+    fontSize: 26,
+    lineHeight: 36,
+    fontWeight: '600',
   },
   strong: {
     fontWeight: '700',
@@ -332,5 +553,121 @@ const styles = StyleSheet.create({
     fontFamily: READABLE_FONT,
     fontSize: 16,
     lineHeight: 26,
+  },
+  promptResult: {
+    gap: 10,
+  },
+  resultBridge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 4,
+  },
+  resultBridgeLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  sheet: {
+    gap: 8,
+  },
+  sheetItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    padding: 12,
+    borderBottomWidth: 1,
+  },
+  sheetNumber: {
+    fontFamily: READABLE_FONT,
+    fontSize: 16,
+    fontWeight: '700',
+    lineHeight: 24,
+    minWidth: 22,
+  },
+  sheetCopy: {
+    flex: 1,
+    gap: 4,
+  },
+  sheetPrompt: {
+    fontFamily: READABLE_FONT,
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  sheetAnswer: {
+    fontFamily: READABLE_FONT,
+    fontSize: 13,
+    lineHeight: 20,
+  },
+  examplePair: {
+    gap: 12,
+  },
+  examplePairWide: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+  },
+  example: {
+    flex: 1,
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
+  exampleHead: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  exampleHeadCopy: {
+    flex: 1,
+    gap: 2,
+  },
+  exampleKicker: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
+  },
+  exampleTitle: {
+    fontFamily: READABLE_FONT,
+    fontSize: 15,
+    fontWeight: '700',
+    lineHeight: 22,
+  },
+  exampleBody: {
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  exampleText: {
+    fontFamily: READABLE_FONT,
+    fontSize: 16,
+    lineHeight: 26,
+  },
+  promptText: {
+    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
+    fontSize: 14,
+    lineHeight: 22,
+  },
+  table: {
+    minWidth: '100%',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    borderTopWidth: 1,
+    borderTopColor: 'transparent',
+  },
+  tableHeader: {
+    fontFamily: READABLE_FONT,
+    fontSize: 13,
+    fontWeight: '700',
+    lineHeight: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+  },
+  tableCell: {
+    fontFamily: READABLE_FONT,
+    fontSize: 14,
+    lineHeight: 22,
+    paddingVertical: 8,
+    paddingHorizontal: 8,
   },
 });

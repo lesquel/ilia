@@ -409,6 +409,320 @@ EVAL_LESSONS_M2: list[Lesson] = [
 ]
 
 
+# One filled artifact per lesson. The reader paints `:::ejemplo` as a card,
+# not as another paragraph. Placeholders stay in the prose; these are the
+# worked copies a teacher can steal for Monday.
+LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
+    "Esta semana te ahorras una tarde": [
+        (
+            "Prompt de esta semana",
+            "Eres docente de matemática de séptimo. Ya vieron equivalentes. "
+            "Arma una hoja de 5 sumas con distinto denominador, de menor a "
+            "mayor dificultad. Formato: consigna y respuesta. Sin euros.",
+        ),
+        (
+            "Esperamos: la hoja que te llevas el lunes",
+            "| # | Consigna | Respuesta |\n"
+            "| 1 | Un quintal se parte en 4. ¿Cuánto es 1/4 + 1/2? | 3/4 |\n"
+            "| 2 | Ana camina 2/3 de la cuadra y luego 1/6. ¿Cuánto recorrió? | 5/6 |\n"
+            "| 3 | Suma 1/3 + 1/6. Di el denominador común en voz alta. | 1/2 |\n"
+            "| 4 | ¿Por qué 1/2 + 1/4 no es 2/6? | Primero se iguala el denominador |\n"
+            "| 5 | Dibuja 3/4 de naranja y 1/2 de otra. ¿Cuál es más? | 3/4 |",
+        ),
+    ],
+    "Qué puede y qué no puede un modelo": [
+        (
+            "Prompt que pide una fuente que no pegaste",
+            "Haz una guía de fracciones según el Acuerdo Ministerial y pon "
+            "el porcentaje de séptimos que ya dominan el tema.",
+        ),
+        (
+            "Esperamos: una cita que se tira",
+            "«Según el Acuerdo Ministerial 2024-18, el 80% de los séptimos "
+            "ya dominan equivalentes.»\n"
+            "Tú no pegaste ese acuerdo. El porcentaje no está en tu material. "
+            "Esto no se fotocopia.",
+        ),
+    ],
+    "Anatomía de un prompt que sirve": [
+        (
+            "Prompt flojo",
+            "Haz un ejercicio de fracciones.",
+        ),
+        (
+            "Esperamos: un ítem de catálogo",
+            "| # | Consigna | Respuesta |\n"
+            "| 1 | Calcula 2/5 + 3/7. | El modelo a veces pone euros, o no "
+            "pone clave, o asume otro grado. |",
+        ),
+        (
+            "Prompt que sí",
+            "Eres docente de matemática de séptimo en un colegio público de la "
+            "costa. Los estudiantes ya vieron equivalentes. Hay quienes aún "
+            "mezclan equivalente y simplificar.\n"
+            "Arma 5 ejercicios de suma con distinto denominador, de menor a "
+            "mayor dificultad. La hora dura 45 minutos. No uses euros ni nieve.\n"
+            "Devuélvelo en una tabla: consigna | respuesta esperada. No inventes "
+            "un dato que yo no te di.",
+        ),
+        (
+            "Esperamos: hoja de 5 ejercicios",
+            "| # | Consigna | Respuesta |\n"
+            "| 1 | En el mercado, un quintal se parte en 4. ¿Cuánto es 1/4 + 1/2? | 3/4 |\n"
+            "| 2 | Ana camina 2/3 de la cuadra y luego 1/6. ¿Cuánto recorrió? | 5/6 |\n"
+            "| 3 | Suma 1/3 + 1/6. Di el denominador común antes de anotar. | 1/2 |\n"
+            "| 4 | ¿Por qué 1/2 + 1/4 no es 2/6? | Hay que igualar denominadores primero |\n"
+            "| 5 | Dibuja 3/4 de una naranja y 1/2 de otra. ¿Cuál es más? | 3/4 |",
+        ),
+    ],
+    "Un ejemplo y un recuadro": [
+        (
+            "Prompt con recuadro",
+            "Usa solo lo que está entre las líneas.\n"
+            "---\n"
+            "En el mercado de Tarqui, Juana compra 1/2 kg de arroz y 1/4 kg de "
+            "lenteja. ¿Cuánto compró en total?\n"
+            "---\n"
+            "El tono y la longitud de los nuevos ítems tienen que parecerse a "
+            "este. Si un dato no está ahí, escribe: no está en el texto.",
+        ),
+        (
+            "Esperamos: dos ítems al mismo tono",
+            "| # | Consigna | Respuesta |\n"
+            "| 1 | En el mercado de Tarqui, Luis compra 1/3 kg de frejol y "
+            "1/6 kg de arroz. ¿Cuánto compró en total? | 1/2 kg |\n"
+            "| 2 | Juana ya lleva 1/2 kg. Si agrega 1/8 kg de azúcar, ¿cuánto "
+            "pesa la funda? | 5/8 kg |",
+        ),
+    ],
+    "Guía de ejercicios de tu temario": [
+        (
+            "Prompt de la guía",
+            "Eres docente de matemática de séptimo. Ya vieron equivalentes. "
+            "Arma 6 ejercicios sobre suma con distinto denominador: 2 de "
+            "entrada, 2 de práctica, 2 desafiantes. La hora dura 45 minutos. "
+            "Formato: lista numerada. Al final, clave en otro bloque.",
+        ),
+        (
+            "Esperamos: la guía lista para fotocopiar",
+            "| # | Consigna | Respuesta |\n"
+            "| 1 | ¿1/2 y 2/4 son la misma cantidad? | Sí |\n"
+            "| 2 | Un quintal se parte en 4. ¿Cuánto es 1/4 + 1/2? | 3/4 |\n"
+            "| 3 | Ana camina 2/3 y luego 1/6. ¿Cuánto recorrió? | 5/6 |\n"
+            "| 4 | Suma 1/3 + 1/6. Di el denominador común. | 1/2 |\n"
+            "| 5 | ¿Por qué 1/2 + 1/4 no es 2/6? | Primero se iguala el denominador |\n"
+            "| 6 | Inventa un problema del mercado que sume 1/5 + 2/5. | 3/5, con un enunciado del mercado |",
+        ),
+    ],
+    "Resumen para quien no vino o no leyó": [
+        (
+            "Prompt para el grupo de familias",
+            "Escribe 8 líneas para el grupo de WhatsApp de las familias. "
+            "Qué vimos hoy en 7.º (suma de fracciones con distinto "
+            "denominador) y una pregunta que pueden hacer en casa. Tono "
+            "respetuoso, sin siglas.",
+        ),
+        (
+            "Esperamos: la nota que pegas al grupo",
+            "Hoy en 7.º sumamos fracciones con distinto denominador. No es "
+            "restar ni simplificar todavía: es poner las partes en la misma "
+            "medida y después sumar.\n"
+            "En casa pueden preguntar: si partes una naranja en 2 y otra en 4, "
+            "¿cuánto es media más un cuarto?",
+        ),
+    ],
+    "Una hora de 45 minutos, no un temario infinito": [
+        (
+            "Prompt de la hora",
+            "Eres docente de matemática de séptimo. Diseña 45 minutos sobre "
+            "suma de fracciones con distinto denominador. Ya vieron "
+            "equivalentes. Incluye: 8 minutos de apertura, 20 de práctica "
+            "guiada, 12 de trabajo individual, 5 de cierre. Di qué hace el "
+            "docente y qué hace el estudiante. Formato: tabla tiempo | "
+            "momento | qué hace quién. Los bloques deben sumar 45.",
+        ),
+        (
+            "Esperamos: el plan de los 45 minutos",
+            "| Tiempo | Momento | Qué hace quién |\n"
+            "| 8 min | Apertura | El docente proyecta 1/2 y 2/4. Pregunta: "
+            "¿son la misma cantidad? Los estudiantes responden en voz alta. |\n"
+            "| 20 min | Práctica guiada | Resuelven juntos 1/4+1/2, 1/3+1/6 y "
+            "2/3+1/6 en el pizarrón. El docente nombra el denominador común. |\n"
+            "| 12 min | Individual | Cada quien resuelve cuatro ítems en la "
+            "hoja. El docente circula. |\n"
+            "| 5 min | Cierre | Un estudiante dicta la regla: mismo "
+            "denominador antes de sumar. Suma: 8+20+12+5 = 45. |",
+        ),
+    ],
+    "El primer borrador no se fotocopia": [
+        (
+            "Prompt de una pasada",
+            "Acorta los enunciados. Se leen en voz alta, no se copian del "
+            "pizarrón. Una oración. No cambies las fracciones.",
+        ),
+        (
+            "Esperamos: el enunciado que sí se puede dictar",
+            "Antes: «Considerando que las fracciones representan partes de un "
+            "todo, determina el resultado de la operación indicada.»\n"
+            "Después: «Suma 1/4 + 1/2. Di el denominador común en voz alta.»",
+        ),
+    ],
+    "Revisa antes de fotocopiar": [
+        (
+            "Primer resultado, sin revisar",
+            "| # | Consigna | Respuesta |\n"
+            "| 1 | A pizza costs €3. Add 1/4 + 1/2. | 2/6 |\n"
+            "| 2 | Según el Ministerio, el 80% ya sabe esto. | — |\n"
+            "| 3 | Despeja x en 2x + 1/3 = 1. | Álgebra de otro grado |",
+        ),
+        (
+            "Esperamos: la hoja después de los cinco chequeos",
+            "| # | Consigna | Respuesta |\n"
+            "| 1 | Un quintal se parte en 4. ¿Cuánto es 1/4 + 1/2? | 3/4 |\n"
+            "| 2 | ¿Por qué 1/2 + 1/4 no es 2/6? | Primero se iguala el denominador |\n"
+            "| 3 | Suma 1/3 + 1/6. Di el denominador común. | 1/2 |",
+        ),
+    ],
+    "Por qué trabaja con tus fuentes": [
+        (
+            "Prompt al cuaderno",
+            "Usa solo las fuentes de este cuaderno. Define quebrado y cita "
+            "el pasaje. Si no está, di que no está.",
+        ),
+        (
+            "Esperamos: una cita que tienes que abrir",
+            "El modelo dice: «El capítulo define quebrado como parte de la "
+            "unidad (cita 3).»\n"
+            "Abres la cita 3: el párrafo habla de decimales, no de quebrados. "
+            "No es anclaje. Se tira o se vuelve a pedir.",
+        ),
+    ],
+    "Qué cargar y qué no": [
+        (
+            "Lo que entra al cuaderno",
+            "| Cargo | No cargo |\n"
+            "| Capítulo 4 del texto, PDF | Lista de nombres y notas |\n"
+            "| Tus apuntes de la unidad | Foto de un menor |\n"
+            "| La rúbrica de la tarea | Chat del grupo de familias |\n"
+            "| Tres párrafos anónimos de ensayo | Cédula o diagnóstico |",
+        ),
+    ],
+    "Una clase completa desde tu capítulo": [
+        (
+            "Prompt de las tres salidas",
+            "Usa solo las fuentes de este cuaderno. No inventes datos que "
+            "no estén. Si algo no está, di que no está. Devuelve tres "
+            "bloques: Guía | Preguntas | Familias.",
+        ),
+        (
+            "Esperamos: guía, preguntas y nota",
+            "| Bloque | Qué sale |\n"
+            "| Guía | Equivalente no es simplificar. Primero igualas el denominador. |\n"
+            "| Preguntas | 1) ¿Qué es un denominador común? 2) Suma 1/3 + 1/6. 3) ¿Por qué 1/2 + 1/4 no es 2/6? |\n"
+            "| Familias | Hoy igualamos denominadores para poder sumar. Pregunten: media naranja más un cuarto, ¿cuánto es? |",
+        ),
+    ],
+    "Tres niveles sin hacer tres planificaciones": [
+        (
+            "Prompt de tres entradas",
+            "A partir de las mismas fuentes, arma tres versiones de la "
+            "pregunta 3: una para quien aún no distingue, una para el nivel "
+            "de la clase, y una para quien ya argumenta. No cambies los "
+            "hechos. Formato: tabla nivel | pregunta | qué debe verse.",
+        ),
+        (
+            "Esperamos: la pregunta 3, tres veces",
+            "| Nivel | Pregunta | Qué debe verse |\n"
+            "| Aún no distingue | ¿1/2 y 2/4 son la misma cantidad? Sí o no, "
+            "y por qué con un dibujo. | Señala las dos partes iguales. |\n"
+            "| Nivel de la clase | Suma 1/3 + 1/6 y explica el denominador "
+            "que usaste. | El 6 y la suma 1/2. |\n"
+            "| Ya argumenta | ¿Por qué 1/2 + 1/4 no puede ser 2/6? | "
+            "Contrasta sumar numeradores a ciegas con igualar primero. |",
+        ),
+    ],
+    "Excelente, bueno, regular no mide": [
+        (
+            "Prompt con rúbrica hueca",
+            "Califica este párrafo: «Las fracciones se suman si tienen el "
+            "mismo abajo.» Usa excelente, bueno o regular y pon un número "
+            "sobre 100.",
+        ),
+        (
+            "Esperamos: dos notas que no se pueden defender",
+            "Docente A: 87/100, «bueno».\n"
+            "Docente B: regular.\n"
+            "El modelo, con esa rúbrica, inventa otro número igual de hueco. "
+            "No se puede señalar en la hoja qué midieron.",
+        ),
+    ],
+    "Dimensiones que se pueden señalar": [
+        (
+            "Prompt que aplica la rúbrica",
+            "Aplica esta rúbrica al párrafo anónimo. Para cada dimensión, "
+            "copia la frase que usaste o escribe: no hay evidencia. Mira "
+            "este 3 y este 1. No inventes una nota global si falta evidencia.\n"
+            "Dimensiones: afirmación, evidencia, claridad.",
+        ),
+        (
+            "Esperamos: la rúbrica llena, no un 87",
+            "| Dimensión | Nivel | Evidencia en la hoja |\n"
+            "| Afirmación | 2 | «la marea sube porque la luna tira» — hay "
+            "tesis, le falta el «por qué» del texto. |\n"
+            "| Evidencia | 1 | no hay evidencia |\n"
+            "| Claridad | 3 | Se entiende a la primera lectura. |",
+        ),
+    ],
+    "El modelo puntúa, tú certificas": [
+        (
+            "Prompt de comentario formativo",
+            "Aplica la rúbrica. Para evidencia, cita la frase o escribe: "
+            "no hay evidencia. No pongas una nota de bimestre.",
+        ),
+        (
+            "Esperamos: comentario del modelo, firma tuya",
+            "El modelo: «Evidencia: 1. No hay frase del texto.»\n"
+            "Tú dejas el 1 y editas: «Te faltó citar el párrafo de la "
+            "página 12.»\n"
+            "La nota del bimestre la firmas tú. El chat no entra al acta.",
+        ),
+    ],
+    "Qué ancla ILIA y qué no": [
+        (
+            "Qué comprueba la plataforma",
+            "| Se ancla (sin opinión) | No se ancla (lo juzgas tú) |\n"
+            "| ¿Hay un rol en el prompt? | ¿El tono le sirve a tu 7.º? |\n"
+            "| ¿Hay un formato pedido? | ¿La analogía del mercado es buena? |\n"
+            "| ¿Aparece el tema del enunciado? | ¿Vale un 2 o un 3 en claridad? |\n"
+            "| ¿Llega al largo mínimo? | ¿Fotocopias este borrador el lunes? |",
+        ),
+    ],
+}
+
+
+def _attach_examples(lessons: list[Lesson]) -> list[Lesson]:
+    attached: list[Lesson] = []
+    for title, kind, duration, body in lessons:
+        examples = LESSON_EXAMPLES.get(title)
+        if not examples:
+            raise ValueError(f"Missing worked example for lesson: {title}")
+        fences = "\n\n".join(
+            f":::ejemplo {example_title}\n{example_body.strip()}\n:::"
+            for example_title, example_body in examples
+        )
+        attached.append((title, kind, duration, f"{body}\n\n{fences}"))
+    return attached
+
+
+PROMPTING_LESSONS_M1 = _attach_examples(PROMPTING_LESSONS_M1)
+PROMPTING_LESSONS_M2 = _attach_examples(PROMPTING_LESSONS_M2)
+PROMPTING_LESSONS_M3 = _attach_examples(PROMPTING_LESSONS_M3)
+NOTEBOOK_LESSONS_M1 = _attach_examples(NOTEBOOK_LESSONS_M1)
+NOTEBOOK_LESSONS_M2 = _attach_examples(NOTEBOOK_LESSONS_M2)
+EVAL_LESSONS_M1 = _attach_examples(EVAL_LESSONS_M1)
+EVAL_LESSONS_M2 = _attach_examples(EVAL_LESSONS_M2)
+
+
 TEACHER_COURSES: list[dict[str, Any]] = [
     {
         "slug": "prompting-para-docentes",

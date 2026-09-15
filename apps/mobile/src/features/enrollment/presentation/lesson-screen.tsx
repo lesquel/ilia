@@ -1,15 +1,13 @@
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
-import { ProgressBar } from '@/core/ui/progress-bar';
 import { ErrorState, LoadingState } from '@/core/ui/state-view';
-import { LESSON_KIND_LABELS, formatDuration } from '@/features/catalog/domain/entities';
 import {
   useCompleteLesson,
   useLesson,
 } from '@/features/enrollment/application/use-enrollment';
-import { LessonArticle } from '@/features/enrollment/presentation/lesson-article';
+import { LessonStudio } from '@/features/enrollment/presentation/lesson-studio';
 import {
   LessonPlayer,
   LessonPlayerUnavailable,
@@ -43,37 +41,39 @@ export function LessonScreen() {
   const goTo = (id: string) => router.replace(`/catalog/${courseSlug}/lessons/${id}`);
 
   return (
-    <ScrollView
-      style={{ backgroundColor: theme.colors.bg }}
-      contentContainerStyle={styles.content}
-    >
-      <Link href={`/catalog/${courseSlug}`} style={[styles.back, { color: theme.colors.accent }]}>
-        ← Volver al curso
-      </Link>
+    <View style={[styles.screen, { backgroundColor: theme.colors.bg }]}>
+      <View style={styles.chrome}>
+        <Link href={`/catalog/${courseSlug}`} style={[styles.back, { color: theme.colors.accent }]}>
+          ← Curso
+        </Link>
+        <Text style={[styles.chromeTitle, { color: theme.colors.text }]} numberOfLines={1}>
+          {lesson.title}
+        </Text>
+        <Text style={[styles.chromeStep, { color: theme.colors.neutral[600] }]}>
+          {lesson.position} / {lesson.totalLessons}
+        </Text>
+      </View>
 
-      <ProgressBar
-        percentage={(lesson.position / lesson.totalLessons) * 100}
-        label={`Lección ${lesson.position} de ${lesson.totalLessons} · ${lesson.moduleTitle}`}
-      />
-
-      <Text style={[styles.kind, { color: theme.colors.accentRamp[700] }]}>
-        {LESSON_KIND_LABELS[lesson.kind]} · {formatDuration(lesson.durationSeconds)}
-      </Text>
-
-      <Text style={[styles.title, { color: theme.colors.text }]}>{lesson.title}</Text>
-
-      {/* Only when there is media to play. Announcing a missing player above a
-          lesson that does have written material contradicts itself.
-          `mediaUrl` is signed and short-lived; `resourceRef` without one means
-          the storage could not resolve it. */}
       {lesson.mediaUrl ? (
-        <LessonPlayer url={lesson.mediaUrl} />
+        <View style={styles.media}>
+          <LessonPlayer url={lesson.mediaUrl} />
+        </View>
       ) : lesson.resourceRef ? (
         <LessonPlayerUnavailable />
       ) : null}
 
       {lesson.body ? (
-        <LessonArticle body={lesson.body} />
+        <LessonStudio
+          body={lesson.body}
+          onMarkComplete={() => complete.mutate(lesson.lessonId)}
+          isCompleted={lesson.isCompleted}
+          isCompletePending={complete.isPending}
+          completeFailed={complete.isError}
+          nextLessonTitle={lesson.next?.lessonTitle}
+          onOpenNextLesson={
+            lesson.next ? () => goTo(lesson.next!.lessonId) : undefined
+          }
+        />
       ) : (
         <View
           style={[
@@ -87,155 +87,47 @@ export function LessonScreen() {
         </View>
       )}
 
-      {/* Progress is the only signal a teacher has that the course is moving.
-          A tick that silently did not save would have her repeat a lesson she
-          already finished, or think she is further along than she is. */}
-      {complete.isError ? (
-        <Text
-          style={[styles.completeError, { color: theme.colors.accentRamp[700] }]}
-          accessibilityRole="alert"
-        >
-          No pudimos guardar que la completaste. Prueba de nuevo.
-        </Text>
-      ) : null}
-
-      <Pressable
-        accessibilityRole="button"
-        disabled={complete.isPending || lesson.isCompleted}
-        onPress={() => complete.mutate(lesson.lessonId)}
-        style={({ pressed }) => [
-          styles.completeButton,
-          {
-            backgroundColor: lesson.isCompleted ? 'transparent' : theme.colors.accent,
-            borderColor: lesson.isCompleted ? theme.colors.divider : theme.colors.accent,
-            borderRadius: theme.radius.md,
-            opacity: complete.isPending ? 0.6 : pressed ? 0.85 : 1,
-          },
-        ]}
-      >
-        {complete.isPending ? (
-          <ActivityIndicator color={theme.colors.accent} />
-        ) : (
-          <Text
-            style={[
-              styles.completeLabel,
-              { color: lesson.isCompleted ? theme.colors.neutral[600] : '#f2f2f3' },
-            ]}
-          >
-            {lesson.isCompleted ? '✓ Lección completada' : 'Marcar como completada'}
-          </Text>
-        )}
-      </Pressable>
-
-      <View style={styles.nav}>
-        {lesson.previous ? (
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => goTo(lesson.previous!.lessonId)}
-            style={({ pressed }) => [styles.navItem, { opacity: pressed ? 0.6 : 1 }]}
-          >
-            <Text style={[styles.navHint, { color: theme.colors.neutral[600] }]}>Anterior</Text>
-            <Text style={[styles.navTitle, { color: theme.colors.accent }]} numberOfLines={1}>
-              {lesson.previous.lessonTitle}
-            </Text>
-          </Pressable>
-        ) : (
-          <View style={styles.navItem} />
-        )}
-
-        {lesson.next ? (
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => goTo(lesson.next!.lessonId)}
-            style={({ pressed }) => [
-              styles.navItem,
-              styles.navRight,
-              { opacity: pressed ? 0.6 : 1 },
-            ]}
-          >
-            <Text style={[styles.navHint, { color: theme.colors.neutral[600] }]}>Siguiente</Text>
-            <Text style={[styles.navTitle, { color: theme.colors.accent }]} numberOfLines={1}>
-              {lesson.next.lessonTitle}
-            </Text>
-          </Pressable>
-        ) : (
-          <View style={[styles.navItem, styles.navRight]}>
-            <Text style={[styles.navHint, { color: theme.colors.neutral[600] }]}>
-              Última lección
-            </Text>
-          </View>
-        )}
-      </View>
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  completeError: { fontSize: 14, marginTop: 10.2, textAlign: 'center' },
   screen: {
     flex: 1,
+    minHeight: 0,
   },
-  content: {
-    padding: 20.4,
-    maxWidth: 760,
-    width: '100%',
-    alignSelf: 'center',
-    gap: 13.6,
+  chrome: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: 8,
   },
   back: {
     fontSize: 14,
     fontWeight: '600',
   },
-  kind: {
-    fontSize: 11,
+  chromeTitle: {
+    flex: 1,
+    fontSize: 15,
     fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
   },
-  title: {
-    fontSize: 30,
-    fontWeight: '600',
-    lineHeight: 36,
+  chromeStep: {
+    fontSize: 13,
+  },
+  media: {
+    paddingHorizontal: 24,
   },
   placeholder: {
+    flex: 1,
     borderWidth: 1,
     borderStyle: 'dashed',
-    paddingVertical: 40,
+    margin: 24,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   placeholderText: {
     fontSize: 14,
-  },
-  completeButton: {
-    borderWidth: 1,
-    paddingVertical: 13.6,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 48,
-    marginTop: 6.8,
-  },
-  completeLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  nav: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 13.6,
-    marginTop: 6.8,
-  },
-  navItem: {
-    flex: 1,
-    gap: 3.4,
-  },
-  navRight: {
-    alignItems: 'flex-end',
-  },
-  navHint: {
-    fontSize: 12,
-  },
-  navTitle: {
-    fontSize: 14,
-    fontWeight: '600',
   },
 });
