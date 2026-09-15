@@ -26,24 +26,30 @@ export default function CourseRoute() {
 
   return (
     <CourseDetailScreen
-      enrollmentSlot={
-        <>
-          <EnrollPanel slug={courseSlug} level={course?.level} />
-          <CertificatePanel slug={courseSlug} courseTitle={course?.title} />
-        </>
-      }
+      enrollmentSlot={<EnrollPanel slug={courseSlug} level={course?.level} />}
       footerSlot={
-        progress ? (
-          <Link
-            href={`/catalog/${courseSlug}/forum`}
-            style={{ fontSize: 15, fontWeight: '600', marginTop: 13.6 }}
-          >
-            Ir al foro del curso →
-          </Link>
-        ) : null
+        <>
+          <CertificatePanel slug={courseSlug} courseTitle={course?.title} />
+          {progress ? (
+            <Link
+              href={`/catalog/${courseSlug}/forum`}
+              style={{ fontSize: 15, fontWeight: '600', marginTop: 13.6 }}
+            >
+              Ir al foro del curso →
+            </Link>
+          ) : null}
+        </>
       }
       completedLessonIds={progress?.completedLessonIds ?? []}
       passedActivityIds={progress?.passedActivityIds ?? []}
+      isEnrolled={Boolean(progress)}
+      completedLessonCount={progress?.completedLessons ?? 0}
+      nextItemTitle={progress?.nextLesson?.lessonTitle}
+      nextItemHref={
+        progress?.nextLesson
+          ? `/catalog/${courseSlug}/lessons/${progress.nextLesson.lessonId}`
+          : undefined
+      }
       // Tapping a lesson opens it. Marking it done belongs in the reader, next
       // to the material — a checkbox in the syllabus would let a teacher tick
       // off a lesson they never read.

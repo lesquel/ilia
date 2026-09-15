@@ -114,6 +114,96 @@ export function nextCourseAlongLearningPath<Course extends { id: string; level: 
   return ordered[currentIndex + 1];
 }
 
+export type SyllabusStationStatus = 'done' | 'now' | 'wait';
+
+export function isModuleFinished(
+  module: Module,
+  completedLessonIds: readonly string[],
+  passedActivityIds: readonly string[],
+): boolean {
+  const lessonsFinished = module.lessons.every((lesson) =>
+    completedLessonIds.includes(lesson.id),
+  );
+  const activitiesFinished = module.activities.every((activity) =>
+    passedActivityIds.includes(activity.id),
+  );
+  return lessonsFinished && activitiesFinished;
+}
+
+/**
+ * Visitor: first chapter is "now". Enrolled: done / here / waiting,
+ * so the timeline can show where you actually are.
+ */
+export function syllabusStationStatuses(
+  modules: Module[],
+  completedLessonIds: readonly string[],
+  passedActivityIds: readonly string[],
+  isEnrolled: boolean,
+): SyllabusStationStatus[] {
+  if (!isEnrolled) {
+    return modules.map((_, moduleIndex) => (moduleIndex === 0 ? 'now' : 'wait'));
+  }
+
+  let hasMarkedCurrent = false;
+  return modules.map((module) => {
+    if (isModuleFinished(module, completedLessonIds, passedActivityIds)) {
+      return 'done';
+    }
+    if (!hasMarkedCurrent) {
+      hasMarkedCurrent = true;
+      return 'now';
+    }
+    return 'wait';
+  });
+}
+
+export function syllabusStationLabel(
+  status: SyllabusStationStatus,
+  isEnrolled: boolean,
+): string | undefined {
+  if (status === 'done') return 'Hecho';
+  if (status === 'now') return isEnrolled ? 'Aquí vas' : 'Empiezas aquí';
+  return undefined;
+}
+
+export function currentItemIdInModule(
+  module: Module,
+  completedLessonIds: readonly string[],
+  passedActivityIds: readonly string[],
+): string | undefined {
+  const openLesson = module.lessons.find(
+    (lesson) => !completedLessonIds.includes(lesson.id),
+  );
+  if (openLesson) return openLesson.id;
+  return module.activities.find(
+    (activity) => !passedActivityIds.includes(activity.id),
+  )?.id;
+}
+
+export function nextOpenSyllabusItem(
+  modules: Module[],
+  completedLessonIds: readonly string[],
+  passedActivityIds: readonly string[],
+): { id: string; title: string; kind: 'lesson' | 'activity' } | undefined {
+  for (const module of modules) {
+    const openItemId = currentItemIdInModule(
+      module,
+      completedLessonIds,
+      passedActivityIds,
+    );
+    if (!openItemId) continue;
+    const openLesson = module.lessons.find((lesson) => lesson.id === openItemId);
+    if (openLesson) {
+      return { id: openLesson.id, title: openLesson.title, kind: 'lesson' };
+    }
+    const openActivity = module.activities.find((activity) => activity.id === openItemId);
+    if (openActivity) {
+      return { id: openActivity.id, title: openActivity.title, kind: 'activity' };
+    }
+  }
+  return undefined;
+}
+
 export const LESSON_KIND_LABELS: Record<LessonKind, string> = {
   video: 'Vídeo',
   slides: 'Presentación',
