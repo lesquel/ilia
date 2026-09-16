@@ -338,12 +338,12 @@ function mascotLineFor(scene: LessonScene, labPhase: LabPhase, sceneIndex: numbe
     if (labPhase === 'idle') return 'Ahí va el pedido. Dale a escribir y lo ves entero.';
     if (labPhase === 'composing') return 'Así queda cuando no te ahorras las piezas.';
     if (labPhase === 'processing') return 'Ahora arma la hoja. Tú no tienes que hacer nada.';
-    return 'Esto salió. Léelo antes de fotocopiarlo.';
+    return 'Léelo antes de fotocopiarlo.';
   }
   if (scene.type === 'compare') return 'Uno no sirve. El otro sí. Fíjate en la diferencia.';
-  if (scene.type === 'reveal') return 'Esto te lo puedes llevar. No hace falta memorizarlo.';
-  if (sceneIndex === 0) return 'Te cuento la idea. Después escribimos el pedido.';
-  return 'Otra más. Espera que termine.';
+  if (scene.type === 'reveal') return 'Esto te lo puedes llevar el lunes.';
+  if (sceneIndex === 0) return 'Primero la idea. Después escribimos el pedido.';
+  return 'Sigue cuando quieras.';
 }
 
 function primaryAction(
@@ -358,7 +358,7 @@ function primaryAction(
   disabled: boolean;
 } {
   if (scene?.type === 'lab' && labPhase === 'idle') {
-    return { kind: 'write', label: 'Escribir el prompt', icon: Play, disabled: false };
+    return { kind: 'write', label: 'Escribir el pedido', icon: Play, disabled: false };
   }
   if (scene?.type === 'lab' && labPhase === 'composing') {
     return { kind: 'send', label: 'Enviar', icon: Send, disabled: false };
@@ -369,7 +369,7 @@ function primaryAction(
   if (isLastScene) {
     return {
       kind: 'complete',
-      label: isCompleted ? 'Lección completada' : 'Marcar como completada',
+      label: isCompleted ? 'Ya la terminaste' : 'Listo, la termino',
       icon: Check,
       disabled: isCompleted,
     };
@@ -452,7 +452,7 @@ function LabStage({
       <View style={styles.labChrome}>
         <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
         <Text style={[styles.labKicker, { color: theme.colors.neutral[500] }]}>
-          Laboratorio · esto no se manda a un modelo
+          Esto no se envía. Es para que veas cómo queda el pedido.
         </Text>
       </View>
 
@@ -466,10 +466,10 @@ function LabStage({
           },
         ]}
       >
-        <Text style={[styles.composerHint, { color: theme.colors.neutral[500] }]}>prompt ▸</Text>
+        <Text style={[styles.composerHint, { color: theme.colors.neutral[500] }]}>El pedido</Text>
         {promptOnScreen.length === 0 ? (
           <Text style={[styles.composerPlaceholder, { color: theme.colors.neutral[500] }]}>
-            Dale a escribir el prompt y ves el pedido.
+            Cuando pulses escribir, aparece el pedido entero.
           </Text>
         ) : (
           <Text style={[styles.composerText, { color: theme.colors.text }]}>{promptOnScreen}</Text>
@@ -488,7 +488,7 @@ function LabStage({
       {labPhase === 'revealed' ? (
         <View style={styles.labResult}>
           <Text style={[styles.labResultKicker, { color: theme.colors.accent }]}>
-            Con este pedido sale
+            Con este pedido te sale esto
           </Text>
           <ExampleCard example={scene.result} tone="result" />
         </View>

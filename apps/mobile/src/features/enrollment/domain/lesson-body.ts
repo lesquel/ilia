@@ -45,13 +45,14 @@ const EXAMPLE_FENCE =
   /:::ejemplo(?:[ \t]+([^\n]+))?[ \t]*\n([\s\S]*?)\n[ \t]*:::/g;
 
 export function examplePlainText(example: WorkedExample): string {
-  if (example.table) {
-    const headerLine = example.table.headers.join(' · ');
-    const bodyLines = example.table.rows.map((row) => row.join(' · '));
-    return [headerLine, ...bodyLines].join('\n');
+  const prose = example.inlines.map((part) => part.text).join('').trim();
+  if (!example.table) {
+    return prose;
   }
 
-  return example.inlines.map((part) => part.text).join('');
+  const headerLine = example.table.headers.join(' · ');
+  const bodyLines = example.table.rows.map((row) => row.join(' · '));
+  return [prose, headerLine, ...bodyLines].filter((line) => line.length > 0).join('\n');
 }
 
 export function parseInline(text: string): LessonInline[] {
@@ -117,12 +118,21 @@ function splitProseAndExamples(
 
 function parseWorkedExample(title: string, body: string): WorkedExample {
   const table = parsePipeTable(body);
+  const prose = table ? proseOutsidePipeTable(body) : body.trim();
   return {
     title,
     kind: table ? 'table' : inferExampleKind(title),
-    inlines: table ? [] : parseInline(body),
+    inlines: prose.length > 0 ? parseInline(prose) : [],
     table,
   };
+}
+
+function proseOutsidePipeTable(text: string): string {
+  return text
+    .split('\n')
+    .filter((line) => !line.trim().startsWith('|'))
+    .join('\n')
+    .trim();
 }
 
 function inferExampleKind(title: string): ExampleKind {

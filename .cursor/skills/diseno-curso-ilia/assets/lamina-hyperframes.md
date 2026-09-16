@@ -6,18 +6,18 @@ No es un trailer de ILIA. Es una destreza en movimiento. Render local → MP4 �
 
 - Papel, `#1B70FE`, texto negro/gris. Sin dark, sin glass, sin avatar, sin Lía hablando.
 - 16:9, 15–30 s, sin música de lanzamiento.
-- En pantalla: grado + código. La voz (si hay) es tuya o un locutor neutro, no un avatar HeyGen.
+- En pantalla se ve el grado en cristiano. La voz (si hay) es tuya o un locutor neutro, no un avatar HeyGen. El código del ministerio, si aparece, va al final y chico.
 
 ## Primera lámina (prompting)
 
-Tres cuadros, mismo pastel, tres pedidos:
+Tres cuadros, el mismo pedido vago («Hazme una lectura»), tres salidas:
 
-1. «¿Cuántos trozos hay?» → sello **M.2.1.18 · Elemental**. No es 7.º.
-2. «Suma 1/4 + 1/2. Di el denominador común.» → sello **M.3.1.39 · Media**.
-3. «Pinta el 25 % en el circular.» → sello **M.3.1.46 · Media**. No es contar.
+1. Una receta. Eso es de segundo o tercero, no de séptimo.
+2. Un párrafo con una idea y cinco preguntas que se contestan con el texto. Eso es séptimo.
+3. Un ensayo con tesis. Eso es tercero de bachillerato.
 
-Cierre (una línea): *El código le quita al modelo la decisión del grado.*
+Cierre (una línea): *Si no le dices el grado, el modelo lo inventa.*
 
 ## Prompt al agente HyperFrames
 
-Route: motion graphics / explainer. Spec: the house locks above. Beats: the three stamps. Negatives: product intro, dark UI, liquid glass, talking head, “ILIA changes Ser Estudiante”.
+Route: motion graphics / explainer. Spec: the house locks above. Beats: the three sheets. Negatives: product intro, dark UI, liquid glass, talking head, destreza codes as the title, “ILIA changes Ser Estudiante”.

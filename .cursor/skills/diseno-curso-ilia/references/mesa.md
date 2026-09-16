@@ -14,11 +14,10 @@
 
 | Pedido flojo | Código | No es |
 |---|---|---|
-| Contar trozos del pastel | M.2.1.18 (Elemental) | 7.º |
-| Sumar / restar con denominador común | **M.3.1.39** (Media / 7.º) | Mitades |
-| Circular de % | M.3.1.46 | Contar rebanadas |
-| Instructivo / receta | LL.3.4.4 | Ensayo BGU |
-| Tesis + tipos de argumento | LL.5.4.1–2 | Receta |
+| «Hazme una lectura» | — | El modelo elige el grado |
+| Receta / cuento de animalitos | Elemental (p. ej. LL.2.5.6) | 7.º |
+| Párrafo con una idea + preguntas del texto | **LL.3.3.3** (Media / 7.º) | Ensayo |
+| Ensayo con tesis | LL.5.4.1–2 (BGU) | Séptimo |
 | WhatsApp a familias | — | Destreza LL |
 
-Cifra viva para el folio de 7.º: Media, Matemática, 2024-2025, **685** / **71,3 %** bajo 700. Fuente en el tomo de métricas. No citar ERCE en la misma frase: otra escala.
+Cifra viva para el folio de 7.º: Media, Lengua, 2024-2025, **682** / **61,9 %** bajo 700. Fuente en el tomo de métricas. No citar ERCE en la misma frase: otra escala.

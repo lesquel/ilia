@@ -8,17 +8,11 @@ import Animated, {
   withDelay,
   withTiming,
 } from 'react-native-reanimated';
-import Svg, { Circle, Line, Path } from 'react-native-svg';
-
 import { useTheme } from '@/core/theme';
 import { motifForIdeaScene } from '@/features/enrollment/domain/idea-art-motif';
 
 export type { IdeaArtMotif } from '@/features/enrollment/domain/idea-art-motif';
 export { motifForIdeaScene };
-
-const PIE_SIZE = 168;
-const PIE_SIZE_COMPACT = 120;
-const PIE_RADIUS_RATIO = 0.42;
 
 const HOUR_BLOCKS = [
   { minutes: 8, label: 'apertura' },
@@ -26,25 +20,6 @@ const HOUR_BLOCKS = [
   { minutes: 12, label: 'solo' },
   { minutes: 5, label: 'cierre' },
 ] as const;
-
-function polarPoint(center: number, radius: number, angleRadians: number) {
-  return {
-    x: center + radius * Math.cos(angleRadians),
-    y: center + radius * Math.sin(angleRadians),
-  };
-}
-
-function slicePath(
-  center: number,
-  radius: number,
-  startAngle: number,
-  endAngle: number,
-): string {
-  const start = polarPoint(center, radius, startAngle);
-  const end = polarPoint(center, radius, endAngle);
-  const largeArcFlag = endAngle - startAngle > Math.PI ? 1 : 0;
-  return `M ${center} ${center} L ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${end.x} ${end.y} Z`;
-}
 
 function useOnceProgress(delayMs: number, durationMs = 520) {
   const prefersReducedMotion = useReducedMotion();
@@ -94,6 +69,9 @@ export function IdeaSceneArt({
 }) {
   const theme = useTheme();
   const motif = motifForIdeaScene(plainText, sceneIndex);
+  if (motif === null) {
+    return null;
+  }
 
   return (
     <View
@@ -108,7 +86,7 @@ export function IdeaSceneArt({
       {motif === 'pedido' ? <PedidoLamina compact={compact} /> : null}
       {motif === 'sheet' ? <SheetLamina compact={compact} /> : null}
       {motif === 'clock' ? <HourLamina compact={compact} /> : null}
-      {motif === 'pie' ? <PieLamina compact={compact} /> : null}
+      {motif === 'lectura' ? <LecturaLamina compact={compact} /> : null}
       {motif === 'aula' ? <AulaLamina compact={compact} /> : null}
     </View>
   );
@@ -154,7 +132,7 @@ function PedidoLamina({ compact }: { compact: boolean }) {
   }));
 
   return (
-    <TeachingBoard kicker="El pedido">
+    <TeachingBoard kicker="Cómo se pide">
       <Animated.View
         style={[
           styles.promptBlock,
@@ -162,10 +140,12 @@ function PedidoLamina({ compact }: { compact: boolean }) {
           flojoStyle,
         ]}
       >
-        <Text style={[styles.stamp, { color: theme.colors.neutral[600] }]}>Flojo</Text>
+        <Text style={[styles.leadIn, { color: theme.colors.neutral[600] }]}>
+          Si pides solo esto, te arma cualquiera.
+        </Text>
         <View style={styles.struckLine}>
           <Text style={[styles.promptLine, compact && styles.promptLineCompact, { color: theme.colors.text }]}>
-            Haz un ejercicio de fracciones.
+            Hazme una lectura.
           </Text>
           <Animated.View style={[styles.strike, { backgroundColor: theme.colors.text }, strikeStyle]} />
         </View>
@@ -181,9 +161,11 @@ function PedidoLamina({ compact }: { compact: boolean }) {
             },
           ]}
         >
-          <Text style={[styles.stamp, { color: theme.colors.accent }]}>Útil</Text>
+          <Text style={[styles.leadIn, { color: theme.colors.accent }]}>
+            Si le dices el grado y cómo lo quieres de vuelta:
+          </Text>
           <Text style={[styles.promptLine, compact && styles.promptLineCompact, { color: theme.colors.text }]}>
-            Séptimo. Un cuarto más un medio. Tabla: consigna | respuesta.
+            En séptimo, un párrafo con una idea y cinco preguntas que se contestan con el texto. No inventes el autor.
           </Text>
         </View>
       </AppearOnce>
@@ -193,37 +175,47 @@ function PedidoLamina({ compact }: { compact: boolean }) {
 
 function SheetLamina({ compact }: { compact: boolean }) {
   const theme = useTheme();
+  const strikeProgress = useOnceProgress(420, 380);
+  const strikeStyle = useAnimatedStyle(() => ({
+    transform: [{ scaleX: strikeProgress.value }],
+  }));
+
   return (
-    <TeachingBoard kicker="La tarde">
+    <TeachingBoard kicker="El primer tiro">
       <AppearOnce delayMs={80}>
         <Text style={[styles.boardLead, compact && styles.boardLeadCompact, { color: theme.colors.text }]}>
-          Quedan dos horas. Él arma el borrador.
+          Sale un borrador. Tú no lo fotocopias así.
         </Text>
       </AppearOnce>
-      <AppearOnce delayMs={420}>
-        <View style={[styles.miniSheet, { borderColor: theme.colors.divider }]}>
-          <View style={[styles.miniSheetHead, { backgroundColor: theme.colors.accentRamp[100] }]}>
-            <Text style={[styles.miniSheetHeadCell, { color: theme.colors.accentRamp[800] }]}>
-              Consigna
+      <AppearOnce delayMs={280}>
+        <View
+          style={[
+            styles.promptBlock,
+            { backgroundColor: theme.colors.neutral[100], borderColor: theme.colors.divider },
+          ]}
+        >
+          <View style={styles.struckLine}>
+            <Text style={[styles.promptLine, compact && styles.promptLineCompact, { color: theme.colors.neutral[700] }]}>
+              Ocho preguntas. Un autor que no pegaste. Dos páginas.
             </Text>
-            <Text style={[styles.miniSheetHeadCell, { color: theme.colors.accentRamp[800] }]}>
-              Respuesta
-            </Text>
-          </View>
-          <View style={styles.miniSheetRow}>
-            <Text style={[styles.miniSheetCell, { color: theme.colors.text }]}>1/4 + 1/2</Text>
-            <Text style={[styles.miniSheetCell, { color: theme.colors.text }]}>3/4</Text>
-          </View>
-          <View style={[styles.miniSheetRow, { borderTopColor: theme.colors.divider, borderTopWidth: 1 }]}>
-            <Text style={[styles.miniSheetCell, { color: theme.colors.text }]}>1/2 + 1/3</Text>
-            <Text style={[styles.miniSheetCell, { color: theme.colors.text }]}>5/6</Text>
+            <Animated.View style={[styles.strike, { backgroundColor: theme.colors.text }, strikeStyle]} />
           </View>
         </View>
       </AppearOnce>
-      <AppearOnce delayMs={820}>
-        <Text style={[styles.boardNote, { color: theme.colors.neutral[700] }]}>
-          Tú decides qué se fotocopia.
-        </Text>
+      <AppearOnce delayMs={720}>
+        <View
+          style={[
+            styles.promptBlock,
+            {
+              backgroundColor: theme.colors.accentRamp[100],
+              borderColor: theme.colors.accentRamp[200],
+            },
+          ]}
+        >
+          <Text style={[styles.promptLine, compact && styles.promptLineCompact, { color: theme.colors.text }]}>
+            El párrafo y las cinco preguntas. Esto sí.
+          </Text>
+        </View>
       </AppearOnce>
     </TeachingBoard>
   );
@@ -232,10 +224,10 @@ function SheetLamina({ compact }: { compact: boolean }) {
 function HourLamina({ compact }: { compact: boolean }) {
   const theme = useTheme();
   return (
-    <TeachingBoard kicker="La hora">
+    <TeachingBoard kicker="La hora de clase">
       <AppearOnce delayMs={80}>
         <Text style={[styles.boardLead, compact && styles.boardLeadCompact, { color: theme.colors.text }]}>
-          Si no le dices 45, te arma dos horas.
+          Si no le dices que dura 45 minutos, te arma una de dos horas.
         </Text>
       </AppearOnce>
       <View style={styles.hourTrack}>
@@ -252,7 +244,7 @@ function HourLamina({ compact }: { compact: boolean }) {
       </View>
       <AppearOnce delayMs={1100}>
         <Text style={[styles.boardNote, { color: theme.colors.neutral[700] }]}>
-          8 + 20 + 12 + 5. Tienen que sumar 45.
+          Apertura, práctica, ellos solos y el cierre. Tiene que dar 45.
         </Text>
       </AppearOnce>
     </TeachingBoard>
@@ -293,40 +285,54 @@ function HourBlock({
   );
 }
 
-function PieLamina({ compact }: { compact: boolean }) {
+function LecturaLamina({ compact }: { compact: boolean }) {
   const theme = useTheme();
-  const pieSize = compact ? PIE_SIZE_COMPACT : PIE_SIZE;
 
   return (
-    <TeachingBoard kicker="El grado">
-      <View style={[styles.piePair, compact ? styles.piePairCompact : undefined]}>
+    <TeachingBoard kicker="El grado no es un detalle">
+      <View style={styles.readingPair}>
         <AppearOnce delayMs={80}>
           <View style={styles.pieColumn}>
-            <Text style={[styles.stamp, { color: theme.colors.neutral[600] }]}>Segundo</Text>
-            <LessonPie paintedSlices={0} totalSlices={8} size={pieSize} />
+            <Text style={[styles.leadIn, { color: theme.colors.neutral[600] }]}>
+              Si no le dices el grado, te arma una receta.
+            </Text>
+            <View
+              style={[
+                styles.readingCard,
+                { backgroundColor: theme.colors.neutral[100], borderColor: theme.colors.divider },
+              ]}
+            >
+              <Text style={[styles.readingLine, { color: theme.colors.neutral[700] }]}>1. Hierve el agua.</Text>
+              <Text style={[styles.readingLine, { color: theme.colors.neutral[700] }]}>2. Echa el arroz.</Text>
+              <Text style={[styles.readingLine, { color: theme.colors.neutral[700] }]}>3. Espera veinte minutos.</Text>
+            </View>
             <Text style={[styles.pieCaption, { color: theme.colors.neutral[700] }]}>
-              ¿Cuántos trozos hay?
+              Eso es de segundo.
             </Text>
           </View>
         </AppearOnce>
         <AppearOnce delayMs={480}>
           <View style={styles.pieColumn}>
-            <Text style={[styles.stamp, { color: theme.colors.accent }]}>Séptimo</Text>
-            <View style={{ width: pieSize, height: pieSize }}>
-              <LessonPie paintedSlices={0} totalSlices={4} size={pieSize} />
-              <View style={StyleSheet.absoluteFill} pointerEvents="none">
-                <AppearOnce delayMs={200} shift={0}>
-                  <LessonPie paintedSlices={1} totalSlices={4} size={pieSize} />
-                </AppearOnce>
-              </View>
-              <View style={StyleSheet.absoluteFill} pointerEvents="none">
-                <AppearOnce delayMs={640} shift={0}>
-                  <LessonPie paintedSlices={3} totalSlices={4} size={pieSize} />
-                </AppearOnce>
-              </View>
+            <Text style={[styles.leadIn, { color: theme.colors.accent }]}>
+              En séptimo: un párrafo y preguntas del texto.
+            </Text>
+            <View
+              style={[
+                styles.readingCard,
+                {
+                  backgroundColor: theme.colors.accentRamp[100],
+                  borderColor: theme.colors.accentRamp[200],
+                },
+              ]}
+            >
+              <Text style={[styles.readingLine, compact && styles.promptLineCompact, { color: theme.colors.text }]}>
+                Juana llega a Tarqui y se lleva dos libras.
+              </Text>
+              <Text style={[styles.readingLine, { color: theme.colors.neutral[700] }]}>1. ¿Dónde está?</Text>
+              <Text style={[styles.readingLine, { color: theme.colors.neutral[700] }]}>2. ¿Qué se lleva?</Text>
             </View>
             <Text style={[styles.pieCaption, { color: theme.colors.text }]}>
-              Un cuarto + un medio
+              Eso ya es de séptimo.
             </Text>
           </View>
         </AppearOnce>
@@ -337,13 +343,17 @@ function PieLamina({ compact }: { compact: boolean }) {
 
 function AulaLamina({ compact }: { compact: boolean }) {
   const theme = useTheme();
-  const missingPieces = ['quién faltó', 'qué ya vieron', 'cómo lo dicen en tu libro'];
+  const missingPieces = [
+    'quién faltó hoy',
+    'qué ya vieron la semana pasada',
+    'si en tu libro dicen narrador o el que cuenta',
+  ];
 
   return (
-    <TeachingBoard kicker="El aula">
+    <TeachingBoard kicker="Lo que él no vio">
       <AppearOnce delayMs={80}>
         <Text style={[styles.boardLead, compact && styles.boardLeadCompact, { color: theme.colors.text }]}>
-          El modelo no estuvo. Si no se lo dices, lo inventa.
+          Él no estuvo en tu aula. Si no se lo cuentas, se lo inventa.
         </Text>
       </AppearOnce>
       {missingPieces.map((piece, pieceIndex) => (
@@ -357,72 +367,6 @@ function AulaLamina({ compact }: { compact: boolean }) {
         </AppearOnce>
       ))}
     </TeachingBoard>
-  );
-}
-
-function LessonPie({
-  paintedSlices,
-  totalSlices,
-  size,
-}: {
-  paintedSlices: number;
-  totalSlices: number;
-  size: number;
-}) {
-  const theme = useTheme();
-  const center = size / 2;
-  const radius = size * PIE_RADIUS_RATIO;
-  const sliceAngle = (Math.PI * 2) / totalSlices;
-  const startOffset = -Math.PI / 2;
-  const paintedFill = theme.colors.accent;
-  const emptyFill = theme.colors.neutral[100];
-  const stroke = theme.colors.neutral[400];
-
-  return (
-    <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      <Circle
-        cx={center}
-        cy={center}
-        r={radius}
-        fill={emptyFill}
-        stroke={stroke}
-        strokeWidth={2}
-      />
-      {Array.from({ length: totalSlices }, (_, sliceIndex) => {
-        const startAngle = startOffset + sliceIndex * sliceAngle;
-        const endAngle = startAngle + sliceAngle;
-        return (
-          <Path
-            key={`slice-${sliceIndex}`}
-            d={slicePath(center, radius, startAngle, endAngle)}
-            fill={sliceIndex < paintedSlices ? paintedFill : emptyFill}
-          />
-        );
-      })}
-      {Array.from({ length: totalSlices }, (_, sliceIndex) => {
-        const angle = startOffset + sliceIndex * sliceAngle;
-        const edge = polarPoint(center, radius, angle);
-        return (
-          <Line
-            key={`cut-${sliceIndex}`}
-            x1={center}
-            y1={center}
-            x2={edge.x}
-            y2={edge.y}
-            stroke={stroke}
-            strokeWidth={1.5}
-          />
-        );
-      })}
-      <Circle
-        cx={center}
-        cy={center}
-        r={radius}
-        fill="none"
-        stroke={stroke}
-        strokeWidth={2}
-      />
-    </Svg>
   );
 }
 
@@ -456,10 +400,9 @@ const styles = StyleSheet.create({
     height: 10,
   },
   boardKicker: {
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 0.4,
-    textTransform: 'uppercase',
+    fontSize: 14,
+    fontWeight: '600',
+    letterSpacing: 0,
   },
   boardLead: {
     fontSize: 20,
@@ -481,11 +424,10 @@ const styles = StyleSheet.create({
     padding: 14,
     gap: 8,
   },
-  stamp: {
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 0.7,
-    textTransform: 'uppercase',
+  leadIn: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '600',
   },
   struckLine: {
     alignSelf: 'flex-start',
@@ -563,15 +505,30 @@ const styles = StyleSheet.create({
   piePairCompact: {
     gap: 10,
   },
+  readingPair: {
+    gap: 12,
+  },
   pieColumn: {
-    alignItems: 'center',
+    alignItems: 'stretch',
     gap: 8,
-    flex: 1,
+    minWidth: 0,
   },
   pieCaption: {
     fontSize: 13,
     fontWeight: '600',
     textAlign: 'center',
+  },
+  readingCard: {
+    width: '100%',
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 12,
+    gap: 6,
+  },
+  readingLine: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '600',
   },
   aulaRow: {
     flexDirection: 'row',

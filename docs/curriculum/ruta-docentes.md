@@ -47,7 +47,7 @@ Hasta que subas el archivo, la lección se lee como texto. Cuando tengas el víd
 | V5 | Evaluación | Qué mide una rúbrica que sirve | 6–7 min | más abajo |
 | V6 | Evaluación | El modelo puntúa, tú certificas | 5–6 min | más abajo |
 
-Cámara al frente, un ejemplo real (séptimo, fracciones **o** tu materia). El grado no se inventa: ancla destreza y logro en el [mapa escolar](./mapa-escolar-ecuador.md) y el tomo del área ([matemática](./matematica.md), [lengua](./lengua-literatura.md), [CN/CS](./cn-cs-ecuador.md), [métricas](./metricas-aprendizaje.md)). No leas diapositivas. Si te cansas, corta: cada guion cabe en una toma.
+Cámara al frente, un ejemplo real (séptimo, una hoja de lengua **o** tu materia). El grado no se inventa: ancla destreza y logro en el [mapa escolar](./mapa-escolar-ecuador.md) y el tomo del área ([lengua](./lengua-literatura.md), [matemática](./matematica.md), [CN/CS](./cn-cs-ecuador.md), [métricas](./metricas-aprendizaje.md)). No leas diapositivas. Si te cansas, corta: cada guion cabe en una toma.
 
 ## Cómo se toma
 
@@ -62,23 +62,23 @@ Cámara al frente, un ejemplo real (séptimo, fracciones **o** tu materia). El g
 **Abre en cámara (15 s).**  
 Hoy no vamos a hablar de inteligencia artificial en abstracto. Vamos a escribir el pedido que le haces a un modelo para que te arme material que sí puedes llevar a séptimo.
 
-**El prompt flojo (40 s).**  
-Muéstralo en pantalla o dilo: «Haz un ejercicio de fracciones.»  
-Eso obliga al modelo a decidir el curso, el nivel, cuántos ítems, si hay respuesta, el tono. Esas decisiones las va a tomar mal, o las va a tomar genéricas.
+**El pedido flojo (40 s).**  
+Muéstralo en pantalla o dilo: «Hazme una lectura.»  
+Eso obliga al modelo a decidir el curso, el nivel, si es una receta, un cuento o un ensayo. Esas decisiones las va a tomar mal, o las va a tomar genéricas.
 
 **Las piezas (3 min).**  
-Un prompt que sirve tiene cinco piezas. Escríbelas:
+Un pedido que sirve tiene cinco piezas. Escríbelas:
 
-1. **Rol.** Quién es el modelo. «Eres docente de matemática de séptimo en un colegio público de la costa.»
+1. **Quién es.** «Eres docente de lengua de séptimo en un colegio público de la costa.»
 2. **Para quién.** El estudiante no es la familia.
 3. **Qué ya vieron.** Y qué no debe salir.
-4. **Qué tienen que saber hacer.** No el nombre del tema. En séptimo: un cuarto más un medio, igualando el abajo. No contar trozos de un pastel.
-5. **Cómo lo quieres.** Tabla con consigna y respuesta esperada.
+4. **Qué tienen que saber hacer.** No el nombre del tema. En séptimo: un párrafo con una idea y cinco preguntas que se contestan con el texto. No una receta. No un ensayo.
+5. **Cómo lo quieres.** El párrafo y, debajo, las preguntas con la respuesta.
 
-**El prompt que sí (90 s).**  
-Lee el prompt completo, despacio:
+**El pedido que sí (90 s).**  
+Lee el pedido completo, despacio:
 
-> Eres docente de matemática de séptimo. Ya vimos que 1/2 y 2/4 son lo mismo. Arma 5 ejercicios de suma de fracciones con distinto denominador, de menor a mayor dificultad. Devuélvelo en una tabla: consigna | respuesta esperada. No pidas contar trozos.
+> Eres docente de lengua de séptimo. Ya leyeron un cuento y saben qué es el narrador. Escribe un párrafo de ocho líneas con una sola idea, y cinco preguntas que se contestan con el texto. No inventes el autor. Devuélvelo: el párrafo y, debajo, las preguntas con la respuesta.
 
 **Cierre (30 s).**  
 Cada palabra que agregaste le quita al modelo una decisión. En la siguiente lección usamos esto con **tu** temario, no con el mío.
@@ -90,7 +90,7 @@ Cada palabra que agregaste le quita al modelo una decisión. En la siguiente lec
 ## Guion V2 — Guía de ejercicios de tu temario
 
 **Abre (20 s).**  
-Trae a la grabación el tema de **tu** próxima clase. Si no lo tienes, usa séptimo: sumar un cuarto y un medio. El ejercicio es el mismo.
+Trae a la grabación el tema de **tu** próxima clase. Si no lo tienes, usa séptimo: un párrafo y cinco preguntas del texto. El ejercicio es el mismo.
 
 **Error habitual (40 s).**  
 «Hazme una guía.» Eso produce una guía de nadie: sin tiempo, sin nivel, sin lo que ya vieron.

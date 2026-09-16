@@ -1,26 +1,32 @@
-export type IdeaArtMotif = 'clock' | 'sheet' | 'pedido' | 'aula' | 'pie';
-
-const FALLBACK_ROTATION: IdeaArtMotif[] = ['pedido', 'sheet', 'aula', 'clock'];
+export type IdeaArtMotif = 'clock' | 'sheet' | 'pedido' | 'aula' | 'lectura';
 
 /**
- * Picks the still that teaches the beat. Fractions and the 45-minute
- * hour win over the generic rotation.
+ * A board only earns the seat if it shows a contrast the sentence names
+ * but does not display. No rotation: a leftover table next to the wrong
+ * idea is worse than an empty side.
  */
-export function motifForIdeaScene(plainText: string, sceneIndex: number): IdeaArtMotif {
+export function motifForIdeaScene(plainText: string, _sceneIndex = 0): IdeaArtMotif | null {
   const normalized = plainText.toLocaleLowerCase('es');
 
-  if (/pastel|trozos|un cuarto|un medio|denominador/.test(normalized)) {
-    return 'pie';
+  if (/receta/.test(normalized) && /ensayo|séptimo|septimo/.test(normalized)) {
+    return 'lectura';
   }
-  if (/\b45\b|reloj/.test(normalized)) {
+
+  if (/\b45\b/.test(normalized) && /minuto/.test(normalized)) {
     return 'clock';
   }
-  if (/jornada|fotocopia|quedan dos horas|quedan 2 horas/.test(normalized)) {
+
+  if (/primer (resultado|borrador)|no se fotocopia/.test(normalized)) {
     return 'sheet';
   }
-  if (/prompt|pedir|pedido/.test(normalized)) {
+
+  if (/hazme una lectura/.test(normalized) && !/eres docente/.test(normalized)) {
     return 'pedido';
   }
 
-  return FALLBACK_ROTATION[sceneIndex % FALLBACK_ROTATION.length] ?? 'pedido';
+  if (/no estuvo en tu aula/.test(normalized) && !/quién faltó|quien falto/.test(normalized)) {
+    return 'aula';
+  }
+
+  return null;
 }

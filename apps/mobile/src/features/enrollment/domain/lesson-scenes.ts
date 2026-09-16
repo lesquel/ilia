@@ -3,6 +3,7 @@
  * without a file: one idea, then a lab, then the next idea.
  */
 
+import { motifForIdeaScene } from './idea-art-motif';
 import type { LessonBlock, WorkedExample } from './lesson-body';
 
 export type LessonScene =
@@ -31,9 +32,9 @@ export function sceneKindLabel(scene: LessonScene): string {
     case 'narrate':
       return 'Idea';
     case 'lab':
-      return 'Laboratorio';
+      return 'El pedido';
     case 'compare':
-      return 'Compara';
+      return 'Los dos';
     case 'reveal':
       return 'Ejemplo';
   }
@@ -51,7 +52,11 @@ export function shouldShowIdeaArt(scene: LessonScene): boolean {
     .join('')
     .trim();
 
-  return plainText.length > 0 && plainText.length <= SHORT_IDEA_CHARACTER_LIMIT;
+  if (plainText.length === 0 || plainText.length > SHORT_IDEA_CHARACTER_LIMIT) {
+    return false;
+  }
+
+  return motifForIdeaScene(plainText) !== null;
 }
 
 export function ideaScenePlainText(scene: Extract<LessonScene, { type: 'narrate' }>): string {

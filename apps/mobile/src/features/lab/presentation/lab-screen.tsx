@@ -117,7 +117,7 @@ export function LabScreen() {
           <View style={styles.headingCopy}>
             <Text style={[styles.title, { color: theme.colors.text }]}>{activity.title}</Text>
             <Text style={[styles.lede, { color: theme.colors.neutral[700] }]}>
-              Una hoja. Un pedido. El lunes lo fotocopias.
+              Escribes el pedido. Sale una hoja. El lunes fotocopias lo que sirve.
             </Text>
           </View>
           <MascotGuide

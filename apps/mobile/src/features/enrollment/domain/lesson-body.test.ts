@@ -104,6 +104,25 @@ describe('parseLessonBody', () => {
     expect(blocks[0].result.kind).toBe('table');
     expect(blocks[0].result.table?.rows).toHaveLength(2);
   });
+
+  it('keeps the reading paragraph when the expected sheet also has questions', () => {
+    const blocks = parseLessonBody(
+      ':::ejemplo Esperamos: la hoja que te llevas el lunes\n' +
+        'En el mercado de Tarqui el sábado se oye primero a quien vende pescado. Juana llega temprano y se lleva dos libras.\n\n' +
+        '| # | Pregunta | Se contesta con |\n' +
+        '| 1 | ¿Dónde está Juana? | En el mercado de Tarqui |\n' +
+        '| 2 | ¿Qué se lleva? | Dos libras |\n' +
+        ':::',
+    );
+
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0]?.type).toBe('example');
+    if (blocks[0]?.type !== 'example') throw new Error('expected example');
+    const sheetProse = blocks[0].example.inlines.map((part) => part.text).join('');
+    expect(sheetProse).toContain('Juana llega temprano');
+    expect(blocks[0].example.table?.headers).toEqual(['#', 'Pregunta', 'Se contesta con']);
+    expect(blocks[0].example.table?.rows).toHaveLength(2);
+  });
 });
 
 describe('parseInline', () => {

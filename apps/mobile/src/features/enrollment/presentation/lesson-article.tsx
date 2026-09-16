@@ -214,14 +214,14 @@ export function ExampleCard({
   const isResult = tone === 'result' || looksLikeExpectedResult(example.title);
   const kicker =
     tone === 'weak'
-      ? 'No copies esto'
+      ? 'Así no te sirve'
       : tone === 'strong'
-        ? 'Esto sí'
+        ? 'Así sí'
         : isResult
-          ? 'Resultado'
+          ? 'Lo que sale'
           : example.kind === 'prompt'
-            ? 'Prompt'
-            : 'Ejemplo';
+            ? 'El pedido'
+            : 'Un ejemplo';
   const kickerColor =
     tone === 'weak' ? theme.colors.neutral[700] : theme.colors.accentRamp[700];
   const headBackground =
@@ -252,22 +252,30 @@ export function ExampleCard({
         </View>
       </View>
       <View style={styles.exampleBody}>
+        {example.inlines.length > 0 ? (
+          <Text
+            style={[
+              example.kind === 'prompt' && !example.table
+                ? styles.promptText
+                : example.table
+                  ? styles.readingPassage
+                  : styles.exampleText,
+              {
+                color: theme.colors.text,
+                backgroundColor: example.table ? theme.colors.surface : undefined,
+              },
+            ]}
+          >
+            <InlineText inlines={example.inlines} />
+          </Text>
+        ) : null}
         {example.table ? (
           looksLikeExerciseSheet(example.table) ? (
             <ExerciseSheet table={example.table} />
           ) : (
             <ExampleTable table={example.table} />
           )
-        ) : (
-          <Text
-            style={[
-              example.kind === 'prompt' ? styles.promptText : styles.exampleText,
-              { color: theme.colors.text },
-            ]}
-          >
-            <InlineText inlines={example.inlines} />
-          </Text>
-        )}
+        ) : null}
       </View>
     </View>
   );
@@ -278,13 +286,19 @@ function looksLikeExerciseSheet(table: LessonTable): boolean {
   return /consigna|ejercicio|pregunta|ítem|item/.test(headers);
 }
 
+function answerColumnLabel(table: LessonTable, answerColumn: number): string {
+  const header = table.headers[answerColumn]?.toLocaleLowerCase('es') ?? '';
+  if (header.includes('contesta')) return '';
+  return 'Clave: ';
+}
+
 function ExerciseSheet({ table }: { table: LessonTable }) {
   const theme = useTheme();
   const promptColumn = table.headers.findIndex((header) =>
     /consigna|ejercicio|pregunta|ítem|item/.test(header.toLocaleLowerCase('es')),
   );
   const answerColumn = table.headers.findIndex((header) =>
-    /respuesta|clave|qué debe|que debe/.test(header.toLocaleLowerCase('es')),
+    /respuesta|clave|qué debe|que debe|contesta/.test(header.toLocaleLowerCase('es')),
   );
   const numberColumn = table.headers.findIndex((header) => {
     const normalized = header.toLocaleLowerCase('es').trim();
@@ -311,7 +325,8 @@ function ExerciseSheet({ table }: { table: LessonTable }) {
               <Text style={[styles.sheetPrompt, { color: theme.colors.text }]}>{prompt}</Text>
               {answer ? (
                 <Text style={[styles.sheetAnswer, { color: theme.colors.neutral[700] }]}>
-                  Clave: {answer}
+                  {answerColumnLabel(table, answerColumn)}
+                  {answer}
                 </Text>
               ) : null}
             </View>
@@ -636,6 +651,14 @@ const styles = StyleSheet.create({
   exampleBody: {
     paddingHorizontal: 16,
     paddingVertical: 14,
+    gap: 16,
+  },
+  readingPassage: {
+    fontFamily: READABLE_FONT,
+    fontSize: 16,
+    lineHeight: 26,
+    padding: 14,
+    borderRadius: 8,
   },
   exampleText: {
     fontFamily: READABLE_FONT,

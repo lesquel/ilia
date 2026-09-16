@@ -92,7 +92,7 @@ export function LandingScreen() {
                 },
               ]}
             >
-              Te formamos para que la IA te agilice el proceso.
+              Para que el lunes tengas la hoja, no otra tarde armándola.
             </Text>
             <Text style={[styles.lede, { color: theme.colors.neutral[600] }]}>
               Aprendes a usar las herramientas: pedir una hoja, anclarla a

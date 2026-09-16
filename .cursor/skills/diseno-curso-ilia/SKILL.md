@@ -16,11 +16,11 @@ Load when writing or rewriting an ILIA lesson, activity, video script, worked ex
 - Do not ship a lesson, folio, or lamina until the ficha in `assets/ficha-curso.md` is filled.
 - Copy destreza codes and Ineval numbers from the tomos. Do not invent a code or a percentage.
 - Teacher-facing copy explains the task in speech first. A ministry code is an optional label at the end, never the lesson.
-- Voice: Spanish tú/neutro, spoken, institute. Not SaaS, not voseo, not robotic.
+- Load `voz-profesor-ilia` before writing copy. If it sounds like a form, a stamp, or a spec, rewrite.
 - Lía does not speak in a lesson. Costume only on catalog covers.
 - Light only (`#1B70FE`, paper). No dark, no glass, no Frutiger Aero, no HeyGen avatar.
 - WhatsApp is teacher text, never a student destreza.
-- Recovery is one step down, not two sublevels. Counting pie slices is M.2.1.18, not 7.º.
+- Recovery is one step down, not two sublevels. A recipe or a kids’ tale is not 7.º. An essay with a thesis is BGU.
 - HyperFrames renders a destreza lamina (MP4). It does not replace the six teacher videos. Do not add it to the Expo app.
 - ILIA scores are not Ser Estudiante.
 
@@ -39,7 +39,7 @@ Load when writing or rewriting an ILIA lesson, activity, video script, worked ex
 1. Open [mapa](../../../docs/curriculum/mapa-escolar-ecuador.md) and the area tomo in `references/mesa.md`.
 2. Fill the ficha. If a field is empty, stop.
 3. Write the artifact (lesson, script, activity, or lamina brief). Name the code in the running example.
-4. For prompting-para-docentes, fallback is séptimo: sumar con distinto denominador. Do not say “fracciones” alone. Do not lead with M.3.1.39.
+4. For prompting-para-docentes, fallback is séptimo: un párrafo con una idea y cinco preguntas que se contestan con el texto. Do not say “lectura” alone. Do not lead with LL.3.3.3.
 5. If the user asked for HyperFrames, output only the brief + house locks. Do not install a runtime.
 
 ## Output Contract

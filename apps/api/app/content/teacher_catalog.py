@@ -22,20 +22,14 @@ PROMPTING_LESSONS_M1: list[Lesson] = [
         "text",
         _minutes(4),
         "Esto no va de inteligencia artificial. Va de pedirle a un modelo "
-        "una hoja que sí puedas usar en la próxima hora.\n\n"
-        "Si llegas de la jornada y te quedan dos horas de planear, el "
-        "modelo te arma un borrador. Tú decides qué se fotocopia. Esa es "
-        "la regla de todo el curso: él escribe, tú respondes por el aula.\n\n"
-        "Hoy vas a ver por qué un pedido corto sale genérico, cómo se pide "
-        "con rol, aula, tarea y formato, y cómo se mejora el primer "
-        "borrador. Al final escribes el prompt de tu clase. No hay examen. "
-        "La evidencia es ese prompt.\n\n"
+        "una hoja que sí puedas usar en la próxima hora. Él escribe el "
+        "borrador. Tú decides qué se fotocopia.\n\n"
         "Piensa en el tema de mañana. Si no tienes uno, usa séptimo: "
-        "sumar fracciones que no tienen el mismo número abajo. Un cuarto "
-        "más un medio. Eso no es contar cuántos trozos tiene un pastel: "
-        "eso se pide en segundo o tercero.\n\n"
-        "El truco es el mismo en lengua, sociales o ciencias. Dile el "
-        "grado y qué tienen que saber hacer. «Fracciones» solo no basta: "
+        "un párrafo con una idea y cinco preguntas que se contestan con "
+        "el texto. Eso no es una receta ni un ensayo con tesis: una "
+        "receta es de segundo; el ensayo, de tercero de bachillerato.\n\n"
+        "El truco es el mismo en matemática, sociales o ciencias. Dile el "
+        "grado y qué tienen que saber hacer. «Lectura» sola no basta: "
         "el modelo elige el grado que le da la gana.",
     ),
     (
@@ -44,7 +38,7 @@ PROMPTING_LESSONS_M1: list[Lesson] = [
         _minutes(5),
         "El modelo no estuvo en tu aula. Predice texto que suena bien, "
         "nada más. No sabe quién faltó, ni qué ya vieron, ni si en tu "
-        "libro dicen «quebrados» o «fracciones».\n\n"
+        "libro dicen «narrador» o «el que cuenta».\n\n"
         "Por eso sirve para:\n"
         "• Borradores de guías, ejemplos y preguntas.\n"
         "• Reformular al nivel de tus estudiantes.\n"
@@ -54,13 +48,12 @@ PROMPTING_LESSONS_M1: list[Lesson] = [
         "• Inventar datos de un capítulo que no le diste.\n"
         "• Decidir la nota del bimestre.\n\n"
         "Si el resultado no se parece a tu curso, casi nunca es «la IA no "
-        "sirve». Es que el prompt no tenía tu curso. La siguiente lección "
-        "enseña las piezas del pedido que evitan eso.\n\n"
+        "sirve». Es que el prompt no tenía tu curso.\n\n"
         "Tampoco sirve para inventar una fuente ni un porcentaje. Si "
         "dice «según el Ministerio» y tú no pegaste el decreto, esa "
         "cita es teatro. Si te suelta que el 80 % de séptimo ya domina "
         "el tema, es mentira: en la prueba nacional la mayoría de Media "
-        "en matemática no llega al mínimo. No inventes un número.\n\n"
+        "en lengua no llega al mínimo. No inventes un número.\n\n"
         "Regla práctica: nada de lo que genere el modelo se imprime sin "
         "que tú lo leas. Un error de un modelo en una guía de séptimo se "
         "vuelve error de veinte cuadernos.",
@@ -73,38 +66,36 @@ PROMPTING_LESSONS_M1: list[Lesson] = [
         "con su nombre: di la tarea, el aula y cómo lo quieres de vuelta. "
         "Si falta una pieza, el modelo la rellena con un promedio de "
         "internet.\n\n"
-        "1. ROL. Quién es el modelo. «Eres docente de matemática de "
-        "séptimo en un colegio público.»\n"
-        "2. PARA QUIÉN. El muchacho no es la familia ni el suplente. "
-        "«Los enunciados se leen en voz alta. Hay quienes aún mezclan "
-        "equivalente y simplificar.»\n"
-        "3. QUÉ YA VIERON. Y qué no debe salir. «Ya vimos que 1/2 y 2/4 "
-        "son lo mismo. La hora es de 45 minutos. No uses euros. No "
-        "pidas contar trozos de un pastel.»\n"
-        "4. QUÉ TIENEN QUE SABER HACER. El nombre del tema no basta. "
-        "«Fracciones» lo entiende un modelo como contar trozos, y eso "
-        "es de segundo. En séptimo es: un cuarto más un medio, y antes "
-        "igualar el número de abajo. En lengua, una receta no es un "
-        "ensayo de tercero de bachillerato.\n"
-        "5. CUÁNTOS Y CÓMO. «5 ejercicios, de más fácil a más difícil. "
-        "Tabla: consigna | respuesta.»\n\n"
+        "1. Quién es. «Eres docente de lengua de séptimo en un colegio "
+        "público.»\n"
+        "2. Para quién. El muchacho no es la familia ni el suplente. "
+        "«Se lee en voz alta. Hay quienes todavía confunden el "
+        "narrador con el protagonista.»\n"
+        "3. Qué ya vieron. Y qué no debe salir. «Ya leyeron un cuento. "
+        "La hora dura 45 minutos. No pidas una receta. No pidas un "
+        "ensayo con tesis.»\n"
+        "4. Qué tienen que saber hacer. El nombre del tema no basta. "
+        "«Lectura» lo entiende un modelo como una receta o como un "
+        "ensayo de tercero de bachillerato. En séptimo es: un párrafo "
+        "con una idea y cinco preguntas que se contestan con el texto.\n"
+        "5. Cuántos y cómo. «El párrafo y, debajo, las cinco preguntas "
+        "con la respuesta.»\n\n"
         "Si en tu planificación aparece un código raro del ministerio "
-        "(algo como M.3.1.39), pégalo al final. Es solo una etiqueta "
+        "(algo como LL.3.3.3), pégalo al final. Es solo una etiqueta "
         "para que el modelo no se invente el grado. Si no lo tienes, "
         "no pasa nada: di la tarea en cristiano.\n\n"
-        "Compáralo.\n\n"
-        "Flojo: «Haz un ejercicio de fracciones.»\n\n"
-        "Útil: «Eres docente de matemática de séptimo en un colegio "
-        "público de la costa. Ya vieron que 1/2 y 2/4 son lo mismo. "
-        "Arma 5 ejercicios de suma con distinto denominador, de menor a "
-        "mayor dificultad. Devuélvelo en una tabla: consigna | "
-        "respuesta esperada. No inventes un dato que yo no te di. No "
-        "pidas contar trozos.»\n\n"
+        "Si pides solo esto: «Hazme una lectura.»\n\n"
+        "Si le dices el aula: «Eres docente de lengua de séptimo en un "
+        "colegio público de la costa. Ya leyeron un cuento y saben qué "
+        "es el narrador. Escribe un párrafo de ocho líneas con una sola "
+        "idea, y cinco preguntas que se contestan con el texto. No "
+        "inventes el autor. No pidas una receta ni un ensayo. "
+        "Devuélvelo: el párrafo y, debajo, las preguntas con la "
+        "respuesta.»\n\n"
         "El segundo no es más largo por adorno. Cada dato le quita al "
-        "modelo una decisión. Lo mismo vale en lengua («un párrafo de 8 "
-        "líneas para tercero de bachillerato, con tesis, tono formal») "
-        "o en sociales («línea de tiempo de 1809 hasta Alfaro, solo el "
-        "período que marca el texto»).",
+        "modelo una decisión. Lo mismo vale en matemática («un cuarto "
+        "más un medio, no contar trozos») o en sociales («de 1809 "
+        "hasta Alfaro, solo el período que marca el texto»).",
     ),
     (
         "Un ejemplo y un recuadro",
@@ -237,10 +228,10 @@ PROMPTING_LESSONS_M3: list[Lesson] = [
         "2. ¿Hay una cita o un «según el Ministerio» que no pegaste? "
         "Los modelos inventan fuentes que suenan serias. Sin el PDF, "
         "esa referencia no existe.\n"
-        "3. ¿El nivel es el de tu grado? Un ejercicio de «séptimo» que "
-        "pide álgebra de bachillerato no sirve. Tampoco uno que pide "
-        "contar trozos de un pastel, ni pintar un porcentaje en un "
-        "círculo como si fuera lo mismo que sumar un cuarto y un medio.\n"
+        "3. ¿El nivel es el de tu grado? Una «lectura de séptimo» que "
+        "pide un ensayo con tesis no sirve. Tampoco una receta, ni un "
+        "cuento de animalitos, como si fuera lo mismo que un párrafo "
+        "con preguntas del texto.\n"
         "4. ¿El ejemplo asume otra vida? Precios en dólares, nieve, un "
         "barrio que tus estudiantes no conocen. Eso no es inclusión: "
         "es un aula de catálogo.\n"
@@ -430,189 +421,202 @@ EVAL_LESSONS_M2: list[Lesson] = [
 LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
     "Esta semana te ahorras una tarde": [
         (
-            "Prompt de esta semana",
-            "Eres docente de matemática de séptimo. Ya vieron que 1/2 y "
-            "2/4 son lo mismo. Arma una hoja de 5 sumas con distinto "
-            "denominador, de menor a mayor dificultad. Formato: consigna "
-            "y respuesta. Sin euros. No pidas contar trozos de un pastel.",
+            "El pedido de esta semana",
+            "Eres docente de lengua de séptimo. Ya leyeron un cuento y "
+            "saben qué es el narrador. Escribe un párrafo de ocho líneas "
+            "con una sola idea, y cinco preguntas que se contestan con el "
+            "texto. No inventes el autor. No pidas una receta. Devuélvelo: "
+            "el párrafo y, debajo, las preguntas con la respuesta.",
         ),
         (
             "Esperamos: la hoja que te llevas el lunes",
-            "| # | Consigna | Respuesta |\n"
-            "| 1 | Un quintal se parte en 4. ¿Cuánto es 1/4 + 1/2? | 3/4 |\n"
-            "| 2 | Ana camina 2/3 de la cuadra y luego 1/6. ¿Cuánto recorrió? | 5/6 |\n"
-            "| 3 | Suma 1/3 + 1/6. Di el denominador común en voz alta. | 1/2 |\n"
-            "| 4 | ¿Por qué 1/2 + 1/4 no es 2/6? | Primero se iguala el denominador |\n"
-            "| 5 | Dibuja 3/4 de naranja y 1/2 de otra. ¿Cuál es más? | 3/4 |",
+            "En el mercado de Tarqui el sábado se oye primero a quien "
+            "vende pescado. Juana llega temprano, pregunta el precio y se "
+            "lleva dos libras. Su hijo anota en un cuaderno qué compraron, "
+            "no para una tarea: para que en casa sepan qué falta el lunes.\n\n"
+            "| # | Pregunta | Se contesta con |\n"
+            "| 1 | ¿Dónde está Juana? | En el mercado de Tarqui |\n"
+            "| 2 | ¿Qué día? | El sábado |\n"
+            "| 3 | ¿Qué se lleva? | Dos libras de pescado |\n"
+            "| 4 | ¿Quién anota? | Su hijo |\n"
+            "| 5 | ¿Para qué anota? | Para saber qué falta el lunes |",
         ),
     ],
     "Qué puede y qué no puede un modelo": [
         (
-            "Prompt que pide una fuente que no pegaste",
-            "Haz una guía de fracciones según el Acuerdo Ministerial y pon "
-            "el porcentaje de séptimos que ya dominan el tema.",
+            "Un pedido que pide una fuente que no pegaste",
+            "Haz una lectura de séptimo según el Acuerdo Ministerial y pon "
+            "el porcentaje de séptimos que ya comprenden un texto.",
         ),
         (
             "Esperamos: una cita que se tira",
-            "«Según el Acuerdo Ministerial 2024-18, el 80% de los séptimos "
-            "ya dominan equivalentes.»\n"
+            "«Según el Acuerdo Ministerial 2024-18, el 80 % de los séptimos "
+            "ya distinguen el tema de las ideas.»\n"
             "Tú no pegaste ese acuerdo. Ese 80 % no está en ninguna "
             "prueba. En la evaluación nacional la mayoría de Media en "
-            "matemática no llega al mínimo. Esto no se fotocopia.",
+            "lengua no llega al mínimo. Esto no se fotocopia.",
         ),
     ],
     "Anatomía de un prompt que sirve": [
         (
-            "Prompt flojo",
-            "Haz un ejercicio de fracciones.",
+            "Si pides solo esto",
+            "Hazme una lectura.",
         ),
         (
-            "Esperamos: un ítem de catálogo",
-            "| # | Consigna | Respuesta |\n"
-            "| 1 | Calcula 2/5 + 3/7. | El modelo a veces pone euros, o no "
-            "pone clave, o asume otro grado. |",
+            "Esperamos: una hoja de nadie",
+            "Te puede salir una receta, un cuento de animalitos o un "
+            "ensayo con tesis. El modelo eligió el grado. Tú no.",
         ),
         (
-            "Prompt que sí",
-            "Eres docente de matemática de séptimo en un colegio público "
-            "de la costa. Los estudiantes ya vieron que 1/2 y 2/4 son lo "
-            "mismo. Hay quienes aún mezclan equivalente y simplificar.\n"
-            "Arma 5 ejercicios de suma con distinto denominador, de menor a "
-            "mayor dificultad. La hora dura 45 minutos. No uses euros ni nieve. "
-            "No pidas contar trozos de un pastel.\n"
-            "Devuélvelo en una tabla: consigna | respuesta esperada. No inventes "
-            "un dato que yo no te di.",
+            "Si le dices el aula",
+            "Eres docente de lengua de séptimo en un colegio público "
+            "de la costa. Ya leyeron un cuento y saben qué es el narrador. "
+            "Hay quienes todavía lo confunden con el protagonista.\n"
+            "Escribe un párrafo de ocho líneas con una sola idea, y cinco "
+            "preguntas que se contestan con el texto. La hora dura 45 "
+            "minutos. No inventes el autor. No pidas una receta ni un "
+            "ensayo.\n"
+            "Devuélvelo: el párrafo y, debajo, las preguntas con la "
+            "respuesta. No inventes un dato que yo no te di.",
         ),
         (
-            "Esperamos: hoja de 5 ejercicios",
-            "| # | Consigna | Respuesta |\n"
-            "| 1 | En el mercado, un quintal se parte en 4. ¿Cuánto es 1/4 + 1/2? | 3/4 |\n"
-            "| 2 | Ana camina 2/3 de la cuadra y luego 1/6. ¿Cuánto recorrió? | 5/6 |\n"
-            "| 3 | Suma 1/3 + 1/6. Di el denominador común antes de anotar. | 1/2 |\n"
-            "| 4 | ¿Por qué 1/2 + 1/4 no es 2/6? | Hay que igualar denominadores primero |\n"
-            "| 5 | Dibuja 3/4 de una naranja y 1/2 de otra. ¿Cuál es más? | 3/4 |",
+            "Esperamos: la hoja de cinco preguntas",
+            "En el mercado de Tarqui el sábado se oye primero a quien "
+            "vende pescado. Juana llega temprano, pregunta el precio y se "
+            "lleva dos libras. Su hijo anota en un cuaderno qué compraron, "
+            "no para una tarea: para que en casa sepan qué falta el lunes.\n\n"
+            "| # | Pregunta | Se contesta con |\n"
+            "| 1 | ¿Dónde está Juana? | En el mercado de Tarqui |\n"
+            "| 2 | ¿Qué día? | El sábado |\n"
+            "| 3 | ¿Qué se lleva? | Dos libras |\n"
+            "| 4 | ¿Quién anota? | Su hijo |\n"
+            "| 5 | ¿Para qué anota? | Para saber qué falta el lunes |",
         ),
     ],
     "Un ejemplo y un recuadro": [
         (
-            "Prompt con recuadro",
+            "Pedido con recuadro",
             "Usa solo lo que está entre las líneas.\n"
             "---\n"
-            "En el mercado de Tarqui, Juana compra 1/2 kg de arroz y 1/4 kg de "
-            "lenteja. ¿Cuánto compró en total?\n"
+            "En el mercado de Tarqui el sábado se oye primero a quien "
+            "vende pescado. Juana llega temprano y se lleva dos libras.\n"
             "---\n"
-            "El tono y la longitud de los nuevos ítems tienen que parecerse a "
-            "este. Si un dato no está ahí, escribe: no está en el texto.",
+            "El tono y la longitud de las preguntas nuevas tienen que "
+            "parecerse a estas. Si un dato no está ahí, escribe: no está "
+            "en el texto.",
         ),
         (
-            "Esperamos: dos ítems al mismo tono",
-            "| # | Consigna | Respuesta |\n"
-            "| 1 | En el mercado de Tarqui, Luis compra 1/3 kg de frejol y "
-            "1/6 kg de arroz. ¿Cuánto compró en total? | 1/2 kg |\n"
-            "| 2 | Juana ya lleva 1/2 kg. Si agrega 1/8 kg de azúcar, ¿cuánto "
-            "pesa la funda? | 5/8 kg |",
+            "Esperamos: dos preguntas al mismo tono",
+            "| # | Pregunta | Se contesta con |\n"
+            "| 1 | ¿A qué mercado llega Juana? | Al de Tarqui |\n"
+            "| 2 | ¿Cuántas libras se lleva? | Dos |",
         ),
     ],
     "Guía de ejercicios de tu temario": [
         (
-            "Prompt de la guía",
-            "Eres docente de matemática de séptimo. Ya vieron que 1/2 y "
-            "2/4 son lo mismo. Arma 6 ejercicios de suma con distinto "
-            "denominador: 2 de entrada, 2 de práctica, 2 desafiantes. La "
-            "hora dura 45 minutos. Formato: lista numerada. Al final, clave "
-            "en otro bloque. No pidas contar trozos.",
+            "Pedido de la guía",
+            "Eres docente de lengua de séptimo. Ya leyeron un cuento y "
+            "saben qué es el narrador. Arma una hoja: un párrafo con una "
+            "idea y seis preguntas del texto, de más fácil a más difícil. "
+            "La hora dura 45 minutos. Al final, las respuestas en otro "
+            "bloque. No inventes el autor. No pidas una receta.",
         ),
         (
             "Esperamos: la guía lista para fotocopiar",
-            "| # | Consigna | Respuesta |\n"
-            "| 1 | ¿1/2 y 2/4 son la misma cantidad? | Sí |\n"
-            "| 2 | Un quintal se parte en 4. ¿Cuánto es 1/4 + 1/2? | 3/4 |\n"
-            "| 3 | Ana camina 2/3 y luego 1/6. ¿Cuánto recorrió? | 5/6 |\n"
-            "| 4 | Suma 1/3 + 1/6. Di el denominador común. | 1/2 |\n"
-            "| 5 | ¿Por qué 1/2 + 1/4 no es 2/6? | Primero se iguala el denominador |\n"
-            "| 6 | Inventa un problema del mercado que sume 1/5 + 2/5. | 3/5, con un enunciado del mercado |",
+            "En el mercado de Tarqui el sábado se oye primero a quien "
+            "vende pescado. Juana llega temprano, pregunta el precio y se "
+            "lleva dos libras. Su hijo anota qué compraron para que en "
+            "casa sepan qué falta el lunes.\n\n"
+            "| # | Pregunta | Se contesta con |\n"
+            "| 1 | ¿Qué día va Juana al mercado? | El sábado |\n"
+            "| 2 | ¿A quién se oye primero? | A quien vende pescado |\n"
+            "| 3 | ¿Qué pregunta Juana? | El precio |\n"
+            "| 4 | ¿Qué se lleva? | Dos libras |\n"
+            "| 5 | ¿Quién anota? | Su hijo |\n"
+            "| 6 | ¿Para qué anota? | Para saber qué falta el lunes |",
         ),
     ],
     "Resumen para quien no vino o no leyó": [
         (
-            "Prompt para el grupo de familias",
+            "Pedido para el grupo de familias",
             "Escribe 8 líneas para el grupo de WhatsApp de las familias. "
-            "Qué vimos hoy en 7.º (suma de fracciones con distinto "
-            "denominador) y una pregunta que pueden hacer en casa. Tono "
-            "respetuoso, sin siglas.",
+            "Qué vimos hoy en séptimo (un párrafo y preguntas que se "
+            "contestan con el texto) y una pregunta que pueden hacer en "
+            "casa. Tono respetuoso, sin siglas.",
         ),
         (
             "Esperamos: la nota que pegas al grupo",
-            "Hoy en séptimo sumamos fracciones que no tienen el mismo "
-            "abajo. No es restar ni simplificar todavía: es poner las "
-            "partes en la misma medida y después sumar.\n"
-            "En casa pueden preguntar: si partes una naranja en 2 y otra en 4, "
-            "¿cuánto es media más un cuarto?",
+            "Hoy en séptimo leímos un párrafo corto y respondimos solo "
+            "con lo que decía el texto. No era inventar una historia ni "
+            "hacer un ensayo.\n"
+            "En casa pueden preguntar: ¿qué fue lo único que hizo Juana "
+            "en el mercado, según el párrafo?",
         ),
     ],
     "Una hora de 45 minutos, no un temario infinito": [
         (
-            "Prompt de la hora",
-            "Eres docente de matemática de séptimo. Diseña 45 minutos "
-            "sobre suma de fracciones con distinto denominador. Ya vieron "
-            "que 1/2 y 2/4 son lo mismo. Incluye: 8 minutos de apertura, 20 de práctica "
-            "guiada, 12 de trabajo individual, 5 de cierre. Di qué hace el "
-            "docente y qué hace el estudiante. Formato: tabla tiempo | "
-            "momento | qué hace quién. Los bloques deben sumar 45.",
+            "Pedido de la hora",
+            "Eres docente de lengua de séptimo. Diseña 45 minutos sobre "
+            "un párrafo con una idea y preguntas que se contestan con el "
+            "texto. Ya leyeron un cuento. Incluye: 8 minutos de apertura, "
+            "20 de práctica guiada, 12 de trabajo individual, 5 de cierre. "
+            "Di qué hace el docente y qué hace el estudiante. Tabla: "
+            "tiempo | momento | qué hace quién. Los bloques deben sumar 45.",
         ),
         (
             "Esperamos: el plan de los 45 minutos",
             "| Tiempo | Momento | Qué hace quién |\n"
-            "| 8 min | Apertura | El docente proyecta 1/2 y 2/4. Pregunta: "
-            "¿son la misma cantidad? Los estudiantes responden en voz alta. |\n"
-            "| 20 min | Práctica guiada | Resuelven juntos 1/4+1/2, 1/3+1/6 y "
-            "2/3+1/6 en el pizarrón. El docente nombra el denominador común. |\n"
-            "| 12 min | Individual | Cada quien resuelve cuatro ítems en la "
-            "hoja. El docente circula. |\n"
-            "| 5 min | Cierre | Un estudiante dicta la regla: mismo "
-            "denominador antes de sumar. Suma: 8+20+12+5 = 45. |",
+            "| 8 min | Apertura | El docente lee el párrafo en voz alta. "
+            "Pregunta: ¿qué pasó, según el texto? No según ustedes. |\n"
+            "| 20 min | Práctica | Juntos marcan la frase que responde "
+            "la primera pregunta. El docente no acepta lo que no está "
+            "escrito. |\n"
+            "| 12 min | Individual | Cada quien responde las otras "
+            "cuatro. El docente circula. |\n"
+            "| 5 min | Cierre | Un estudiante dice la regla: si no está "
+            "en el párrafo, no se inventa. Suma: 8+20+12+5 = 45. |",
         ),
     ],
     "El primer borrador no se fotocopia": [
         (
-            "Prompt de una pasada",
-            "Acorta los enunciados. Se leen en voz alta, no se copian del "
-            "pizarrón. Una oración. No cambies las fracciones.",
+            "Pedido de una pasada",
+            "Acorta las preguntas. Se leen en voz alta, no se copian del "
+            "pizarrón. Una oración. No cambies el párrafo.",
         ),
         (
-            "Esperamos: el enunciado que sí se puede dictar",
-            "Antes: «Considerando que las fracciones representan partes de un "
-            "todo, determina el resultado de la operación indicada.»\n"
-            "Después: «Suma 1/4 + 1/2. Di el denominador común en voz alta.»",
+            "Esperamos: la pregunta que sí se puede dictar",
+            "Antes: «Teniendo en cuenta los elementos narrativos del "
+            "fragmento, determine el espacio en el que se desarrolla la "
+            "acción.»\n"
+            "Después: «¿Dónde está Juana, según el párrafo?»",
         ),
     ],
     "Revisa antes de fotocopiar": [
         (
             "Primer resultado, sin revisar",
-            "| # | Consigna | Respuesta |\n"
-            "| 1 | A pizza costs €3. Add 1/4 + 1/2. | 2/6 |\n"
-            "| 2 | Según el Ministerio, el 80% ya sabe esto. | — |\n"
-            "| 3 | Despeja x en 2x + 1/3 = 1. | Álgebra de otro grado |",
+            "| # | Pregunta | Qué salió mal |\n"
+            "| 1 | What is the main idea of the market? | Otro idioma |\n"
+            "| 2 | Según García Márquez, ¿qué compra Juana? | Autor inventado |\n"
+            "| 3 | Escribe un ensayo de tres páginas con tesis | Otro grado |",
         ),
         (
             "Esperamos: la hoja después de los cinco chequeos",
-            "| # | Consigna | Respuesta |\n"
-            "| 1 | Un quintal se parte en 4. ¿Cuánto es 1/4 + 1/2? | 3/4 |\n"
-            "| 2 | ¿Por qué 1/2 + 1/4 no es 2/6? | Primero se iguala el denominador |\n"
-            "| 3 | Suma 1/3 + 1/6. Di el denominador común. | 1/2 |",
+            "| # | Pregunta | Se contesta con |\n"
+            "| 1 | ¿Dónde está Juana? | En el mercado de Tarqui |\n"
+            "| 2 | ¿Qué se lleva? | Dos libras |\n"
+            "| 3 | ¿Para qué anota el hijo? | Para saber qué falta el lunes |",
         ),
     ],
     "Por qué trabaja con tus fuentes": [
         (
             "Prompt al cuaderno",
-            "Usa solo las fuentes de este cuaderno. Define quebrado y cita "
-            "el pasaje. Si no está, di que no está.",
+            "Usa solo las fuentes de este cuaderno. Di cuál es la idea "
+            "del párrafo y cita el pasaje. Si no está, di que no está.",
         ),
         (
             "Esperamos: una cita que tienes que abrir",
-            "El modelo dice: «El capítulo define quebrado como parte de la "
-            "unidad (cita 3).»\n"
-            "Abres la cita 3: el párrafo habla de decimales, no de quebrados. "
+            "El modelo dice: «El párrafo nombra a García Márquez (cita 3).»\n"
+            "Abres la cita 3: Juana llega a Tarqui. No hay autor. "
             "No es anclaje. Se tira o se vuelve a pedir.",
         ),
     ],
@@ -636,9 +640,9 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
         (
             "Esperamos: guía, preguntas y nota",
             "| Bloque | Qué sale |\n"
-            "| Guía | Equivalente no es simplificar. Primero igualas el denominador. |\n"
-            "| Preguntas | 1) ¿Qué es un denominador común? 2) Suma 1/3 + 1/6. 3) ¿Por qué 1/2 + 1/4 no es 2/6? |\n"
-            "| Familias | Hoy igualamos denominadores para poder sumar. Pregunten: media naranja más un cuarto, ¿cuánto es? |",
+            "| Guía | La idea del párrafo no es «el mercado». Es que Juana compra y el hijo anota para el lunes. |\n"
+            "| Preguntas | 1) ¿Dónde está Juana? 2) ¿Qué se lleva? 3) ¿Para qué anota el hijo? |\n"
+            "| Familias | Hoy leímos un párrafo corto y respondimos solo con lo que decía el texto. Pregunten: ¿qué hizo Juana, según el párrafo? |",
         ),
     ],
     "Tres niveles sin hacer tres planificaciones": [
@@ -652,20 +656,19 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
         (
             "Esperamos: la pregunta 3, tres veces",
             "| Nivel | Pregunta | Qué debe verse |\n"
-            "| Aún no distingue | ¿1/2 y 2/4 son la misma cantidad? Sí o no, "
-            "y por qué con un dibujo. | Señala las dos partes iguales. |\n"
-            "| Nivel de la clase | Suma 1/3 + 1/6 y explica el denominador "
-            "que usaste. | El 6 y la suma 1/2. |\n"
-            "| Ya argumenta | ¿Por qué 1/2 + 1/4 no puede ser 2/6? | "
-            "Contrasta sumar numeradores a ciegas con igualar primero. |",
+            "| Aún no distingue | ¿Dónde está Juana? Una frase del texto. | "
+            "Copia «mercado de Tarqui». |\n"
+            "| Nivel de la clase | ¿Qué se lleva y para qué anota el hijo? | "
+            "Dos libras; para saber qué falta el lunes. |\n"
+            "| Ya argumenta | ¿Por qué el hijo anota, si no es una tarea? | "
+            "Señala «para que en casa sepan qué falta el lunes». |",
         ),
     ],
     "Excelente, bueno, regular no mide": [
         (
             "Prompt con rúbrica hueca",
-            "Califica este párrafo: «Las fracciones se suman si tienen el "
-            "mismo abajo.» Usa excelente, bueno o regular y pon un número "
-            "sobre 100.",
+            "Califica este párrafo: «Juana va al mercado porque es sábado.» "
+            "Usa excelente, bueno o regular y pon un número sobre 100.",
         ),
         (
             "Esperamos: dos notas que no se pueden defender",
@@ -799,15 +802,15 @@ TEACHER_ACTIVITIES: list[dict[str, Any]] = [
         "course_slug": "prompting-para-docentes",
         "title": "El prompt de tu próxima clase",
         "statement": (
-            "Escribe un prompt para generar material de TU próxima clase. "
-            "Si aún no tienes el tema, usa séptimo: sumar fracciones "
-            "con distinto denominador (un cuarto más un medio). No pidas "
-            "contar trozos de un pastel.\n\n"
-            "Tiene que: darle un rol al modelo, decir para quién es "
-            "(el grado), qué ya vieron, cuántos ítems, y el formato "
-            "(tabla, lista u otro). Si puedes, pega un ejemplo corto "
-            "de cómo debe verse un ítem.\n\n"
-            "Di qué tienen que saber hacer, no solo el nombre del tema."
+            "Escribe el pedido para el material de TU próxima clase. "
+            "Si aún no tienes el tema, usa séptimo: un párrafo con una "
+            "idea y cinco preguntas que se contestan con el texto. No "
+            "pidas una receta ni un ensayo.\n\n"
+            "Tiene que: decirle quién es el modelo, para quién es "
+            "(el grado), qué ya vieron, cuántas preguntas, y cómo lo "
+            "quieres de vuelta. Si puedes, pega un ejemplo corto de "
+            "cómo se ve una pregunta.\n\n"
+            "Di qué tienen que saber hacer, no solo «una lectura»."
         ),
         "checks": {
             "requires_role": True,
