@@ -30,9 +30,13 @@ PROMPTING_LESSONS_M1: list[Lesson] = [
         "con rol, aula, tarea y formato, y cómo se mejora el primer "
         "borrador. Al final escribes el prompt de tu clase. No hay examen. "
         "La evidencia es ese prompt.\n\n"
-        "Piensa en un tema de verdad: el de mañana o el del lunes. Si no "
-        "tienes uno, usa fracciones de séptimo. El método es el mismo en "
-        "lengua, sociales o ciencias.",
+        "Piensa en el tema de mañana. Si no tienes uno, usa séptimo: "
+        "sumar fracciones que no tienen el mismo número abajo. Un cuarto "
+        "más un medio. Eso no es contar cuántos trozos tiene un pastel: "
+        "eso se pide en segundo o tercero.\n\n"
+        "El truco es el mismo en lengua, sociales o ciencias. Dile el "
+        "grado y qué tienen que saber hacer. «Fracciones» solo no basta: "
+        "el modelo elige el grado que le da la gana.",
     ),
     (
         "Qué puede y qué no puede un modelo",
@@ -51,9 +55,12 @@ PROMPTING_LESSONS_M1: list[Lesson] = [
         "• Decidir la nota del bimestre.\n\n"
         "Si el resultado no se parece a tu curso, casi nunca es «la IA no "
         "sirve». Es que el prompt no tenía tu curso. La siguiente lección "
-        "enseña las cuatro piezas que evitan eso.\n\n"
-        "Tampoco sirve para inventar una fuente. Si pide «según el "
-        "Ministerio» y tú no pegaste el decreto, esa cita es teatro.\n\n"
+        "enseña las piezas del pedido que evitan eso.\n\n"
+        "Tampoco sirve para inventar una fuente ni un porcentaje. Si "
+        "dice «según el Ministerio» y tú no pegaste el decreto, esa "
+        "cita es teatro. Si te suelta que el 80 % de séptimo ya domina "
+        "el tema, es mentira: en la prueba nacional la mayoría de Media "
+        "en matemática no llega al mínimo. No inventes un número.\n\n"
         "Regla práctica: nada de lo que genere el modelo se imprime sin "
         "que tú lo leas. Un error de un modelo en una guía de séptimo se "
         "vuelve error de veinte cuadernos.",
@@ -68,30 +75,36 @@ PROMPTING_LESSONS_M1: list[Lesson] = [
         "internet.\n\n"
         "1. ROL. Quién es el modelo. «Eres docente de matemática de "
         "séptimo en un colegio público.»\n"
-        "2. AUDIENCIA. Para quién es el material. No es lo mismo el "
-        "estudiante, la familia o el docente suplente. «Los enunciados "
-        "se leen en voz alta; hay quienes aún mezclan equivalente y "
-        "simplificar.»\n"
-        "3. CONTEXTO. Qué ya vieron, cuánto dura la hora, qué no debe "
-        "salir. «Ya trabajamos fracciones equivalentes. La hora es de "
-        "45 minutos. No uses ejemplos en euros.»\n"
-        "4. TAREA. Qué tiene que producir, con cantidad y dificultad. "
-        "«5 ejercicios de suma con distinto denominador, de menor a mayor "
-        "dificultad.»\n"
-        "5. FORMATO. Cómo lo quieres de vuelta. «Tabla: consigna | "
-        "respuesta esperada.»\n\n"
+        "2. PARA QUIÉN. El muchacho no es la familia ni el suplente. "
+        "«Los enunciados se leen en voz alta. Hay quienes aún mezclan "
+        "equivalente y simplificar.»\n"
+        "3. QUÉ YA VIERON. Y qué no debe salir. «Ya vimos que 1/2 y 2/4 "
+        "son lo mismo. La hora es de 45 minutos. No uses euros. No "
+        "pidas contar trozos de un pastel.»\n"
+        "4. QUÉ TIENEN QUE SABER HACER. El nombre del tema no basta. "
+        "«Fracciones» lo entiende un modelo como contar trozos, y eso "
+        "es de segundo. En séptimo es: un cuarto más un medio, y antes "
+        "igualar el número de abajo. En lengua, una receta no es un "
+        "ensayo de tercero de bachillerato.\n"
+        "5. CUÁNTOS Y CÓMO. «5 ejercicios, de más fácil a más difícil. "
+        "Tabla: consigna | respuesta.»\n\n"
+        "Si en tu planificación aparece un código raro del ministerio "
+        "(algo como M.3.1.39), pégalo al final. Es solo una etiqueta "
+        "para que el modelo no se invente el grado. Si no lo tienes, "
+        "no pasa nada: di la tarea en cristiano.\n\n"
         "Compáralo.\n\n"
         "Flojo: «Haz un ejercicio de fracciones.»\n\n"
-        "Útil: «Eres docente de matemática de séptimo. Los estudiantes "
-        "ya vieron equivalentes. Arma 5 ejercicios de suma con distinto "
-        "denominador, de menor a mayor dificultad. Devuélvelo en una "
-        "tabla: consigna | respuesta esperada. No inventes un dato que "
-        "yo no te di.»\n\n"
+        "Útil: «Eres docente de matemática de séptimo en un colegio "
+        "público de la costa. Ya vieron que 1/2 y 2/4 son lo mismo. "
+        "Arma 5 ejercicios de suma con distinto denominador, de menor a "
+        "mayor dificultad. Devuélvelo en una tabla: consigna | "
+        "respuesta esperada. No inventes un dato que yo no te di. No "
+        "pidas contar trozos.»\n\n"
         "El segundo no es más largo por adorno. Cada dato le quita al "
-        "modelo una decisión. Lo mismo vale en lengua («párrafo de 8 "
-        "líneas para 2.º de bachillerato, tono formal») o en sociales "
-        "(«línea de tiempo de 6 hitos, solo el período que marca el "
-        "texto»).",
+        "modelo una decisión. Lo mismo vale en lengua («un párrafo de 8 "
+        "líneas para tercero de bachillerato, con tesis, tono formal») "
+        "o en sociales («línea de tiempo de 1809 hasta Alfaro, solo el "
+        "período que marca el texto»).",
     ),
     (
         "Un ejemplo y un recuadro",
@@ -158,7 +171,9 @@ PROMPTING_LESSONS_M2: list[Lesson] = [
         "Para las familias:\n"
         "«Escribe 8 líneas para el grupo de WhatsApp de las familias. "
         "Qué vimos hoy y una pregunta que pueden hacer en casa. Tono "
-        "respetuoso, sin siglas.»\n\n"
+        "respetuoso, sin siglas.» "
+        "Ese mensaje lo escribes tú, para las familias. No es un deber "
+        "del estudiante.\n\n"
         "Si pegas un texto largo, di también qué debe ignorar (ejemplos "
         "de otro país, precios en otra moneda, nombres propios que no "
         "son del currículo).",
@@ -223,7 +238,9 @@ PROMPTING_LESSONS_M3: list[Lesson] = [
         "Los modelos inventan fuentes que suenan serias. Sin el PDF, "
         "esa referencia no existe.\n"
         "3. ¿El nivel es el de tu grado? Un ejercicio de «séptimo» que "
-        "pide álgebra de cuarto de bachillerato no sirve.\n"
+        "pide álgebra de bachillerato no sirve. Tampoco uno que pide "
+        "contar trozos de un pastel, ni pintar un porcentaje en un "
+        "círculo como si fuera lo mismo que sumar un cuarto y un medio.\n"
         "4. ¿El ejemplo asume otra vida? Precios en dólares, nieve, un "
         "barrio que tus estudiantes no conocen. Eso no es inclusión: "
         "es un aula de catálogo.\n"
@@ -234,8 +251,9 @@ PROMPTING_LESSONS_M3: list[Lesson] = [
         "insistas diez veces. Escribe tú la clave. El ahorro de tiempo "
         "está en el borrador, no en delegar la verdad.\n\n"
         "Siguiente paso: el laboratorio. Vas a escribir el prompt de "
-        "tu próxima clase: rol, audiencia, tarea y formato. Eso es la "
-        "evidencia del curso.",
+        "tu próxima clase: quién es el modelo, para quién, qué ya "
+        "vieron y cómo lo quieres de vuelta. Eso es la evidencia del "
+        "curso.",
     ),
 ]
 
@@ -265,7 +283,8 @@ NOTEBOOK_LESSONS_M1: list[Lesson] = [
         _minutes(5),
         "Carga contenido. No cargues personas.\n\n"
         "Sí: capítulo, apuntes, rúbrica, planificación, un artículo "
-        "que van a leer.\n\n"
+        "que van a leer. En el pedido di el grado y qué tienen que "
+        "saber hacer. El modelo no adivina el aula.\n\n"
         "No: listas con nombres y notas, fotos de menores, chats de "
         "familias, diagnósticos, documentos con cédulas. Aunque la "
         "herramienta «sea de Google», el expediente de un estudiante "
@@ -412,9 +431,10 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
     "Esta semana te ahorras una tarde": [
         (
             "Prompt de esta semana",
-            "Eres docente de matemática de séptimo. Ya vieron equivalentes. "
-            "Arma una hoja de 5 sumas con distinto denominador, de menor a "
-            "mayor dificultad. Formato: consigna y respuesta. Sin euros.",
+            "Eres docente de matemática de séptimo. Ya vieron que 1/2 y "
+            "2/4 son lo mismo. Arma una hoja de 5 sumas con distinto "
+            "denominador, de menor a mayor dificultad. Formato: consigna "
+            "y respuesta. Sin euros. No pidas contar trozos de un pastel.",
         ),
         (
             "Esperamos: la hoja que te llevas el lunes",
@@ -436,8 +456,9 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
             "Esperamos: una cita que se tira",
             "«Según el Acuerdo Ministerial 2024-18, el 80% de los séptimos "
             "ya dominan equivalentes.»\n"
-            "Tú no pegaste ese acuerdo. El porcentaje no está en tu material. "
-            "Esto no se fotocopia.",
+            "Tú no pegaste ese acuerdo. Ese 80 % no está en ninguna "
+            "prueba. En la evaluación nacional la mayoría de Media en "
+            "matemática no llega al mínimo. Esto no se fotocopia.",
         ),
     ],
     "Anatomía de un prompt que sirve": [
@@ -453,11 +474,12 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
         ),
         (
             "Prompt que sí",
-            "Eres docente de matemática de séptimo en un colegio público de la "
-            "costa. Los estudiantes ya vieron equivalentes. Hay quienes aún "
-            "mezclan equivalente y simplificar.\n"
+            "Eres docente de matemática de séptimo en un colegio público "
+            "de la costa. Los estudiantes ya vieron que 1/2 y 2/4 son lo "
+            "mismo. Hay quienes aún mezclan equivalente y simplificar.\n"
             "Arma 5 ejercicios de suma con distinto denominador, de menor a "
-            "mayor dificultad. La hora dura 45 minutos. No uses euros ni nieve.\n"
+            "mayor dificultad. La hora dura 45 minutos. No uses euros ni nieve. "
+            "No pidas contar trozos de un pastel.\n"
             "Devuélvelo en una tabla: consigna | respuesta esperada. No inventes "
             "un dato que yo no te di.",
         ),
@@ -494,10 +516,11 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
     "Guía de ejercicios de tu temario": [
         (
             "Prompt de la guía",
-            "Eres docente de matemática de séptimo. Ya vieron equivalentes. "
-            "Arma 6 ejercicios sobre suma con distinto denominador: 2 de "
-            "entrada, 2 de práctica, 2 desafiantes. La hora dura 45 minutos. "
-            "Formato: lista numerada. Al final, clave en otro bloque.",
+            "Eres docente de matemática de séptimo. Ya vieron que 1/2 y "
+            "2/4 son lo mismo. Arma 6 ejercicios de suma con distinto "
+            "denominador: 2 de entrada, 2 de práctica, 2 desafiantes. La "
+            "hora dura 45 minutos. Formato: lista numerada. Al final, clave "
+            "en otro bloque. No pidas contar trozos.",
         ),
         (
             "Esperamos: la guía lista para fotocopiar",
@@ -520,9 +543,9 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
         ),
         (
             "Esperamos: la nota que pegas al grupo",
-            "Hoy en 7.º sumamos fracciones con distinto denominador. No es "
-            "restar ni simplificar todavía: es poner las partes en la misma "
-            "medida y después sumar.\n"
+            "Hoy en séptimo sumamos fracciones que no tienen el mismo "
+            "abajo. No es restar ni simplificar todavía: es poner las "
+            "partes en la misma medida y después sumar.\n"
             "En casa pueden preguntar: si partes una naranja en 2 y otra en 4, "
             "¿cuánto es media más un cuarto?",
         ),
@@ -530,9 +553,9 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
     "Una hora de 45 minutos, no un temario infinito": [
         (
             "Prompt de la hora",
-            "Eres docente de matemática de séptimo. Diseña 45 minutos sobre "
-            "suma de fracciones con distinto denominador. Ya vieron "
-            "equivalentes. Incluye: 8 minutos de apertura, 20 de práctica "
+            "Eres docente de matemática de séptimo. Diseña 45 minutos "
+            "sobre suma de fracciones con distinto denominador. Ya vieron "
+            "que 1/2 y 2/4 son lo mismo. Incluye: 8 minutos de apertura, 20 de práctica "
             "guiada, 12 de trabajo individual, 5 de cierre. Di qué hace el "
             "docente y qué hace el estudiante. Formato: tabla tiempo | "
             "momento | qué hace quién. Los bloques deben sumar 45.",
@@ -726,9 +749,9 @@ TEACHER_COURSES: list[dict[str, Any]] = [
         "summary": "El prompt de tu próxima clase, no un examen de teoría",
         "description": (
             "Aprendes a pedirle a un modelo material que sí puedes llevar al "
-            "aula: rol, audiencia, tarea y formato; un ejemplo; y una "
-            "segunda pasada. Cierras escribiendo el prompt de tu propia "
-            "clase. El modelo redacta; tú decides qué se fotocopia."
+            "aula: quién es el modelo, para quién, qué ya vieron y cómo "
+            "lo quieres de vuelta. Cierras escribiendo el prompt de tu "
+            "propia clase. El modelo redacta; tú decides qué se fotocopia."
         ),
         "level": "beginner",
         "modules": [
@@ -776,15 +799,15 @@ TEACHER_ACTIVITIES: list[dict[str, Any]] = [
         "course_slug": "prompting-para-docentes",
         "title": "El prompt de tu próxima clase",
         "statement": (
-            "Escribe un prompt para generar material de TU próxima clase "
-            "(o de fracciones de séptimo, si aún no tienes el tema).\n\n"
+            "Escribe un prompt para generar material de TU próxima clase. "
+            "Si aún no tienes el tema, usa séptimo: sumar fracciones "
+            "con distinto denominador (un cuarto más un medio). No pidas "
+            "contar trozos de un pastel.\n\n"
             "Tiene que: darle un rol al modelo, decir para quién es "
-            "(grado o audiencia), qué ya vieron, una cantidad concreta "
-            "de ítems, y el formato de la respuesta (tabla, lista u "
-            "otro). Si puedes, pega un ejemplo corto de cómo debe verse "
-            "un ítem.\n\n"
-            "Menciona el tema de la clase con su nombre (por ejemplo "
-            "fracciones, o el tema real que vas a dar)."
+            "(el grado), qué ya vieron, cuántos ítems, y el formato "
+            "(tabla, lista u otro). Si puedes, pega un ejemplo corto "
+            "de cómo debe verse un ítem.\n\n"
+            "Di qué tienen que saber hacer, no solo el nombre del tema."
         ),
         "checks": {
             "requires_role": True,

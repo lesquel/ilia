@@ -47,7 +47,7 @@ Hasta que subas el archivo, la lección se lee como texto. Cuando tengas el víd
 | V5 | Evaluación | Qué mide una rúbrica que sirve | 6–7 min | más abajo |
 | V6 | Evaluación | El modelo puntúa, tú certificas | 5–6 min | más abajo |
 
-Cámara al frente, un ejemplo real (séptimo, fracciones **o** tu materia). No leas diapositivas. Si te cansas, corta: cada guion cabe en una toma.
+Cámara al frente, un ejemplo real (séptimo, fracciones **o** tu materia). El grado no se inventa: ancla destreza y logro en el [mapa escolar](./mapa-escolar-ecuador.md) y el tomo del área ([matemática](./matematica.md), [lengua](./lengua-literatura.md), [CN/CS](./cn-cs-ecuador.md), [métricas](./metricas-aprendizaje.md)). No leas diapositivas. Si te cansas, corta: cada guion cabe en una toma.
 
 ## Cómo se toma
 
@@ -70,15 +70,15 @@ Eso obliga al modelo a decidir el curso, el nivel, cuántos ítems, si hay respu
 Un prompt que sirve tiene cinco piezas. Escríbelas:
 
 1. **Rol.** Quién es el modelo. «Eres docente de matemática de séptimo en un colegio público de la costa.»
-2. **Audiencia.** Para quién es el material. El estudiante no es la familia.
-3. **Contexto.** Qué ya vieron, cuánto dura la hora, qué no debe salir.
-4. **Tarea.** Qué tiene que producir. Cinco ejercicios de suma de fracciones con distinto denominador, de menor a mayor dificultad.
-5. **Formato.** Cómo lo quieres de vuelta. Tabla con consigna y respuesta esperada.
+2. **Para quién.** El estudiante no es la familia.
+3. **Qué ya vieron.** Y qué no debe salir.
+4. **Qué tienen que saber hacer.** No el nombre del tema. En séptimo: un cuarto más un medio, igualando el abajo. No contar trozos de un pastel.
+5. **Cómo lo quieres.** Tabla con consigna y respuesta esperada.
 
 **El prompt que sí (90 s).**  
 Lee el prompt completo, despacio:
 
-> Eres docente de matemática de séptimo. Ya vimos fracciones equivalentes. Armá— *corta, corrige:* arma 5 ejercicios de suma de fracciones con distinto denominador, de menor a mayor dificultad. Devuélvelo en una tabla: consigna | respuesta esperada.
+> Eres docente de matemática de séptimo. Ya vimos que 1/2 y 2/4 son lo mismo. Arma 5 ejercicios de suma de fracciones con distinto denominador, de menor a mayor dificultad. Devuélvelo en una tabla: consigna | respuesta esperada. No pidas contar trozos.
 
 **Cierre (30 s).**  
 Cada palabra que agregaste le quita al modelo una decisión. En la siguiente lección usamos esto con **tu** temario, no con el mío.
@@ -90,7 +90,7 @@ Cada palabra que agregaste le quita al modelo una decisión. En la siguiente lec
 ## Guion V2 — Guía de ejercicios de tu temario
 
 **Abre (20 s).**  
-Trae a la grabación el tema de **tu** próxima clase. Si no lo tienes, usa fracciones de séptimo. El ejercicio es el mismo.
+Trae a la grabación el tema de **tu** próxima clase. Si no lo tienes, usa séptimo: sumar un cuarto y un medio. El ejercicio es el mismo.
 
 **Error habitual (40 s).**  
 «Hazme una guía.» Eso produce una guía de nadie: sin tiempo, sin nivel, sin lo que ya vieron.
