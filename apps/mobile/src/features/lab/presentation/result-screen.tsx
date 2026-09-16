@@ -1,7 +1,15 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 
-import { useTheme } from '@/core/theme';
+import { breakpoint, useTheme } from '@/core/theme';
 import { ProgressBar } from '@/core/ui/progress-bar';
 import { ErrorState, LoadingState } from '@/core/ui/state-view';
 import { PassCertificateCard } from '@/features/certificates';
@@ -10,11 +18,14 @@ import {
   useSubmissionResult,
 } from '@/features/lab/application/use-lab';
 import { dimensionName, scoreTone, type DimensionScore } from '@/features/lab/domain/entities';
+import { sideScoresFromEvaluation } from '@/features/lab/domain/side-scores';
 import { GeneratedSheet } from '@/features/lab/presentation/generated-sheet';
 
 export function ResultScreen() {
   const theme = useTheme();
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isWide = width >= breakpoint.compact;
   const { submissionId } = useLocalSearchParams<{ submissionId: string }>();
 
   const { submission, evaluation, isWaiting, isLoading, error } = useSubmissionResult(
@@ -72,34 +83,76 @@ export function ResultScreen() {
   }
 
   const accent = evaluation.passed ? theme.colors.accent : theme.colors.neutral[600];
+  const sides = sideScoresFromEvaluation(activity, evaluation.dimensionScores);
+  const generatedText = evaluation.generatedText.trim();
 
   return (
     <ScrollView
       style={{ backgroundColor: theme.colors.bg }}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, isWide ? styles.contentWide : undefined]}
     >
       <Text style={[styles.eyebrow, { color: theme.colors.accentRamp[700] }]}>
         Resultado · intento {submission.attempt}
-      </Text>
-
-      <Text style={[styles.total, { color: accent }]}>
-        {Math.round(evaluation.effectiveTotal)}
-        <Text style={[styles.totalMax, { color: theme.colors.neutral[600] }]}> / 100</Text>
       </Text>
 
       <Text style={[styles.verdict, { color: theme.colors.text }]}>
         {evaluation.passed ? 'Esta práctica cuenta.' : 'Todavía no alcanza'}
       </Text>
 
+      <View style={[styles.pair, isWide ? styles.pairWide : undefined]}>
+        <View style={[styles.station, isWide ? styles.stationWide : undefined]}>
+          <Text style={[styles.stationLabel, { color: theme.colors.neutral[600] }]}>El pedido</Text>
+          <View
+            style={[
+              styles.stationCard,
+              {
+                backgroundColor: theme.colors.surface,
+                borderColor: theme.colors.divider,
+                borderRadius: theme.radius.lg,
+              },
+            ]}
+          >
+            <Text style={[styles.promptBody, { color: theme.colors.text }]}>{submission.prompt}</Text>
+          </View>
+          <SideScore label="Nota del pedido" value={sides.promptScore} color={accent} />
+        </View>
+
+        <Text
+          style={[styles.arrow, { color: theme.colors.neutral[400] }, isWide ? undefined : styles.arrowDown]}
+          accessibilityLabel="El pedido produce la hoja"
+        >
+          {isWide ? '→' : '↓'}
+        </Text>
+
+        <View style={[styles.station, isWide ? styles.stationWide : undefined]}>
+          <Text style={[styles.stationLabel, { color: theme.colors.neutral[600] }]}>La hoja</Text>
+          <View
+            style={[
+              styles.stationCard,
+              {
+                backgroundColor: theme.colors.surface,
+                borderColor: theme.colors.divider,
+                borderRadius: theme.radius.lg,
+              },
+            ]}
+          >
+            {generatedText ? (
+              <GeneratedSheet text={generatedText} showFrame={false} />
+            ) : (
+              <Text style={[styles.body, { color: theme.colors.neutral[600] }]}>
+                Esta lectura no guardó la hoja.
+              </Text>
+            )}
+          </View>
+          <SideScore label="Nota de la hoja" value={sides.resultScore} color={accent} />
+        </View>
+      </View>
+
       {evaluation.passed && activity?.courseSlug ? (
         <PassCertificateCard
           slug={activity.courseSlug}
           courseTitle={activity.courseTitle || activity.title}
         />
-      ) : null}
-
-      {evaluation.generatedText.trim() ? (
-        <GeneratedSheet text={evaluation.generatedText} />
       ) : null}
 
       {/* With the reason, not just the fact. A grade changed for reasons the
@@ -173,21 +226,6 @@ export function ResultScreen() {
         </Text>
       </View>
 
-      <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Tu prompt</Text>
-      <Text
-        style={[
-          styles.prompt,
-          {
-            backgroundColor: theme.colors.neutral[100],
-            borderColor: theme.colors.divider,
-            borderRadius: theme.radius.md,
-            color: theme.colors.neutral[700],
-          },
-        ]}
-      >
-        {submission.prompt}
-      </Text>
-
       {activity && activity.attemptsLeft > 0 && !evaluation.passed ? (
         <Pressable
           accessibilityRole="button"
@@ -214,6 +252,26 @@ export function ResultScreen() {
         {evaluation.rubricVersion}
       </Text>
     </ScrollView>
+  );
+}
+
+function SideScore({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: number | null;
+  color: string;
+}) {
+  const theme = useTheme();
+  if (value === null) return null;
+
+  return (
+    <View style={styles.sideScore}>
+      <Text style={[styles.sideScoreLabel, { color: theme.colors.neutral[600] }]}>{label}</Text>
+      <Text style={[styles.sideScoreValue, { color }]}>{Math.round(value)}</Text>
+    </View>
   );
 }
 
@@ -258,14 +316,62 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     gap: 10.2,
   },
+  contentWide: {
+    maxWidth: 1080,
+  },
+  pair: {
+    gap: 12,
+    marginVertical: 8,
+  },
+  pairWide: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  station: {
+    gap: 8,
+  },
+  stationWide: {
+    flex: 1,
+    minWidth: 0,
+  },
+  stationLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  stationCard: {
+    borderWidth: 1,
+    padding: 16,
+  },
+  arrow: {
+    fontSize: 28,
+    fontWeight: '600',
+    alignSelf: 'center',
+    marginTop: 18,
+  },
+  arrowDown: {
+    marginTop: 0,
+    marginBottom: 0,
+  },
+  sideScore: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+  },
+  sideScoreLabel: {
+    fontSize: 13,
+  },
+  sideScoreValue: {
+    fontSize: 28,
+    fontWeight: '700',
+    letterSpacing: -0.6,
+  },
   eyebrow: {
     fontSize: 11,
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
-  total: { fontSize: 64, fontWeight: '600', lineHeight: 68 },
-  totalMax: { fontSize: 22, fontWeight: '400' },
   verdict: { fontSize: 20, fontWeight: '600', marginBottom: 6.8 },
   waitTitle: { fontSize: 20, fontWeight: '600', textAlign: 'center' },
   waitHint: { fontSize: 14, textAlign: 'center', maxWidth: 380 },
@@ -279,7 +385,7 @@ const styles = StyleSheet.create({
   dimensionScore: { fontSize: 20, fontWeight: '600' },
   justification: { fontSize: 13, lineHeight: 19 },
   body: { fontSize: 15, lineHeight: 23 },
-  prompt: { borderWidth: 1, padding: 13.6, fontSize: 14, lineHeight: 21 },
+  promptBody: { fontSize: 14, lineHeight: 21 },
   note: { fontSize: 12, lineHeight: 18 },
   button: {
     paddingVertical: 13.6,

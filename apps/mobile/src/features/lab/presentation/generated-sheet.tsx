@@ -1,33 +1,61 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
-import { blocksFromGeneratedText } from '@/features/lab/domain/generated-sheet';
+import {
+  blocksFromGeneratedText,
+  figureFromTableCell,
+  sheetMentionsVisualFigure,
+} from '@/features/lab/domain/generated-sheet';
+import { FractionPie, FractionPieCaption } from '@/features/lab/presentation/fraction-pie';
 
-export function GeneratedSheet({ text }: { text: string }) {
+export function GeneratedSheet({
+  text,
+  showFrame = true,
+}: {
+  text: string;
+  showFrame?: boolean;
+}) {
   const theme = useTheme();
   const blocks = blocksFromGeneratedText(text);
+  const mentionsVisual = sheetMentionsVisualFigure(text);
 
   if (blocks.length === 0) return null;
 
   return (
     <View
       style={[
-        styles.sheet,
-        {
-          backgroundColor: theme.colors.surface,
-          borderColor: theme.colors.divider,
-          borderRadius: theme.radius.lg,
-          ...theme.shadow.md,
-        },
+        showFrame ? styles.sheet : styles.sheetBare,
+        showFrame
+          ? {
+              backgroundColor: theme.colors.surface,
+              borderColor: theme.colors.divider,
+              borderRadius: theme.radius.lg,
+              ...theme.shadow.md,
+            }
+          : undefined,
       ]}
     >
-      <Text style={[styles.kicker, { color: theme.colors.accentRamp[700] }]}>La hoja</Text>
+      {showFrame ? (
+        <Text style={[styles.kicker, { color: theme.colors.accentRamp[700] }]}>La hoja</Text>
+      ) : null}
       {blocks.map((block, blockIndex) => {
         if (block.kind === 'paragraph') {
           return (
             <Text key={`p-${blockIndex}`} style={[styles.paragraph, { color: theme.colors.text }]}>
               {block.text}
             </Text>
+          );
+        }
+
+        if (block.kind === 'figure') {
+          return (
+            <View key={`f-${blockIndex}`} style={styles.figureRow}>
+              <FractionPie
+                paintedSlices={block.paintedSlices}
+                totalSlices={block.totalSlices}
+              />
+              <FractionPieCaption caption={block.caption} />
+            </View>
           );
         }
 
@@ -60,14 +88,28 @@ export function GeneratedSheet({ text }: { text: string }) {
                     },
                   ]}
                 >
-                  {row.map((cell, cellIndex) => (
-                    <Text
-                      key={`${rowIndex}-${cellIndex}`}
-                      style={[styles.cell, { color: theme.colors.text }]}
-                    >
-                      {cell}
-                    </Text>
-                  ))}
+                  {row.map((cell, cellIndex) => {
+                    const header = block.headers[cellIndex] ?? '';
+                    const pie = figureFromTableCell(cell, header, mentionsVisual);
+                    if (pie) {
+                      return (
+                        <View key={`${rowIndex}-${cellIndex}`} style={styles.figureCell}>
+                          <FractionPie
+                            paintedSlices={pie.paintedSlices}
+                            totalSlices={pie.totalSlices}
+                          />
+                        </View>
+                      );
+                    }
+                    return (
+                      <Text
+                        key={`${rowIndex}-${cellIndex}`}
+                        style={[styles.cell, { color: theme.colors.text }]}
+                      >
+                        {cell}
+                      </Text>
+                    );
+                  })}
                 </View>
               ))}
             </View>
@@ -80,10 +122,19 @@ export function GeneratedSheet({ text }: { text: string }) {
 
 const styles = StyleSheet.create({
   sheet: { borderWidth: 1, paddingHorizontal: 18, paddingVertical: 16, gap: 12 },
+  sheetBare: { gap: 12 },
   kicker: { fontSize: 12, fontWeight: '700' },
   paragraph: { fontSize: 15, lineHeight: 23 },
+  figureRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  figureCell: {
+    minWidth: 88,
+    flex: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    alignItems: 'flex-start',
+  },
   table: { borderWidth: 1, minWidth: '100%' },
-  tableRow: { flexDirection: 'row', borderTopWidth: 1, borderTopColor: 'transparent' },
+  tableRow: { flexDirection: 'row', borderTopWidth: 1, borderTopColor: 'transparent', alignItems: 'center' },
   headerCell: {
     minWidth: 160,
     flex: 1,
