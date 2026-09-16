@@ -406,6 +406,7 @@ function SceneStage({
     return (
       <View style={[styles.ideaBeat, isWide ? styles.ideaBeatWide : undefined]}>
         <IdeaSceneArt
+          key={sceneIndex}
           plainText={ideaScenePlainText(scene)}
           sceneIndex={sceneIndex}
           compact={!isWide}
