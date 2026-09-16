@@ -16,8 +16,16 @@ import { motifForIdeaScene } from '@/features/enrollment/domain/idea-art-motif';
 export type { IdeaArtMotif } from '@/features/enrollment/domain/idea-art-motif';
 export { motifForIdeaScene };
 
-const PIE_SIZE = 96;
-const PIE_RADIUS = 40;
+const PIE_SIZE = 168;
+const PIE_SIZE_COMPACT = 120;
+const PIE_RADIUS_RATIO = 0.42;
+
+const HOUR_BLOCKS = [
+  { minutes: 8, label: 'apertura' },
+  { minutes: 20, label: 'práctica' },
+  { minutes: 12, label: 'solo' },
+  { minutes: 5, label: 'cierre' },
+] as const;
 
 function polarPoint(center: number, radius: number, angleRadians: number) {
   return {
@@ -38,7 +46,7 @@ function slicePath(
   return `M ${center} ${center} L ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${end.x} ${end.y} Z`;
 }
 
-function useOnceProgress(delayMs: number, durationMs = 480) {
+function useOnceProgress(delayMs: number, durationMs = 520) {
   const prefersReducedMotion = useReducedMotion();
   const progress = useSharedValue(prefersReducedMotion ? 1 : 0);
 
@@ -59,15 +67,17 @@ function useOnceProgress(delayMs: number, durationMs = 480) {
 
 function AppearOnce({
   delayMs,
+  shift = 12,
   children,
 }: {
   delayMs: number;
+  shift?: number;
   children: ReactNode;
 }) {
   const progress = useOnceProgress(delayMs);
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: progress.value,
-    transform: [{ translateY: (1 - progress.value) * 10 }],
+    transform: [{ translateY: (1 - progress.value) * shift }],
   }));
 
   return <Animated.View style={animatedStyle}>{children}</Animated.View>;
@@ -84,10 +94,6 @@ export function IdeaSceneArt({
 }) {
   const theme = useTheme();
   const motif = motifForIdeaScene(plainText, sceneIndex);
-  const signalProgress = useOnceProgress(0, 320);
-  const signalStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: signalProgress.value }],
-  }));
 
   return (
     <View
@@ -99,352 +105,486 @@ export function IdeaSceneArt({
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >
-      <Animated.View
-        style={[
-          styles.signalSquare,
-          { backgroundColor: theme.colors.accent },
-          signalStyle,
-        ]}
-      />
-      {motif === 'clock' ? <ClockMotif /> : null}
-      {motif === 'sheet' ? <SheetMotif /> : null}
-      {motif === 'pedido' ? <PedidoMotif /> : null}
-      {motif === 'aula' ? <AulaMotif /> : null}
-      {motif === 'pie' ? <PieMotif compact={compact} /> : null}
+      {motif === 'pedido' ? <PedidoLamina compact={compact} /> : null}
+      {motif === 'sheet' ? <SheetLamina compact={compact} /> : null}
+      {motif === 'clock' ? <HourLamina compact={compact} /> : null}
+      {motif === 'pie' ? <PieLamina compact={compact} /> : null}
+      {motif === 'aula' ? <AulaLamina compact={compact} /> : null}
     </View>
   );
 }
 
-function ClockMotif() {
+function TeachingBoard({
+  kicker,
+  children,
+}: {
+  kicker: string;
+  children: ReactNode;
+}) {
   const theme = useTheme();
-  const handProgress = useOnceProgress(180, 900);
-  const handStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${handProgress.value * 270}deg` }],
+  return (
+    <View
+      style={[
+        styles.board,
+        {
+          backgroundColor: theme.colors.surface,
+          borderColor: theme.colors.divider,
+          ...theme.shadow.md,
+        },
+      ]}
+    >
+      <View style={styles.boardHead}>
+        <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
+        <Text style={[styles.boardKicker, { color: theme.colors.accent }]}>{kicker}</Text>
+      </View>
+      {children}
+    </View>
+  );
+}
+
+function PedidoLamina({ compact }: { compact: boolean }) {
+  const theme = useTheme();
+  const dimProgress = useOnceProgress(720, 360);
+  const strikeProgress = useOnceProgress(640, 380);
+  const flojoStyle = useAnimatedStyle(() => ({
+    opacity: 1 - dimProgress.value * 0.45,
+  }));
+  const strikeStyle = useAnimatedStyle(() => ({
+    transform: [{ scaleX: strikeProgress.value }],
   }));
 
   return (
-    <View style={styles.motifCenter}>
-      <View
+    <TeachingBoard kicker="El pedido">
+      <Animated.View
         style={[
-          styles.clockFace,
-          { borderColor: theme.colors.accent, backgroundColor: theme.colors.surface },
+          styles.promptBlock,
+          { backgroundColor: theme.colors.neutral[100], borderColor: theme.colors.divider },
+          flojoStyle,
         ]}
       >
-        <Animated.View style={[styles.clockHandPivot, handStyle]} pointerEvents="none">
-          <View style={[styles.clockHand, { backgroundColor: theme.colors.accent }]} />
-        </Animated.View>
-        <AppearOnce delayMs={420}>
-          <Text style={[styles.clockLabel, { color: theme.colors.accent }]}>45</Text>
-        </AppearOnce>
+        <Text style={[styles.stamp, { color: theme.colors.neutral[600] }]}>Flojo</Text>
+        <View style={styles.struckLine}>
+          <Text style={[styles.promptLine, compact && styles.promptLineCompact, { color: theme.colors.text }]}>
+            Haz un ejercicio de fracciones.
+          </Text>
+          <Animated.View style={[styles.strike, { backgroundColor: theme.colors.text }, strikeStyle]} />
+        </View>
+      </Animated.View>
+
+      <AppearOnce delayMs={880} shift={16}>
+        <View
+          style={[
+            styles.promptBlock,
+            {
+              backgroundColor: theme.colors.accentRamp[100],
+              borderColor: theme.colors.accentRamp[200],
+            },
+          ]}
+        >
+          <Text style={[styles.stamp, { color: theme.colors.accent }]}>Útil</Text>
+          <Text style={[styles.promptLine, compact && styles.promptLineCompact, { color: theme.colors.text }]}>
+            Séptimo. Un cuarto más un medio. Tabla: consigna | respuesta.
+          </Text>
+        </View>
+      </AppearOnce>
+    </TeachingBoard>
+  );
+}
+
+function SheetLamina({ compact }: { compact: boolean }) {
+  const theme = useTheme();
+  return (
+    <TeachingBoard kicker="La tarde">
+      <AppearOnce delayMs={80}>
+        <Text style={[styles.boardLead, compact && styles.boardLeadCompact, { color: theme.colors.text }]}>
+          Quedan dos horas. Él arma el borrador.
+        </Text>
+      </AppearOnce>
+      <AppearOnce delayMs={420}>
+        <View style={[styles.miniSheet, { borderColor: theme.colors.divider }]}>
+          <View style={[styles.miniSheetHead, { backgroundColor: theme.colors.accentRamp[100] }]}>
+            <Text style={[styles.miniSheetHeadCell, { color: theme.colors.accentRamp[800] }]}>
+              Consigna
+            </Text>
+            <Text style={[styles.miniSheetHeadCell, { color: theme.colors.accentRamp[800] }]}>
+              Respuesta
+            </Text>
+          </View>
+          <View style={styles.miniSheetRow}>
+            <Text style={[styles.miniSheetCell, { color: theme.colors.text }]}>1/4 + 1/2</Text>
+            <Text style={[styles.miniSheetCell, { color: theme.colors.text }]}>3/4</Text>
+          </View>
+          <View style={[styles.miniSheetRow, { borderTopColor: theme.colors.divider, borderTopWidth: 1 }]}>
+            <Text style={[styles.miniSheetCell, { color: theme.colors.text }]}>1/2 + 1/3</Text>
+            <Text style={[styles.miniSheetCell, { color: theme.colors.text }]}>5/6</Text>
+          </View>
+        </View>
+      </AppearOnce>
+      <AppearOnce delayMs={820}>
+        <Text style={[styles.boardNote, { color: theme.colors.neutral[700] }]}>
+          Tú decides qué se fotocopia.
+        </Text>
+      </AppearOnce>
+    </TeachingBoard>
+  );
+}
+
+function HourLamina({ compact }: { compact: boolean }) {
+  const theme = useTheme();
+  return (
+    <TeachingBoard kicker="La hora">
+      <AppearOnce delayMs={80}>
+        <Text style={[styles.boardLead, compact && styles.boardLeadCompact, { color: theme.colors.text }]}>
+          Si no le dices 45, te arma dos horas.
+        </Text>
+      </AppearOnce>
+      <View style={styles.hourTrack}>
+        {HOUR_BLOCKS.map((block, blockIndex) => (
+          <HourBlock
+            key={block.label}
+            minutes={block.minutes}
+            label={block.label}
+            delayMs={280 + blockIndex * 180}
+            fillColor={blockIndex % 2 === 0 ? theme.colors.accent : theme.colors.accentRamp[300]}
+            compact={compact}
+          />
+        ))}
       </View>
-    </View>
+      <AppearOnce delayMs={1100}>
+        <Text style={[styles.boardNote, { color: theme.colors.neutral[700] }]}>
+          8 + 20 + 12 + 5. Tienen que sumar 45.
+        </Text>
+      </AppearOnce>
+    </TeachingBoard>
   );
 }
 
-function SheetMotif() {
-  const theme = useTheme();
-  return (
-    <View style={styles.motifCenter}>
-      <AppearOnce delayMs={80}>
-        <View
-          style={[
-            styles.sheet,
-            {
-              backgroundColor: theme.colors.surface,
-              borderColor: theme.colors.divider,
-            },
-          ]}
-        >
-          <GrowingLine delayMs={220} color={theme.colors.neutral[200]} widthPercent={100} />
-          <GrowingLine delayMs={360} color={theme.colors.neutral[200]} widthPercent={100} />
-          <GrowingLine delayMs={500} color={theme.colors.accentRamp[200]} widthPercent={62} />
-          <GrowingLine delayMs={640} color={theme.colors.neutral[200]} widthPercent={100} />
-        </View>
-      </AppearOnce>
-    </View>
-  );
-}
-
-function PedidoMotif() {
-  const theme = useTheme();
-  return (
-    <View style={styles.motifCenter}>
-      <AppearOnce delayMs={80}>
-        <View
-          style={[
-            styles.promptCard,
-            {
-              backgroundColor: theme.colors.surface,
-              borderColor: theme.colors.divider,
-            },
-          ]}
-        >
-          <Text style={[styles.promptHint, { color: theme.colors.neutral[500] }]}>prompt ▸</Text>
-          <GrowingLine delayMs={280} color={theme.colors.neutral[200]} widthPercent={100} />
-          <GrowingLine delayMs={520} color={theme.colors.accent} widthPercent={62} />
-        </View>
-      </AppearOnce>
-    </View>
-  );
-}
-
-function AulaMotif() {
-  const theme = useTheme();
-  return (
-    <View style={styles.aula}>
-      <AppearOnce delayMs={80}>
-        <View
-          style={[
-            styles.desk,
-            { backgroundColor: theme.colors.surface, borderColor: theme.colors.divider },
-          ]}
-        />
-      </AppearOnce>
-      <AppearOnce delayMs={220}>
-        <View
-          style={[
-            styles.desk,
-            { backgroundColor: theme.colors.surface, borderColor: theme.colors.divider },
-          ]}
-        />
-      </AppearOnce>
-      <AppearOnce delayMs={400}>
-        <View style={[styles.board, { backgroundColor: theme.colors.accent }]} />
-      </AppearOnce>
-    </View>
-  );
-}
-
-function PieMotif({ compact }: { compact: boolean }) {
-  return (
-    <View style={[styles.pieRow, compact ? styles.pieRowCompact : undefined]}>
-      <AppearOnce delayMs={80}>
-        <LessonPieCard
-          caption="contar trozos"
-          paintedSlices={0}
-          totalSlices={8}
-        />
-      </AppearOnce>
-      <AppearOnce delayMs={520}>
-        <LessonPieCard
-          caption="un cuarto + un medio"
-          paintedSlices={3}
-          totalSlices={4}
-        />
-      </AppearOnce>
-    </View>
-  );
-}
-
-function LessonPieCard({
-  caption,
-  paintedSlices,
-  totalSlices,
+function HourBlock({
+  minutes,
+  label,
+  delayMs,
+  fillColor,
+  compact,
 }: {
-  caption: string;
-  paintedSlices: number;
-  totalSlices: number;
+  minutes: number;
+  label: string;
+  delayMs: number;
+  fillColor: string;
+  compact: boolean;
 }) {
   const theme = useTheme();
-  const center = PIE_SIZE / 2;
+  const progress = useOnceProgress(delayMs, 420);
+  const fillStyle = useAnimatedStyle(() => ({
+    transform: [{ scaleX: progress.value }],
+  }));
+
+  return (
+    <View style={[styles.hourBlock, { flex: minutes }]}>
+      <Animated.View
+        style={[styles.hourFill, { backgroundColor: fillColor }, fillStyle]}
+      />
+      <Text
+        style={[styles.hourLabel, compact && styles.hourLabelCompact, { color: theme.colors.neutral[700] }]}
+        numberOfLines={2}
+      >
+        {minutes} {label}
+      </Text>
+    </View>
+  );
+}
+
+function PieLamina({ compact }: { compact: boolean }) {
+  const theme = useTheme();
+  const pieSize = compact ? PIE_SIZE_COMPACT : PIE_SIZE;
+
+  return (
+    <TeachingBoard kicker="El grado">
+      <View style={[styles.piePair, compact ? styles.piePairCompact : undefined]}>
+        <AppearOnce delayMs={80}>
+          <View style={styles.pieColumn}>
+            <Text style={[styles.stamp, { color: theme.colors.neutral[600] }]}>Segundo</Text>
+            <LessonPie paintedSlices={0} totalSlices={8} size={pieSize} />
+            <Text style={[styles.pieCaption, { color: theme.colors.neutral[700] }]}>
+              ¿Cuántos trozos hay?
+            </Text>
+          </View>
+        </AppearOnce>
+        <AppearOnce delayMs={480}>
+          <View style={styles.pieColumn}>
+            <Text style={[styles.stamp, { color: theme.colors.accent }]}>Séptimo</Text>
+            <View style={{ width: pieSize, height: pieSize }}>
+              <LessonPie paintedSlices={0} totalSlices={4} size={pieSize} />
+              <View style={StyleSheet.absoluteFill} pointerEvents="none">
+                <AppearOnce delayMs={200} shift={0}>
+                  <LessonPie paintedSlices={1} totalSlices={4} size={pieSize} />
+                </AppearOnce>
+              </View>
+              <View style={StyleSheet.absoluteFill} pointerEvents="none">
+                <AppearOnce delayMs={640} shift={0}>
+                  <LessonPie paintedSlices={3} totalSlices={4} size={pieSize} />
+                </AppearOnce>
+              </View>
+            </View>
+            <Text style={[styles.pieCaption, { color: theme.colors.text }]}>
+              Un cuarto + un medio
+            </Text>
+          </View>
+        </AppearOnce>
+      </View>
+    </TeachingBoard>
+  );
+}
+
+function AulaLamina({ compact }: { compact: boolean }) {
+  const theme = useTheme();
+  const missingPieces = ['quién faltó', 'qué ya vieron', 'cómo lo dicen en tu libro'];
+
+  return (
+    <TeachingBoard kicker="El aula">
+      <AppearOnce delayMs={80}>
+        <Text style={[styles.boardLead, compact && styles.boardLeadCompact, { color: theme.colors.text }]}>
+          El modelo no estuvo. Si no se lo dices, lo inventa.
+        </Text>
+      </AppearOnce>
+      {missingPieces.map((piece, pieceIndex) => (
+        <AppearOnce key={piece} delayMs={360 + pieceIndex * 220}>
+          <View style={styles.aulaRow}>
+            <View style={[styles.aulaTick, { backgroundColor: theme.colors.accent }]} />
+            <Text style={[styles.aulaLine, compact && styles.promptLineCompact, { color: theme.colors.text }]}>
+              {piece}
+            </Text>
+          </View>
+        </AppearOnce>
+      ))}
+    </TeachingBoard>
+  );
+}
+
+function LessonPie({
+  paintedSlices,
+  totalSlices,
+  size,
+}: {
+  paintedSlices: number;
+  totalSlices: number;
+  size: number;
+}) {
+  const theme = useTheme();
+  const center = size / 2;
+  const radius = size * PIE_RADIUS_RATIO;
   const sliceAngle = (Math.PI * 2) / totalSlices;
   const startOffset = -Math.PI / 2;
   const paintedFill = theme.colors.accent;
   const emptyFill = theme.colors.neutral[100];
   const stroke = theme.colors.neutral[400];
 
-  const slices = Array.from({ length: totalSlices }, (_, sliceIndex) => {
-    const startAngle = startOffset + sliceIndex * sliceAngle;
-    const endAngle = startAngle + sliceAngle;
-    return (
-      <Path
-        key={`slice-${sliceIndex}`}
-        d={slicePath(center, PIE_RADIUS, startAngle, endAngle)}
-        fill={sliceIndex < paintedSlices ? paintedFill : emptyFill}
-      />
-    );
-  });
-
-  const dividers = Array.from({ length: totalSlices }, (_, sliceIndex) => {
-    const angle = startOffset + sliceIndex * sliceAngle;
-    const edge = polarPoint(center, PIE_RADIUS, angle);
-    return (
-      <Line
-        key={`cut-${sliceIndex}`}
-        x1={center}
-        y1={center}
-        x2={edge.x}
-        y2={edge.y}
+  return (
+    <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      <Circle
+        cx={center}
+        cy={center}
+        r={radius}
+        fill={emptyFill}
         stroke={stroke}
-        strokeWidth={1.25}
+        strokeWidth={2}
       />
-    );
-  });
-
-  return (
-    <View style={styles.pieCard}>
-      <Svg width={PIE_SIZE} height={PIE_SIZE} viewBox={`0 0 ${PIE_SIZE} ${PIE_SIZE}`}>
-        <Circle
-          cx={center}
-          cy={center}
-          r={PIE_RADIUS}
-          fill={emptyFill}
-          stroke={stroke}
-          strokeWidth={1.5}
-        />
-        {slices}
-        {dividers}
-        <Circle
-          cx={center}
-          cy={center}
-          r={PIE_RADIUS}
-          fill="none"
-          stroke={stroke}
-          strokeWidth={1.5}
-        />
-      </Svg>
-      <Text style={[styles.pieCaption, { color: theme.colors.neutral[700] }]}>{caption}</Text>
-    </View>
-  );
-}
-
-function GrowingLine({
-  delayMs,
-  color,
-  widthPercent,
-}: {
-  delayMs: number;
-  color: string;
-  widthPercent: number;
-}) {
-  const progress = useOnceProgress(delayMs, 420);
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scaleX: progress.value }],
-  }));
-
-  return (
-    <Animated.View
-      style={[
-        styles.sheetLine,
-        { backgroundColor: color, width: `${widthPercent}%` },
-        animatedStyle,
-      ]}
-    />
+      {Array.from({ length: totalSlices }, (_, sliceIndex) => {
+        const startAngle = startOffset + sliceIndex * sliceAngle;
+        const endAngle = startAngle + sliceAngle;
+        return (
+          <Path
+            key={`slice-${sliceIndex}`}
+            d={slicePath(center, radius, startAngle, endAngle)}
+            fill={sliceIndex < paintedSlices ? paintedFill : emptyFill}
+          />
+        );
+      })}
+      {Array.from({ length: totalSlices }, (_, sliceIndex) => {
+        const angle = startOffset + sliceIndex * sliceAngle;
+        const edge = polarPoint(center, radius, angle);
+        return (
+          <Line
+            key={`cut-${sliceIndex}`}
+            x1={center}
+            y1={center}
+            x2={edge.x}
+            y2={edge.y}
+            stroke={stroke}
+            strokeWidth={1.5}
+          />
+        );
+      })}
+      <Circle
+        cx={center}
+        cy={center}
+        r={radius}
+        fill="none"
+        stroke={stroke}
+        strokeWidth={2}
+      />
+    </Svg>
   );
 }
 
 const styles = StyleSheet.create({
   poster: {
     flex: 1,
-    borderRadius: 20,
-    minHeight: 280,
-    overflow: 'hidden',
+    minHeight: 340,
     justifyContent: 'center',
-    padding: 28,
+    borderRadius: 20,
+    padding: 20,
   },
   posterCompact: {
     flex: 0,
-    minHeight: 160,
-    padding: 16,
-  },
-  signalSquare: {
-    position: 'absolute',
-    top: 20,
-    left: 20,
-    width: 14,
-    height: 14,
-  },
-  motifCenter: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  clockFace: {
-    width: 148,
-    height: 148,
-    borderRadius: 74,
-    borderWidth: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  clockHandPivot: {
-    position: 'absolute',
-    top: 14,
-    bottom: 74,
-    left: 71,
-    width: 4,
-    transformOrigin: 'bottom',
-  },
-  clockHand: {
-    flex: 1,
-    borderRadius: 99,
-  },
-  clockLabel: {
-    fontSize: 40,
-    fontWeight: '700',
-  },
-  sheet: {
-    width: 132,
-    height: 168,
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 16,
-    gap: 12,
-    transform: [{ rotate: '6deg' }],
-  },
-  sheetLine: {
-    height: 8,
-    borderRadius: 99,
-    alignSelf: 'flex-start',
-    transformOrigin: 'left center',
-  },
-  promptCard: {
-    width: '100%',
-    maxWidth: 240,
-    minHeight: 140,
-    borderWidth: 1,
-    borderRadius: 14,
-    padding: 16,
-    gap: 12,
-  },
-  promptHint: {
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 0.3,
-  },
-  aula: {
-    alignItems: 'center',
-    gap: 12,
-    paddingTop: 12,
-  },
-  desk: {
-    width: 168,
-    height: 36,
-    borderWidth: 1,
-    borderRadius: 8,
+    minHeight: 280,
+    padding: 12,
   },
   board: {
-    width: 120,
-    height: 72,
-    marginTop: 8,
+    borderWidth: 1,
+    borderRadius: 16,
+    paddingHorizontal: 22,
+    paddingVertical: 20,
+    gap: 16,
   },
-  pieRow: {
+  boardHead: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 20,
+    gap: 8,
   },
-  pieRowCompact: {
-    gap: 12,
+  signalSquare: {
+    width: 10,
+    height: 10,
   },
-  pieCard: {
+  boardKicker: {
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
+  },
+  boardLead: {
+    fontSize: 20,
+    lineHeight: 28,
+    fontWeight: '600',
+  },
+  boardLeadCompact: {
+    fontSize: 16,
+    lineHeight: 22,
+  },
+  boardNote: {
+    fontSize: 15,
+    lineHeight: 22,
+    fontWeight: '600',
+  },
+  promptBlock: {
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 14,
+    gap: 8,
+  },
+  stamp: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.7,
+    textTransform: 'uppercase',
+  },
+  struckLine: {
+    alignSelf: 'flex-start',
+  },
+  promptLine: {
+    fontSize: 18,
+    lineHeight: 26,
+    fontWeight: '600',
+  },
+  promptLineCompact: {
+    fontSize: 15,
+    lineHeight: 22,
+  },
+  strike: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: '48%',
+    height: 2,
+    transformOrigin: 'left center',
+  },
+  miniSheet: {
+    borderWidth: 1,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  miniSheetHead: {
+    flexDirection: 'row',
+  },
+  miniSheetHeadCell: {
+    flex: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  miniSheetRow: {
+    flexDirection: 'row',
+  },
+  miniSheetCell: {
+    flex: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    fontSize: 17,
+    fontWeight: '600',
+  },
+  hourTrack: {
+    flexDirection: 'row',
+    gap: 6,
+    width: '100%',
+  },
+  hourBlock: {
+    minWidth: 0,
+    gap: 6,
+  },
+  hourFill: {
+    height: 28,
+    borderRadius: 4,
+    transformOrigin: 'left center',
+  },
+  hourLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    lineHeight: 14,
+  },
+  hourLabelCompact: {
+    fontSize: 10,
+  },
+  piePair: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'flex-start',
+    gap: 16,
+  },
+  piePairCompact: {
+    gap: 10,
+  },
+  pieColumn: {
     alignItems: 'center',
     gap: 8,
-    maxWidth: 140,
+    flex: 1,
   },
   pieCaption: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '600',
     textAlign: 'center',
+  },
+  aulaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  aulaTick: {
+    width: 8,
+    height: 8,
+  },
+  aulaLine: {
+    fontSize: 17,
+    lineHeight: 24,
+    fontWeight: '600',
   },
 });

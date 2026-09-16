@@ -15,7 +15,7 @@ export function motifForIdeaScene(plainText: string, sceneIndex: number): IdeaAr
   if (/\b45\b|reloj/.test(normalized)) {
     return 'clock';
   }
-  if (/fotocopia|borrador|jornada/.test(normalized)) {
+  if (/jornada|fotocopia|quedan dos horas|quedan 2 horas/.test(normalized)) {
     return 'sheet';
   }
   if (/prompt|pedir|pedido/.test(normalized)) {

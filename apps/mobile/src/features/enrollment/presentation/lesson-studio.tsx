@@ -405,12 +405,14 @@ function SceneStage({
 
     return (
       <View style={[styles.ideaBeat, isWide ? styles.ideaBeatWide : undefined]}>
-        <IdeaSceneArt
-          key={sceneIndex}
-          plainText={ideaScenePlainText(scene)}
-          sceneIndex={sceneIndex}
-          compact={!isWide}
-        />
+        <View style={isWide ? styles.ideaArtColumn : undefined}>
+          <IdeaSceneArt
+            key={sceneIndex}
+            plainText={ideaScenePlainText(scene)}
+            sceneIndex={sceneIndex}
+            compact={!isWide}
+          />
+        </View>
         <View style={styles.ideaCopy}>{copy}</View>
       </View>
     );
@@ -593,12 +595,17 @@ const styles = StyleSheet.create({
   ideaBeatWide: {
     flexDirection: 'row',
     alignItems: 'stretch',
-    gap: 36,
+    gap: 28,
     paddingRight: 168,
     minHeight: 520,
   },
+  ideaArtColumn: {
+    flex: 1.15,
+    minWidth: 0,
+    minHeight: 520,
+  },
   ideaCopy: {
-    flex: 1,
+    flex: 0.95,
     minWidth: 0,
     justifyContent: 'center',
   },

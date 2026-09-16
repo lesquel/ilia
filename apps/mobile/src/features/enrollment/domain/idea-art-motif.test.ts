@@ -33,4 +33,13 @@ describe('motifForIdeaScene', () => {
       ),
     ).toBe('pedido');
   });
+
+  it('keeps a short-prompt beat on the rewrite, even if it mentions a draft', () => {
+    expect(
+      motifForIdeaScene(
+        'Hoy vas a ver por qué un pedido corto sale genérico y cómo se mejora el primer borrador.',
+        2,
+      ),
+    ).toBe('pedido');
+  });
 });
