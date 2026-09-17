@@ -7,7 +7,7 @@ WEB_DIR := apps/mobile
 API_PORT ?= 8000
 WEB_PORT ?= 8081
 
-.PHONY: help install install-api install-web env db migrate api web dev run test lint typecheck check
+.PHONY: help install install-api install-web env db migrate api web dev run up all test lint typecheck check
 
 help: ## Show available commands
 	@awk 'BEGIN {FS = ":.*## "; printf "Usage: make <target>\n\nTargets:\n"} /^[a-zA-Z0-9_-]+:.*## / {printf "  %-12s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -29,7 +29,7 @@ env: ## Create the local API environment file when it does not exist
 	fi
 
 db: ## Start the local PostgreSQL database
-	docker compose -f $(API_DIR)/docker-compose.yml up -d db
+	docker compose -f $(API_DIR)/docker-compose.yml up -d --wait db
 
 migrate: ## Apply database migrations
 	cd $(API_DIR) && uv run alembic upgrade head
@@ -42,10 +42,15 @@ web: ## Run the Expo web client
 
 dev: ## Run the backend and web client together
 	@trap 'trap - INT TERM EXIT; kill 0' INT TERM EXIT; \
-	$(MAKE) api & \
-	$(MAKE) web
+	(cd $(API_DIR) && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port $(API_PORT)) & \
+	(cd $(WEB_DIR) && npm run web -- --port $(WEB_PORT))
 
 run: dev ## Alias for dev
+
+up: install env db migrate ## Install dependencies, prepare the database, and run the full stack
+	$(MAKE) dev
+
+all: up ## Alias for up
 
 test: ## Run backend and frontend tests
 	cd $(API_DIR) && uv run pytest
