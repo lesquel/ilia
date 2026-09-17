@@ -14,21 +14,21 @@ const FEATURED_COURSE_COUNT = 3;
 
 const INSTITUTE_CLAIMS = [
   {
-    title: 'Formación, no un tutorial',
-    body: 'Tres cursos en una ruta. Se pueden dejar y retomar.',
+    title: 'El material te queda listo',
+    body: 'Escribes el pedido como lo pegarías tú. Sales con una hoja para el lunes.',
   },
   {
-    title: 'Escribes, no marcas casillas',
-    body: 'El trabajo es el pedido. Sales con material para el lunes.',
+    title: 'Tus alumnos reciben una mejor clase',
+    body: 'Les dejas un párrafo y cinco preguntas del texto. No un cuento que no es de su año.',
   },
   {
-    title: 'Certificado que la escuela comprueba',
-    body: 'Un código. Nadie tiene que crear otra cuenta.',
+    title: 'La escuela puede comprobarlo',
+    body: 'Un código en el certificado. Nadie tiene que crear otra cuenta.',
   },
 ] as const;
 
 /**
- * Public front door of the institute: time recovered, then the route.
+ * Public front door: better prep, a better class, then the route.
  */
 export function LandingScreen() {
   const theme = useTheme();
@@ -92,11 +92,12 @@ export function LandingScreen() {
                 },
               ]}
             >
-              Para que el lunes tengas la hoja, no otra tarde armándola.
+              Prepara tu material con más oficio. Tus alumnos reciben una
+              mejor clase.
             </Text>
             <Text style={[styles.lede, { color: theme.colors.neutral[600] }]}>
-              Aprendes a usar las herramientas: pedir una hoja, anclarla a
-              tu capítulo y evaluar sin pasarte la tarde armando material.
+              Aprendes a preparar la próxima clase con más tiempo y más
+              cuidado. Ellos lo notan, y te lo van a agradecer.
             </Text>
             <View style={styles.heroActions}>
               <ButtonLink href="/catalog" label="Ver los cursos" kind="primary" />

@@ -4,11 +4,10 @@ import { useTheme } from '@/core/theme';
 import { MascotGuide } from '@/core/ui/mascot-guide';
 
 const LIA_LANDING_LINE =
-  'Tú escribes el pedido. La IA te ayuda a dejar la hoja lista.';
+  'Tú dejas el material listo. El lunes ellos tienen una mejor clase.';
 
 /**
- * Public hero: Lía writing, and the afternoon of prep collapsing into
- * a sheet the teacher can photocopy.
+ * Public hero: the oficio, not a clock. A vague pedido versus the Monday sheet.
  */
 export function LandingHeroStage({ isWide }: { isWide: boolean }) {
   const theme = useTheme();
@@ -20,11 +19,11 @@ export function LandingHeroStage({ isWide }: { isWide: boolean }) {
         isWide ? styles.fieldWide : undefined,
         { backgroundColor: theme.colors.accentRamp[100] },
       ]}
-      accessibilityLabel="Lía escribe. Tres horas de armado se vuelven 45 minutos y una hoja lista para fotocopiar."
+      accessibilityLabel="A la izquierda, el pedido que casi mandas. A la derecha, la hoja que sí les puedes dejar el lunes. Lía escribe."
     >
       {isWide ? (
         <View style={styles.deskWide}>
-          <AfternoonBefore />
+          <VaguePedidoCard />
           <View style={styles.liaSlot}>
             <MascotGuide
               line={LIA_LANDING_LINE}
@@ -33,7 +32,7 @@ export function LandingHeroStage({ isWide }: { isWide: boolean }) {
               size={248}
             />
           </View>
-          <MondayAfter />
+          <MondaySheetCard />
         </View>
       ) : (
         <View style={styles.deskNarrow}>
@@ -45,9 +44,9 @@ export function LandingHeroStage({ isWide }: { isWide: boolean }) {
               size={168}
             />
           </View>
-          <View style={styles.timePair}>
-            <AfternoonBefore />
-            <MondayAfter />
+          <View style={styles.contrastPair}>
+            <VaguePedidoCard />
+            <MondaySheetCard />
           </View>
         </View>
       )}
@@ -55,76 +54,51 @@ export function LandingHeroStage({ isWide }: { isWide: boolean }) {
   );
 }
 
-function AfternoonBefore() {
+function VaguePedidoCard() {
   const theme = useTheme();
 
   return (
     <View
       style={[
-        styles.timeCard,
+        styles.contrastCard,
         {
           backgroundColor: theme.colors.surface,
           borderColor: theme.colors.divider,
         },
       ]}
     >
-      <Text style={[styles.timeStamp, { color: theme.colors.neutral[500] }]}>3 h</Text>
-      <Text style={[styles.timeTitle, { color: theme.colors.text }]}>Armar a mano</Text>
-      <View style={styles.paperStack} accessibilityElementsHidden>
-        <View
-          style={[
-            styles.paperSheet,
-            styles.paperBack,
-            { backgroundColor: theme.colors.neutral[300], borderColor: theme.colors.neutral[400] },
-          ]}
-        />
-        <View
-          style={[
-            styles.paperSheet,
-            styles.paperMid,
-            { backgroundColor: theme.colors.neutral[200], borderColor: theme.colors.neutral[400] },
-          ]}
-        />
-        <View
-          style={[
-            styles.paperSheet,
-            styles.paperFront,
-            {
-              backgroundColor: theme.colors.surface,
-              borderColor: theme.colors.divider,
-            },
-          ]}
-        >
-          <View style={[styles.paperLine, { backgroundColor: theme.colors.neutral[300] }]} />
-          <View style={[styles.paperLine, { backgroundColor: theme.colors.neutral[300], width: '70%' }]} />
-          <View style={[styles.paperLine, { backgroundColor: theme.colors.neutral[300], width: '55%' }]} />
-        </View>
-      </View>
-      <Text style={[styles.timeHint, { color: theme.colors.neutral[600] }]}>
-        Buscar, recortar, rehacer.
+      <Text style={[styles.contrastKicker, { color: theme.colors.neutral[600] }]}>
+        Veamos qué pasa si pides algo como esto.
+      </Text>
+      <Text style={[styles.pedidoQuote, { color: theme.colors.text }]}>
+        «Hazme una lectura de séptimo, bien creativa, con varias preguntas.»
+      </Text>
+      <Text style={[styles.contrastHint, { color: theme.colors.neutral[600] }]}>
+        Así casi siempre te llega un cuento o una receta. El lunes no te sirve.
       </Text>
     </View>
   );
 }
 
-function MondayAfter() {
+function MondaySheetCard() {
   const theme = useTheme();
 
   return (
     <View
       style={[
-        styles.timeCard,
+        styles.contrastCard,
         {
           backgroundColor: theme.colors.surface,
           borderColor: theme.colors.accent,
         },
       ]}
     >
-      <Text style={[styles.timeStamp, { color: theme.colors.accent }]}>45 min</Text>
-      <Text style={[styles.timeTitle, { color: theme.colors.text }]}>Lista para copiar</Text>
+      <Text style={[styles.contrastKicker, { color: theme.colors.accent }]}>
+        El mismo tema, escrito como lo pegarías tú.
+      </Text>
       <View
         style={[
-          styles.cleanSheet,
+          styles.mondaySheet,
           {
             backgroundColor: theme.colors.bg,
             borderColor: theme.colors.accentRamp[200],
@@ -134,12 +108,35 @@ function MondayAfter() {
       >
         <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
         <View style={[styles.paperLine, { backgroundColor: theme.colors.accentRamp[200] }]} />
-        <View style={[styles.paperLine, { backgroundColor: theme.colors.accentRamp[200], width: '80%' }]} />
-        <View style={[styles.paperLine, { backgroundColor: theme.colors.accentRamp[200], width: '62%' }]} />
+        <View
+          style={[styles.paperLine, { backgroundColor: theme.colors.accentRamp[200], width: '88%' }]}
+        />
+        <View
+          style={[styles.paperLine, { backgroundColor: theme.colors.accentRamp[200], width: '70%' }]}
+        />
+        <View style={styles.questionList}>
+          <QuestionRow />
+          <QuestionRow />
+          <QuestionRow />
+          <QuestionRow />
+          <QuestionRow />
+        </View>
       </View>
-      <Text style={[styles.timeHint, { color: theme.colors.neutral[600] }]}>
-        Un pedido. Una hoja. Al aula.
+      <Text style={[styles.contrastHint, { color: theme.colors.neutral[600] }]}>
+        Un párrafo con una idea y cinco preguntas que se contestan con el
+        texto. Eso es lo que les dejas el lunes.
       </Text>
+    </View>
+  );
+}
+
+function QuestionRow() {
+  const theme = useTheme();
+
+  return (
+    <View style={styles.questionRow}>
+      <View style={[styles.questionMark, { backgroundColor: theme.colors.accent }]} />
+      <View style={[styles.paperLine, { backgroundColor: theme.colors.neutral[300], flex: 1 }]} />
     </View>
   );
 }
@@ -170,77 +167,61 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 1,
   },
-  timePair: {
+  contrastPair: {
     flexDirection: 'row',
     gap: 10,
     width: '100%',
   },
-  timeCard: {
+  contrastCard: {
     flex: 1,
     borderWidth: 1,
     borderRadius: 14,
     padding: 14,
-    gap: 8,
-    maxWidth: 200,
+    gap: 10,
+    maxWidth: 260,
   },
-  timeStamp: {
-    fontSize: 22,
-    fontWeight: '700',
-    letterSpacing: -0.6,
+  contrastKicker: {
+    fontSize: 12,
+    fontWeight: '600',
+    lineHeight: 16,
   },
-  timeTitle: {
-    fontSize: 15,
-    fontWeight: '700',
+  pedidoQuote: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '600',
   },
-  timeHint: {
+  contrastHint: {
     fontSize: 13,
     lineHeight: 18,
   },
-  paperStack: {
-    height: 84,
-    marginVertical: 4,
-  },
-  paperSheet: {
-    position: 'absolute',
-    left: 10,
-    right: 10,
-    height: 58,
+  mondaySheet: {
     borderWidth: 1,
-    borderRadius: 6,
-    padding: 8,
-    gap: 5,
-  },
-  paperBack: {
-    top: 0,
-    left: 2,
-    right: 18,
-    transform: [{ rotate: '-11deg' }],
-  },
-  paperMid: {
-    top: 10,
-    left: 16,
-    right: 4,
-    transform: [{ rotate: '8deg' }],
-  },
-  paperFront: {
-    top: 22,
+    borderRadius: 8,
+    padding: 10,
+    gap: 6,
   },
   paperLine: {
     height: 4,
     borderRadius: 2,
     width: '90%',
   },
-  cleanSheet: {
-    height: 72,
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 10,
-    gap: 6,
-    marginVertical: 4,
-  },
   signalSquare: {
     width: 10,
     height: 10,
     marginBottom: 2,
+  },
+  questionList: {
+    marginTop: 4,
+    gap: 5,
+  },
+  questionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  questionMark: {
+    width: 6,
+    height: 6,
+    borderRadius: 1,
   },
 });
