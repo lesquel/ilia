@@ -1,31 +1,27 @@
 import { Image, type ImageSource } from 'expo-image';
 import { Pressable, StyleSheet } from 'react-native';
 
+import { facingStillForMood, type MascotMood } from './mascot-facing-still';
+
 export const MASCOT_NAME = 'Lía';
+export type { MascotMood } from './mascot-facing-still';
+export { facingStillForMood } from './mascot-facing-still';
 
-export type MascotMood =
-  | 'explain'
-  | 'write'
-  | 'think'
-  | 'show'
-  | 'talk'
-  | 'done'
-  | 'listen';
-
-const IDLE_POSE: ImageSource = require('../../../assets/mascot/lia-done.png');
-const WRITE_POSE: ImageSource = require('../../../assets/mascot/lia-write.png');
+const FACING_STILL: Record<ReturnType<typeof facingStillForMood>, ImageSource> = {
+  done: require('../../../assets/mascot/lia-done.png'),
+  think: require('../../../assets/mascot/lia-think.png'),
+  write: require('../../../assets/mascot/lia-write.png'),
+  show: require('../../../assets/mascot/lia-show.png'),
+};
 
 const POSE_ASPECT_RATIO = 0.78;
 
-function poseSourceFor(holdMood?: MascotMood, speakingMood?: MascotMood): ImageSource {
-  if (holdMood === 'write' || holdMood === 'think' || speakingMood === 'write') {
-    return WRITE_POSE;
-  }
-  return IDLE_POSE;
+export function stillForMascotMood(mood: MascotMood): ImageSource {
+  return FACING_STILL[facingStillForMood(mood)];
 }
 
 /**
- * Two stills only. She does not raise a wing: that steals the lesson.
+ * One still. The next still only when the mood changes. No turn, no cycle.
  */
 export function MascotGuide({
   line,
@@ -41,6 +37,8 @@ export function MascotGuide({
   size?: number;
   onFinishedSpeaking?: (finishedKey: string) => void;
 }) {
+  const visibleMood = holdMood ?? speakingMood;
+
   return (
     <Pressable
       accessibilityRole="image"
@@ -48,7 +46,7 @@ export function MascotGuide({
       style={styles.sticker}
     >
       <Image
-        source={poseSourceFor(holdMood, speakingMood)}
+        source={stillForMascotMood(visibleMood)}
         style={{ width: size * POSE_ASPECT_RATIO, height: size }}
         contentFit="contain"
         accessibilityIgnoresInvertColors

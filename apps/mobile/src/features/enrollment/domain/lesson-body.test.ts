@@ -87,6 +87,17 @@ describe('parseLessonBody', () => {
     expect(blocks[0].strong.kind).toBe('prompt');
   });
 
+  it('pairs a spoken pedido with the sheet that pedido should return', () => {
+    const blocks = parseLessonBody(
+      ':::ejemplo Si pides algo como esto\nHazme una lectura de séptimo, bien creativa.\n:::\n\n' +
+        ':::ejemplo Esperamos: te sale cualquiera\n1. Hierve el agua.\n:::',
+    );
+
+    expect(blocks[0]?.type).toBe('promptResult');
+    if (blocks[0]?.type !== 'promptResult') throw new Error('expected promptResult');
+    expect(blocks[0].prompt.kind).toBe('prompt');
+  });
+
   it('pairs a structured prompt with the sheet that prompt should return', () => {
     const blocks = parseLessonBody(
       ':::ejemplo Prompt que sí\nEres docente de matemática de séptimo. Arma 5 ejercicios.\n:::\n\n' +

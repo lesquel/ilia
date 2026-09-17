@@ -14,7 +14,7 @@
 
 | Pedido flojo | Código | No es |
 |---|---|---|
-| «Hazme una lectura» | — | El modelo elige el grado |
+| «Hazme una lectura de séptimo, bien creativa» | — | El modelo elige el grado |
 | Receta / cuento de animalitos | Elemental (p. ej. LL.2.5.6) | 7.º |
 | Párrafo con una idea + preguntas del texto | **LL.3.3.3** (Media / 7.º) | Ensayo |
 | Ensayo con tesis | LL.5.4.1–2 (BGU) | Séptimo |

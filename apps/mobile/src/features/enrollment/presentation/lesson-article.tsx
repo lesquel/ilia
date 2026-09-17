@@ -214,13 +214,13 @@ export function ExampleCard({
   const isResult = tone === 'result' || looksLikeExpectedResult(example.title);
   const kicker =
     tone === 'weak'
-      ? 'Así no te sirve'
+      ? 'Veamos qué pasa si pides esto'
       : tone === 'strong'
-        ? 'Así sí'
+        ? 'El mismo tema, escrito entero'
         : isResult
-          ? 'Lo que sale'
+          ? 'Con este pedido te sale esto'
           : example.kind === 'prompt'
-            ? 'El pedido'
+            ? 'Lo que le pegas'
             : 'Un ejemplo';
   const kickerColor =
     tone === 'weak' ? theme.colors.neutral[700] : theme.colors.accentRamp[700];
@@ -637,10 +637,10 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   exampleKicker: {
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 0.4,
-    textTransform: 'uppercase',
+    fontSize: 13,
+    fontWeight: '600',
+    letterSpacing: 0,
+    textTransform: 'none',
   },
   exampleTitle: {
     fontFamily: READABLE_FONT,

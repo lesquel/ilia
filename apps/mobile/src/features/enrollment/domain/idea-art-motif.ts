@@ -8,8 +8,13 @@ export type IdeaArtMotif = 'clock' | 'sheet' | 'pedido' | 'aula' | 'lectura';
 export function motifForIdeaScene(plainText: string, _sceneIndex = 0): IdeaArtMotif | null {
   const normalized = plainText.toLocaleLowerCase('es');
 
-  if (/receta/.test(normalized) && /ensayo|séptimo|septimo/.test(normalized)) {
-    return 'lectura';
+  if (
+    /hazme una lectura|pides solo esto|pides algo como|veamos qué pasa|veamos que pasa/.test(
+      normalized,
+    ) ||
+    (/receta/.test(normalized) && /ensayo|séptimo|septimo/.test(normalized))
+  ) {
+    return 'pedido';
   }
 
   if (/\b45\b/.test(normalized) && /minuto/.test(normalized)) {

@@ -143,7 +143,9 @@ export function LandingScreen() {
             <View
               style={[
                 styles.courseGrid,
-                courseColumns > 1 ? { flexDirection: 'row', flexWrap: 'wrap' } : undefined,
+                courseColumns > 1
+                  ? { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'stretch' }
+                  : undefined,
               ]}
             >
               {featuredCourses.map((course) => (
@@ -151,7 +153,12 @@ export function LandingScreen() {
                   key={course.id}
                   style={
                     courseColumns > 1
-                      ? { width: `${100 / courseColumns}%`, paddingRight: 16, paddingBottom: 16 }
+                      ? {
+                          width: `${100 / courseColumns}%`,
+                          paddingRight: 16,
+                          paddingBottom: 16,
+                          alignSelf: 'stretch',
+                        }
                       : { paddingBottom: 16 }
                   }
                 >

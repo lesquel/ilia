@@ -1,8 +1,8 @@
-import { Image } from 'expo-image';
 import { Link } from 'expo-router';
 import { ArrowRight, BookOpen, Clock } from 'lucide-react-native';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { INSTITUTE_SHORT_NAME } from '@/core/brand';
 import { useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
 import {
@@ -11,7 +11,7 @@ import {
   type CourseSummary,
   type Level,
 } from '@/features/catalog/domain/entities';
-import { coverForCourseSlug } from '@/features/catalog/presentation/course-covers';
+import { CourseCoverArt } from '@/features/catalog/presentation/course-cover-art';
 
 const PATH_STEP: Record<Level, string> = {
   beginner: '1',
@@ -36,7 +36,6 @@ function cardLift() {
 export function CourseCard({ course }: { course: CourseSummary }) {
   const theme = useTheme();
   const isStartHere = course.level === 'beginner';
-  const cover = coverForCourseSlug(course.slug);
 
   return (
     // `Link` and not an onPress handler: on web this renders a real anchor, so
@@ -66,33 +65,28 @@ export function CourseCard({ course }: { course: CourseSummary }) {
               },
             ]}
           >
-            <View
-              style={[styles.cover, { backgroundColor: theme.colors.accentRamp[100] }]}
-            >
-              {cover ? (
-                <Image
-                  source={cover}
-                  style={StyleSheet.absoluteFillObject}
-                  contentFit="cover"
-                  accessibilityIgnoresInvertColors
-                />
-              ) : null}
-              <View style={styles.coverCopy}>
-                <Text style={[styles.pathNumber, { color: theme.colors.accent }]}>
-                  {PATH_STEP[course.level]}
-                </Text>
-                <Text style={[styles.levelLabel, { color: theme.colors.accentRamp[700] }]}>
-                  {LEVEL_LABELS[course.level]}
-                </Text>
-              </View>
-            </View>
+            <CourseCoverArt
+              courseSlug={course.slug}
+              overlay={
+                <View style={styles.coverCopy}>
+                  <Text style={[styles.pathNumber, { color: theme.colors.accent }]}>
+                    {PATH_STEP[course.level]}
+                  </Text>
+                  <Text style={[styles.levelLabel, { color: theme.colors.accentRamp[700] }]}>
+                    {LEVEL_LABELS[course.level]}
+                  </Text>
+                </View>
+              }
+            />
 
             <View style={styles.body}>
-              {isStartHere ? (
-                <Text style={[styles.startHint, { color: theme.colors.accent }]}>
-                  Empieza aquí
-                </Text>
-              ) : null}
+              <View style={styles.startHintSlot}>
+                {isStartHere ? (
+                  <Text style={[styles.startHint, { color: theme.colors.accent }]}>
+                    Empieza aquí
+                  </Text>
+                ) : null}
+              </View>
 
               <Text style={[styles.title, { color: theme.colors.text }]} numberOfLines={2}>
                 {course.title}
@@ -121,8 +115,8 @@ export function CourseCard({ course }: { course: CourseSummary }) {
                 </View>
               </View>
 
-              <Text style={[styles.instructor, { color: theme.colors.neutral[600] }]}>
-                {course.instructorName}
+              <Text style={[styles.institute, { color: theme.colors.neutral[600] }]}>
+                Instituto {INSTITUTE_SHORT_NAME}
               </Text>
 
               <View style={styles.footer}>
@@ -142,17 +136,12 @@ export function CourseCard({ course }: { course: CourseSummary }) {
 const styles = StyleSheet.create({
   pressable: {
     flex: 1,
+    height: '100%',
   },
   card: {
     flex: 1,
     borderWidth: 1,
-  },
-  cover: {
-    minHeight: 168,
-    paddingHorizontal: 20.4,
-    paddingVertical: 18,
-    justifyContent: 'flex-start',
-    overflow: 'hidden',
+    height: '100%',
   },
   coverCopy: {
     gap: 2,
@@ -168,21 +157,29 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   body: {
+    flex: 1,
     padding: 20.4,
     gap: 8,
+  },
+  startHintSlot: {
+    minHeight: 16,
+    justifyContent: 'center',
   },
   startHint: {
     fontSize: 12,
     fontWeight: '600',
+    lineHeight: 16,
   },
   title: {
     fontSize: 20,
     fontWeight: '600',
     lineHeight: 26,
+    minHeight: 52,
   },
   summary: {
     fontSize: 14,
     lineHeight: 20,
+    minHeight: 60,
   },
   metaRow: {
     flexDirection: 'row',
@@ -198,14 +195,15 @@ const styles = StyleSheet.create({
   meta: {
     fontSize: 13,
   },
-  instructor: {
+  institute: {
     fontSize: 13,
   },
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginTop: 6,
+    marginTop: 'auto',
+    paddingTop: 6,
   },
   footerLabel: {
     fontSize: 14,

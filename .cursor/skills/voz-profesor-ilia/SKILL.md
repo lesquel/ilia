@@ -26,7 +26,7 @@ Load before writing or rewriting any teacher-facing ILIA copy: lección, lámina
 
 | Surface | Do |
 |---|---|
-| Lámina / idea | Two versions a colleague would put on the mesa: “si pides solo esto” / “si le dices el grado” |
+| Lámina / idea | Two pedidos a colleague would type: the vague one you almost sent, and the one you would paste |
 | Cuerpo de lección | Spoken task first. Ministry code last, optional, never the title |
 | Botón | A verb a teacher says (`Escribir el pedido`, not `Prompt`) |
 | Duda | Read the line aloud. If it sounds like a form or a spec, rewrite |

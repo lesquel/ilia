@@ -138,7 +138,13 @@ function proseOutsidePipeTable(text: string): string {
 function inferExampleKind(title: string): ExampleKind {
   const normalized = title.toLocaleLowerCase('es');
   if (looksLikeExpectedResult(title)) return 'output';
-  if (normalized.includes('prompt')) return 'prompt';
+  if (
+    normalized.includes('prompt') ||
+    normalized.includes('pedido') ||
+    normalized.includes('pides')
+  ) {
+    return 'prompt';
+  }
   if (
     normalized.includes('devuelve') ||
     normalized.includes('salida') ||
@@ -295,7 +301,13 @@ function looksLikeAvoid(heading: string | null): boolean {
 }
 
 function looksLikePromptExample(example: WorkedExample): boolean {
-  return example.kind === 'prompt' || example.title.toLocaleLowerCase('es').includes('prompt');
+  const title = example.title.toLocaleLowerCase('es');
+  return (
+    example.kind === 'prompt' ||
+    title.includes('prompt') ||
+    title.includes('pedido') ||
+    title.includes('pides')
+  );
 }
 
 export function looksLikeExpectedResult(title: string): boolean {

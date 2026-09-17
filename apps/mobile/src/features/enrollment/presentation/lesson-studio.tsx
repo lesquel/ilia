@@ -292,13 +292,16 @@ export function LessonStudio({
 }
 
 function mascotSpeakingMood(scene: LessonScene, labPhase: LabPhase): MascotMood {
+  if (scene.type === 'lab' && labPhase === 'idle') return 'done';
   if (scene.type === 'lab' && labPhase === 'composing') return 'write';
   if (scene.type === 'lab' && labPhase === 'processing') return 'think';
-  return 'talk';
+  if (scene.type === 'lab' && labPhase === 'revealed') return 'show';
+  if (scene.type === 'reveal' || scene.type === 'compare') return 'show';
+  return 'think';
 }
 
 function mascotDoneMood(scene: LessonScene, labPhase: LabPhase): MascotMood {
-  if (scene.type === 'lab' && labPhase === 'idle') return 'listen';
+  if (scene.type === 'lab' && labPhase === 'idle') return 'done';
   if (scene.type === 'lab' && labPhase === 'composing') return 'write';
   if (scene.type === 'lab' && labPhase === 'revealed') return 'show';
   if (scene.type === 'reveal' || scene.type === 'compare') return 'show';
@@ -335,12 +338,12 @@ function FadingStage({
 
 function mascotLineFor(scene: LessonScene, labPhase: LabPhase, sceneIndex: number): string {
   if (scene.type === 'lab') {
-    if (labPhase === 'idle') return 'Ahí va el pedido. Dale a escribir y lo ves entero.';
+    if (labPhase === 'idle') return 'Mira el pedido. Pulsa escribir y lo ves entero.';
     if (labPhase === 'composing') return 'Así queda cuando no te ahorras las piezas.';
     if (labPhase === 'processing') return 'Ahora arma la hoja. Tú no tienes que hacer nada.';
     return 'Léelo antes de fotocopiarlo.';
   }
-  if (scene.type === 'compare') return 'Uno no sirve. El otro sí. Fíjate en la diferencia.';
+  if (scene.type === 'compare') return 'Uno es el que casi mandas. El otro es el que pegarías.';
   if (scene.type === 'reveal') return 'Esto te lo puedes llevar el lunes.';
   if (sceneIndex === 0) return 'Primero la idea. Después escribimos el pedido.';
   return 'Sigue cuando quieras.';

@@ -3,13 +3,13 @@ import { describe, expect, it } from 'vitest';
 import { motifForIdeaScene } from './idea-art-motif';
 
 describe('motifForIdeaScene', () => {
-  it('uses the reading sheet when the beat is a recipe versus a seventh-grade paragraph', () => {
+  it('puts the two pedidos on a beat that names a recipe versus seventh grade', () => {
     expect(
       motifForIdeaScene(
         'Un párrafo con una idea. Eso no es una receta ni un ensayo con tesis.',
         3,
       ),
-    ).toBe('lectura');
+    ).toBe('pedido');
   });
 
   it('uses the clock when the hour is 45 minutes', () => {
@@ -34,8 +34,13 @@ describe('motifForIdeaScene', () => {
     ).toBeNull();
   });
 
-  it('uses the prompt card only when the short ask is on the page', () => {
-    expect(motifForIdeaScene('Si pides solo esto: «Hazme una lectura.»', 0)).toBe('pedido');
+  it('uses the two pedidos when the beat shows a vague reading ask', () => {
+    expect(
+      motifForIdeaScene(
+        'Veamos qué pasa si pides algo como: «Hazme una lectura de séptimo, bien creativa.»',
+        0,
+      ),
+    ).toBe('pedido');
   });
 
   it('leaves the thesis beat without a board', () => {

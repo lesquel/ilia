@@ -1,4 +1,3 @@
-import { Image } from 'expo-image';
 import { Link } from 'expo-router';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -10,7 +9,7 @@ import {
   nextCourseAlongLearningPath,
   type CourseSummary,
 } from '@/features/catalog/domain/entities';
-import { coverForCourseSlug } from '@/features/catalog/presentation/course-covers';
+import { CourseCoverArt } from '@/features/catalog/presentation/course-cover-art';
 import { useCourses } from '@/features/catalog';
 import { useSession } from '@/features/auth';
 import { useMyCourses } from '@/features/enrollment/application/use-enrollment';
@@ -100,7 +99,6 @@ function EnrolledCourseCard({
 }) {
   const theme = useTheme();
   const { course, progress } = enrolled;
-  const cover = coverForCourseSlug(course.slug);
   const followingCourse = progress.isComplete
     ? nextCourseAlongLearningPath(course, catalog)
     : undefined;
@@ -116,16 +114,7 @@ function EnrolledCourseCard({
         },
       ]}
     >
-      <View style={[styles.cover, { backgroundColor: theme.colors.accentRamp[100] }]}>
-        {cover ? (
-          <Image
-            source={cover}
-            style={StyleSheet.absoluteFillObject}
-            contentFit="cover"
-            accessibilityIgnoresInvertColors
-          />
-        ) : null}
-      </View>
+      <CourseCoverArt courseSlug={course.slug} />
 
       <View style={styles.cardBody}>
         <Text style={[styles.level, { color: theme.colors.accentRamp[700] }]}>
@@ -254,10 +243,6 @@ const styles = StyleSheet.create({
   card: {
     borderWidth: 1,
     overflow: 'hidden',
-  },
-  cover: {
-    height: 168,
-    position: 'relative',
   },
   cardBody: {
     padding: 20,

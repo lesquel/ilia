@@ -83,10 +83,9 @@ export function IdeaSceneArt({
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >
-      {motif === 'pedido' ? <PedidoLamina compact={compact} /> : null}
+      {motif === 'pedido' || motif === 'lectura' ? <PedidoLamina compact={compact} /> : null}
       {motif === 'sheet' ? <SheetLamina compact={compact} /> : null}
       {motif === 'clock' ? <HourLamina compact={compact} /> : null}
-      {motif === 'lectura' ? <LecturaLamina compact={compact} /> : null}
       {motif === 'aula' ? <AulaLamina compact={compact} /> : null}
     </View>
   );
@@ -122,101 +121,93 @@ function TeachingBoard({
 
 function PedidoLamina({ compact }: { compact: boolean }) {
   const theme = useTheme();
-  const dimProgress = useOnceProgress(720, 360);
-  const strikeProgress = useOnceProgress(640, 380);
-  const flojoStyle = useAnimatedStyle(() => ({
-    opacity: 1 - dimProgress.value * 0.45,
-  }));
-  const strikeStyle = useAnimatedStyle(() => ({
-    transform: [{ scaleX: strikeProgress.value }],
-  }));
 
   return (
-    <TeachingBoard kicker="Cómo se pide">
-      <Animated.View
+    <TeachingBoard kicker="Dos pedidos">
+      <View
         style={[
           styles.promptBlock,
           { backgroundColor: theme.colors.neutral[100], borderColor: theme.colors.divider },
-          flojoStyle,
         ]}
       >
         <Text style={[styles.leadIn, { color: theme.colors.neutral[600] }]}>
-          Si pides solo esto, te arma cualquiera.
+          Veamos qué pasa si pides algo como esto.
         </Text>
-        <View style={styles.struckLine}>
-          <Text style={[styles.promptLine, compact && styles.promptLineCompact, { color: theme.colors.text }]}>
-            Hazme una lectura.
-          </Text>
-          <Animated.View style={[styles.strike, { backgroundColor: theme.colors.text }, strikeStyle]} />
-        </View>
-      </Animated.View>
-
-      <AppearOnce delayMs={880} shift={16}>
-        <View
-          style={[
-            styles.promptBlock,
-            {
-              backgroundColor: theme.colors.accentRamp[100],
-              borderColor: theme.colors.accentRamp[200],
-            },
-          ]}
+        <Text
+          style={[styles.promptBody, compact && styles.promptBodyCompact, { color: theme.colors.text }]}
         >
-          <Text style={[styles.leadIn, { color: theme.colors.accent }]}>
-            Si le dices el grado y cómo lo quieres de vuelta:
-          </Text>
-          <Text style={[styles.promptLine, compact && styles.promptLineCompact, { color: theme.colors.text }]}>
-            En séptimo, un párrafo con una idea y cinco preguntas que se contestan con el texto. No inventes el autor.
-          </Text>
-        </View>
-      </AppearOnce>
+          Hazme una lectura de séptimo, bien creativa, con varias preguntas.
+        </Text>
+      </View>
+
+      <View
+        style={[
+          styles.promptBlock,
+          {
+            backgroundColor: theme.colors.accentRamp[100],
+            borderColor: theme.colors.accentRamp[200],
+          },
+        ]}
+      >
+        <Text style={[styles.leadIn, { color: theme.colors.accent }]}>
+          El mismo tema, escrito como lo pegarías tú.
+        </Text>
+        <Text
+          style={[styles.promptBody, compact && styles.promptBodyCompact, { color: theme.colors.text }]}
+        >
+          Eres docente de lengua de séptimo. Ya leyeron un cuento y saben qué es el
+          narrador. Escribe un párrafo de ocho líneas con una sola idea, y cinco
+          preguntas que se contestan con el texto, para que distingan la idea del
+          párrafo y no inventen una historia. No inventes el autor.
+        </Text>
+      </View>
     </TeachingBoard>
   );
 }
 
 function SheetLamina({ compact }: { compact: boolean }) {
   const theme = useTheme();
-  const strikeProgress = useOnceProgress(420, 380);
-  const strikeStyle = useAnimatedStyle(() => ({
-    transform: [{ scaleX: strikeProgress.value }],
-  }));
 
   return (
-    <TeachingBoard kicker="El primer tiro">
-      <AppearOnce delayMs={80}>
-        <Text style={[styles.boardLead, compact && styles.boardLeadCompact, { color: theme.colors.text }]}>
-          Sale un borrador. Tú no lo fotocopias así.
+    <TeachingBoard kicker="El primer resultado">
+      <Text style={[styles.boardLead, compact && styles.boardLeadCompact, { color: theme.colors.text }]}>
+        El primer tiro casi nunca se fotocopia tal cual.
+      </Text>
+      <View
+        style={[
+          styles.promptBlock,
+          { backgroundColor: theme.colors.neutral[100], borderColor: theme.colors.divider },
+        ]}
+      >
+        <Text style={[styles.leadIn, { color: theme.colors.neutral[600] }]}>
+          A veces te suelta esto.
         </Text>
-      </AppearOnce>
-      <AppearOnce delayMs={280}>
-        <View
-          style={[
-            styles.promptBlock,
-            { backgroundColor: theme.colors.neutral[100], borderColor: theme.colors.divider },
-          ]}
+        <Text
+          style={[styles.promptBody, compact && styles.promptBodyCompact, { color: theme.colors.neutral[700] }]}
         >
-          <View style={styles.struckLine}>
-            <Text style={[styles.promptLine, compact && styles.promptLineCompact, { color: theme.colors.neutral[700] }]}>
-              Ocho preguntas. Un autor que no pegaste. Dos páginas.
-            </Text>
-            <Animated.View style={[styles.strike, { backgroundColor: theme.colors.text }, strikeStyle]} />
-          </View>
-        </View>
-      </AppearOnce>
-      <AppearOnce delayMs={720}>
-        <View
-          style={[
-            styles.promptBlock,
-            {
-              backgroundColor: theme.colors.accentRamp[100],
-              borderColor: theme.colors.accentRamp[200],
-            },
-          ]}
+          Ocho preguntas, un autor que tú no pegaste y dos páginas que no
+          caben en la hora.
+        </Text>
+      </View>
+      <View
+        style={[
+          styles.promptBlock,
+          {
+            backgroundColor: theme.colors.accentRamp[100],
+            borderColor: theme.colors.accentRamp[200],
+          },
+        ]}
+      >
+        <Text style={[styles.leadIn, { color: theme.colors.accent }]}>
+          Tú te quedas con esto.
+        </Text>
+        <Text
+          style={[styles.promptBody, compact && styles.promptBodyCompact, { color: theme.colors.text }]}
         >
-          <Text style={[styles.promptLine, compact && styles.promptLineCompact, { color: theme.colors.text }]}>
-            El párrafo y las cinco preguntas. Esto sí.
-          </Text>
-        </View>
-      </AppearOnce>
+          El párrafo y las cinco preguntas que se contestan con el texto.
+          Lo demás se tira o se vuelve a pedir.
+        </Text>
+      </View>
     </TeachingBoard>
   );
 }
@@ -225,11 +216,10 @@ function HourLamina({ compact }: { compact: boolean }) {
   const theme = useTheme();
   return (
     <TeachingBoard kicker="La hora de clase">
-      <AppearOnce delayMs={80}>
-        <Text style={[styles.boardLead, compact && styles.boardLeadCompact, { color: theme.colors.text }]}>
-          Si no le dices que dura 45 minutos, te arma una de dos horas.
-        </Text>
-      </AppearOnce>
+      <Text style={[styles.boardLead, compact && styles.boardLeadCompact, { color: theme.colors.text }]}>
+        Veamos qué pasa si no le dices que la hora dura 45 minutos: te arma una
+        secuencia de dos horas.
+      </Text>
       <View style={styles.hourTrack}>
         {HOUR_BLOCKS.map((block, blockIndex) => (
           <HourBlock
@@ -242,11 +232,10 @@ function HourLamina({ compact }: { compact: boolean }) {
           />
         ))}
       </View>
-      <AppearOnce delayMs={1100}>
-        <Text style={[styles.boardNote, { color: theme.colors.neutral[700] }]}>
-          Apertura, práctica, ellos solos y el cierre. Tiene que dar 45.
-        </Text>
-      </AppearOnce>
+      <Text style={[styles.boardNote, { color: theme.colors.neutral[700] }]}>
+        Ocho de apertura, veinte de práctica, doce ellos solos y cinco de cierre.
+        Eso suma 45.
+      </Text>
     </TeachingBoard>
   );
 }
@@ -285,77 +274,19 @@ function HourBlock({
   );
 }
 
-function LecturaLamina({ compact }: { compact: boolean }) {
-  const theme = useTheme();
-
-  return (
-    <TeachingBoard kicker="El grado no es un detalle">
-      <View style={styles.readingPair}>
-        <AppearOnce delayMs={80}>
-          <View style={styles.pieColumn}>
-            <Text style={[styles.leadIn, { color: theme.colors.neutral[600] }]}>
-              Si no le dices el grado, te arma una receta.
-            </Text>
-            <View
-              style={[
-                styles.readingCard,
-                { backgroundColor: theme.colors.neutral[100], borderColor: theme.colors.divider },
-              ]}
-            >
-              <Text style={[styles.readingLine, { color: theme.colors.neutral[700] }]}>1. Hierve el agua.</Text>
-              <Text style={[styles.readingLine, { color: theme.colors.neutral[700] }]}>2. Echa el arroz.</Text>
-              <Text style={[styles.readingLine, { color: theme.colors.neutral[700] }]}>3. Espera veinte minutos.</Text>
-            </View>
-            <Text style={[styles.pieCaption, { color: theme.colors.neutral[700] }]}>
-              Eso es de segundo.
-            </Text>
-          </View>
-        </AppearOnce>
-        <AppearOnce delayMs={480}>
-          <View style={styles.pieColumn}>
-            <Text style={[styles.leadIn, { color: theme.colors.accent }]}>
-              En séptimo: un párrafo y preguntas del texto.
-            </Text>
-            <View
-              style={[
-                styles.readingCard,
-                {
-                  backgroundColor: theme.colors.accentRamp[100],
-                  borderColor: theme.colors.accentRamp[200],
-                },
-              ]}
-            >
-              <Text style={[styles.readingLine, compact && styles.promptLineCompact, { color: theme.colors.text }]}>
-                Juana llega a Tarqui y se lleva dos libras.
-              </Text>
-              <Text style={[styles.readingLine, { color: theme.colors.neutral[700] }]}>1. ¿Dónde está?</Text>
-              <Text style={[styles.readingLine, { color: theme.colors.neutral[700] }]}>2. ¿Qué se lleva?</Text>
-            </View>
-            <Text style={[styles.pieCaption, { color: theme.colors.text }]}>
-              Eso ya es de séptimo.
-            </Text>
-          </View>
-        </AppearOnce>
-      </View>
-    </TeachingBoard>
-  );
-}
-
 function AulaLamina({ compact }: { compact: boolean }) {
   const theme = useTheme();
   const missingPieces = [
-    'quién faltó hoy',
-    'qué ya vieron la semana pasada',
-    'si en tu libro dicen narrador o el que cuenta',
+    'Quién faltó hoy y quién ya había leído el cuento.',
+    'Qué vieron la semana pasada y qué todavía confunden.',
+    'Si en tu libro dicen narrador o el que cuenta.',
   ];
 
   return (
     <TeachingBoard kicker="Lo que él no vio">
-      <AppearOnce delayMs={80}>
-        <Text style={[styles.boardLead, compact && styles.boardLeadCompact, { color: theme.colors.text }]}>
-          Él no estuvo en tu aula. Si no se lo cuentas, se lo inventa.
-        </Text>
-      </AppearOnce>
+      <Text style={[styles.boardLead, compact && styles.boardLeadCompact, { color: theme.colors.text }]}>
+        Él no estuvo en tu aula. Si no se lo cuentas, se lo inventa.
+      </Text>
       {missingPieces.map((piece, pieceIndex) => (
         <AppearOnce key={piece} delayMs={360 + pieceIndex * 220}>
           <View style={styles.aulaRow}>
@@ -373,7 +304,7 @@ function AulaLamina({ compact }: { compact: boolean }) {
 const styles = StyleSheet.create({
   poster: {
     flex: 1,
-    minHeight: 340,
+    minHeight: 420,
     justifyContent: 'center',
     borderRadius: 20,
     padding: 20,
@@ -440,6 +371,15 @@ const styles = StyleSheet.create({
   promptLineCompact: {
     fontSize: 15,
     lineHeight: 22,
+  },
+  promptBody: {
+    fontSize: 15,
+    lineHeight: 22,
+    fontWeight: '500',
+  },
+  promptBodyCompact: {
+    fontSize: 14,
+    lineHeight: 20,
   },
   strike: {
     position: 'absolute',

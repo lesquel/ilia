@@ -10,7 +10,7 @@ No es un trailer de ILIA. Es una destreza en movimiento. Render local → MP4 �
 
 ## Primera lámina (prompting)
 
-Tres cuadros, el mismo pedido vago («Hazme una lectura»), tres salidas:
+Tres cuadros, el mismo pedido vago («Hazme una lectura de séptimo, bien creativa, con varias preguntas»), tres salidas:
 
 1. Una receta. Eso es de segundo o tercero, no de séptimo.
 2. Un párrafo con una idea y cinco preguntas que se contestan con el texto. Eso es séptimo.

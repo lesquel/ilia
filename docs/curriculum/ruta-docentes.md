@@ -63,7 +63,7 @@ Cámara al frente, un ejemplo real (séptimo, una hoja de lengua **o** tu materi
 Hoy no vamos a hablar de inteligencia artificial en abstracto. Vamos a escribir el pedido que le haces a un modelo para que te arme material que sí puedes llevar a séptimo.
 
 **El pedido flojo (40 s).**  
-Muéstralo en pantalla o dilo: «Hazme una lectura.»  
+Muéstralo en pantalla o dilo: «Hazme una lectura de séptimo, bien creativa, con varias preguntas.»  
 Eso obliga al modelo a decidir el curso, el nivel, si es una receta, un cuento o un ensayo. Esas decisiones las va a tomar mal, o las va a tomar genéricas.
 
 **Las piezas (3 min).**  
@@ -78,7 +78,7 @@ Un pedido que sirve tiene cinco piezas. Escríbelas:
 **El pedido que sí (90 s).**  
 Lee el pedido completo, despacio:
 
-> Eres docente de lengua de séptimo. Ya leyeron un cuento y saben qué es el narrador. Escribe un párrafo de ocho líneas con una sola idea, y cinco preguntas que se contestan con el texto. No inventes el autor. Devuélvelo: el párrafo y, debajo, las preguntas con la respuesta.
+> Eres docente de lengua de séptimo. Ya leyeron un cuento y saben qué es el narrador. Escribe un párrafo de ocho líneas con una sola idea, y cinco preguntas que se contestan con el texto, para que distingan la idea del párrafo y no inventen una historia. No inventes el autor. Devuélvelo: el párrafo y, debajo, las preguntas con la respuesta.
 
 **Cierre (30 s).**  
 Cada palabra que agregaste le quita al modelo una decisión. En la siguiente lección usamos esto con **tu** temario, no con el mío.

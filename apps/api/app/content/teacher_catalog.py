@@ -21,16 +21,13 @@ PROMPTING_LESSONS_M1: list[Lesson] = [
         "Esta semana te ahorras una tarde",
         "text",
         _minutes(4),
-        "Esto no va de inteligencia artificial. Va de pedirle a un modelo "
-        "una hoja que sí puedas usar en la próxima hora. Él escribe el "
-        "borrador. Tú decides qué se fotocopia.\n\n"
-        "Piensa en el tema de mañana. Si no tienes uno, usa séptimo: "
-        "un párrafo con una idea y cinco preguntas que se contestan con "
-        "el texto. Eso no es una receta ni un ensayo con tesis: una "
-        "receta es de segundo; el ensayo, de tercero de bachillerato.\n\n"
-        "El truco es el mismo en matemática, sociales o ciencias. Dile el "
-        "grado y qué tienen que saber hacer. «Lectura» sola no basta: "
-        "el modelo elige el grado que le da la gana.",
+        "Va de pedirle a un modelo una hoja que sí puedas usar mañana. "
+        "Veamos qué pasa si pides algo como: «Hazme una lectura de "
+        "séptimo, bien creativa, con varias preguntas.»\n\n"
+        "El mismo tema, escrito como lo pegarías tú: eres docente de "
+        "lengua de séptimo, ya vieron el narrador, un párrafo con una "
+        "idea y cinco preguntas que se contestan con el texto, para que "
+        "distingan la idea y no inventen una historia.",
     ),
     (
         "Qué puede y qué no puede un modelo",
@@ -84,14 +81,15 @@ PROMPTING_LESSONS_M1: list[Lesson] = [
         "(algo como LL.3.3.3), pégalo al final. Es solo una etiqueta "
         "para que el modelo no se invente el grado. Si no lo tienes, "
         "no pasa nada: di la tarea en cristiano.\n\n"
-        "Si pides solo esto: «Hazme una lectura.»\n\n"
-        "Si le dices el aula: «Eres docente de lengua de séptimo en un "
-        "colegio público de la costa. Ya leyeron un cuento y saben qué "
-        "es el narrador. Escribe un párrafo de ocho líneas con una sola "
-        "idea, y cinco preguntas que se contestan con el texto. No "
-        "inventes el autor. No pidas una receta ni un ensayo. "
-        "Devuélvelo: el párrafo y, debajo, las preguntas con la "
-        "respuesta.»\n\n"
+        "Veamos qué pasa si pides algo como: «Hazme una lectura de "
+        "séptimo, bien creativa, con varias preguntas.»\n\n"
+        "Ahora el mismo pedido, dicho entero: «Eres docente de lengua de "
+        "séptimo en un colegio público de la costa. Ya leyeron un cuento "
+        "y saben qué es el narrador. Escribe un párrafo de ocho líneas "
+        "con una sola idea, y cinco preguntas que se contestan con el "
+        "texto, para que distingan la idea del párrafo y no inventen una "
+        "historia. No inventes el autor. Devuélvelo: el párrafo y, "
+        "debajo, las preguntas con la respuesta.»\n\n"
         "El segundo no es más largo por adorno. Cada dato le quita al "
         "modelo una decisión. Lo mismo vale en matemática («un cuarto "
         "más un medio, no contar trozos») o en sociales («de 1809 "
@@ -421,12 +419,25 @@ EVAL_LESSONS_M2: list[Lesson] = [
 LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
     "Esta semana te ahorras una tarde": [
         (
+            "Si pides algo como esto",
+            "Hazme una lectura de séptimo, bien creativa, con varias "
+            "preguntas.",
+        ),
+        (
+            "Esperamos: te sale cualquiera",
+            "1. Hierve el agua.\n"
+            "2. Echa el arroz.\n"
+            "3. Espera veinte minutos.\n\n"
+            "Eso es una receta. El modelo eligió el grado. Tú no.",
+        ),
+        (
             "El pedido de esta semana",
             "Eres docente de lengua de séptimo. Ya leyeron un cuento y "
             "saben qué es el narrador. Escribe un párrafo de ocho líneas "
             "con una sola idea, y cinco preguntas que se contestan con el "
-            "texto. No inventes el autor. No pidas una receta. Devuélvelo: "
-            "el párrafo y, debajo, las preguntas con la respuesta.",
+            "texto, para que distingan la idea del párrafo y no inventen "
+            "una historia. No inventes el autor. Devuélvelo: el párrafo y, "
+            "debajo, las preguntas con la respuesta.",
         ),
         (
             "Esperamos: la hoja que te llevas el lunes",
@@ -459,16 +470,17 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
     ],
     "Anatomía de un prompt que sirve": [
         (
-            "Si pides solo esto",
-            "Hazme una lectura.",
+            "Si pides algo como esto",
+            "Hazme una lectura de séptimo, bien creativa, con varias "
+            "preguntas.",
         ),
         (
-            "Esperamos: una hoja de nadie",
+            "Esperamos: te puede salir una receta",
             "Te puede salir una receta, un cuento de animalitos o un "
             "ensayo con tesis. El modelo eligió el grado. Tú no.",
         ),
         (
-            "Si le dices el aula",
+            "El pedido escrito entero",
             "Eres docente de lengua de séptimo en un colegio público "
             "de la costa. Ya leyeron un cuento y saben qué es el narrador. "
             "Hay quienes todavía lo confunden con el protagonista.\n"
