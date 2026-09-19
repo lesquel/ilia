@@ -29,7 +29,10 @@ export function motifForIdeaScene(plainText: string, _sceneIndex = 0): IdeaArtMo
     return 'pedido';
   }
 
-  if (/no estuvo en tu aula/.test(normalized) && !/quién faltó|quien falto/.test(normalized)) {
+  if (
+    /no estuvo en (tu |su |el )?aula/.test(normalized) &&
+    !/quién faltó|quien falto/.test(normalized)
+  ) {
     return 'aula';
   }
 

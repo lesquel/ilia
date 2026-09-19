@@ -13,4 +13,7 @@ Máquina → sala de profesores.
 | prompt ▸ | El pedido |
 | Escribir el prompt | Escribir el pedido |
 | Te formamos para que la IA te agilice el proceso. | Para que el lunes tengas la hoja, no otra tarde armándola. |
+| OpenAI, Google y el ministerio inglés dicen lo mismo. | Si falta una pieza, el modelo no pregunta: rellena. |
+| 1. Quién es. 2. Para quién. (sin explicar) | Primero qué ocurre. Después las cinco piezas, cada una con por qué. |
+| Norma no arma una lista de cinco casillas. | Un pedido que sirve tiene cinco piezas. Cada una le quita al modelo una decisión. |
 | Aprendes a pedirle la hoja diciendo el grado, la tarea y cómo la quieres de vuelta. | Aprendes a preparar la próxima clase con más tiempo y más cuidado. Ellos lo notan, y te lo van a agradecer. |

@@ -43,6 +43,10 @@ describe('motifForIdeaScene', () => {
     ).toBe('pedido');
   });
 
+  it('uses the aula board when the model was not in Norma classroom', () => {
+    expect(motifForIdeaScene('El modelo no estuvo en su aula.', 0)).toBe('aula');
+  });
+
   it('leaves the thesis beat without a board', () => {
     expect(
       motifForIdeaScene(

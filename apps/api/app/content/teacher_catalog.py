@@ -18,24 +18,38 @@ def _minutes(n: int) -> int:
 
 PROMPTING_LESSONS_M1: list[Lesson] = [
     (
-        "Esta semana te ahorras una tarde",
-        "text",
-        _minutes(4),
-        "Va de pedirle a un modelo una hoja que sí puedas usar mañana. "
-        "Veamos qué pasa si pides algo como: «Hazme una lectura de "
-        "séptimo, bien creativa, con varias preguntas.»\n\n"
-        "El mismo tema, escrito como lo pegarías tú: eres docente de "
-        "lengua de séptimo, ya vieron el narrador, un párrafo con una "
-        "idea y cinco preguntas que se contestan con el texto, para que "
-        "distingan la idea y no inventen una historia.",
-    ),
-    (
-        "Qué puede y qué no puede un modelo",
+        "Un pedido de una línea",
         "text",
         _minutes(5),
-        "El modelo no estuvo en tu aula. Predice texto que suena bien, "
-        "nada más. No sabe quién faltó, ni qué ya vieron, ni si en tu "
-        "libro dicen «narrador» o «el que cuenta».\n\n"
+        "Norma da lengua en séptimo en un colegio fiscal de la costa. "
+        "Necesita una hoja para la clase de mañana y le pide a un modelo "
+        "que se la escriba. Escribe una sola línea: «Hazme una lectura de "
+        "séptimo, bien creativa, con varias preguntas.»\n\n"
+        "Con esa línea el modelo tiene que decidir dos cosas que ella no "
+        "dijo: qué es «una lectura» y qué es «séptimo». Esas decisiones no "
+        "las toma con el curso de Norma, porque no lo conoce. Las toma con "
+        "un promedio de internet, y ahí «lectura de séptimo» puede ser una "
+        "receta, un cuento de animalitos o un ensayo con tesis.\n\n"
+        "Su curso leyó un cuento la semana pasada y varios todavía dicen "
+        "«el que cuenta» en lugar de narrador. Nada de eso está en el "
+        "pedido, así que el modelo no lo puede usar. Lo que devuelve no se "
+        "puede leer en voz alta ni contestar con el texto: no le sirve "
+        "para la hora de mañana.\n\n"
+        "Norma borra esa línea y escribe el pedido completo. Abajo están "
+        "los dos, con lo que devuelve cada uno. En la lección siguiente "
+        "vemos por qué el modelo elige mal cuando le falta un dato, y "
+        "después armamos las piezas de un pedido que sí sirve.",
+    ),
+    (
+        "Qué ocurre",
+        "text",
+        _minutes(5),
+        "El modelo no estuvo en tu aula. Predice texto que suena bien, y "
+        "nada más. No sabe quién faltó, ni qué vieron la semana pasada, ni "
+        "si en tu libro dicen «narrador» o «el que cuenta».\n\n"
+        "Cuando le falta un dato no pregunta: lo rellena. Por eso un "
+        "pedido vago casi nunca devuelve una hoja de tu grado. No es que "
+        "el modelo falle, es que rellenó lo que tú no le dijiste.\n\n"
         "Por eso sirve para:\n"
         "• Borradores de guías, ejemplos y preguntas.\n"
         "• Reformular al nivel de tus estudiantes.\n"
@@ -44,204 +58,217 @@ PROMPTING_LESSONS_M1: list[Lesson] = [
         "• Certificar que un estudiante aprendió.\n"
         "• Inventar datos de un capítulo que no le diste.\n"
         "• Decidir la nota del bimestre.\n\n"
-        "Si el resultado no se parece a tu curso, casi nunca es «la IA no "
-        "sirve». Es que el prompt no tenía tu curso.\n\n"
-        "Tampoco sirve para inventar una fuente ni un porcentaje. Si "
-        "dice «según el Ministerio» y tú no pegaste el decreto, esa "
-        "cita es teatro. Si te suelta que el 80 % de séptimo ya domina "
-        "el tema, es mentira: en la prueba nacional la mayoría de Media "
-        "en lengua no llega al mínimo. No inventes un número.\n\n"
-        "Regla práctica: nada de lo que genere el modelo se imprime sin "
-        "que tú lo leas. Un error de un modelo en una guía de séptimo se "
-        "vuelve error de veinte cuadernos.",
+        "Tampoco puede inventar una fuente. Si dice «según el Ministerio» "
+        "y tú no pegaste el decreto, esa cita es teatro. Si te asegura que "
+        "el ochenta por ciento de séptimo ya domina el tema, es falso: en "
+        "la prueba nacional la mayoría de Media en lengua no llega al "
+        "mínimo.\n\n"
+        "En el curso de Norma faltó un estudiante la semana pasada, y el "
+        "modelo no tiene forma de saberlo. Si ella no lo escribe en el "
+        "pedido, no existe. Y nada de lo que devuelve se manda a copias "
+        "sin leerlo: un error en una guía de séptimo se vuelve error de "
+        "veinte cuadernos.",
     ),
     (
-        "Anatomía de un prompt que sirve",
+        "Las cinco piezas",
         "text",
         _minutes(7),
-        "OpenAI, Google y el ministerio inglés dicen lo mismo, cada uno "
-        "con su nombre: di la tarea, el aula y cómo lo quieres de vuelta. "
-        "Si falta una pieza, el modelo la rellena con un promedio de "
-        "internet.\n\n"
-        "1. Quién es. «Eres docente de lengua de séptimo en un colegio "
-        "público.»\n"
-        "2. Para quién. El muchacho no es la familia ni el suplente. "
-        "«Se lee en voz alta. Hay quienes todavía confunden el "
-        "narrador con el protagonista.»\n"
-        "3. Qué ya vieron. Y qué no debe salir. «Ya leyeron un cuento. "
-        "La hora dura 45 minutos. No pidas una receta. No pidas un "
-        "ensayo con tesis.»\n"
-        "4. Qué tienen que saber hacer. El nombre del tema no basta. "
-        "«Lectura» lo entiende un modelo como una receta o como un "
-        "ensayo de tercero de bachillerato. En séptimo es: un párrafo "
-        "con una idea y cinco preguntas que se contestan con el texto.\n"
-        "5. Cuántos y cómo. «El párrafo y, debajo, las cinco preguntas "
-        "con la respuesta.»\n\n"
-        "Si en tu planificación aparece un código raro del ministerio "
-        "(algo como LL.3.3.3), pégalo al final. Es solo una etiqueta "
-        "para que el modelo no se invente el grado. Si no lo tienes, "
-        "no pasa nada: di la tarea en cristiano.\n\n"
-        "Veamos qué pasa si pides algo como: «Hazme una lectura de "
-        "séptimo, bien creativa, con varias preguntas.»\n\n"
-        "Ahora el mismo pedido, dicho entero: «Eres docente de lengua de "
-        "séptimo en un colegio público de la costa. Ya leyeron un cuento "
-        "y saben qué es el narrador. Escribe un párrafo de ocho líneas "
-        "con una sola idea, y cinco preguntas que se contestan con el "
-        "texto, para que distingan la idea del párrafo y no inventen una "
-        "historia. No inventes el autor. Devuélvelo: el párrafo y, "
-        "debajo, las preguntas con la respuesta.»\n\n"
-        "El segundo no es más largo por adorno. Cada dato le quita al "
-        "modelo una decisión. Lo mismo vale en matemática («un cuarto "
-        "más un medio, no contar trozos») o en sociales («de 1809 "
-        "hasta Alfaro, solo el período que marca el texto»).",
+        "Un pedido que sirve tiene cinco piezas. No es una plantilla que "
+        "haya que llenar: cada pieza es un dato que, si falta, el modelo "
+        "rellena por su cuenta. Se escriben seguidas, como le hablarías a "
+        "un colega que entra a cubrirte la hora.\n\n"
+        "Quién es. «Eres docente de lengua de séptimo en un colegio fiscal "
+        "de la costa.» Sin eso, el modelo responde como un tutor de "
+        "internet que nunca vio un aula.\n\n"
+        "Para quién. La hoja es para el estudiante, no para la familia ni "
+        "para el suplente. «Se lee en voz alta, en clase, y la contestan "
+        "ellos.»\n\n"
+        "Qué ya vieron y qué no debe salir. «Ya leyeron un cuento y hay "
+        "quienes todavía confunden al narrador con el protagonista. No "
+        "inventes el autor. No me lo devuelvas como receta ni como "
+        "ensayo.»\n\n"
+        "Qué tienen que saber hacer. El nombre del tema no alcanza: "
+        "«lectura» lo puede entender como receta o como ensayo de "
+        "bachillerato. En séptimo es un párrafo con una sola idea y cinco "
+        "preguntas que se contestan con el texto.\n\n"
+        "Cuántos y cómo lo quieres de vuelta. «El párrafo primero y, "
+        "debajo, las cinco preguntas con su respuesta.» Si no lo dices, te "
+        "llega todo mezclado y lo tienes que reordenar a mano.\n\n"
+        "Norma escribió las cinco. Abajo está el pedido entero: cada frase "
+        "corresponde a una pieza, y ninguna está de adorno. Lo mismo vale "
+        "en matemática o en sociales: di el período exacto y di lo que no "
+        "quieres.\n\n"
+        "Si en tu planificación aparece un código del ministerio, lo "
+        "puedes pegar al final. Si no lo tienes, no pasa nada: ya dijiste "
+        "la tarea con tus palabras.",
     ),
     (
-        "Un ejemplo y un recuadro",
+        "El recuadro",
         "text",
         _minutes(6),
-        "Una instrucción más no siempre ayuda. Un ejemplo sí. En "
-        "inglés lo llaman few-shot: le muestras cómo se ve un buen "
-        "resultado, no solo se lo describes.\n\n"
-        "Pega un ejercicio que tú ya usarías y di: «El tono y la "
-        "longitud de los nuevos tienen que parecerse a este.» Dos "
-        "ejemplos bastan. Cinco empiezan a copiar un patrón que no "
-        "querías.\n\n"
-        "Cuando pegas un capítulo o un escrito de estudiante, márcalo. "
-        "Si no, el modelo mezcla tu pedido con el texto y no sabe dónde "
-        "termina cada uno. Sirve así:\n\n"
-        "«Usa solo lo que está entre las líneas.\n"
-        "---\n"
-        "(aquí el párrafo o el capítulo)\n"
-        "---\n"
-        "Si algo no está ahí, escribe: no está en el texto.»\n\n"
-        "Eso es lo que en las guías técnicas aparece como delimitador "
-        "o etiqueta. En el aula es más simple: un recuadro. Sin recuadro, "
-        "un nombre o una nota que iban en el texto se vuelven parte de "
-        "la consigna.\n\n"
-        "Regla práctica: no pegas un expediente. Pegas contenido. El "
-        "nombre del estudiante no entra en el recuadro.",
+        "Cuando le pegas un párrafo o un capítulo, el modelo no distingue "
+        "solo dónde termina tu instrucción y dónde empieza el texto. Si "
+        "van seguidos, los mezcla: un nombre o una nota que iban dentro "
+        "del texto terminan leídos como parte de la consigna.\n\n"
+        "La solución es un recuadro. Tu pedido va afuera, el texto va "
+        "adentro entre dos líneas, y cierras con la orden que evita el "
+        "invento: si un dato no está ahí, que escriba que no está.\n\n"
+        "Ese recuadro sirve además para mostrar el tono. Una instrucción "
+        "más no siempre ayuda; un ejemplo sí, porque le muestras cómo se "
+        "ve un buen resultado en vez de describírselo. Con dos ejemplos "
+        "basta: con cinco empieza a copiar un patrón que no pediste.\n\n"
+        "Dentro del recuadro va contenido, nunca un expediente. El nombre "
+        "del estudiante, sus notas y cualquier dato que lo identifique se "
+        "quedan fuera.\n\n"
+        "Norma usa un párrafo suyo del año pasado: Juana en el mercado de "
+        "Tarqui y el hijo que anota lo que compraron. Abajo está el "
+        "recuadro ya armado, con las preguntas que devuelve.",
+    ),
+    (
+        "Adjuntar tus archivos",
+        "text",
+        _minutes(6),
+        "Casi todos los modelos ya aceptan archivos, y eso cambia el "
+        "trabajo: en vez de describirle tu material, se lo entregas. Con "
+        "el capítulo adjunto el modelo deja de adivinar qué dice el texto "
+        "y trabaja con el tuyo, que es el que van a leer tus estudiantes.\n\n"
+        "Ayuda bastante, así que vale la pena saber qué conviene adjuntar. "
+        "El capítulo que van a leer, en PDF o en Word. Tu planificación de "
+        "la unidad, para que respete el orden que ya tienes. La rúbrica con "
+        "la que vas a calificar. Y una hoja tuya del año pasado, cuando "
+        "quieres que el tono y el largo se parezcan a esa.\n\n"
+        "El pedido cambia poco. Le dices que use solo lo adjunto, que "
+        "indique de qué página salió cada respuesta y que escriba «no está "
+        "en el archivo» cuando no lo encuentre. Sin esa última orden "
+        "rellena los huecos con internet, igual que antes.\n\n"
+        "Con uno o dos archivos alcanza. Si le subes veinte, mezcla "
+        "capítulos y ya no puedes rastrear de dónde salió cada frase. Y si "
+        "adjuntas una foto del libro, revisa que se lea bien: de una foto "
+        "borrosa saca palabras que no están escritas.\n\n"
+        "Lo que no se adjunta: listas de notas con nombres, cédulas, fotos "
+        "de estudiantes, diagnósticos ni capturas del chat de familias. El "
+        "material de clase es el contenido, no el expediente. Si necesitas "
+        "un escrito de estudiante como ejemplo, quítale el nombre y el "
+        "curso primero.\n\n"
+        "Norma adjunta el PDF del capítulo y su planificación, y pide las "
+        "preguntas con la página al lado. Abajo está ese pedido y lo que "
+        "devuelve, incluida la línea que admite lo que no encontró.",
     ),
 ]
 
 PROMPTING_LESSONS_M2: list[Lesson] = [
     (
-        "Guía de ejercicios de tu temario",
+        "La hoja completa",
         "text",
         _minutes(8),
-        "Pedir «hazme una guía» produce una guía de catálogo: sin tiempo, "
-        "sin nivel, sin lo que ya vieron tus estudiantes.\n\n"
-        "Parte del temario que ya tienes. El prompt tiene que decir:\n"
+        "Pedir «hazme una guía» devuelve una guía de catálogo: sin tiempo, "
+        "sin nivel y sin lo que ya vieron tus estudiantes. Son las mismas "
+        "piezas que faltaban en el pedido de una línea, y el modelo las "
+        "rellena igual.\n\n"
+        "Una guía que sí puedes proyectar en clase necesita cuatro cosas "
+        "dichas:\n"
         "• el curso y el grado;\n"
         "• qué ya vieron y qué no;\n"
         "• cuántos ítems y cómo se reparte la dificultad;\n"
-        "• si la clave de respuestas va al final (para proyectar sin "
-        "spoilear) o en otro bloque.\n\n"
-        "Ejemplo que puedes adaptar:\n\n"
-        "«Eres docente de [materia] de [grado]. Ya vieron [tema previo]. "
-        "Arma 8 ejercicios sobre [tema de mañana]: 2 de entrada, 4 de "
-        "práctica, 2 desafiantes, y una pregunta de cierre que se responde "
-        "en una frase. La hora dura 45 minutos. Formato: lista numerada. "
-        "Al final, una sección aparte con las respuestas.»\n\n"
-        "Si el primer resultado es verboso, itera: «Acorta los enunciados. "
-        "Se leen en voz alta, no se copian del pizarrón.»",
+        "• dónde va la clave de respuestas, para no adelantarla al "
+        "proyectar.\n\n"
+        "Norma ya tiene el párrafo y ahora quiere la hoja entera: seis "
+        "preguntas de más fácil a más difícil y las respuestas aparte. "
+        "Escribe esas cuatro cosas con el temario abierto, en el mismo "
+        "pedido.\n\n"
+        "Si el primer resultado sale largo, no lo empieza de nuevo: pide "
+        "un solo cambio. «Acorta los enunciados, se leen en voz alta.» "
+        "Abajo está el pedido armado y la hoja que devuelve.",
     ),
     (
-        "Resumen para quien no vino o no leyó",
+        "Un resumen para alguien",
         "text",
         _minutes(5),
-        "«Resúmeme esto» devuelve un resumen genérico. Un docente necesita "
-        "un resumen **para alguien**: el estudiante que faltó, el que no "
-        "leyó el capítulo, o la familia que pregunta qué vieron.\n\n"
-        "Pide siempre para quién y para qué.\n\n"
-        "Para el estudiante:\n"
-        "«Resume este texto en 5 viñetas para alumnos de 14 años que no "
-        "vieron el tema. En cada viñeta, una idea y una pregunta de "
-        "comprensión. No uses jerga que el texto no explique.»\n\n"
-        "Para las familias:\n"
-        "«Escribe 8 líneas para el grupo de WhatsApp de las familias. "
-        "Qué vimos hoy y una pregunta que pueden hacer en casa. Tono "
-        "respetuoso, sin siglas.» "
-        "Ese mensaje lo escribes tú, para las familias. No es un deber "
-        "del estudiante.\n\n"
-        "Si pegas un texto largo, di también qué debe ignorar (ejemplos "
-        "de otro país, precios en otra moneda, nombres propios que no "
-        "son del currículo).",
+        "«Resúmeme esto» devuelve un resumen de nadie. Un docente casi "
+        "siempre necesita el resumen **para alguien**: el que faltó, el "
+        "que no leyó el capítulo, o la familia que pregunta qué vieron en "
+        "clase.\n\n"
+        "La estructura es la misma en los dos casos: dices para quién es y "
+        "para qué lo vas a usar. Cambia el destinatario y cambia el "
+        "resultado, aunque el texto de origen sea idéntico.\n\n"
+        "Para el estudiante que faltó: cinco viñetas, cada una con una "
+        "idea y una pregunta de comprensión, sin jerga que el texto no "
+        "explique.\n\n"
+        "Para las familias: ocho líneas con lo que vieron y una pregunta "
+        "que puedan hacer en casa, en tono respetuoso y sin siglas. Ese "
+        "mensaje lo escribes tú para adultos; no es un deber del "
+        "estudiante.\n\n"
+        "En el curso de Norma faltó un estudiante, así que ella pide las "
+        "dos salidas en la misma sesión. Si pega un texto largo, dice "
+        "también qué ignorar: los ejemplos de otro país y los precios en "
+        "otra moneda.",
     ),
     (
-        "Una hora de 45 minutos, no un temario infinito",
+        "Cuarenta y cinco minutos",
         "text",
         _minutes(5),
-        "El modelo no siente el reloj. Si no le dices que la hora dura "
-        "45 minutos, te arma una secuencia de dos horas.\n\n"
-        "Pide una planificación con bloques:\n"
-        "«Eres docente de [materia] de [grado]. Diseña 45 minutos sobre "
-        "[tema]. Ya vieron [X]. Incluye: 8 minutos de apertura, 20 de "
-        "práctica guiada, 12 de trabajo individual, 5 de cierre. Di qué "
-        "hace el docente y qué hace el estudiante en cada bloque. Formato: "
-        "tabla tiempo | momento | qué hace quién.»\n\n"
-        "Revisa que los minutos sumen 45. Si no suman, el prompt no era "
-        "explícito o el modelo improvisó: corrige en una segunda pasada "
-        "(«los bloques deben sumar exactamente 45»).\n\n"
-        "Eso es más valioso que una «clase perfecta» de diez páginas que "
-        "nadie puede dar el lunes.",
+        "El modelo no siente el reloj. Si no le dices cuánto dura la hora, "
+        "te arma una secuencia de dos horas con actividades que suenan bien "
+        "y no caben en el período.\n\n"
+        "La hora se pide por bloques que suman 45 minutos: ocho de "
+        "apertura, veinte de práctica guiada, doce de trabajo individual y "
+        "cinco de cierre. En cada bloque se dice qué hace el docente y qué "
+        "hace el estudiante, porque si no te devuelve una lista de temas "
+        "en vez de una clase.\n\n"
+        "Después revisas la suma. Si los bloques no dan 45, el modelo "
+        "improvisó: se lo pides otra vez, con esas palabras, y corrige.\n\n"
+        "A Norma le devolvió dos horas la primera vez. Una hora que sí "
+        "suma 45 le sirve más que una clase de diez páginas que nadie "
+        "puede dar completa.",
     ),
     (
         "El primer borrador no se fotocopia",
         "text",
         _minutes(5),
-        "El primer resultado es un borrador. Las guías actuales para "
-        "docentes (OpenAI, 2026; DfE Reino Unido, 2026) lo dicen sin "
-        "rodeos: no empieces de cero si ya está cerca. Pide un cambio.\n\n"
-        "Una cosa por pasada:\n"
-        "• «Acorta los enunciados. Se leen en voz alta.»\n"
-        "• «Tres más fáciles y tres más difíciles, mismo tema.»\n"
-        "• «Quita los ejemplos de otro país.»\n"
-        "• «Reescribe las instrucciones para que un estudiante las lea "
-        "solo.»\n\n"
-        "Si pides todo a la vez, el modelo arregla una cosa y rompe "
-        "otra. Si el paquete es grande —guía, ticket de salida, nota a "
-        "familias— parte el trabajo: primero el objetivo y los bloques "
-        "de 45 minutos; después la hoja del estudiante.\n\n"
-        "También puedes pedirle que mejore TU prompt, no el material:\n\n"
-        "«Reescribe este pedido para que tenga tarea, aula y formato. "
-        "No inventes un grado que yo no puse.»\n\n"
-        "Luego lo lees. Si metió un estándar de otro país o un tiempo "
-        "que no es el tuyo, lo sacas. El modelo sugiere. Tú firmas.\n\n"
-        "Regla práctica: si no puedes decir qué cambió en esta pasada, "
-        "todavía no iteraste: solo volviste a pedir «hazlo mejor».",
+        "Lo que devuelve el modelo es un borrador, no la hoja final. El "
+        "primer tiro casi nunca se fotocopia tal cual, y eso no es una "
+        "falla: es la parte del trabajo que te toca a ti.\n\n"
+        "Se corrige una cosa por pasada. Si pides todo junto, el modelo "
+        "arregla una y rompe otra. Y si no puedes decir qué cambió en esta "
+        "pasada, no iteraste: solo volviste a pedir «hazlo mejor».\n\n"
+        "Una pasada es tan concreta como esto: acorta los enunciados; tres "
+        "más fáciles y tres más difíciles; quita los ejemplos de otro "
+        "país; reescribe las instrucciones para que un estudiante las lea "
+        "solo.\n\n"
+        "A Norma las preguntas le salieron largas, de las que no se pueden "
+        "dictar. Pide un solo cambio: que las acorte porque se leen en voz "
+        "alta, y que no toque el párrafo. El modelo propone; ella firma lo "
+        "que entra al aula.",
     ),
 ]
 
 PROMPTING_LESSONS_M3: list[Lesson] = [
     (
-        "Revisa antes de fotocopiar",
+        "Antes de fotocopiar",
         "text",
         _minutes(4),
-        "En Inglaterra el marco FACTS (2026) lo resume así: enfoca el "
-        "pedido, analiza el resultado, busca sesgo, ajústalo a TU aula "
-        "y fortalece el prompt. Aquí son cinco chequeos, siempre:\n\n"
+        "Un error en la clave o un autor inventado se vuelve error de "
+        "veinte cuadernos. Por eso la hoja no se manda a copias sin "
+        "leerla.\n\n"
+        "Son cinco chequeos, siempre:\n"
         "1. ¿Aparece un dato que tú no diste? Un autor, una fecha, un "
         "ejemplo de otro país. Si no lo puedes señalar en tu material, "
         "sácalo.\n"
-        "2. ¿Hay una cita o un «según el Ministerio» que no pegaste? "
-        "Los modelos inventan fuentes que suenan serias. Sin el PDF, "
+        "2. ¿Hay un «según el Ministerio» que no pegaste? Sin el PDF, "
         "esa referencia no existe.\n"
         "3. ¿El nivel es el de tu grado? Una «lectura de séptimo» que "
-        "pide un ensayo con tesis no sirve. Tampoco una receta, ni un "
-        "cuento de animalitos, como si fuera lo mismo que un párrafo "
-        "con preguntas del texto.\n"
+        "pide un ensayo con tesis no sirve. Tampoco una receta.\n"
         "4. ¿El ejemplo asume otra vida? Precios en dólares, nieve, un "
-        "barrio que tus estudiantes no conocen. Eso no es inclusión: "
-        "es un aula de catálogo.\n"
+        "barrio que tus estudiantes no conocen.\n"
         "5. ¿Hay algo que un estudiante podría copiar como si fuera "
-        "verdad y está mal? Un error en la clave de respuestas es el "
-        "más caro.\n\n"
-        "Si el modelo se niega a poner la clave o la pone mal, no "
-        "insistas diez veces. Escribe tú la clave. El ahorro de tiempo "
-        "está en el borrador, no en delegar la verdad.\n\n"
-        "Siguiente paso: el laboratorio. Vas a escribir el prompt de "
-        "tu próxima clase: quién es el modelo, para quién, qué ya "
-        "vieron y cómo lo quieres de vuelta. Eso es la evidencia del "
+        "verdad y está mal? Un error en la clave es el más caro.\n\n"
+        "Si el modelo se niega a poner la clave o la pone mal, no insistas "
+        "diez veces: la escribes tú. El ahorro de tiempo está en el "
+        "borrador, no en delegar la verdad.\n\n"
+        "Norma pasa su hoja por esos cinco chequeos. Abajo ves lo que "
+        "habría mandado a copias sin revisarla y lo que queda después.\n\n"
+        "Ahora te toca a ti. En el laboratorio escribes el pedido de TU "
+        "próxima clase, con las cinco piezas. Eso es la evidencia del "
         "curso.",
     ),
 ]
@@ -417,21 +444,21 @@ EVAL_LESSONS_M2: list[Lesson] = [
 # not as another paragraph. Placeholders stay in the prose; these are the
 # worked copies a teacher can steal for Monday.
 LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
-    "Esta semana te ahorras una tarde": [
+    "Un pedido de una línea": [
         (
-            "Si pides algo como esto",
+            "El pedido de una línea",
             "Hazme una lectura de séptimo, bien creativa, con varias "
             "preguntas.",
         ),
         (
-            "Esperamos: te sale cualquiera",
+            "Esperamos: lo que devuelve",
             "1. Hierve el agua.\n"
             "2. Echa el arroz.\n"
             "3. Espera veinte minutos.\n\n"
-            "Eso es una receta. El modelo eligió el grado. Tú no.",
+            "Eso es una receta. El grado lo eligió el modelo, no Norma.",
         ),
         (
-            "El pedido de esta semana",
+            "El pedido completo",
             "Eres docente de lengua de séptimo. Ya leyeron un cuento y "
             "saben qué es el narrador. Escribe un párrafo de ocho líneas "
             "con una sola idea, y cinco preguntas que se contestan con el "
@@ -440,7 +467,7 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
             "debajo, las preguntas con la respuesta.",
         ),
         (
-            "Esperamos: la hoja que te llevas el lunes",
+            "Esperamos: la hoja que sí se puede usar",
             "En el mercado de Tarqui el sábado se oye primero a quien "
             "vende pescado. Juana llega temprano, pregunta el precio y se "
             "lleva dos libras. Su hijo anota en un cuaderno qué compraron, "
@@ -453,9 +480,9 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
             "| 5 | ¿Para qué anota? | Para saber qué falta el lunes |",
         ),
     ],
-    "Qué puede y qué no puede un modelo": [
+    "Qué ocurre": [
         (
-            "Un pedido que pide una fuente que no pegaste",
+            "Un pedido que exige una fuente que nadie pegó",
             "Haz una lectura de séptimo según el Acuerdo Ministerial y pon "
             "el porcentaje de séptimos que ya comprenden un texto.",
         ),
@@ -463,25 +490,25 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
             "Esperamos: una cita que se tira",
             "«Según el Acuerdo Ministerial 2024-18, el 80 % de los séptimos "
             "ya distinguen el tema de las ideas.»\n"
-            "Tú no pegaste ese acuerdo. Ese 80 % no está en ninguna "
+            "Norma no pegó ese acuerdo. Ese 80 % no está en ninguna "
             "prueba. En la evaluación nacional la mayoría de Media en "
             "lengua no llega al mínimo. Esto no se fotocopia.",
         ),
     ],
-    "Anatomía de un prompt que sirve": [
+    "Las cinco piezas": [
         (
-            "Si pides algo como esto",
+            "El pedido al que le faltan las cinco",
             "Hazme una lectura de séptimo, bien creativa, con varias "
             "preguntas.",
         ),
         (
-            "Esperamos: te puede salir una receta",
+            "Esperamos: el modelo elige por ti",
             "Te puede salir una receta, un cuento de animalitos o un "
-            "ensayo con tesis. El modelo eligió el grado. Tú no.",
+            "ensayo con tesis. El grado lo eligió el modelo, no tú.",
         ),
         (
-            "El pedido escrito entero",
-            "Eres docente de lengua de séptimo en un colegio público "
+            "El pedido con las cinco piezas",
+            "Eres docente de lengua de séptimo en un colegio fiscal "
             "de la costa. Ya leyeron un cuento y saben qué es el narrador. "
             "Hay quienes todavía lo confunden con el protagonista.\n"
             "Escribe un párrafo de ocho líneas con una sola idea, y cinco "
@@ -505,9 +532,9 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
             "| 5 | ¿Para qué anota? | Para saber qué falta el lunes |",
         ),
     ],
-    "Un ejemplo y un recuadro": [
+    "El recuadro": [
         (
-            "Pedido con recuadro",
+            "El pedido con el texto en un recuadro",
             "Usa solo lo que está entre las líneas.\n"
             "---\n"
             "En el mercado de Tarqui el sábado se oye primero a quien "
@@ -524,9 +551,29 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
             "| 2 | ¿Cuántas libras se lleva? | Dos |",
         ),
     ],
-    "Guía de ejercicios de tu temario": [
+    "Adjuntar tus archivos": [
         (
-            "Pedido de la guía",
+            "El pedido con el capítulo adjunto",
+            "Adjunto el capítulo 4 del texto de séptimo y mi planificación "
+            "de la unidad.\n"
+            "Usa solo esos archivos. Escribe un párrafo con una sola idea "
+            "y cinco preguntas que se contestan con el texto.\n"
+            "Al lado de cada pregunta pon la página de donde sale la "
+            "respuesta. Si algo no está en los archivos, escribe: no está "
+            "en el archivo. No inventes el autor.",
+        ),
+        (
+            "Esperamos: cada respuesta con su página",
+            "| # | Pregunta | Se contesta con | Página |\n"
+            "| 1 | ¿Dónde está Juana? | En el mercado de Tarqui | p. 61 |\n"
+            "| 2 | ¿Qué se lleva? | Dos libras | p. 61 |\n"
+            "| 3 | ¿Para qué anota el hijo? | Para saber qué falta el lunes | p. 62 |\n"
+            "| 4 | ¿Quién escribió el capítulo? | no está en el archivo | — |",
+        ),
+    ],
+    "La hoja completa": [
+        (
+            "El pedido de la hoja completa",
             "Eres docente de lengua de séptimo. Ya leyeron un cuento y "
             "saben qué es el narrador. Arma una hoja: un párrafo con una "
             "idea y seis preguntas del texto, de más fácil a más difícil. "
@@ -548,9 +595,9 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
             "| 6 | ¿Para qué anota? | Para saber qué falta el lunes |",
         ),
     ],
-    "Resumen para quien no vino o no leyó": [
+    "Un resumen para alguien": [
         (
-            "Pedido para el grupo de familias",
+            "El pedido del mensaje a familias",
             "Escribe 8 líneas para el grupo de WhatsApp de las familias. "
             "Qué vimos hoy en séptimo (un párrafo y preguntas que se "
             "contestan con el texto) y una pregunta que pueden hacer en "
@@ -565,9 +612,9 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
             "en el mercado, según el párrafo?",
         ),
     ],
-    "Una hora de 45 minutos, no un temario infinito": [
+    "Cuarenta y cinco minutos": [
         (
-            "Pedido de la hora",
+            "El pedido de la hora por bloques",
             "Eres docente de lengua de séptimo. Diseña 45 minutos sobre "
             "un párrafo con una idea y preguntas que se contestan con el "
             "texto. Ya leyeron un cuento. Incluye: 8 minutos de apertura, "
@@ -591,7 +638,7 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
     ],
     "El primer borrador no se fotocopia": [
         (
-            "Pedido de una pasada",
+            "El pedido de una sola pasada",
             "Acorta las preguntas. Se leen en voz alta, no se copian del "
             "pizarrón. Una oración. No cambies el párrafo.",
         ),
@@ -603,7 +650,7 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
             "Después: «¿Dónde está Juana, según el párrafo?»",
         ),
     ],
-    "Revisa antes de fotocopiar": [
+    "Antes de fotocopiar": [
         (
             "Primer resultado, sin revisar",
             "| # | Pregunta | Qué salió mal |\n"
@@ -761,17 +808,18 @@ TEACHER_COURSES: list[dict[str, Any]] = [
     {
         "slug": "prompting-para-docentes",
         "title": "Prompting para docentes",
-        "summary": "El prompt de tu próxima clase, no un examen de teoría",
+        "summary": "Por qué un pedido vago no sirve y cómo se escribe uno que sí",
         "description": (
-            "Aprendes a pedirle a un modelo material que sí puedes llevar al "
-            "aula: quién es el modelo, para quién, qué ya vieron y cómo "
-            "lo quieres de vuelta. Cierras escribiendo el prompt de tu "
-            "propia clase. El modelo redacta; tú decides qué se fotocopia."
+            "Primero ves qué ocurre cuando el pedido es vago: el modelo "
+            "rellena lo que no le dijiste. Después armas las cinco piezas "
+            "de un pedido que sí devuelve material de tu grado. El caso "
+            "que se sigue es el de una docente de lengua de séptimo. "
+            "Cierras escribiendo el pedido de TU clase."
         ),
         "level": "beginner",
         "modules": [
-            ("El oficio, no la herramienta", PROMPTING_LESSONS_M1),
-            ("Material que cabe en 45 minutos", PROMPTING_LESSONS_M2),
+            ("Qué ocurre y cómo se pide", PROMPTING_LESSONS_M1),
+            ("Material que cabe en la hora", PROMPTING_LESSONS_M2),
             ("Antes de llevarlo al aula", PROMPTING_LESSONS_M3),
         ],
     },
@@ -814,10 +862,11 @@ TEACHER_ACTIVITIES: list[dict[str, Any]] = [
         "course_slug": "prompting-para-docentes",
         "title": "El prompt de tu próxima clase",
         "statement": (
-            "Escribe el pedido para el material de TU próxima clase. "
-            "Si aún no tienes el tema, usa séptimo: un párrafo con una "
-            "idea y cinco preguntas que se contestan con el texto. No "
-            "pidas una receta ni un ensayo.\n\n"
+            "Escribe el pedido para el material de TU próxima clase, "
+            "como hizo Norma el domingo. Si aún no tienes el tema, usa "
+            "el de ella: séptimo, un párrafo con una idea y cinco "
+            "preguntas que se contestan con el texto. No pidas una "
+            "receta ni un ensayo.\n\n"
             "Tiene que: decirle quién es el modelo, para quién es "
             "(el grado), qué ya vieron, cuántas preguntas, y cómo lo "
             "quieres de vuelta. Si puedes, pega un ejemplo corto de "

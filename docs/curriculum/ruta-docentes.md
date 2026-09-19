@@ -39,9 +39,9 @@ Hasta que subas el archivo, la lección se lee como texto. Cuando tengas el víd
 
 | # | Curso | Lección | Duración | Guion |
 |---|---|---|---|---|
-| V1 | Prompting | Anatomía de un prompt que sirve | 6–7 min | más abajo |
-| V2 | Prompting | Guía de ejercicios de tu temario | 7–8 min | más abajo |
-| V1b | Prompting | Un ejemplo y un recuadro *(opcional)* | 5 min | mismo esquema que V1: flojo / con ejemplo / con recuadro |
+| V1 | Prompting | Las cinco piezas | 6–7 min | más abajo |
+| V2 | Prompting | La hoja completa | 7–8 min | más abajo |
+| V1b | Prompting | El recuadro *(opcional)* | 5 min | mismo esquema que V1: explicar la mezcla / armar el recuadro |
 | V3 | NotebookLM | Por qué trabaja con tus fuentes | 5–6 min | más abajo |
 | V4 | NotebookLM | Una clase completa desde tu capítulo | 7–8 min | más abajo |
 | V5 | Evaluación | Qué mide una rúbrica que sirve | 6–7 min | más abajo |

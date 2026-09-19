@@ -97,7 +97,7 @@ export function CourseDetailScreen({
     ? 'Terminaste este curso.'
     : isEnrolled && followTitle
       ? `Sigue: ${followTitle}.`
-      : 'Te formamos para que la IA te agilice el proceso.';
+      : 'Para que el lunes tengas la hoja, no otra tarde armándola.';
   const mascotLine = isEnrolled && followTitle ? `Sigue: ${followTitle}.` : 'Cuando quieras, empezamos.';
 
   return (

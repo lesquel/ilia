@@ -23,12 +23,13 @@ Load when writing or rewriting an ILIA lesson, activity, video script, worked ex
 - Recovery is one step down, not two sublevels. A recipe or a kids’ tale is not 7.º. An essay with a thesis is BGU.
 - HyperFrames renders a destreza lamina (MP4). It does not replace the six teacher videos. Do not add it to the Expo app.
 - ILIA scores are not Ser Estudiante.
+- A lesson reads as a notebook section: continuous scroll inside the lesson; a button only for the next lesson. Lía is the graphic of that beat. The check is the workshop, not a multiple-choice quiz. Explain the phenomenon first, then assemble the reusable structure, then ground it in the case. See `references/cuaderno.md`.
 
 ## Decision Gates
 
 | Job | Do |
 |---|---|
-| New or rewrite lesson | Fill ficha → write body + one worked example |
+| New or rewrite lesson | Fill ficha → write a scrollable section (ideas + Lía scene + one worked example). No Continuar between paragraphs. |
 | Lab activity | Statement names destreza or grade + what they already saw |
 | Teacher video script | Camera, destreza said aloud, no slides |
 | Motion / HyperFrames | Brief from `assets/lamina-hyperframes.md`; motion IS the destreza |
@@ -52,3 +53,4 @@ Return: filled ficha; the artifact; destreza codes cited; any `no hallado`. Do n
 - [ficha-curso.md](assets/ficha-curso.md)
 - [lamina-hyperframes.md](assets/lamina-hyperframes.md)
 - [ruta-docentes.md](../../../docs/curriculum/ruta-docentes.md)
+- [cuaderno.md](references/cuaderno.md)
