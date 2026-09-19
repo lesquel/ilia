@@ -1,5 +1,4 @@
 import {
-  ArrowDown,
   Check,
   Lightbulb,
   MessageSquare,
@@ -10,7 +9,14 @@ import {
   X,
 } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
-import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 
 import { breakpoint, useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
@@ -181,19 +187,129 @@ export function LessonBlockView({
       );
 
     case 'promptResult':
-      return (
-        <View style={styles.promptResult}>
-          <ExampleCard example={block.prompt} />
-          <View style={styles.resultBridge}>
-            <Icon glyph={ArrowDown} size={16} color={theme.colors.accent} />
-            <Text style={[styles.resultBridgeLabel, { color: theme.colors.accent }]}>
-              Con este prompt esperamos
-            </Text>
-          </View>
-          <ExampleCard example={block.result} tone="result" />
-        </View>
-      );
+      return <PromptChat prompt={block.prompt} result={block.result} />;
   }
+}
+
+/**
+ * The pedido and its answer, drawn as the chat a teacher already knows.
+ * Nothing is sent: the reply is the one the lesson wrote.
+ */
+export function PromptChat({
+  prompt,
+  result,
+  promptText,
+  phase = 'revealed',
+  note = 'Así se ve en el chat. Nada de esto se envía.',
+}: {
+  prompt: WorkedExample;
+  result: WorkedExample;
+  promptText?: string;
+  phase?: 'idle' | 'composing' | 'processing' | 'revealed';
+  note?: string;
+}) {
+  const theme = useTheme();
+  const isWaitingToWrite = phase === 'idle';
+
+  return (
+    <View
+      style={[
+        styles.chat,
+        {
+          backgroundColor: theme.colors.surface,
+          borderColor: theme.colors.divider,
+          borderRadius: theme.radius.md,
+        },
+      ]}
+    >
+      <View style={[styles.chatBar, { backgroundColor: theme.colors.neutral[100] }]}>
+        <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
+        <Text style={[styles.chatBarLabel, { color: theme.colors.neutral[600] }]}>{note}</Text>
+      </View>
+
+      <View style={styles.chatThread}>
+        <View style={styles.chatTurnMine}>
+          <Text style={[styles.chatWho, { color: theme.colors.neutral[500] }]}>Tú</Text>
+          <View
+            style={[
+              styles.bubbleMine,
+              {
+                backgroundColor: theme.colors.accentRamp[100],
+                borderColor: theme.colors.accentRamp[200],
+              },
+            ]}
+          >
+            {isWaitingToWrite ? (
+              <Text style={[styles.chatPlaceholder, { color: theme.colors.neutral[500] }]}>
+                Escribe el pedido…
+              </Text>
+            ) : (
+              <Text style={[styles.chatPrompt, { color: theme.colors.text }]}>
+                {promptText === undefined ? (
+                  <InlineText inlines={prompt.inlines} />
+                ) : (
+                  promptText
+                )}
+              </Text>
+            )}
+          </View>
+        </View>
+
+        {phase === 'processing' || phase === 'revealed' ? (
+          <View style={styles.chatTurnModel}>
+            <View style={[styles.chatAvatar, { backgroundColor: theme.colors.text }]}>
+              <Icon glyph={Sparkles} size={13} color={theme.colors.surface} />
+            </View>
+            <View style={styles.chatModelCopy}>
+              <Text style={[styles.chatWho, { color: theme.colors.neutral[500] }]}>El modelo</Text>
+              {phase === 'processing' ? (
+                <View
+                  style={[
+                    styles.bubbleModel,
+                    styles.bubbleThinking,
+                    { backgroundColor: theme.colors.neutral[100], borderColor: theme.colors.divider },
+                  ]}
+                >
+                  <ActivityIndicator size="small" color={theme.colors.accent} />
+                  <Text style={[styles.chatPlaceholder, { color: theme.colors.neutral[600] }]}>
+                    Escribiendo…
+                  </Text>
+                </View>
+              ) : (
+                <View
+                  style={[
+                    styles.bubbleModel,
+                    { backgroundColor: theme.colors.neutral[100], borderColor: theme.colors.divider },
+                  ]}
+                >
+                  {result.inlines.length > 0 ? (
+                    <Text
+                      style={[
+                        result.table ? styles.readingPassage : styles.exampleText,
+                        {
+                          color: theme.colors.text,
+                          backgroundColor: result.table ? theme.colors.surface : undefined,
+                        },
+                      ]}
+                    >
+                      <InlineText inlines={result.inlines} />
+                    </Text>
+                  ) : null}
+                  {result.table ? (
+                    looksLikeExerciseSheet(result.table) ? (
+                      <ExerciseSheet table={result.table} />
+                    ) : (
+                      <ExampleTable table={result.table} />
+                    )
+                  ) : null}
+                </View>
+              )}
+            </View>
+          </View>
+        ) : null}
+      </View>
+    </View>
+  );
 }
 
 const EXAMPLE_GLYPH: Record<ExampleKind, LucideIcon> = {
@@ -569,18 +685,88 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 26,
   },
-  promptResult: {
-    gap: 10,
+  chat: {
+    borderWidth: 1,
+    overflow: 'hidden',
   },
-  resultBridge: {
+  chatBar: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    paddingHorizontal: 4,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
   },
-  resultBridgeLabel: {
+  signalSquare: {
+    width: 8,
+    height: 8,
+  },
+  chatBarLabel: {
+    flex: 1,
     fontSize: 13,
+    lineHeight: 18,
+  },
+  chatThread: {
+    padding: 16,
+    gap: 18,
+  },
+  chatTurnMine: {
+    alignSelf: 'flex-end',
+    alignItems: 'flex-end',
+    maxWidth: '88%',
+    gap: 4,
+  },
+  chatTurnModel: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+  },
+  chatAvatar: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 18,
+  },
+  chatModelCopy: {
+    flex: 1,
+    minWidth: 0,
+    gap: 4,
+  },
+  chatWho: {
+    fontSize: 12,
     fontWeight: '700',
+  },
+  bubbleMine: {
+    borderWidth: 1,
+    borderRadius: 16,
+    borderBottomRightRadius: 4,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  bubbleModel: {
+    borderWidth: 1,
+    borderRadius: 16,
+    borderTopLeftRadius: 4,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    gap: 12,
+  },
+  bubbleThinking: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    alignSelf: 'flex-start',
+  },
+  chatPrompt: {
+    fontFamily: READABLE_FONT,
+    fontSize: 15,
+    lineHeight: 24,
+  },
+  chatPlaceholder: {
+    fontFamily: READABLE_FONT,
+    fontSize: 14,
+    lineHeight: 22,
   },
   sheet: {
     gap: 8,

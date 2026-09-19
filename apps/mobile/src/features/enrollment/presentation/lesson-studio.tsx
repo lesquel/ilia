@@ -25,6 +25,7 @@ import {
 import {
   ExampleCard,
   LessonBlockView,
+  PromptChat,
 } from '@/features/enrollment/presentation/lesson-article';
 import { IdeaSceneArt } from '@/features/enrollment/presentation/idea-scene-art';
 
@@ -444,58 +445,19 @@ function LabStage({
   scene: Extract<LessonScene, { type: 'lab' }>;
   labPhase: LabPhase;
 }) {
-  const theme = useTheme();
   const fullPrompt = examplePlainText(scene.prompt);
   const typedPrompt = useTypedPrompt(fullPrompt, labPhase === 'composing');
-  const promptOnScreen =
-    labPhase === 'idle' ? '' : labPhase === 'composing' ? typedPrompt : fullPrompt;
+  const promptOnScreen = labPhase === 'composing' ? typedPrompt : fullPrompt;
 
   return (
     <View style={styles.lab}>
-      <View style={styles.labChrome}>
-        <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
-        <Text style={[styles.labKicker, { color: theme.colors.neutral[500] }]}>
-          Esto no se envía. Es para que veas cómo queda el pedido.
-        </Text>
-      </View>
-
-      <View
-        style={[
-          styles.composer,
-          {
-            backgroundColor: theme.colors.neutral[100],
-            borderColor: theme.colors.divider,
-            borderRadius: theme.radius.md,
-          },
-        ]}
-      >
-        <Text style={[styles.composerHint, { color: theme.colors.neutral[500] }]}>El pedido</Text>
-        {promptOnScreen.length === 0 ? (
-          <Text style={[styles.composerPlaceholder, { color: theme.colors.neutral[500] }]}>
-            Cuando pulses escribir, aparece el pedido entero.
-          </Text>
-        ) : (
-          <Text style={[styles.composerText, { color: theme.colors.text }]}>{promptOnScreen}</Text>
-        )}
-      </View>
-
-      {labPhase === 'processing' ? (
-        <View style={styles.processing}>
-          <ActivityIndicator color={theme.colors.accent} />
-          <Text style={[styles.processingLabel, { color: theme.colors.neutral[700] }]}>
-            Armando la hoja…
-          </Text>
-        </View>
-      ) : null}
-
-      {labPhase === 'revealed' ? (
-        <View style={styles.labResult}>
-          <Text style={[styles.labResultKicker, { color: theme.colors.accent }]}>
-            Con este pedido te sale esto
-          </Text>
-          <ExampleCard example={scene.result} tone="result" />
-        </View>
-      ) : null}
+      <PromptChat
+        prompt={scene.prompt}
+        result={scene.result}
+        promptText={promptOnScreen}
+        phase={labPhase}
+        note="Esto no se envía. Es para que veas cómo queda el pedido."
+      />
     </View>
   );
 }
@@ -649,56 +611,6 @@ const styles = StyleSheet.create({
   },
   lab: {
     gap: 14,
-  },
-  labChrome: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  signalSquare: {
-    width: 8,
-    height: 8,
-  },
-  labKicker: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  composer: {
-    borderWidth: 1,
-    padding: 14,
-    minHeight: 140,
-    gap: 8,
-  },
-  composerHint: {
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 0.3,
-  },
-  composerPlaceholder: {
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  composerText: {
-    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
-    fontSize: 15,
-    lineHeight: 23,
-  },
-  processing: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingVertical: 4,
-  },
-  processingLabel: {
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  labResult: {
-    gap: 10,
-  },
-  labResultKicker: {
-    fontSize: 13,
-    fontWeight: '700',
   },
   compare: {
     gap: 12,
