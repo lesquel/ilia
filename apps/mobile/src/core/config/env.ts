@@ -7,7 +7,7 @@
  */
 
 export const env = {
-  apiBaseUrl: process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:8000',
+  apiBaseUrl: process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000',
   apiPrefix: '/api/v1',
 } as const;
 

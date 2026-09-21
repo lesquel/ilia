@@ -23,7 +23,7 @@ npm run ios        # simulador iOS (requiere macOS)
 Crea un `.env` en `apps/mobile/` con:
 
 ```
-EXPO_PUBLIC_API_BASE_URL=http://localhost:8000
+EXPO_PUBLIC_API_URL=http://localhost:8000
 ```
 
 Las variables `EXPO_PUBLIC_*` se **inlinean en el bundle**, así que son públicas
