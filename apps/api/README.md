@@ -237,14 +237,31 @@ es Unicode-aware y aceptaría `prompting-básico`, que el navegador convierte en
 `prompting-b%C3%A1sico` — ilegible, que es lo contrario de para qué existe un
 enlace compartible.
 
-### Datos de demo
+### Catálogo canónico
+
+Un compose recién levantado **no tiene cursos**. Hay que publicarlos:
+
+```bash
+uv run python -m scripts.seed_catalog
+```
+
+En el despliegue con compose de raíz:
+
+```sh
+docker compose run --rm api python -m scripts.seed_catalog
+```
+
+Carga los tres slugs de `app/content/teacher_catalog.py`:
+`prompting-para-docentes`, `notebooklm-en-el-aula`,
+`evaluacion-asistida-por-ia`. Es el contenido de la primera charla, no un
+relleno. Idempotente. Corre también en producción.
+
+El instructor de demo, la contraseña y el código de cohorte siguen en
+`scripts.seed_demo`, que se niega a correr en producción:
 
 ```bash
 uv run python -m scripts.seed_demo
 ```
-
-Tres cursos con temario, para tener qué renderizar mientras se produce el
-contenido real. Se niega a correr en producción.
 
 ## Inscripción y progreso
 

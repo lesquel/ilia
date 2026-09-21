@@ -43,6 +43,21 @@ plataforma no puede responder qué tiene permitido un docente. **Los números so
 un punto de partida, no una decisión**: son filas, y se cambian con un `UPDATE`
 sin desplegar nada.
 
+### El catálogo
+
+Un compose recién levantado **no tiene cursos**. Las migraciones no los cargan:
+el contenido canónico vive en `apps/api/app/content/teacher_catalog.py` y hay
+que publicarlo.
+
+```sh
+docker compose run --rm api python -m scripts.seed_catalog
+```
+
+Tres slugs: `prompting-para-docentes`, `notebooklm-en-el-aula`,
+`evaluacion-asistida-por-ia`. Es idempotente y corre en el entorno destino. No
+crea una contraseña ni una cohorte. El login de demo (`scripts.seed_demo`) es
+solo local y se niega en producción.
+
 ### Decisiones
 
 **Las migraciones son un contenedor aparte que corre una vez.** Si la API
