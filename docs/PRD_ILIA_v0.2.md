@@ -1,14 +1,14 @@
-# PRD — PRAXIS.AI
+# PRD — ILIA
 ### Plataforma multiplataforma (iOS · Android · Web) de formación y certificación en IA con evaluación por prompts
 
 | | |
 |---|---|
-| **Versión** | 0.1 — borrador para revisión |
-| **Fecha** | 7 de septiembre de 2026 |
-| **Producto** | PRAXIS.AI *(nombre tomado del mockup — a confirmar)* |
+| **Versión** | 0.2 — alineado al código en `main` |
+| **Fecha** | 7 de septiembre de 2026 *(v0.1)* · actualizado 21 de septiembre de 2026 |
+| **Producto** | **ILIA** *(antes `PRAXIS.AI` en el mockup y en el PRD v0.1)* |
 | **Promotor** | Instituto de Inteligencia Artificial (emprendimiento del equipo) |
 | **Aliado institucional** | Dirección de Educación Complementaria, Alcaldía de Manta |
-| **Estado** | Levantamiento de requisitos |
+| **Estado** | MVP vertical en código; este documento registra producto y cortes de alcance |
 
 ---
 
@@ -22,11 +22,13 @@ Está construido a partir de tres fuentes:
 
 **Convención:** lo que aparece marcado como **[A confirmar]** es una propuesta mía derivada del contexto, no una decisión que ustedes hayan tomado. Todo lo demás sale directamente de las fuentes anteriores. No inventé métricas, plazos ni compromisos que no estuvieran en la reunión.
 
+**Archivo:** este documento se llamaba `docs/PRD_PRAXIS_AI_v0.1.md`. El nombre del producto en producción es **ILIA**.
+
 ---
 
 ## 1. Resumen ejecutivo
 
-PRAXIS.AI es una plataforma de cursos de inteligencia artificial —app nativa para iOS y Android más versión web, desde una misma base de código— cuyo diferenciador es que **no evalúa con exámenes de opción múltiple, sino midiendo la calidad de los prompts que el estudiante escribe y de los resultados que obtiene**. Un motor de evaluación (EVALs) puntúa cada entrega y esa puntuación es la que sustenta la certificación.
+ILIA es una plataforma de cursos de inteligencia artificial —app nativa para iOS y Android más versión web, desde una misma base de código— cuyo diferenciador es que **no evalúa con exámenes de opción múltiple, sino midiendo la calidad de los prompts que el estudiante escribe y de los resultados que obtiene**. Un motor de evaluación (EVALs) puntúa cada entrega y esa puntuación es la que sustenta la certificación.
 
 El primer segmento es **docentes de Manta**. En la reunión del 7-sep se acordó una alianza con la Dirección de Educación Complementaria de la Alcaldía: las charlas presenciales (dictadas por pasantes) enganchan al docente, y la plataforma actúa como el recurso de formación continua y certificación posterior. El modelo comercial es freemium, con rutas de aprendizaje de nivel básico a experto, y con expansión posterior a emprendedores (programa Manta Capacita).
 
@@ -358,5 +360,5 @@ Solo dos fechas salen de la reunión; el resto es propuesta.
 4. ¿Cuál es el cupo del tier gratuito y el precio del tier pago?
 5. ¿El curso inicial para docentes replica la metodología ya validada de Eduardo (prompting + NotebookLM aplicado a tareas docentes)? Sería lo lógico, pero no está decidido.
 6. ¿Quién produce el contenido audiovisual y con qué calendario?
-7. ¿Habrá cohortes ligadas a una charla presencial concreta, o inscripción abierta? Esto afecta al modelo de datos.
+7. ~~¿Habrá cohortes ligadas a una charla presencial concreta?~~ ✅ **Sí.** Admin crea la cohorte; el docente opcionalmente envía `cohort_code` al inscribirse. Ver TRD §7 y `apps/api/app/features/admin/interface/router.py`.
 8. ¿El foro es por curso, por módulo o por cohorte? El mockup sugiere por módulo.

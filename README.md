@@ -8,8 +8,9 @@ los resultados que obtiene.**
 Primer segmento: docentes de Manta, en alianza con la Dirección de Educación
 Complementaria de la Alcaldía.
 
-> El nombre **ILIA** reemplaza a `PRAXIS.AI`, que era el placeholder usado en el
-> mockup y en las versiones 0.1 del PRD y el TRD.
+> El nombre **ILIA** reemplaza a `PRAXIS.AI`, placeholder del mockup. Los
+> documentos v0.2 viven en `docs/PRD_ILIA_v0.2.md` y `docs/TRD_ILIA_v0.2.md`
+> (antes `*_PRAXIS_AI_v0.1.md`).
 
 ## Desplegar
 
@@ -140,13 +141,16 @@ reales y no sirven para certificar.
 
 ## Estado
 
-Fase temprana. La documentación de requisitos está completa (v0.1) y hay un
-slice vertical funcionando de punta a punta: autenticación con persistencia
-real, en backend y en cliente.
+**ILIA** es el producto. El código ya recorre el MVP vertical (auth, catálogo,
+inscripción, lecciones, laboratorio, certificados con verificación pública, foro,
+freemium, instructor y admin). La documentación de requisitos está en **v0.2**
+(`docs/PRD_ILIA_v0.2.md`, `docs/TRD_ILIA_v0.2.md`): decisiones de stack que ya
+están en el repo van marcadas como cerradas; lo que falta (host productivo, SEO,
+PDF de certificado, etc.) sigue explícito.
 
 | Pieza | Estado |
 |---|---|
-| PRD y TRD v0.1 | ✅ Completos, con preguntas abiertas marcadas |
+| PRD y TRD v0.2 (ILIA) | ✅ Alineados al código; preguntas abiertas marcadas |
 | Design system extraído del mockup | ✅ En `apps/mobile/src/core/theme/tokens.ts` |
 | Backend — esqueleto, config, logs, errores, health | ✅ Corre, con tests, lint y tipos en verde |
 | Cliente — esqueleto Expo, router, tema, cliente HTTP | ✅ Compila para web y tipa en strict |
@@ -207,8 +211,8 @@ resueltas.
 
 | Documento | Contenido |
 |---|---|
-| [`docs/PRD_PRAXIS_AI_v0.1.md`](docs/PRD_PRAXIS_AI_v0.1.md) | Producto: roles, alcance del MVP, historias de usuario, motor de EVALs, negocio, riesgos |
-| [`docs/TRD_PRAXIS_AI_v0.1.md`](docs/TRD_PRAXIS_AI_v0.1.md) | Técnico: arquitectura, stack, modelo de datos, API, seguridad, pruebas |
+| [`docs/PRD_ILIA_v0.2.md`](docs/PRD_ILIA_v0.2.md) | Producto: roles, alcance del MVP, historias de usuario, motor de EVALs, negocio, riesgos |
+| [`docs/TRD_ILIA_v0.2.md`](docs/TRD_ILIA_v0.2.md) | Técnico: arquitectura, stack, modelo de datos, API, seguridad, pruebas |
 | [`docs/mockup/`](docs/mockup/) | Mockup de las 16 pantallas del rol estudiante + design system extraído |
 
 ## Estructura del repositorio
