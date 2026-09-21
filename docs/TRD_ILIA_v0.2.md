@@ -232,7 +232,7 @@ Ejemplo del principio, sin código concreto: el caso de uso "evaluar entrega" de
 
 ### 5.2 Procesamiento asíncrono
 
-Se necesita una cola para: evaluación de prompts, generación de certificados PDF, transcodificación o procesamiento de vídeo si aplica, y envío de correos.
+Se necesita una cola para: evaluación de prompts, transcodificación o procesamiento de vídeo si aplica, y envío de correos. **Generación de certificado PDF:** no está en Fase 1 — el producto emite código + verificación pública; no hay job ni endpoint de descarga (`apps/api/app/features/certificates/interface/router.py`).
 
 Opciones habituales en el ecosistema Python: Celery, RQ, Dramatiq, o colas gestionadas del proveedor cloud. **[A confirmar cuál]**
 
@@ -373,8 +373,9 @@ Endpoints principales, agrupados por feature:
 - Listar hilos, crear hilo, responder.
 
 **Certificados**
-- Listar mis certificados, descargar.
+- Listar mis certificados, comprobar elegibilidad, emitir (según plan).
 - Verificación pública por código (**sin autenticación**, es el punto que da credibilidad).
+- **Sin descarga de PDF en Fase 1** — rutas en `apps/api/app/features/certificates/interface/router.py`: `verify`, `me`, `eligibility`, `issue`, `revoke`; no hay `download`.
 
 **Instructor**
 - CRUD de cursos, módulos, lecciones, actividades y rúbricas.
@@ -482,3 +483,4 @@ Sobre el último punto: vale la pena preguntarle a Eduardo qué dispositivos usa
 5. **Navegadores y versiones mínimas** a soportar
 6. ¿La landing y el catálogo deben ser **indexables** (SEO)?
 7. **Número aproximado de docentes por sesión** presencial
+8. **Certificado PDF descargable** — cortado en Fase 1; ver PRD §10 y decisión en el PR (`decision-pendiente`)

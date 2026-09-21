@@ -93,7 +93,7 @@ Se definen **tres roles**. Los permisos son acumulativos hacia arriba salvo dond
 - Recibe puntuación y feedback de cada entrega.
 - Participa en foros por módulo.
 - Entrega proyecto final.
-- Descarga certificados.
+- Obtiene certificado como **código verificable** (verificación pública; sin PDF en Fase 1).
 - Ve su progreso y ritmo de estudio.
 
 ### 5.2 Docente / instructor de la plataforma
@@ -189,7 +189,7 @@ En la práctica esto significa que **habrá pantallas que se escriban dos veces*
 - Hilos por módulo, respuestas.
 
 **Certificados**
-- Emisión al cumplir criterios, descarga y verificación pública.
+- Emisión al cumplir criterios y **verificación pública por código**. Fase 1: **no hay PDF descargable** ni copia «oficial» ante terceros — alineado a `apps/api/app/features/certificates/interface/router.py` y `docs/pilot-charla.md`.
 
 **Freemium**
 - Ruta básica gratuita con cupo limitado de evaluaciones; contenido avanzado y certificación de pago. **[A confirmar los límites exactos]**
@@ -222,7 +222,7 @@ En la práctica esto significa que **habrá pantallas que se escriban dos veces*
 | E-05 | Como docente quiero escribir un prompt y saber si está bien hecho. | Recibo puntuación por dimensiones + feedback accionable en la misma sesión. |
 | E-06 | Como docente quiero entender por qué me puntuaron así. | El resultado desglosa cada dimensión con una razón, no solo un número. |
 | E-07 | Como docente quiero preguntar dudas a otros participantes. | Puedo abrir un hilo y responder en el foro del módulo. |
-| E-08 | Como docente quiero descargar mi certificado. | PDF descargable con código de verificación. |
+| E-08 | Como docente quiero **acreditar** que completé el curso. | Tras cumplir criterios, recibo un **código**; cualquiera lo comprueba en verificación pública **sin cuenta**. No hay PDF en Fase 1. |
 
 ### Instructor
 
@@ -284,9 +284,11 @@ Quiero ser explícito porque afecta a la credibilidad de la certificación:
 ## 10. Certificación
 
 - Criterios de emisión propuestos: completar el 100% de lecciones obligatorias + superar el umbral de puntuación en las actividades evaluadas + entregar proyecto final. **[A confirmar el umbral]**
-- Certificado descargable con código de verificación pública.
+- **Fase 1 (corte enviado):** el certificado es un **código antifalsificación** + página de **verificación pública** (`GET /api/v1/certificates/verify/{code}`). No hay endpoint de descarga ni generación de PDF en el backend. La app no promete «oficial» ni «descarga» en copy de certificados (`apps/mobile/src/features/certificates/domain/copy.ts`).
 
-**Pregunta abierta importante:** en la reunión se habla de que los docentes obtendrán **"certificaciones oficiales"**. Hay que aclarar con Eduardo qué significa "oficial" exactamente: ¿certificado del Instituto, avalado por la Alcaldía, avalado por la ULEAM, o con alguna validez ante el Ministerio de Educación? Esto cambia el valor percibido y también las obligaciones legales. No es un detalle menor.
+**Decisión de producto pendiente (no bloquea el piloto):** ¿en una fase posterior hace falta **PDF descargable** (diseño, almacenamiento, cola)? Hoy el valor demostrable es la verificación sin cuenta.
+
+**Pregunta abierta con la Alcaldía:** en la reunión se habló de **"certificaciones oficiales"**. Hay que aclarar con Eduardo qué significa "oficial" en el acuerdo — **la plataforma no usa esa palabra en la UI** hasta tener respuesta. No confundir con un PDF bonito.
 
 ---
 
@@ -303,7 +305,7 @@ Propuesta de estructura **[A confirmar]**:
 | Ruta básica | ✅ | ✅ |
 | Rutas intermedia/experto | ❌ | ✅ |
 | Evaluaciones de prompt | Cupo mensual limitado | Amplio |
-| Certificado descargable | ❌ | ✅ |
+| Certificado (código + verificación pública) | ❌ | ✅ |
 | Foros | ✅ lectura | ✅ participación |
 
 ---
@@ -346,7 +348,7 @@ Solo dos fechas salen de la reunión; el resto es propuesta.
 | R3 | El evaluador automático puntúa mal y se pierde credibilidad | Alto | Calibración con muestra humana + override del instructor |
 | R4 | Costo de tokens crece más rápido que los ingresos | Medio-alto | Cupos, límite de tokens por entrega, monitoreo de consumo desde el día 1 |
 | R5 | Duplicación de esfuerzo al mantener la capa de presentación en móvil y web | Medio | Compartir dominio, datos y casos de uso al 100%; aceptar pantallas separadas donde convenga (§6) |
-| R6 | Ambigüedad sobre qué significa certificación "oficial" | Medio | Aclarar con la Alcaldía antes de prometerlo en la app |
+| R6 | Ambigüedad sobre qué significa certificación "oficial" | Medio | No prometer «oficial» en la app; aclarar con la Alcaldía. Fase 1 = código verificable, no PDF |
 | R7 | El equipo son estudiantes con disponibilidad limitada | Medio | Roles definidos y alcance de MVP recortado |
 | R8 | Datos personales de docentes | Medio | Ver TRD §11 |
 
@@ -355,7 +357,7 @@ Solo dos fechas salen de la reunión; el resto es propuesta.
 ## 15. Preguntas abiertas
 
 1. ¿La creación de cursos estará disponible también en móvil, o solo en web? (§6)
-2. ¿Qué significa exactamente "certificación oficial" en el acuerdo con la Alcaldía?
+2. ¿Qué significa exactamente "certificación oficial" en el acuerdo con la Alcaldía? *(La UI no dice «oficial»; Fase 1 no incluye PDF.)*
 3. ¿Cuántos reintentos por actividad y con qué efecto sobre la nota?
 4. ¿Cuál es el cupo del tier gratuito y el precio del tier pago?
 5. ¿El curso inicial para docentes replica la metodología ya validada de Eduardo (prompting + NotebookLM aplicado a tareas docentes)? Sería lo lógico, pero no está decidido.

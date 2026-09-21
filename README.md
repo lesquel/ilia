@@ -161,7 +161,7 @@ PDF de certificado, etc.) sigue explícito.
 | Inscripción y progreso — backend y cliente | ✅ Inscripción con código de cohorte, "Mis cursos", marcado de lecciones y punto de retomada |
 | Visor de lección | ✅ Texto y navegación por el temario. Reproductor de vídeo pendiente |
 | Laboratorio IA y motor de EVALs | ✅ Grafo `RunEvaluation` (Python). Adaptadores de LLM listos. Default `local-stub` hasta `ILIA_LLM_PROVIDER` |
-| Certificados | ✅ Emisión por criterios, código antifalsificación y **verificación pública sin cuenta**. Revocación de admin auditada |
+| Certificados | ✅ Emisión por criterios, código antifalsificación y **verificación pública sin cuenta**. **Sin PDF descargable** en Fase 1. Revocación de admin auditada |
 | Foro | ✅ Discusiones por curso, respuestas y moderación con alcance por instructor |
 | Freemium — planes, cupos y los cuatro gates | ✅ Números como datos editables, no constantes |
 | Instructor — autoría, publicación, revisión y roster | ✅ Backend y cliente |
