@@ -1,6 +1,6 @@
 """PostgreSQL implementation of the evaluation ports."""
 
-from datetime import datetime
+from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
 from sqlalchemy import func, select
@@ -12,6 +12,7 @@ from app.core.database import Database
 from app.features.catalog.infrastructure.models import CourseModel
 from app.features.evaluation.domain.checks import CheckSpec
 from app.features.evaluation.domain.entities import (
+    IDEMPOTENCY_TTL,
     MAX_RECOVERIES,
     Activity,
     Evaluation,
@@ -132,6 +133,7 @@ def _to_submission(row: SubmissionModel) -> Submission:
         updated_at=row.updated_at,
         created_at=row.created_at,
         failure_reason=row.failure_reason,
+        idempotency_key=row.idempotency_key,
     )
 
 
@@ -142,6 +144,18 @@ class SqlAlchemySubmissionRepository:
     async def add(self, submission: Submission) -> None:
         try:
             async with self._db.session() as session:
+                if submission.idempotency_key:
+                    cutoff = datetime.now(UTC) - IDEMPOTENCY_TTL
+                    await session.execute(
+                        sa_update(SubmissionModel)
+                        .where(
+                            SubmissionModel.user_id == submission.user_id,
+                            SubmissionModel.activity_id == submission.activity_id,
+                            SubmissionModel.idempotency_key == submission.idempotency_key,
+                            SubmissionModel.created_at < cutoff,
+                        )
+                        .values(idempotency_key=None)
+                    )
                 session.add(
                     SubmissionModel(
                         id=submission.id,
@@ -151,6 +165,7 @@ class SqlAlchemySubmissionRepository:
                         attempt=submission.attempt,
                         status=submission.status.value,
                         created_at=submission.created_at,
+                        idempotency_key=submission.idempotency_key,
                     )
                 )
         except IntegrityError as exc:
@@ -241,6 +256,22 @@ class SqlAlchemySubmissionRepository:
                     updated_at=func.now(),
                 )
             )
+
+    async def find_by_idempotency_key(
+        self, *, user_id: UUID, activity_id: UUID, idempotency_key: str
+    ) -> Submission | None:
+        cutoff = datetime.now(UTC) - IDEMPOTENCY_TTL
+        async with self._db.session() as session:
+            result = await session.execute(
+                select(SubmissionModel).where(
+                    SubmissionModel.user_id == user_id,
+                    SubmissionModel.activity_id == activity_id,
+                    SubmissionModel.idempotency_key == idempotency_key,
+                    SubmissionModel.created_at >= cutoff,
+                )
+            )
+            row = result.scalar_one_or_none()
+            return _to_submission(row) if row else None
 
     async def list_for_activity(self, *, user_id: UUID, activity_id: UUID) -> list[Submission]:
         async with self._db.session() as session:

@@ -4,9 +4,10 @@ All authenticated. Identity comes from the token — a submission is always
 attributed to whoever is holding the session, never to a body parameter.
 """
 
+from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Request, status
+from fastapi import APIRouter, Header, Request, status
 
 from app.features.auth.interface.dependencies import CurrentUser
 from app.features.evaluation.application.use_cases import (
@@ -62,6 +63,7 @@ async def submit_prompt(
     submissions: SubmissionsDep,
     quota: QuotaDep,
     queue: QueueDep,
+    idempotency_key: Annotated[str | None, Header(alias="Idempotency-Key")] = None,
 ) -> SubmissionResponse:
     """Accept a prompt for evaluation.
 
@@ -70,13 +72,20 @@ async def submit_prompt(
     request (TRD 3). The client polls the result endpoint with the id returned
     here.
     """
+    retry_key = (idempotency_key or payload.idempotency_key or "").strip() or None
+
     submission = await SubmitPrompt(
         activities=activities,
         submissions=submissions,
         quota=quota,
         queue=queue,
         clock=request.app.state.auth["clock"],
-    ).execute(user_id=user.id, activity_id=activity_id, prompt=payload.prompt)
+    ).execute(
+        user_id=user.id,
+        activity_id=activity_id,
+        prompt=payload.prompt,
+        idempotency_key=retry_key,
+    )
 
     return SubmissionResponse.from_entity(submission)
 

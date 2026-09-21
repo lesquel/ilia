@@ -1,7 +1,7 @@
 """Activity, submission and evaluation."""
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import StrEnum
 from uuid import UUID, uuid4
 
@@ -19,6 +19,10 @@ MAX_PROMPT_CHARS = 4000
 # Two restarts is a deploy or a crash; five is something that will not fix
 # itself by trying again.
 MAX_RECOVERIES = 3
+
+# How long a client retry key keeps returning the same submission. After this,
+# the same key may start a new attempt (the old row's key is cleared on insert).
+IDEMPOTENCY_TTL = timedelta(hours=24)
 
 
 class SubmissionStatus(StrEnum):
@@ -84,6 +88,7 @@ class Submission:
     # would otherwise be retried for ever, and each retry costs a model call.
     recoveries: int = 0
     updated_at: datetime | None = None
+    idempotency_key: str | None = None
 
     @classmethod
     def create(
@@ -94,12 +99,17 @@ class Submission:
         prompt: str,
         attempt: int,
         created_at: datetime | None = None,
+        idempotency_key: str | None = None,
     ) -> "Submission":
         cleaned = prompt.strip()
         if not cleaned:
             raise ValueError("The prompt cannot be empty")
         if len(cleaned) > MAX_PROMPT_CHARS:
             raise ValueError(f"The prompt cannot exceed {MAX_PROMPT_CHARS} characters")
+
+        key = idempotency_key.strip() if idempotency_key else None
+        if key == "":
+            key = None
 
         return cls(
             id=uuid4(),
@@ -108,6 +118,7 @@ class Submission:
             prompt=cleaned,
             attempt=attempt,
             created_at=created_at,
+            idempotency_key=key,
         )
 
 

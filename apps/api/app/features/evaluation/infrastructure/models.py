@@ -90,6 +90,14 @@ class SubmissionModel(Base):
 
     __table_args__ = (
         UniqueConstraint("user_id", "activity_id", "attempt", name="uq_submission_attempt"),
+        Index(
+            "uq_submission_idempotency",
+            "user_id",
+            "activity_id",
+            "idempotency_key",
+            unique=True,
+            postgresql_where=text("idempotency_key IS NOT NULL"),
+        ),
         # The recovery pass runs at every startup and looks for unfinished work.
         # Partial, because `scored` and `failed` are the overwhelming majority
         # and none of them is ever a candidate — the index stays small however
@@ -118,6 +126,8 @@ class SubmissionModel(Base):
     # names and marks (TRD 11) — which is exactly why retention needs deciding
     # before this runs at municipal scale.
     prompt: Mapped[str] = mapped_column(Text, nullable=False)
+    # Client-supplied key so a retry over flaky Wi-Fi does not double-charge quota.
+    idempotency_key: Mapped[str | None] = mapped_column(String(128), nullable=True)
     attempt: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="pending")
     failure_reason: Mapped[str | None] = mapped_column(String(120), nullable=True)
