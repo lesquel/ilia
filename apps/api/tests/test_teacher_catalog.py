@@ -4,13 +4,42 @@ These slugs are the public URLs teachers will share. If they drift, the seed
 loads something else and GET /catalog looks empty or wrong.
 """
 
-from app.content.teacher_catalog import TEACHER_ACTIVITIES, TEACHER_COURSES
+from app.content.teacher_catalog import (
+    LESSON_EXAMPLES,
+    TEACHER_ACTIVITIES,
+    TEACHER_COURSES,
+)
 
 CANONICAL_SLUGS = (
     "prompting-para-docentes",
     "notebooklm-en-el-aula",
     "evaluacion-asistida-por-ia",
 )
+
+PROMPTING_SLUG = "prompting-para-docentes"
+
+
+def _prompting_course() -> dict:
+    return next(course for course in TEACHER_COURSES if course["slug"] == PROMPTING_SLUG)
+
+
+def _prompting_lessons() -> list[tuple[str, str, int, str]]:
+    lessons: list[tuple[str, str, int, str]] = []
+    for _module_title, module_lessons in _prompting_course()["modules"]:
+        lessons.extend(module_lessons)
+    return lessons
+
+
+def _prompting_bodies() -> str:
+    return "\n".join(body for _title, _kind, _duration, body in _prompting_lessons())
+
+
+def _prompting_lab() -> dict:
+    return next(
+        activity
+        for activity in TEACHER_ACTIVITIES
+        if activity["course_slug"] == PROMPTING_SLUG
+    )
 
 
 def test_teacher_courses_publish_the_three_canonical_slugs() -> None:
@@ -19,3 +48,31 @@ def test_teacher_courses_publish_the_three_canonical_slugs() -> None:
 
 def test_each_canonical_course_has_a_lab() -> None:
     assert [activity["course_slug"] for activity in TEACHER_ACTIVITIES] == list(CANONICAL_SLUGS)
+
+
+def test_prompting_bodies_cite_destreza_and_ineval() -> None:
+    bodies = _prompting_bodies()
+    assert "LL.3.3.3" in bodies
+    assert "682 / 61,9 %" in bodies
+    assert "LL.3.3.4" in bodies
+    assert "7.º" in bodies
+
+
+def test_prompting_lesson_titles_are_not_the_destreza_code() -> None:
+    titles = [title for title, _kind, _duration, _body in _prompting_lessons()]
+    assert "LL.3.3.3" not in titles
+
+
+def test_prompting_lab_names_grade_and_destreza() -> None:
+    lab = _prompting_lab()
+    assert "prompt" not in lab["title"].lower()
+    assert "pedido" in lab["title"].lower()
+    assert "LL.3.3.3" in lab["statement"]
+    assert "7.º" in lab["statement"]
+
+
+def test_prompting_example_titles_say_pedido_not_prompt() -> None:
+    prompting_titles = {title for title, _kind, _duration, _body in _prompting_lessons()}
+    for lesson_title in prompting_titles:
+        for example_title, _example_body in LESSON_EXAMPLES[lesson_title]:
+            assert not example_title.startswith("Prompt")

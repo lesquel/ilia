@@ -21,7 +21,8 @@ PROMPTING_LESSONS_M1: list[Lesson] = [
         "Un pedido de una línea",
         "text",
         _minutes(5),
-        "Norma da lengua en séptimo en un colegio fiscal de la costa. "
+        "Norma da lengua en séptimo — 7.º de EGB, el último de Media — "
+        "en un colegio fiscal de la costa. "
         "Necesita una hoja para la clase de mañana y le pide a un modelo "
         "que se la escriba. Escribe una sola línea: «Hazme una lectura de "
         "séptimo, bien creativa, con varias preguntas.»\n\n"
@@ -60,9 +61,10 @@ PROMPTING_LESSONS_M1: list[Lesson] = [
         "• Decidir la nota del bimestre.\n\n"
         "Tampoco puede inventar una fuente. Si dice «según el Ministerio» "
         "y tú no pegaste el decreto, esa cita es teatro. Si te asegura que "
-        "el ochenta por ciento de séptimo ya domina el tema, es falso: en "
-        "la prueba nacional la mayoría de Media en lengua no llega al "
-        "mínimo.\n\n"
+        "el ochenta por ciento de séptimo ya distingue el tema de las "
+        "ideas, es falso: en Media, Lengua, 2024-25, el promedio es "
+        "682 / 61,9 % bajo 700. Esa cifra no la inventó este curso, y "
+        "terminarlo no sube Ser Estudiante.\n\n"
         "En el curso de Norma faltó un estudiante la semana pasada, y el "
         "modelo no tiene forma de saberlo. Si ella no lo escribe en el "
         "pedido, no existe. Y nada de lo que devuelve se manda a copias "
@@ -99,8 +101,15 @@ PROMPTING_LESSONS_M1: list[Lesson] = [
         "en matemática o en sociales: di el período exacto y di lo que no "
         "quieres.\n\n"
         "Si en tu planificación aparece un código del ministerio, lo "
-        "puedes pegar al final. Si no lo tienes, no pasa nada: ya dijiste "
-        "la tarea con tus palabras.",
+        "puedes pegar al final. En esta hoja de séptimo es LL.3.3.3: "
+        "Inferir y sintetizar el contenido esencial: tema vs ideas "
+        "principales. No lo pongas de título: la clase es el párrafo y "
+        "las cinco preguntas.\n\n"
+        "Si varios todavía no distinguen la idea, no bajes a una receta "
+        "ni subas a un ensayo. Un peldaño antes: parafrasear, releer, "
+        "preguntar, leer selectivamente. Eso es LL.3.3.4. Si no tienes "
+        "el código a mano, no pasa nada: ya dijiste la tarea con tus "
+        "palabras.",
     ),
     (
         "El recuadro",
@@ -257,7 +266,9 @@ PROMPTING_LESSONS_M3: list[Lesson] = [
         "2. ¿Hay un «según el Ministerio» que no pegaste? Sin el PDF, "
         "esa referencia no existe.\n"
         "3. ¿El nivel es el de tu grado? Una «lectura de séptimo» que "
-        "pide un ensayo con tesis no sirve. Tampoco una receta.\n"
+        "pide un ensayo con tesis no sirve. Tampoco una receta. Si la "
+        "hoja quedó dura, el peldaño es parafrasear y releer (LL.3.3.4), "
+        "no un cuento de animalitos.\n"
         "4. ¿El ejemplo asume otra vida? Precios en dólares, nieve, un "
         "barrio que tus estudiantes no conocen.\n"
         "5. ¿Hay algo que un estudiante podría copiar como si fuera "
@@ -490,9 +501,9 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
             "Esperamos: una cita que se tira",
             "«Según el Acuerdo Ministerial 2024-18, el 80 % de los séptimos "
             "ya distinguen el tema de las ideas.»\n"
-            "Norma no pegó ese acuerdo. Ese 80 % no está en ninguna "
-            "prueba. En la evaluación nacional la mayoría de Media en "
-            "lengua no llega al mínimo. Esto no se fotocopia.",
+            "Norma no pegó ese acuerdo. Ese 80 % no está en el informe. "
+            "En Media, Lengua, 2024-25, es 682 / 61,9 % bajo 700. "
+            "Esto no se fotocopia.",
         ),
     ],
     "Las cinco piezas": [
@@ -516,7 +527,8 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
             "minutos. No inventes el autor. No pidas una receta ni un "
             "ensayo.\n"
             "Devuélvelo: el párrafo y, debajo, las preguntas con la "
-            "respuesta. No inventes un dato que yo no te di.",
+            "respuesta. No inventes un dato que yo no te di. Si hace "
+            "falta el código de la destreza, va al final: LL.3.3.3.",
         ),
         (
             "Esperamos: la hoja de cinco preguntas",
@@ -860,18 +872,19 @@ TEACHER_COURSES: list[dict[str, Any]] = [
 TEACHER_ACTIVITIES: list[dict[str, Any]] = [
     {
         "course_slug": "prompting-para-docentes",
-        "title": "El prompt de tu próxima clase",
+        "title": "El pedido de tu próxima clase",
         "statement": (
             "Escribe el pedido para el material de TU próxima clase, "
             "como hizo Norma el domingo. Si aún no tienes el tema, usa "
-            "el de ella: séptimo, un párrafo con una idea y cinco "
+            "el de ella: 7.º EGB, un párrafo con una idea y cinco "
             "preguntas que se contestan con el texto. No pidas una "
             "receta ni un ensayo.\n\n"
             "Tiene que: decirle quién es el modelo, para quién es "
             "(el grado), qué ya vieron, cuántas preguntas, y cómo lo "
             "quieres de vuelta. Si puedes, pega un ejemplo corto de "
             "cómo se ve una pregunta.\n\n"
-            "Di qué tienen que saber hacer, no solo «una lectura»."
+            "Di qué tienen que saber hacer, no solo «una lectura». "
+            "El código, si lo pegas al final, es LL.3.3.3."
         ),
         "checks": {
             "requires_role": True,

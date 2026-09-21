@@ -95,14 +95,18 @@ Diseño: cubre la destreza **y** un peldaño de recuperación (equivalencia ante
 
 ## Checklist
 
-- [ ] Grado en la tabla LOEI 2023.
-- [ ] Código visible en la lección o el folio.
-- [ ] El ejemplo coincide con el tomo, no con el grado de abajo.
+Comprobado en `prompting-para-docentes` ([ficha](./fichas/prompting-para-docentes.md)). Lo que no aplica a esta hoja de lengua queda sin marcar.
+
+- [x] Grado en la tabla LOEI 2023.
+- [x] Código visible en la lección o el folio.
+- [x] El ejemplo coincide con el tomo, no con el grado de abajo.
 - [ ] La rúbrica pregunta el indicador.
 - [ ] Figura (pastel / circular) = el código correcto.
-- [ ] Cifra Ineval citada o marcada “sin cifra de este ciclo”.
-- [ ] No se promete que ILIA sube Ser Estudiante.
+- [x] Cifra Ineval citada o marcada “sin cifra de este ciclo”.
+- [x] No se promete que ILIA sube Ser Estudiante.
+
+Indicador: **no hallado** un I.LL.* que nombre tema frente a ideas principales; el laboratorio mide el pedido, no un I.LL. Figura pastel / circular es Matemática (M.3.1.46), no esta hoja.
 
 ## Next step
 
-El folio de prompting exige **grado + código**. Los tomos son la mesa. Si falta una destreza, se agrega desde el PDF, no de memoria.
+El folio de prompting ya trae **grado + código**. Los tomos son la mesa. Si falta una destreza, se agrega desde el PDF, no de memoria.
