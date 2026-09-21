@@ -10,6 +10,10 @@ import {
   useIssueCertificate,
   useMyCertificates,
 } from '@/features/certificates/application/use-certificates';
+import {
+  CERTIFICATE_PROOF,
+  PLAN_BLOCKS_CERTIFICATE,
+} from '@/features/certificates/domain/copy';
 
 /**
  * The certificate box on a course page.
@@ -47,6 +51,9 @@ export function CertificatePanel({ slug, courseTitle }: { slug: string; courseTi
         <Text selectable style={[styles.code, { color: theme.colors.accentRamp[800] }]}>
           {existing.code}
         </Text>
+        <Text style={[styles.missing, { color: theme.colors.accentRamp[800] }]}>
+          {CERTIFICATE_PROOF}
+        </Text>
         <Link href="/certificates" style={[styles.link, { color: theme.colors.accent }]}>
           Ver mis certificados →
         </Link>
@@ -74,11 +81,11 @@ export function CertificatePanel({ slug, courseTitle }: { slug: string; courseTi
     );
   }
 
-  // Eligibility is shown to everyone; only the download is gated. A teacher who
-  // earned it should know they earned it.
-  const canDownload = entitlements === null || entitlements.canIssueCertificates;
+  // Eligibility is shown to everyone; only issuing the code is gated. A teacher
+  // who earned it should know they earned it.
+  const canIssue = entitlements === null || entitlements.canIssueCertificates;
 
-  if (!canDownload) {
+  if (!canIssue) {
     return (
       <View
         style={[
@@ -94,7 +101,7 @@ export function CertificatePanel({ slug, courseTitle }: { slug: string; courseTi
           Completaste todo lo que pide este curso 🎉
         </Text>
         <Text style={[styles.missing, { color: theme.colors.accentRamp[800] }]}>
-          El certificado descargable no está incluido en tu plan actual.
+          {PLAN_BLOCKS_CERTIFICATE}
         </Text>
         <Link href="/plans" style={[styles.link, { color: theme.colors.accent }]}>
           Ver planes →
@@ -117,11 +124,14 @@ export function CertificatePanel({ slug, courseTitle }: { slug: string; courseTi
       <Text style={[styles.title, { color: theme.colors.accentRamp[800] }]}>
         Completaste todo lo que pide este curso
       </Text>
+      <Text style={[styles.missing, { color: theme.colors.accentRamp[800] }]}>
+        {CERTIFICATE_PROOF}
+      </Text>
 
       {issue.isError ? (
         <Text style={[styles.missing, { color: theme.colors.accentRamp[800] }]}>
           {issue.error instanceof ApiError && issue.error.code === 'criteria_not_met'
-            ? 'Todavía falta algo. Recargá la página para ver qué.'
+            ? 'Todavía falta algo. Vuelve a entrar para ver qué.'
             : 'No pudimos emitir el certificado. Prueba de nuevo.'}
         </Text>
       ) : null}

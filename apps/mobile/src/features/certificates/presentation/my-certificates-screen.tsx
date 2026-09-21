@@ -5,6 +5,7 @@ import { useTheme } from '@/core/theme';
 import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
 import { useSession } from '@/features/auth';
 import { useMyCertificates } from '@/features/certificates/application/use-certificates';
+import { CERTIFICATE_PROOF } from '@/features/certificates/domain/copy';
 import { formatIssueDate, type Certificate } from '@/features/certificates/domain/entities';
 
 export function MyCertificatesScreen() {
@@ -58,7 +59,7 @@ export function MyCertificatesScreen() {
         <View style={styles.header}>
           <Text style={[styles.title, { color: theme.colors.text }]}>Certificados</Text>
           <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
-            Cualquiera puede comprobar que son reales con su código, sin necesidad de cuenta.
+            {CERTIFICATE_PROOF}
           </Text>
         </View>
       }

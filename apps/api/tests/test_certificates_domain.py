@@ -6,11 +6,13 @@ from uuid import uuid4
 import pytest
 
 from app.features.certificates.domain.entities import (
+    SIMULATED_EVALUATION_MODEL,
     Certificate,
     CertificateStatus,
     VerificationCode,
     check_criteria,
 )
+from app.features.evaluation.infrastructure.llm import STUB_LLM_NAME
 
 
 def make_certificate() -> Certificate:
@@ -160,3 +162,33 @@ class TestCriteria:
         )
 
         assert len(outcome.missing) == 2
+
+    def test_a_stub_pass_does_not_qualify_even_when_the_counts_look_complete(self) -> None:
+        # Parked from Task 2: a local-stub score can satisfy "every activity
+        # passed" and mint a certificate. Simulated notes are not a credential.
+        outcome = check_criteria(
+            lessons_total=4,
+            lessons_completed=4,
+            activities_total=1,
+            activities_passed=1,
+            simulated_passed=1,
+        )
+
+        assert not outcome.met
+        assert any("simuladas" in reason for reason in outcome.missing)
+
+    def test_a_real_pass_still_qualifies(self) -> None:
+        outcome = check_criteria(
+            lessons_total=4,
+            lessons_completed=4,
+            activities_total=1,
+            activities_passed=1,
+            simulated_passed=0,
+        )
+
+        assert outcome.met
+        assert outcome.missing == []
+
+    def test_the_stub_model_name_matches_what_the_evaluator_writes(self) -> None:
+        # If these drift, the SQL filter would keep counting local-stub passes.
+        assert SIMULATED_EVALUATION_MODEL == STUB_LLM_NAME == "local-stub"

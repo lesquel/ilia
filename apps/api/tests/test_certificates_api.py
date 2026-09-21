@@ -135,6 +135,39 @@ class TestIssuing:
 
         assert len(mine) == 1
 
+    def test_a_stub_score_is_refused_even_when_the_activity_looks_passed(
+        self, client: TestClient, app
+    ) -> None:  # type: ignore[no-untyped-def]
+        # The client already hides the card. The API must not mint a code from
+        # local-stub notes — a teacher (or a curl) would still walk away with
+        # a credential that cannot be defended.
+        app.state.certificates["results"] = StubActivityResults(
+            total=1, passed=1, simulated_passed=1
+        )
+        token = register(client)
+        finish_course(client, app, token)
+
+        response = client.post(f"{CERTS}/ia-basica", headers=auth(token))
+
+        assert response.status_code == 409
+        assert response.json()["error"]["code"] == "criteria_not_met"
+        missing = response.json()["error"]["detail"]["missing"]
+        assert any("simuladas" in reason for reason in missing)
+
+    def test_eligibility_names_the_stub_instead_of_calling_it_a_pass(
+        self, client: TestClient, app
+    ) -> None:  # type: ignore[no-untyped-def]
+        app.state.certificates["results"] = StubActivityResults(
+            total=1, passed=1, simulated_passed=1
+        )
+        token = register(client)
+        finish_course(client, app, token)
+
+        body = client.get(f"{CERTS}/eligibility/ia-basica", headers=auth(token)).json()
+
+        assert body["met"] is False
+        assert any("simuladas" in reason for reason in body["missing"])
+
 
 class TestPublicVerification:
     def test_it_needs_no_account(self, client: TestClient, app) -> None:  # type: ignore[no-untyped-def]

@@ -106,6 +106,29 @@ class Certificate:
         self.revoked_at = at
 
 
+# Same string the stub evaluator writes on Evaluation.model
+# (`local_provider.MODEL_NAME` / `STUB_LLM_NAME`). A certificate issued from
+# those notes cannot be defended.
+SIMULATED_EVALUATION_MODEL = "local-stub"
+SIMULATED_NOTES_MESSAGE = (
+    "Estas notas son simuladas. No hay un modelo conectado. No sirven para certificar."
+)
+
+
+@dataclass(frozen=True)
+class ActivityResultCounts:
+    """How many labs a course has, and which of this teacher's passes count.
+
+    `passed` is real-model passes only. `simulated_passed` is activities whose
+    only pass came from the local stub — they look like a pass on the result
+    screen and must not mint a certificate.
+    """
+
+    total: int
+    passed: int
+    simulated_passed: int = 0
+
+
 @dataclass(frozen=True)
 class CriteriaOutcome:
     """Whether a course has been earned, and what is missing if not.
@@ -132,6 +155,7 @@ def check_criteria(
     lessons_completed: int,
     activities_total: int,
     activities_passed: int,
+    simulated_passed: int = 0,
 ) -> CriteriaOutcome:
     """The issuance criteria (PRD 10).
 
@@ -142,6 +166,9 @@ def check_criteria(
 
     An empty course never qualifies. A syllabus still being written must not
     hand out certification for free — the same guard the progress rules make.
+
+    A pass recorded by the local stub does not count, even when the numbers
+    look complete. Simulated notes are not a credential.
     """
     missing: list[str] = []
 
@@ -159,6 +186,9 @@ def check_criteria(
             f"Te falta aprobar {pending} "
             f"{'actividad' if pending == 1 else 'actividades'} del laboratorio."
         )
+
+    if simulated_passed > 0:
+        missing.append(SIMULATED_NOTES_MESSAGE)
 
     return CriteriaOutcome(
         lessons_total=lessons_total,

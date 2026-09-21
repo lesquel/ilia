@@ -6,6 +6,8 @@ from sqlalchemy import func, select
 
 from app.core.database import Database
 from app.features.certificates.domain.entities import (
+    SIMULATED_EVALUATION_MODEL,
+    ActivityResultCounts,
     Certificate,
     CertificateStatus,
     VerificationCode,
@@ -108,16 +110,39 @@ class SqlActivityResultsReader:
     def __init__(self, database: Database) -> None:
         self._db = database
 
-    async def counts_for_course(self, *, user_id: UUID, course_id: UUID) -> tuple[int, int]:
+    async def counts_for_course(self, *, user_id: UUID, course_id: UUID) -> ActivityResultCounts:
         async with self._db.session() as session:
             total = await session.execute(
                 select(func.count(ActivityModel.id)).where(ActivityModel.course_id == course_id)
             )
 
-            # An activity counts as passed if ANY attempt passed — a teacher who
-            # failed twice and got it right on the third try has learned it,
-            # which is the whole point of allowing retries.
+            # An activity counts as passed if ANY real-model attempt passed — a
+            # teacher who failed twice and got it right on the third try has
+            # learned it, which is the whole point of allowing retries. The
+            # local stub is not a real model: those notes must not mint a
+            # certificate.
+            real_pass = (
+                SubmissionModel.user_id == user_id,
+                ActivityModel.course_id == course_id,
+                EvaluationModel.passed.is_(True),
+                EvaluationModel.model != SIMULATED_EVALUATION_MODEL,
+            )
             passed = await session.execute(
+                select(func.count(func.distinct(SubmissionModel.activity_id)))
+                .select_from(SubmissionModel)
+                .join(EvaluationModel, EvaluationModel.submission_id == SubmissionModel.id)
+                .join(ActivityModel, ActivityModel.id == SubmissionModel.activity_id)
+                .where(*real_pass)
+            )
+
+            real_passed_ids = (
+                select(SubmissionModel.activity_id)
+                .select_from(SubmissionModel)
+                .join(EvaluationModel, EvaluationModel.submission_id == SubmissionModel.id)
+                .join(ActivityModel, ActivityModel.id == SubmissionModel.activity_id)
+                .where(*real_pass)
+            )
+            simulated = await session.execute(
                 select(func.count(func.distinct(SubmissionModel.activity_id)))
                 .select_from(SubmissionModel)
                 .join(EvaluationModel, EvaluationModel.submission_id == SubmissionModel.id)
@@ -126,7 +151,13 @@ class SqlActivityResultsReader:
                     SubmissionModel.user_id == user_id,
                     ActivityModel.course_id == course_id,
                     EvaluationModel.passed.is_(True),
+                    EvaluationModel.model == SIMULATED_EVALUATION_MODEL,
+                    SubmissionModel.activity_id.not_in(real_passed_ids),
                 )
             )
 
-            return int(total.scalar_one()), int(passed.scalar_one())
+            return ActivityResultCounts(
+                total=int(total.scalar_one()),
+                passed=int(passed.scalar_one()),
+                simulated_passed=int(simulated.scalar_one()),
+            )

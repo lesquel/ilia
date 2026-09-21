@@ -1,7 +1,11 @@
 from typing import Protocol
 from uuid import UUID
 
-from app.features.certificates.domain.entities import Certificate, VerificationCode
+from app.features.certificates.domain.entities import (
+    ActivityResultCounts,
+    Certificate,
+    VerificationCode,
+)
 
 
 class CertificateRepository(Protocol):
@@ -27,4 +31,6 @@ class ActivityResultsReader(Protocol):
     for the full aggregate would tie the two together for no reason.
     """
 
-    async def counts_for_course(self, *, user_id: UUID, course_id: UUID) -> tuple[int, int]: ...
+    async def counts_for_course(
+        self, *, user_id: UUID, course_id: UUID
+    ) -> ActivityResultCounts: ...

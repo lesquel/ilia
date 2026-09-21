@@ -68,15 +68,14 @@ class CheckEligibility:
         completed = await self._progress.completed_lesson_ids(enrollment.id)
         course_progress = compute_progress(course, completed)
 
-        activities_total, activities_passed = await self._results.counts_for_course(
-            user_id=user_id, course_id=course.id
-        )
+        counts = await self._results.counts_for_course(user_id=user_id, course_id=course.id)
 
         return check_criteria(
             lessons_total=course_progress.total_lessons,
             lessons_completed=course_progress.completed_lessons,
-            activities_total=activities_total,
-            activities_passed=activities_passed,
+            activities_total=counts.total,
+            activities_passed=counts.passed,
+            simulated_passed=counts.simulated_passed,
         )
 
 

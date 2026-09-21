@@ -11,6 +11,7 @@ import {
   levelsLabel,
   type Plan,
 } from '@/features/billing/domain/entities';
+import { CERTIFICATE_PLAN_FEATURE } from '@/features/certificates/domain/copy';
 
 export function PlansScreen() {
   const theme = useTheme();
@@ -114,7 +115,7 @@ function PlanCard({ plan, isCurrent }: { plan: Plan; isCurrent: boolean }) {
       <View style={styles.features}>
         <Feature text={formatQuota(plan.monthlyEvaluations)} included />
         <Feature text={`Rutas: ${levelsLabel(plan.allowedLevels)}`} included />
-        <Feature text="Certificado descargable" included={plan.canIssueCertificates} />
+        <Feature text={CERTIFICATE_PLAN_FEATURE} included={plan.canIssueCertificates} />
         <Feature text="Participar en el foro" included={plan.canPostInForum} />
         <Feature text="Leer el foro" included />
       </View>

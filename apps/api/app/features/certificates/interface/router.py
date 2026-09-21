@@ -149,9 +149,9 @@ async def issue(
     certificates: CertificatesDep,
     entitlements: EntitlementsDep,
 ) -> CertificateResponse:
-    # Downloadable certificates are a paid feature (PRD 11). Eligibility is
+    # Issuing the verification code is a paid feature (PRD 11). Eligibility is
     # still computed and shown to everyone — a teacher who earned it should
-    # know they earned it, even if their plan does not hand it over.
+    # know they earned it, even if their plan does not hand over the code.
     if entitlements is not None:
         require_certificates(entitlements)
 

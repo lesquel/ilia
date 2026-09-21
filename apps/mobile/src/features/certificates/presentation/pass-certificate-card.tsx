@@ -11,12 +11,16 @@ import {
   useIssueCertificate,
   useMyCertificates,
 } from '@/features/certificates/application/use-certificates';
+import {
+  CERTIFICATE_PROOF,
+  PLAN_BLOCKS_CERTIFICATE,
+} from '@/features/certificates/domain/copy';
 
 /**
- * The official credential, offered at the moment the practice counts.
+ * The verification code, offered at the moment the practice counts.
  *
  * The course page already has a panel. This one lives on the result so a
- * teacher who just passed does not have to go hunting for the diploma.
+ * teacher who just passed does not have to go hunting for the code.
  */
 export function PassCertificateCard({
   slug,
@@ -33,7 +37,7 @@ export function PassCertificateCard({
   const issue = useIssueCertificate(slug);
 
   const existing = certificates.find((certificate) => certificate.courseTitle === courseTitle);
-  const canDownload = entitlements === null || entitlements.canIssueCertificates;
+  const canIssue = entitlements === null || entitlements.canIssueCertificates;
 
   return (
     <View
@@ -59,7 +63,7 @@ export function PassCertificateCard({
         <Text style={[styles.holder, { color: theme.colors.neutral[700] }]}>{user.fullName}</Text>
       ) : null}
       <Text style={[styles.lede, { color: theme.colors.neutral[600] }]}>
-        La evidencia es tu pedido y la hoja que salió. Eso es lo que certifica el curso.
+        {CERTIFICATE_PROOF} La evidencia es tu pedido y la hoja que salió.
       </Text>
 
       {existing ? (
@@ -79,10 +83,10 @@ export function PassCertificateCard({
             {item}
           </Text>
         ))
-      ) : !canDownload ? (
+      ) : !canIssue ? (
         <>
           <Text style={[styles.missing, { color: theme.colors.neutral[700] }]}>
-            El certificado descargable no está en tu plan.
+            {PLAN_BLOCKS_CERTIFICATE}
           </Text>
           <Link href="/plans" style={[styles.link, { color: theme.colors.accent }]}>
             Ver planes

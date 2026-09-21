@@ -2,7 +2,11 @@
 
 from uuid import UUID
 
-from app.features.certificates.domain.entities import Certificate, VerificationCode
+from app.features.certificates.domain.entities import (
+    ActivityResultCounts,
+    Certificate,
+    VerificationCode,
+)
 
 
 class InMemoryCertificateRepository:
@@ -41,9 +45,14 @@ class InMemoryCertificateRepository:
 class StubActivityResults:
     """Fixed counts, for tests that are about certificates and not about the Lab."""
 
-    def __init__(self, total: int = 0, passed: int = 0) -> None:
+    def __init__(self, total: int = 0, passed: int = 0, *, simulated_passed: int = 0) -> None:
         self._total = total
         self._passed = passed
+        self._simulated_passed = simulated_passed
 
-    async def counts_for_course(self, *, user_id: UUID, course_id: UUID) -> tuple[int, int]:
-        return self._total, self._passed
+    async def counts_for_course(self, *, user_id: UUID, course_id: UUID) -> ActivityResultCounts:
+        return ActivityResultCounts(
+            total=self._total,
+            passed=self._passed,
+            simulated_passed=self._simulated_passed,
+        )
