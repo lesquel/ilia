@@ -57,3 +57,25 @@ class TestReadiness:
         assert body["llm"] == "anthropic"
         assert body["llm"] != "local-stub"
         assert "not-a-real-key" not in str(body)
+
+    def test_whitespace_only_provider_still_reports_the_stub(self, settings: Settings) -> None:
+        """A blank `ILIA_LLM_PROVIDER` is the stub, same as unset.
+
+        Readiness used to echo the raw string. `" "` is not `local-stub`, so
+        the documented operator check would pass while evaluation still
+        graded nothing.
+        """
+        configured = settings.model_copy(update={"llm_provider": " "})
+        body = TestClient(create_app(configured)).get("/health/ready").json()
+
+        assert body["llm"] == "local-stub"
+
+    def test_a_padded_provider_name_is_the_one_evaluation_selected(
+        self, settings: Settings
+    ) -> None:
+        configured = settings.model_copy(
+            update={"llm_provider": " Anthropic ", "llm_api_key": "not-a-real-key"}
+        )
+        body = TestClient(create_app(configured)).get("/health/ready").json()
+
+        assert body["llm"] == "anthropic"

@@ -17,9 +17,11 @@ from app.features.evaluation.domain.ports import (
     SubmissionRepository,
 )
 from app.features.evaluation.infrastructure.llm import (
+    STUB_LLM_NAME,
     LlmPromptExecutor,
     LlmPromptJudge,
     build_llm_client,
+    selected_llm_name,
 )
 from app.features.evaluation.infrastructure.local_provider import (
     LocalPromptExecutor,
@@ -68,6 +70,7 @@ def build_evaluation_container(
     if client is not None:
         executor = LlmPromptExecutor(client)
         judge = LlmPromptJudge(client)
+        llm_name = selected_llm_name(settings)
     else:
         structlog.get_logger().warning(
             "evaluation_using_local_stub",
@@ -75,6 +78,7 @@ def build_evaluation_container(
         )
         executor = LocalPromptExecutor()
         judge = LocalPromptJudge()
+        llm_name = STUB_LLM_NAME
 
     run = RunEvaluation(
         activities=activities,
@@ -97,6 +101,9 @@ def build_evaluation_container(
         "quota": UnlimitedQuota(),
         "run": run,
         "queue": InProcessEvaluationQueue(run.execute),
+        # What `/health/ready` reports. The name evaluation actually selected,
+        # not the raw env string — whitespace is the stub.
+        "llm": llm_name,
     }
 
 

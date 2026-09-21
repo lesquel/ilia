@@ -83,8 +83,9 @@ async def ready(request: Request, response: Response) -> ReadinessResponse:
     return ReadinessResponse(
         status="ok" if response.status_code != status.HTTP_503_SERVICE_UNAVAILABLE else "degraded",
         database=database_status,
-        # Names only, never keys. "local-stub" here is how you notice a
-        # deployment that is not really grading anything.
-        llm=settings.llm_provider or "local-stub",
+        # The name evaluation actually selected, never the raw env string and
+        # never a key. "local-stub" here is how you notice a deployment that
+        # is not really grading anything.
+        llm=request.app.state.evaluation.get("llm", "local-stub"),
         storage=settings.storage_provider or "local",
     )

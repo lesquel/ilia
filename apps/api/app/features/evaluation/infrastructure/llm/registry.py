@@ -43,6 +43,10 @@ DEFAULT_MODELS: dict[Provider, str] = {
     Provider.DEEPSEEK: "deepseek-chat",
 }
 
+# What `/health/ready` reports when evaluation is running the local stub.
+# Must match `local_provider.MODEL_NAME`: the operator check is this string.
+STUB_LLM_NAME = "local-stub"
+
 
 class ProviderMisconfiguredError(ValueError):
     """The configuration names a provider that cannot be built from it.
@@ -53,6 +57,13 @@ class ProviderMisconfiguredError(ValueError):
     """
 
 
+def selected_llm_name(settings: Settings) -> str:
+    """The provider evaluation will grade with, after the same strip/lower
+    `build_llm_client` uses. Empty or whitespace is the local stub.
+    """
+    return settings.llm_provider.strip().lower() or STUB_LLM_NAME
+
+
 def build_llm_client(settings: Settings) -> LlmClient | None:
     """The configured client, or None to run the local stub.
 
@@ -60,8 +71,8 @@ def build_llm_client(settings: Settings) -> LlmClient | None:
     now — so it is returned rather than raised. Naming a provider and getting
     it wrong is not.
     """
-    name = settings.llm_provider.strip().lower()
-    if not name:
+    name = selected_llm_name(settings)
+    if name == STUB_LLM_NAME:
         return None
 
     try:

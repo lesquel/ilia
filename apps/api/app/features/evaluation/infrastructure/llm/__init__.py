@@ -14,13 +14,16 @@ from app.features.evaluation.infrastructure.llm.executor import LlmPromptExecuto
 from app.features.evaluation.infrastructure.llm.judge import LlmPromptJudge
 from app.features.evaluation.infrastructure.llm.registry import (
     DEFAULT_MODELS,
+    STUB_LLM_NAME,
     Provider,
     ProviderMisconfiguredError,
     build_llm_client,
+    selected_llm_name,
 )
 
 __all__ = [
     "DEFAULT_MODELS",
+    "STUB_LLM_NAME",
     "LlmClient",
     "LlmError",
     "LlmPromptExecutor",
@@ -30,4 +33,5 @@ __all__ = [
     "Provider",
     "ProviderMisconfiguredError",
     "build_llm_client",
+    "selected_llm_name",
 ]

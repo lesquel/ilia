@@ -17,6 +17,7 @@ from app.features.evaluation.domain.ports import UntrustedPrompt
 from app.features.evaluation.domain.rubric import Dimension, DimensionKind, Rubric
 from app.features.evaluation.infrastructure.llm import (
     DEFAULT_MODELS,
+    STUB_LLM_NAME,
     LlmError,
     LlmPromptExecutor,
     LlmPromptJudge,
@@ -25,6 +26,7 @@ from app.features.evaluation.infrastructure.llm import (
     Provider,
     ProviderMisconfiguredError,
     build_llm_client,
+    selected_llm_name,
 )
 from app.features.evaluation.infrastructure.llm.anthropic import AnthropicClient
 from app.features.evaluation.infrastructure.llm.gemini import GeminiClient
@@ -258,6 +260,9 @@ class TestProviderSelection:
 
     def test_no_provider_runs_the_stub(self) -> None:
         assert build_llm_client(self.make()) is None
+        assert selected_llm_name(self.make()) == STUB_LLM_NAME
+        assert build_llm_client(self.make(llm_provider=" ")) is None
+        assert selected_llm_name(self.make(llm_provider=" ")) == STUB_LLM_NAME
 
     def test_each_supported_provider_builds(self) -> None:
         expected = {
