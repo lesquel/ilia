@@ -88,6 +88,30 @@ reinicios en todas las réplicas a la vez.
 nombres, nunca claves. Ver `local-stub` ahí es cómo se detecta un despliegue que
 no está evaluando nada de verdad.
 
+### Conectar un LLM
+
+Vacío corre el stub. El motor que evalúa es **`RunEvaluation`** (Python sobre
+puertos). No es LangGraph.
+
+En `.env` (ver `docs/deploy.env.example`):
+
+| Variable | Qué es |
+|---|---|
+| `ILIA_LLM_PROVIDER` | `anthropic` · `openai` · `gemini` · `deepseek` · `openai-compatible` |
+| `ILIA_LLM_API_KEY` | La clave. Solo en `.env`, nunca en git |
+| `ILIA_LLM_MODEL` | Opcional. Defaults: `claude-sonnet-4-5`, `gpt-4o-mini`, `gemini-2.0-flash`, `deepseek-chat`. Obligatorio con `openai-compatible` |
+| `ILIA_LLM_BASE_URL` | Obligatorio con `openai-compatible` |
+
+Cómo se prueba, **sin** llamar a un proveedor de pago:
+
+```sh
+curl -sS http://localhost:8000/health/ready
+```
+
+El campo `llm` tiene que ser el nombre del proveedor, **no** `local-stub`. Un
+proveedor nombrado sin clave falla al arrancar. Las notas del stub no son
+reales y no sirven para certificar.
+
 ## Estado
 
 Fase temprana. La documentación de requisitos está completa (v0.1) y hay un
@@ -106,7 +130,7 @@ real, en backend y en cliente.
 | Catálogo — backend y cliente | ✅ Público. Filtros, búsqueda, paginación por cursor y detalle con temario |
 | Inscripción y progreso — backend y cliente | ✅ Inscripción con código de cohorte, "Mis cursos", marcado de lecciones y punto de retomada |
 | Visor de lección | ✅ Texto y navegación por el temario. Reproductor de vídeo pendiente |
-| Laboratorio IA y motor de EVALs | ✅ Grafo completo del TRD §6.1, con anclaje determinístico y resistencia a inyección. **Sin proveedor de LLM conectado** |
+| Laboratorio IA y motor de EVALs | ✅ Grafo `RunEvaluation` (Python). Adaptadores de LLM listos. Default `local-stub` hasta `ILIA_LLM_PROVIDER` |
 | Certificados | ✅ Emisión por criterios, código antifalsificación y **verificación pública sin cuenta**. Revocación de admin auditada |
 | Foro | ✅ Discusiones por curso, respuestas y moderación con alcance por instructor |
 | Freemium — planes, cupos y los cuatro gates | ✅ Números como datos editables, no constantes |
@@ -140,10 +164,11 @@ resueltas.
    **Sigue abierto dónde se despliega**, y eso importa: la estrategia de cookie
    exige que el cliente web y la API compartan dominio registrable.
 3. **Proveedor y modelo de LLM.** El motor de EVALs **ya está construido y
-   probado** detrás de un puerto (TRD T4), así que esto ya no bloquea el
-   desarrollo — bloquea que las notas signifiquen algo. Hoy corre contra un stub
-   local que produce salida válida y **no evalúa nada**, y lo dice en voz alta en
-   el feedback que ve el docente.
+   probado** detrás de un puerto (TRD T4). `RunEvaluation` es el motor enviado;
+   no se añade LangGraph. Hoy el default es `local-stub` hasta que el entorno
+   tenga `ILIA_LLM_PROVIDER` y `ILIA_LLM_API_KEY`. El stub produce salida válida
+   y **no evalúa nada**; el docente lo lee arriba de la nota, y
+   `/health/ready` lo dice. Ver [Conectar un LLM](#conectar-un-llm).
 4. ~~**Cohortes sí o no.**~~ ✅ **Decidido: con cohortes.** La tabla `cohort` y
    `app_user.cohort_id` ya están en la primera migración, así que no habrá que
    migrar datos de docentes reales después. Falta el flujo: crear cohortes y que
@@ -168,17 +193,18 @@ docs/         PRD, TRD y mockup
 
 ## Stack
 
-Las decisiones marcadas *(propuesta)* provienen de las recomendaciones del TRD y
-siguen pendientes de confirmación por el equipo.
+Las decisiones del stack que el TRD marcaba *(propuesta)* ya están tomadas en
+el código: Expo, TypeScript, TanStack Query, FastAPI. La orquestación de IA
+enviada es `RunEvaluation`, no LangGraph.
 
 | Área | Elección |
 |---|---|
-| Cliente | React Native + React Native Web, con Expo *(propuesta)* |
-| Lenguaje cliente | TypeScript *(propuesta)* |
-| Datos de servidor | TanStack Query *(propuesta)* |
-| Backend | Python + FastAPI *(propuesta)* |
+| Cliente | React Native + React Native Web, con Expo |
+| Lenguaje cliente | TypeScript |
+| Datos de servidor | TanStack Query |
+| Backend | Python + FastAPI |
 | Base de datos | PostgreSQL 17 |
-| Orquestación de IA | LangGraph |
+| Orquestación de IA | `RunEvaluation` (Python sobre puertos; no LangGraph) |
 | Arquitectura | Clean Architecture organizada por features, en cliente y backend |
 
 ## Roles

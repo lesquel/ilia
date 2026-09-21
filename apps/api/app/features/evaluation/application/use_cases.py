@@ -1,9 +1,9 @@
 """Evaluation use cases.
 
 `RunEvaluation` below is the graph of TRD 6.1, expressed as ordinary Python over
-ports. LangGraph, when it arrives, is an implementation of `PromptExecutor` and
-`PromptJudge` — it does not replace this orchestration, and the sequence stays
-testable without a provider.
+ports. That is the shipped engine. A later adapter may implement `PromptExecutor`
+and `PromptJudge`; it does not replace this orchestration, and the sequence
+stays testable without a provider.
 """
 
 from uuid import UUID

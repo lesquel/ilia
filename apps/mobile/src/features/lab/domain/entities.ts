@@ -113,3 +113,17 @@ export function scoreTone(score: number): 'strong' | 'fair' | 'weak' {
 export function dimensionName(activity: Activity | null, key: string): string {
   return activity?.dimensions.find((item) => item.key === key)?.name ?? key;
 }
+
+const STUB_MODEL = 'local-stub';
+
+/**
+ * Copy for a result that was not judged by a real model.
+ *
+ * The stub already says so in `feedback`, but that arrives after the verdict
+ * and the numbers. A teacher who stops at "esta práctica cuenta" would treat
+ * a placeholder mark as real.
+ */
+export function simulatedEvaluationNotice(model: string): string | null {
+  if (model !== STUB_MODEL) return null;
+  return 'Estas notas son simuladas. No hay un modelo conectado. No sirven para certificar.';
+}

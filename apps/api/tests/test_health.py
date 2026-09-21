@@ -7,6 +7,9 @@ across every replica at once.
 
 from fastapi.testclient import TestClient
 
+from app.core.config import Settings
+from app.main import create_app
+
 
 class TestLiveness:
     def test_it_answers_without_a_database(self, client: TestClient) -> None:
@@ -38,3 +41,19 @@ class TestReadiness:
         assert body["llm"] == "local-stub"
         assert body["storage"] == "local"
         assert "key" not in str(body).lower()
+
+    def test_a_configured_provider_is_named_instead_of_the_stub(self, settings: Settings) -> None:
+        """How an operator proves the wiring without grading a teacher.
+
+        `/health/ready` reports the provider name, never the key. Seeing
+        anything other than `local-stub` is the check; a live lab against a
+        paid API is not.
+        """
+        configured = settings.model_copy(
+            update={"llm_provider": "anthropic", "llm_api_key": "not-a-real-key"}
+        )
+        body = TestClient(create_app(configured)).get("/health/ready").json()
+
+        assert body["llm"] == "anthropic"
+        assert body["llm"] != "local-stub"
+        assert "not-a-real-key" not in str(body)

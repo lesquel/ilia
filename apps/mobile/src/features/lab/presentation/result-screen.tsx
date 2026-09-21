@@ -17,7 +17,12 @@ import {
   useActivity,
   useSubmissionResult,
 } from '@/features/lab/application/use-lab';
-import { dimensionName, scoreTone, type DimensionScore } from '@/features/lab/domain/entities';
+import {
+  dimensionName,
+  scoreTone,
+  simulatedEvaluationNotice,
+  type DimensionScore,
+} from '@/features/lab/domain/entities';
 import { sideScoresFromEvaluation } from '@/features/lab/domain/side-scores';
 import { GeneratedSheet } from '@/features/lab/presentation/generated-sheet';
 
@@ -82,7 +87,8 @@ export function ResultScreen() {
     );
   }
 
-  const accent = evaluation.passed ? theme.colors.accent : theme.colors.neutral[600];
+  const simulatedNotice = simulatedEvaluationNotice(evaluation.model);
+  const accent = evaluation.passed && !simulatedNotice ? theme.colors.accent : theme.colors.neutral[600];
   const sides = sideScoresFromEvaluation(activity, evaluation.dimensionScores);
   const generatedText = evaluation.generatedText.trim();
 
@@ -95,8 +101,23 @@ export function ResultScreen() {
         Resultado · intento {submission.attempt}
       </Text>
 
+      {simulatedNotice ? (
+        <View
+          style={[
+            styles.panel,
+            { borderColor: theme.colors.divider, borderRadius: theme.radius.md },
+          ]}
+        >
+          <Text style={[styles.panelTitle, { color: theme.colors.text }]}>{simulatedNotice}</Text>
+        </View>
+      ) : null}
+
       <Text style={[styles.verdict, { color: theme.colors.text }]}>
-        {evaluation.passed ? 'Esta práctica cuenta.' : 'Todavía no alcanza'}
+        {simulatedNotice
+          ? 'Esta nota no cuenta.'
+          : evaluation.passed
+            ? 'Esta práctica cuenta.'
+            : 'Todavía no alcanza'}
       </Text>
 
       <View style={[styles.pair, isWide ? styles.pairWide : undefined]}>
@@ -148,7 +169,7 @@ export function ResultScreen() {
         </View>
       </View>
 
-      {evaluation.passed && activity?.courseSlug ? (
+      {evaluation.passed && !simulatedNotice && activity?.courseSlug ? (
         <PassCertificateCard
           slug={activity.courseSlug}
           courseTitle={activity.courseTitle || activity.title}

@@ -1,15 +1,13 @@
 """A provider-free executor and judge, for local development.
 
 **These do not evaluate anything.** They produce well-formed, deterministic
-output so the pipeline can be run, demonstrated and tested end to end while the
-LLM provider is still an open decision (TRD 2.6).
+output so the pipeline can be run, demonstrated and tested end to end while
+`ILIA_LLM_PROVIDER` is empty. The real adapters implement the same two ports
+and drop in beside these. Nothing in `domain` or `application` changes when a
+provider is configured; that is what the ports are for (TRD T4).
 
-The real adapters — LangGraph over whichever provider is chosen — implement the
-same two ports and drop in beside these. Nothing in `domain` or `application`
-changes when they arrive; that is what the ports are for (TRD T4).
-
-Refuses to run in production, because a fake grade handed to a real teacher is
-worse than no grade at all.
+The shipped engine is `RunEvaluation` in ordinary Python. Do not treat these
+scores as real, and do not certify anyone with them.
 """
 
 import hashlib

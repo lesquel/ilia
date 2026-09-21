@@ -16,6 +16,7 @@ from app.core.config import Settings
 from app.features.evaluation.domain.ports import UntrustedPrompt
 from app.features.evaluation.domain.rubric import Dimension, DimensionKind, Rubric
 from app.features.evaluation.infrastructure.llm import (
+    DEFAULT_MODELS,
     LlmError,
     LlmPromptExecutor,
     LlmPromptJudge,
@@ -269,7 +270,15 @@ class TestProviderSelection:
             client = build_llm_client(self.make(llm_provider=name, llm_api_key="k"))
             assert isinstance(client, kind), name
             # Naming a provider is enough; the model has a default.
-            assert client.model
+            assert client.model == DEFAULT_MODELS[Provider(name)]
+
+    def test_documented_default_models_match_the_registry(self) -> None:
+        assert DEFAULT_MODELS == {
+            Provider.ANTHROPIC: "claude-sonnet-4-5",
+            Provider.OPENAI: "gpt-4o-mini",
+            Provider.GEMINI: "gemini-2.0-flash",
+            Provider.DEEPSEEK: "deepseek-chat",
+        }
 
     def test_deepseek_and_openai_share_an_adapter_but_not_an_endpoint(self) -> None:
         deepseek = build_llm_client(self.make(llm_provider="deepseek", llm_api_key="k"))

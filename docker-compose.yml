@@ -48,12 +48,13 @@ services:
       ILIA_CORS_ORIGINS: ${ILIA_CORS_ORIGINS:?set ILIA_CORS_ORIGINS}
       ILIA_COOKIE_SECURE: 'true'
       ILIA_COOKIE_DOMAIN: ${ILIA_COOKIE_DOMAIN:-}
-      # Empty runs the local stub, which grades nothing and says so. The
-      # readiness endpoint reports `local-stub` so a deploy that forgot this is
-      # visible rather than quietly meaningless.
+      # Empty runs the local stub, which grades nothing and says so. Prove a
+      # real provider with GET /health/ready: `llm` must not be `local-stub`.
+      # Allowed: anthropic | openai | gemini | deepseek | openai-compatible.
       ILIA_LLM_PROVIDER: ${ILIA_LLM_PROVIDER:-}
       ILIA_LLM_API_KEY: ${ILIA_LLM_API_KEY:-}
       ILIA_LLM_MODEL: ${ILIA_LLM_MODEL:-}
+      ILIA_LLM_BASE_URL: ${ILIA_LLM_BASE_URL:-}
       ILIA_LLM_INPUT_PRICE_PER_MILLION: ${ILIA_LLM_INPUT_PRICE_PER_MILLION:-0}
       ILIA_LLM_OUTPUT_PRICE_PER_MILLION: ${ILIA_LLM_OUTPUT_PRICE_PER_MILLION:-0}
       # Required in production: the local adapter signs nothing, and the API

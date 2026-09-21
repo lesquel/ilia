@@ -68,9 +68,10 @@ con nombres bonitos:
 - La inyección de dependencias se resuelve al arrancar, no dentro de los casos
   de uso.
 
-El beneficio concreto: el caso de uso "evaluar entrega" depende de un puerto
-`PromptEvaluator`. La implementación con LangGraph vive en `infrastructure`.
-Eso permite testear el caso de uso con un evaluador falso, **sin gastar tokens.**
+El beneficio concreto: el caso de uso "evaluar entrega" (`RunEvaluation`)
+depende de puertos `PromptExecutor` y `PromptJudge`. Los adaptadores HTTP viven
+en `infrastructure`. Eso permite testear el caso de uso con un evaluador falso,
+**sin gastar tokens.**
 
 ## Base de datos
 
@@ -342,9 +343,10 @@ validar → ejecutar en aislamiento → checks determinísticos ‖ juicio del m
         → agregar → feedback → persistir
 ```
 
-Vive en `application/use_cases.py` como Python común sobre puertos. LangGraph,
-cuando llegue, implementa `PromptExecutor` y `PromptJudge` — **no reemplaza esta
-orquestación**, y la secuencia se sigue pudiendo testear sin proveedor.
+Vive en `application/use_cases.py` como **`RunEvaluation`**: Python común sobre
+puertos. Eso es el motor enviado. Un adaptador posterior puede implementar
+`PromptExecutor` y `PromptJudge` — **no reemplaza esta orquestación**, y la
+secuencia se sigue pudiendo testear sin proveedor. No se añade LangGraph.
 
 ### Cómo se defiende una nota
 
@@ -395,16 +397,16 @@ Un puerto, varios proveedores, elegidos por configuración:
 | `ILIA_LLM_PROVIDER` | Adaptador | Modelo por defecto |
 |---|---|---|
 | `anthropic` | Messages API | `claude-sonnet-4-5` |
-| `openai` | Chat Completions | `gpt-4o` |
+| `openai` | Chat Completions | `gpt-4o-mini` |
 | `gemini` | `generateContent` | `gemini-2.0-flash` |
 | `deepseek` | Chat Completions | `deepseek-chat` |
-| `openai-compatible` | Chat Completions | — (requiere `ILIA_LLM_MODEL`) |
+| `openai-compatible` | Chat Completions | — (requiere `ILIA_LLM_MODEL` e `ILIA_LLM_BASE_URL`) |
 
 ```sh
 ILIA_LLM_PROVIDER=anthropic
 ILIA_LLM_API_KEY=...
 ILIA_LLM_MODEL=            # opcional: hay default por proveedor
-ILIA_LLM_BASE_URL=         # solo para openai-compatible
+ILIA_LLM_BASE_URL=         # obligatorio para openai-compatible
 ILIA_LLM_INPUT_PRICE_PER_MILLION=0.25
 ILIA_LLM_OUTPUT_PRICE_PER_MILLION=1.25
 ```
@@ -412,6 +414,16 @@ ILIA_LLM_OUTPUT_PRICE_PER_MILLION=1.25
 Vacío corre el stub local. Un proveedor **mal configurado falla al arrancar**, no
 en la primera entrega: un docente perdería un intento por un error de despliegue
 y no se enteraría de por qué.
+
+Cómo se prueba, **sin** llamar a un proveedor de pago:
+
+```sh
+curl -sS http://localhost:8000/health/ready
+```
+
+El campo `llm` tiene que ser el nombre del proveedor, **no** `local-stub`. El
+motor que evalúa es `RunEvaluation` (Python). No es LangGraph. Las notas del stub
+no son reales y no sirven para certificar.
 
 ### Decisiones que vale la pena conocer
 
@@ -636,8 +648,9 @@ evaluando».
 
 - **El proveedor de LLM se configura, no se elige en el código.** Sin
   `ILIA_LLM_PROVIDER` corre `infrastructure/local_provider.py`, que produce
-  salida válida y **no evalúa nada** — el feedback lo dice en voz alta. Con un
-  proveedor configurado evalúa de verdad. Ver «Proveedores de LLM» más abajo.
+  salida válida y **no evalúa nada**. `/health/ready` lo dice: `llm` es
+  `local-stub`. Con un proveedor configurado, `llm` es el nombre del proveedor
+  y no se llama a la API de pago para comprobarlo. Ver «Proveedores de LLM».
 - **La cola corre en el proceso de la API** (`infrastructure/queue.py`). La
   tecnología de cola sigue abierta (TRD §5.2), pero ya **sobrevive un
   reinicio**: `recover_abandoned` corre al arrancar y retoma lo que un proceso

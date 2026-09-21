@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { EMPTY_ACTIVITY_CHECKS, MAX_PROMPT_CHARS, canSubmit, type Activity } from './entities';
+import {
+  EMPTY_ACTIVITY_CHECKS,
+  MAX_PROMPT_CHARS,
+  canSubmit,
+  simulatedEvaluationNotice,
+  type Activity,
+} from './entities';
 
 function activity(attemptsLeft: number): Activity {
   return {
@@ -36,5 +42,21 @@ describe('canSubmit', () => {
   it('refuses a prompt past the limit the API enforces', () => {
     expect(canSubmit(activity(3), 'a'.repeat(MAX_PROMPT_CHARS))).toBe(true);
     expect(canSubmit(activity(3), 'a'.repeat(MAX_PROMPT_CHARS + 1))).toBe(false);
+  });
+});
+
+describe('simulatedEvaluationNotice', () => {
+  it('warns when the recorded model is the local stub', () => {
+    // A teacher who only reads the verdict and the number would treat a stub
+    // mark as real. The notice has to exist so the result screen can put it
+    // above both.
+    expect(simulatedEvaluationNotice('local-stub')).toBe(
+      'Estas notas son simuladas. No hay un modelo conectado. No sirven para certificar.',
+    );
+  });
+
+  it('stays silent for a real provider model', () => {
+    expect(simulatedEvaluationNotice('gpt-4o-mini')).toBeNull();
+    expect(simulatedEvaluationNotice('claude-sonnet-4-5')).toBeNull();
   });
 });

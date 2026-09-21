@@ -11,9 +11,23 @@ manda la cookie. No se inventa un hostname acá.
 
 ## LLM
 
-Hasta que el entorno tenga `ILIA_LLM_PROVIDER` y su clave, el motor corre el
-stub local. `/health/ready` lo dice: `local-stub`. Esas notas **no son
-reales** y no se certifica a nadie con ellas.
+Hasta que el entorno tenga `ILIA_LLM_PROVIDER` y `ILIA_LLM_API_KEY`, el motor
+corre el stub local. El motor que evalúa es `RunEvaluation` (Python). No es
+LangGraph.
+
+`ILIA_LLM_PROVIDER` — uno de: `anthropic`, `openai`, `gemini`, `deepseek`,
+`openai-compatible`. Modelos por defecto (sobreescribibles con `ILIA_LLM_MODEL`):
+`claude-sonnet-4-5`, `gpt-4o-mini`, `gemini-2.0-flash`, `deepseek-chat`.
+`openai-compatible` exige además `ILIA_LLM_MODEL` e `ILIA_LLM_BASE_URL`.
+
+Cómo se prueba, sin llamar a un proveedor de pago:
+
+```sh
+curl -sS http://localhost:8000/health/ready
+```
+
+El campo `llm` tiene que ser el nombre del proveedor, **no** `local-stub`.
+Esas notas del stub **no son reales** y no se certifica a nadie con ellas.
 
 ## Certificación
 
