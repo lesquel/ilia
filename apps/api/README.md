@@ -892,7 +892,7 @@ postura que con los precios de tokens del panel de admin.
 | Gate | Dónde | Error |
 |---|---|---|
 | Nivel del curso | al inscribirse | `plan_level_not_allowed` |
-| Certificado descargable | al emitirlo | `plan_certificates_not_allowed` |
+| Certificado (código de verificación) | al emitirlo | `plan_certificates_not_allowed` |
 | Publicar en el foro | al abrir hilo o responder | `plan_posting_not_allowed` |
 | Cupo de evaluaciones | al enviar un prompt | `evaluation_quota_exceeded` |
 

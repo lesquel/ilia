@@ -51,8 +51,8 @@ DEMO_PLANS = [
         "code": "pro",
         "name": "Completo",
         "description": (
-            "Todas las rutas, cupo amplio de evaluaciones, certificado descargable "
-            "y participación en el foro."
+            "Todas las rutas, cupo amplio de evaluaciones, certificado con código "
+            "de verificación y participación en el foro."
         ),
         "monthly_evaluations": 200,
         "allowed_levels": ["beginner", "intermediate", "expert"],
@@ -123,11 +123,14 @@ async def main() -> None:
 
         async with database.session() as session:
             for plan in DEMO_PLANS:
-                exists = await session.execute(
-                    select(PlanModel).where(PlanModel.code == plan["code"])
-                )
-                if exists.scalar_one_or_none() is None:
+                existing = (
+                    await session.execute(select(PlanModel).where(PlanModel.code == plan["code"]))
+                ).scalar_one_or_none()
+                if existing is None:
                     session.add(PlanModel(id=uuid4(), **plan))
+                    continue
+                # Re-runs must overwrite “certificado descargable” left by older seeds.
+                existing.description = str(plan["description"])
     finally:
         await database.dispose()
 

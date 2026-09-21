@@ -128,7 +128,7 @@ function EnrolledCourseCard({
           <Text style={[styles.closing, { color: theme.colors.neutral[700] }]}>
             {followingCourse
               ? `Este ya está. Sigue con ${followingCourse.title}.`
-              : 'Terminaste la ruta. Puedes repasar o bajar el certificado en el curso.'}
+              : 'Terminaste la ruta. Puedes repasar o emitir el certificado en el curso.'}
           </Text>
         ) : (
           <>

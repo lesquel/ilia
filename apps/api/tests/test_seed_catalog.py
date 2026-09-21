@@ -69,6 +69,19 @@ def test_canonical_rubric_has_a_stable_identity() -> None:
     assert "deterministic" in keys
 
 
+def test_demo_plan_copy_does_not_promise_a_download() -> None:
+    from scripts.seed_demo import DEMO_PLANS
+
+    banned = ("descargable", "descarga", "pdf")
+    for plan in DEMO_PLANS:
+        description = str(plan["description"]).lower()
+        for word in banned:
+            assert word not in description, plan["code"]
+    pro = next(plan for plan in DEMO_PLANS if plan["code"] == "pro")
+    assert "código" in str(pro["description"]).lower()
+    assert "verific" in str(pro["description"]).lower()
+
+
 def test_catalog_seed_does_not_take_the_first_rubric_in_the_database() -> None:
     source = (
         Path(__file__)
