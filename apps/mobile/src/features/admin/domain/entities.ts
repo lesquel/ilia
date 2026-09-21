@@ -70,6 +70,26 @@ export interface Cohort {
   createdAt: string | null;
 }
 
+/**
+ * How the admin cohort list should look.
+ *
+ * Missing data defaults to `[]` in the hook. Without this distinction, a
+ * loading spinner or a failed GET would read as "there are no charlas".
+ */
+export type CohortListAppearance = 'loading' | 'error' | 'empty' | 'items';
+
+export function cohortListAppearance(state: {
+  isLoading: boolean;
+  error: unknown;
+  isSuccess: boolean;
+  itemCount: number;
+}): CohortListAppearance {
+  if (state.error && !state.isSuccess) return 'error';
+  if (state.isLoading || !state.isSuccess) return 'loading';
+  if (state.itemCount === 0) return 'empty';
+  return 'items';
+}
+
 export const ROLE_LABELS: Record<Role, string> = {
   student: 'Estudiante',
   instructor: 'Instructor',

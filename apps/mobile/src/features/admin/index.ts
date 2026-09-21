@@ -1,6 +1,6 @@
 /** Public entry point of the admin feature. */
 
-export { ACTION_LABELS, ROLE_LABELS, formatTokens } from './domain/entities';
+export { ACTION_LABELS, ROLE_LABELS, cohortListAppearance, formatTokens } from './domain/entities';
 export type {
   AuditEntry,
   Cohort,

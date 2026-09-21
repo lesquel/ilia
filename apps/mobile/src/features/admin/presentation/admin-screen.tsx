@@ -24,6 +24,7 @@ import {
 import {
   ACTION_LABELS,
   ROLE_LABELS,
+  cohortListAppearance,
   formatTokens,
   type Cohort,
   type ManagedUser,
@@ -242,10 +243,16 @@ const PAGE_SIZE = 50;
 
 function CohortPanel() {
   const theme = useTheme();
-  const { cohorts } = useCohorts();
+  const { cohorts, isLoading, error, isSuccess, refetch } = useCohorts();
   const create = useCreateCohort();
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
+  const list = cohortListAppearance({
+    isLoading,
+    error,
+    isSuccess,
+    itemCount: cohorts.length,
+  });
 
   const message =
     create.error instanceof ApiError
@@ -339,7 +346,11 @@ function CohortPanel() {
         <Text style={[styles.warning, { color: theme.colors.accentRamp[700] }]}>{message}</Text>
       ) : null}
 
-      {cohorts.length === 0 ? (
+      {list === 'loading' ? (
+        <LoadingState label="Cargando cohortes…" />
+      ) : list === 'error' ? (
+        <ErrorState error={error} onRetry={() => void refetch()} />
+      ) : list === 'empty' ? (
         <Text style={[styles.row, { color: theme.colors.neutral[600] }]}>
           Todavía no hay cohortes. Creá una para la próxima charla.
         </Text>

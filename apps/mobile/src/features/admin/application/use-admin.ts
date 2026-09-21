@@ -95,7 +95,13 @@ export function useCohorts(repository: AdminRepository = adminRepository) {
     retry: false,
   });
 
-  return { cohorts: query.data?.items ?? [], isLoading: query.isLoading, error: query.error };
+  return {
+    cohorts: query.data?.items ?? [],
+    isLoading: query.isLoading,
+    error: query.error,
+    isSuccess: query.isSuccess,
+    refetch: query.refetch,
+  };
 }
 
 export function useCreateCohort(repository: AdminRepository = adminRepository) {
