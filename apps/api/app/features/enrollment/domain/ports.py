@@ -1,7 +1,7 @@
 from typing import Protocol
 from uuid import UUID
 
-from app.features.enrollment.domain.entities import Enrollment, LessonContent
+from app.features.enrollment.domain.entities import Cohort, Enrollment, LessonContent
 
 
 class EnrollmentRepository(Protocol):
@@ -48,6 +48,10 @@ class ProgressRepository(Protocol):
 
 class CohortRepository(Protocol):
     async def id_for_code(self, code: str) -> UUID | None: ...
+
+    async def add(self, cohort: Cohort) -> None: ...
+
+    async def list_all(self) -> list[Cohort]: ...
 
 
 class LessonContentRepository(Protocol):

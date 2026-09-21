@@ -237,6 +237,45 @@ class TestRoleChange:
         assert response.status_code == 404
 
 
+class TestCohorts:
+    def test_an_admin_creates_and_lists_a_cohort(self, client: TestClient, admin: str) -> None:
+        response = client.post(
+            f"{API}/cohorts",
+            json={"name": "Charla Manta — septiembre 2026", "code": "MANTA-SEP-01"},
+            headers=auth(admin),
+        )
+
+        assert response.status_code == 201
+        assert response.json()["code"] == "MANTA-SEP-01"
+
+        page = client.get(f"{API}/cohorts", headers=auth(admin)).json()
+
+        assert [(item["code"], item["name"]) for item in page["items"]] == [
+            ("MANTA-SEP-01", "Charla Manta — septiembre 2026")
+        ]
+        assert page["items"][0]["created_at"] is not None
+
+    def test_the_same_code_twice_is_a_conflict(self, client: TestClient, admin: str) -> None:
+        payload = {"name": "Charla Manta — septiembre 2026", "code": "MANTA-SEP-01"}
+        client.post(f"{API}/cohorts", json=payload, headers=auth(admin))
+
+        response = client.post(f"{API}/cohorts", json=payload, headers=auth(admin))
+
+        assert response.status_code == 409
+        assert response.json()["error"]["code"] == "cohort_code_taken"
+
+    def test_a_student_is_refused(self, client: TestClient) -> None:
+        token = register(client, "ana@colegio.edu")["access_token"]
+
+        response = client.post(
+            f"{API}/cohorts",
+            json={"name": "Charla Manta — septiembre 2026", "code": "MANTA-SEP-01"},
+            headers=auth(token),
+        )
+
+        assert response.status_code == 403
+
+
 class TestUsageReport:
     def test_it_reports_zero_and_says_prices_are_not_configured(
         self, client: TestClient, admin: str

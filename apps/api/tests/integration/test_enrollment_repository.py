@@ -18,8 +18,8 @@ from app.features.auth.domain.entities import User as AuthUser
 from app.features.auth.infrastructure.models import CohortModel
 from app.features.auth.infrastructure.sql_repository import SqlAlchemyUserRepository
 from app.features.catalog.domain.entities import CourseStatus, Level
-from app.features.enrollment.domain.entities import Enrollment
-from app.features.enrollment.domain.errors import AlreadyEnrolledError
+from app.features.enrollment.domain.entities import Cohort, Enrollment
+from app.features.enrollment.domain.errors import AlreadyEnrolledError, CohortCodeTakenError
 from app.features.enrollment.infrastructure.sql_repository import (
     SqlAlchemyCohortRepository,
     SqlAlchemyEnrollmentRepository,
@@ -372,6 +372,30 @@ class TestCohortRepository:
 
     async def test_returns_none_for_an_unknown_code(self, database: Database) -> None:
         assert await SqlAlchemyCohortRepository(database).id_for_code("INVENTADO") is None
+
+    async def test_add_and_list_show_code_and_name(self, database: Database) -> None:
+        repo = SqlAlchemyCohortRepository(database)
+        cohort = Cohort.create(
+            name="Charla Manta — septiembre 2026",
+            code="MANTA-SEP-01",
+            created_at=datetime.now(UTC),
+        )
+        await repo.add(cohort)
+
+        items = await repo.list_all()
+
+        assert [(item.code, item.name) for item in items] == [
+            ("MANTA-SEP-01", "Charla Manta — septiembre 2026")
+        ]
+
+    async def test_a_duplicate_code_is_a_conflict(self, database: Database) -> None:
+        repo = SqlAlchemyCohortRepository(database)
+        first = Cohort.create(name="Primera", code="MANTA-SEP-01", created_at=datetime.now(UTC))
+        second = Cohort.create(name="Segunda", code="MANTA-SEP-01", created_at=datetime.now(UTC))
+        await repo.add(first)
+
+        with pytest.raises(CohortCodeTakenError):
+            await repo.add(second)
 
 
 class TestPassedActivities:

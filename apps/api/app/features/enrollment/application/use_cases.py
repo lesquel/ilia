@@ -7,6 +7,7 @@ from app.features.catalog.domain.entities import Course, Slug
 from app.features.catalog.domain.errors import CourseNotFoundError
 from app.features.catalog.domain.ports import CourseRepository
 from app.features.enrollment.domain.entities import (
+    Cohort,
     CourseProgress,
     EnrolledCourse,
     Enrollment,
@@ -19,6 +20,7 @@ from app.features.enrollment.domain.entities import (
 )
 from app.features.enrollment.domain.errors import (
     AlreadyEnrolledError,
+    CohortCodeTakenError,
     CohortNotFoundError,
     LessonNotInCourseError,
     NotEnrolledError,
@@ -29,6 +31,7 @@ from app.features.enrollment.domain.ports import (
     LessonContentRepository,
     ProgressRepository,
 )
+from app.shared.errors import ValidationError
 
 
 async def _published_course(courses: CourseRepository, slug: str) -> Course:
@@ -42,6 +45,36 @@ async def _published_course(courses: CourseRepository, slug: str) -> Course:
         raise CourseNotFoundError(slug)
 
     return course
+
+
+class CreateCohort:
+    """Open a charla so teachers can join it with a code.
+
+    Seed can still plant a demo code, but a real talk is a product action —
+    someone types a name and a code, not a script.
+    """
+
+    def __init__(self, *, cohorts: CohortRepository, clock: Clock) -> None:
+        self._cohorts = cohorts
+        self._clock = clock
+
+    async def execute(self, *, name: str, code: str) -> Cohort:
+        try:
+            cohort = Cohort.create(name=name, code=code, created_at=self._clock.now())
+        except ValueError as exc:
+            raise ValidationError(str(exc)) from exc
+        if await self._cohorts.id_for_code(cohort.code) is not None:
+            raise CohortCodeTakenError(cohort.code)
+        await self._cohorts.add(cohort)
+        return cohort
+
+
+class ListCohorts:
+    def __init__(self, *, cohorts: CohortRepository) -> None:
+        self._cohorts = cohorts
+
+    async def execute(self) -> list[Cohort]:
+        return await self._cohorts.list_all()
 
 
 class EnrollInCourse:

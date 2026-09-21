@@ -3,6 +3,7 @@
 export { ACTION_LABELS, ROLE_LABELS, formatTokens } from './domain/entities';
 export type {
   AuditEntry,
+  Cohort,
   ManagedUser,
   PlatformOverview,
   UsageByUser,
@@ -13,6 +14,8 @@ export {
   adminKeys,
   useAuditLog,
   useChangeRole,
+  useCohorts,
+  useCreateCohort,
   useManagedUsers,
   useOverview,
   useUsage,

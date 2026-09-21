@@ -4,8 +4,8 @@ from datetime import UTC, datetime, timedelta
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, Request
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, Query, Request, status
+from pydantic import BaseModel, Field
 
 from app.features.admin.application.use_cases import (
     ChangeUserRole,
@@ -28,6 +28,9 @@ from app.features.admin.interface.dependencies import (
 )
 from app.features.auth.domain.entities import Role, User
 from app.features.auth.interface.dependencies import require_role
+from app.features.enrollment.application.use_cases import CreateCohort, ListCohorts
+from app.features.enrollment.domain.entities import Cohort
+from app.features.enrollment.interface.dependencies import CohortsDep
 from app.shared.pagination import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -259,3 +262,49 @@ async def audit_log(
         limit=page.limit,
         offset=page.offset,
     )
+
+
+class CreateCohortRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=160)
+    # Handed out at the talk, e.g. MANTA-SEP-01. Unique across charlas.
+    code: str = Field(min_length=1, max_length=32)
+
+
+class CohortResponse(BaseModel):
+    id: UUID
+    name: str
+    code: str
+    created_at: datetime | None
+
+    @classmethod
+    def from_entity(cls, cohort: Cohort) -> "CohortResponse":
+        return cls(
+            id=cohort.id,
+            name=cohort.name,
+            code=cohort.code,
+            created_at=cohort.created_at,
+        )
+
+
+class CohortListResponse(BaseModel):
+    items: list[CohortResponse]
+
+
+@router.post("/cohorts", response_model=CohortResponse, status_code=status.HTTP_201_CREATED)
+async def create_cohort(
+    payload: CreateCohortRequest,
+    request: Request,
+    admin: Admin,
+    cohorts: CohortsDep,
+) -> CohortResponse:
+    """Open a charla. Teachers join later with this code on enroll."""
+    created = await CreateCohort(cohorts=cohorts, clock=request.app.state.auth["clock"]).execute(
+        name=payload.name, code=payload.code
+    )
+    return CohortResponse.from_entity(created)
+
+
+@router.get("/cohorts", response_model=CohortListResponse)
+async def list_cohorts(admin: Admin, cohorts: CohortsDep) -> CohortListResponse:
+    items = await ListCohorts(cohorts=cohorts).execute()
+    return CohortListResponse(items=[CohortResponse.from_entity(item) for item in items])

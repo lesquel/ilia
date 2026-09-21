@@ -131,12 +131,12 @@ una expresión. Es parcial sobre `status = 'published'` porque esa es la única
 porción que el catálogo lee jamás: el índice queda chico y los borradores ni
 aparecen en él.
 
-Sobre `cohort`: existe desde la primera migración aunque la feature de
-inscripción todavía no esté. El TRD tiene razón en que añadirla después sería
-una migración con datos de docentes reales. Y es lo que hace respondible la
-primera métrica de éxito del PRD §12 — **qué porcentaje de los docentes de una
-charla activó cuenta** —, que es justamente el número que le demuestra a la
-Alcaldía que la alianza funciona.
+Sobre `cohort`: existe desde la primera migración. Un admin abre la charla; el
+docente se une con el código al inscribirse. El TRD tiene razón en que añadirla
+después sería una migración con datos de docentes reales. Y es lo que hace
+respondible la primera métrica de éxito del PRD §12 — **qué porcentaje de los
+docentes de una charla activó cuenta** —, que es justamente el número que le
+demuestra a la Alcaldía que la alianza funciona.
 
 `app_user.cohort_id` es nullable a propósito: la inscripción también es abierta,
 y quien se registra por su cuenta simplemente no tiene cohorte que atribuir.
@@ -183,9 +183,6 @@ después.
 
 ### Lo que todavía no está
 
-- **Cohortes en el flujo.** La tabla existe, pero todavía no hay endpoint para
-  crear una ni para que un docente se una con el código de su charla. Eso llega
-  con la feature de inscripción.
 - **Revocación real.** El `logout` limpia cookies, pero el access token sigue
   siendo válido hasta que expira porque es stateless. Revocar de verdad exige
   una tabla de denegación de tokens. Con 15 minutos de vida el daño está acotado,
@@ -840,6 +837,8 @@ Todas las rutas exigen rol `admin`.
 | `GET` | `/api/v1/admin/users?q=` | Usuarios, con búsqueda |
 | `POST` | `/api/v1/admin/users/{id}/role` | Cambiar rol (PRD A-02) |
 | `GET` | `/api/v1/admin/audit` | Bitácora de acciones sensibles |
+| `GET` | `/api/v1/admin/cohorts` | Listar charlas (código + nombre) |
+| `POST` | `/api/v1/admin/cohorts` | Crear una charla |
 
 ### Decisiones
 

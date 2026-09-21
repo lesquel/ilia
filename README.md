@@ -135,7 +135,7 @@ real, en backend y en cliente.
 | Foro | ✅ Discusiones por curso, respuestas y moderación con alcance por instructor |
 | Freemium — planes, cupos y los cuatro gates | ✅ Números como datos editables, no constantes |
 | Instructor — autoría, publicación, revisión y roster | ✅ Backend y cliente |
-| Admin — métricas, roles, consumo de LLM y auditoría | ✅ Backend y cliente |
+| Admin — métricas, roles, cohortes, consumo de LLM y auditoría | ✅ Backend y cliente |
 
 ## Puesta en marcha
 
@@ -171,8 +171,9 @@ resueltas.
    `/health/ready` lo dice. Ver [Conectar un LLM](#conectar-un-llm).
 4. ~~**Cohortes sí o no.**~~ ✅ **Decidido: con cohortes.** La tabla `cohort` y
    `app_user.cohort_id` ya están en la primera migración, así que no habrá que
-   migrar datos de docentes reales después. Falta el flujo: crear cohortes y que
-   un docente se una con el código de su charla.
+   migrar datos de docentes reales después. Un admin crea la charla
+   (`POST /admin/cohorts`) con un código legible (`MANTA-SEP-01`); el docente se
+   une con `cohort_code` opcional al inscribirse, no al registrarse.
 
 ## Documentación
 

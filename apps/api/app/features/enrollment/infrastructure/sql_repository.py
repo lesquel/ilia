@@ -9,8 +9,8 @@ from sqlalchemy.exc import IntegrityError
 from app.core.database import Database
 from app.features.auth.infrastructure.models import CohortModel
 from app.features.catalog.infrastructure.models import LessonModel
-from app.features.enrollment.domain.entities import Enrollment, LessonContent
-from app.features.enrollment.domain.errors import AlreadyEnrolledError
+from app.features.enrollment.domain.entities import Cohort, Enrollment, LessonContent
+from app.features.enrollment.domain.errors import AlreadyEnrolledError, CohortCodeTakenError
 from app.features.evaluation.infrastructure.models import (
     ActivityModel,
     EvaluationModel,
@@ -140,14 +140,42 @@ class SqlAlchemyProgressRepository:
             await session.execute(statement)
 
 
+def _cohort_to_entity(row: CohortModel) -> Cohort:
+    return Cohort(id=row.id, name=row.name, code=row.code, created_at=row.created_at)
+
+
 class SqlAlchemyCohortRepository:
     def __init__(self, database: Database) -> None:
         self._db = database
 
     async def id_for_code(self, code: str) -> UUID | None:
+        needle = code.strip().upper()
         async with self._db.session() as session:
-            result = await session.execute(select(CohortModel.id).where(CohortModel.code == code))
+            result = await session.execute(select(CohortModel.id).where(CohortModel.code == needle))
             return result.scalar_one_or_none()
+
+    async def add(self, cohort: Cohort) -> None:
+        try:
+            async with self._db.session() as session:
+                session.add(
+                    CohortModel(
+                        id=cohort.id,
+                        name=cohort.name,
+                        code=cohort.code,
+                        created_at=cohort.created_at,
+                    )
+                )
+        except IntegrityError as exc:
+            # Two admins typing the same code, or a retry after a timeout.
+            # The unique index is the guarantee; this turns it into an answer.
+            raise CohortCodeTakenError(cohort.code) from exc
+
+    async def list_all(self) -> list[Cohort]:
+        async with self._db.session() as session:
+            result = await session.execute(
+                select(CohortModel).order_by(CohortModel.created_at.desc(), CohortModel.id.desc())
+            )
+            return [_cohort_to_entity(row) for row in result.scalars()]
 
 
 class SqlAlchemyLessonContentRepository:

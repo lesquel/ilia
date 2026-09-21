@@ -15,6 +15,8 @@ import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
 import {
   useAuditLog,
   useChangeRole,
+  useCohorts,
+  useCreateCohort,
   useManagedUsers,
   useOverview,
   useUsage,
@@ -23,6 +25,7 @@ import {
   ACTION_LABELS,
   ROLE_LABELS,
   formatTokens,
+  type Cohort,
   type ManagedUser,
 } from '@/features/admin/domain/entities';
 import { ROLES, type Role } from '@/features/auth/domain/entities';
@@ -146,6 +149,8 @@ export function AdminScreen({ extra }: { extra?: ReactNode } = {}) {
         </View>
       ) : null}
 
+      <CohortPanel />
+
       <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Usuarios y roles</Text>
       <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>
         Los roles se otorgan, nunca se reclaman: no hay forma de autoasignárselos en ninguna
@@ -234,6 +239,143 @@ export function AdminScreen({ extra }: { extra?: ReactNode } = {}) {
 
 /** Must match the API's DEFAULT_PAGE_SIZE. */
 const PAGE_SIZE = 50;
+
+function CohortPanel() {
+  const theme = useTheme();
+  const { cohorts } = useCohorts();
+  const create = useCreateCohort();
+  const [name, setName] = useState('');
+  const [code, setCode] = useState('');
+
+  const message =
+    create.error instanceof ApiError
+      ? create.error.code === 'cohort_code_taken'
+        ? 'Ese código ya existe. Usá otro para esta charla.'
+        : 'No pudimos crear la cohorte.'
+      : null;
+
+  function submit() {
+    const trimmedName = name.trim();
+    const trimmedCode = code.trim();
+    if (!trimmedName || !trimmedCode || create.isPending) return;
+    create.mutate(
+      { name: trimmedName, code: trimmedCode },
+      {
+        onSuccess: () => {
+          setName('');
+          setCode('');
+        },
+      },
+    );
+  }
+
+  return (
+    <View>
+      <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Cohortes</Text>
+      <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>
+        El código se entrega en la charla. El docente lo escribe al inscribirse; no hace falta
+        ponerlo al registrarse.
+      </Text>
+
+      <TextInput
+        value={name}
+        onChangeText={setName}
+        placeholder="Nombre de la charla"
+        placeholderTextColor={theme.colors.neutral[500]}
+        accessibilityLabel="Nombre de la cohorte"
+        style={[
+          styles.input,
+          {
+            backgroundColor: theme.colors.neutral[100],
+            borderColor: theme.colors.divider,
+            borderRadius: theme.radius.md,
+            color: theme.colors.text,
+          },
+        ]}
+      />
+      <TextInput
+        value={code}
+        onChangeText={setCode}
+        autoCapitalize="characters"
+        placeholder="MANTA-SEP-01"
+        placeholderTextColor={theme.colors.neutral[500]}
+        accessibilityLabel="Código de la cohorte"
+        onSubmitEditing={submit}
+        style={[
+          styles.input,
+          {
+            backgroundColor: theme.colors.neutral[100],
+            borderColor: theme.colors.divider,
+            borderRadius: theme.radius.md,
+            color: theme.colors.text,
+          },
+        ]}
+      />
+
+      <Pressable
+        accessibilityRole="button"
+        disabled={create.isPending || !name.trim() || !code.trim()}
+        onPress={submit}
+        style={({ pressed }) => [
+          styles.pagerButton,
+          {
+            alignSelf: 'flex-start',
+            marginTop: 6.8,
+            borderColor: theme.colors.accent,
+            backgroundColor: theme.colors.accent,
+            borderRadius: theme.radius.sm,
+            opacity: create.isPending || !name.trim() || !code.trim() ? 0.4 : pressed ? 0.7 : 1,
+          },
+        ]}
+      >
+        {create.isPending ? (
+          <ActivityIndicator size="small" color="#f2f2f3" />
+        ) : (
+          <Text style={[styles.pagerLabel, { color: '#f2f2f3' }]}>Crear cohorte</Text>
+        )}
+      </Pressable>
+
+      {message ? (
+        <Text style={[styles.warning, { color: theme.colors.accentRamp[700] }]}>{message}</Text>
+      ) : null}
+
+      {cohorts.length === 0 ? (
+        <Text style={[styles.row, { color: theme.colors.neutral[600] }]}>
+          Todavía no hay cohortes. Creá una para la próxima charla.
+        </Text>
+      ) : (
+        cohorts.map((cohort) => <CohortRow key={cohort.id} cohort={cohort} />)
+      )}
+    </View>
+  );
+}
+
+function CohortRow({ cohort }: { cohort: Cohort }) {
+  const theme = useTheme();
+  const when = formatCohortWhen(cohort.createdAt);
+
+  return (
+    <View
+      style={[
+        styles.userRow,
+        { borderColor: theme.colors.divider, borderRadius: theme.radius.md, marginTop: 6.8 },
+      ]}
+    >
+      <Text style={[styles.userName, { color: theme.colors.text }]}>{cohort.code}</Text>
+      <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>
+        {cohort.name}
+        {when ? ` · ${when}` : ''}
+      </Text>
+    </View>
+  );
+}
+
+function formatCohortWhen(iso: string | null): string | null {
+  if (!iso) return null;
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleDateString('es-EC', { dateStyle: 'medium' });
+}
 
 function Pager({
   label,

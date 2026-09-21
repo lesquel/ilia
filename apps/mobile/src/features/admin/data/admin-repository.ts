@@ -3,11 +3,18 @@ import { mapPage, type Page, type PageDto } from '@/core/api/page';
 import type { Role } from '@/features/auth/domain/entities';
 import type {
   AuditEntry,
+  Cohort,
   ManagedUser,
   PlatformOverview,
   UsageReport,
   UsageTotals,
 } from '@/features/admin/domain/entities';
+import {
+  ADMIN_COHORTS_PATH,
+  createCohortBody,
+  mapCohortDto,
+  type CohortDto,
+} from '@/features/admin/data/cohort-wire';
 
 interface UsageTotalsDto {
   input_tokens: number;
@@ -35,6 +42,8 @@ export interface AdminRepository {
   users(query?: string, offset?: number): Promise<Page<ManagedUser>>;
   changeRole(userId: string, role: Role): Promise<ManagedUser>;
   audit(offset?: number): Promise<Page<AuditEntry>>;
+  cohorts(): Promise<{ items: Cohort[] }>;
+  createCohort(input: { name: string; code: string }): Promise<Cohort>;
 }
 
 export class HttpAdminRepository implements AdminRepository {
@@ -140,6 +149,16 @@ export class HttpAdminRepository implements AdminRepository {
       detail: row.detail,
       occurredAt: row.occurred_at,
     }));
+  }
+
+  async cohorts(): Promise<{ items: Cohort[] }> {
+    const dto = await this.http.get<{ items: CohortDto[] }>(ADMIN_COHORTS_PATH);
+    return { items: dto.items.map(mapCohortDto) };
+  }
+
+  async createCohort(input: { name: string; code: string }): Promise<Cohort> {
+    const dto = await this.http.post<CohortDto>(ADMIN_COHORTS_PATH, createCohortBody(input));
+    return mapCohortDto(dto);
   }
 }
 

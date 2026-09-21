@@ -34,3 +34,16 @@ class CohortNotFoundError(NotFoundError):
 
     def __init__(self, code_value: str) -> None:
         super().__init__("No cohort matches that code", detail={"code": code_value})
+
+
+class CohortCodeTakenError(ConflictError):
+    """Two charlas cannot share a code.
+
+    Silently accepting the second would attribute both talks to one code, which
+    is how the alliance metric becomes a lie.
+    """
+
+    code = "cohort_code_taken"
+
+    def __init__(self, code_value: str) -> None:
+        super().__init__("A cohort with that code already exists", detail={"code": code_value})

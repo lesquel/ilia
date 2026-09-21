@@ -63,6 +63,13 @@ export interface AuditEntry {
   occurredAt: string | null;
 }
 
+export interface Cohort {
+  id: string;
+  name: string;
+  code: string;
+  createdAt: string | null;
+}
+
 export const ROLE_LABELS: Record<Role, string> = {
   student: 'Estudiante',
   instructor: 'Instructor',

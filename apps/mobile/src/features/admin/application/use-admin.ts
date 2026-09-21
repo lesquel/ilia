@@ -8,6 +8,7 @@ export const adminKeys = {
   usage: (days: number) => ['admin', 'usage', days] as const,
   users: (query: string) => ['admin', 'users', query] as const,
   audit: ['admin', 'audit'] as const,
+  cohorts: ['admin', 'cohorts'] as const,
 };
 
 export function useOverview(repository: AdminRepository = adminRepository) {
@@ -85,4 +86,25 @@ export function useAuditLog(offset = 0, repository: AdminRepository = adminRepos
     isLoading: query.isLoading,
     error: query.error,
   };
+}
+
+export function useCohorts(repository: AdminRepository = adminRepository) {
+  const query = useQuery({
+    queryKey: adminKeys.cohorts,
+    queryFn: () => repository.cohorts(),
+    retry: false,
+  });
+
+  return { cohorts: query.data?.items ?? [], isLoading: query.isLoading, error: query.error };
+}
+
+export function useCreateCohort(repository: AdminRepository = adminRepository) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: { name: string; code: string }) => repository.createCohort(input),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: adminKeys.cohorts });
+    },
+  });
 }

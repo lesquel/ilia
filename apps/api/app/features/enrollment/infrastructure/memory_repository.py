@@ -6,8 +6,8 @@ Not for production, same as its siblings.
 import asyncio
 from uuid import UUID
 
-from app.features.enrollment.domain.entities import Enrollment, LessonContent
-from app.features.enrollment.domain.errors import AlreadyEnrolledError
+from app.features.enrollment.domain.entities import Cohort, Enrollment, LessonContent
+from app.features.enrollment.domain.errors import AlreadyEnrolledError, CohortCodeTakenError
 
 
 class InMemoryEnrollmentRepository:
@@ -67,10 +67,25 @@ class InMemoryProgressRepository:
 
 class InMemoryCohortRepository:
     def __init__(self, codes: dict[str, UUID] | None = None) -> None:
-        self._codes = dict(codes or {})
+        # The dict constructor is the seed the enrollment tests already use:
+        # a code mapped to an id, without a name, because they only look up.
+        self._cohorts = [
+            Cohort(id=cohort_id, name=code, code=code.strip().upper())
+            for code, cohort_id in (codes or {}).items()
+        ]
 
     async def id_for_code(self, code: str) -> UUID | None:
-        return self._codes.get(code)
+        needle = code.strip().upper()
+        return next((item.id for item in self._cohorts if item.code == needle), None)
+
+    async def add(self, cohort: Cohort) -> None:
+        if await self.id_for_code(cohort.code) is not None:
+            raise CohortCodeTakenError(cohort.code)
+        self._cohorts.append(cohort)
+
+    async def list_all(self) -> list[Cohort]:
+        # Newest first. Insertion order is the clock when timestamps collide.
+        return list(reversed(self._cohorts))
 
 
 class InMemoryLessonContentRepository:

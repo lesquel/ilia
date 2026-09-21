@@ -53,6 +53,31 @@ def syllabus_order(course: Course) -> list[LessonRef]:
 
 
 @dataclass
+class Cohort:
+    """A group of teachers from one in-person talk.
+
+    The short `code` is what a teacher types at enrollment (PRD 12). It has to
+    be unique: two charlas sharing a code would make the activation metric
+    unanswerable.
+    """
+
+    id: UUID
+    name: str
+    code: str
+    created_at: datetime | None = None
+
+    @classmethod
+    def create(cls, *, name: str, code: str, created_at: datetime | None = None) -> "Cohort":
+        cleaned_name = name.strip()
+        cleaned_code = code.strip().upper()
+        if not cleaned_name:
+            raise ValueError("Cohort name cannot be empty")
+        if not cleaned_code:
+            raise ValueError("Cohort code cannot be empty")
+        return cls(id=uuid4(), name=cleaned_name, code=cleaned_code, created_at=created_at)
+
+
+@dataclass
 class Enrollment:
     id: UUID
     user_id: UUID
