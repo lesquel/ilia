@@ -73,9 +73,35 @@ antes la decisión del almacén compartido (TRD §5.2). Está dicho en el compos
 
 **La URL de la API se hornea en el bundle web.** Expo inserta las variables
 `EXPO_PUBLIC_*` en tiempo de build, así que es una imagen por entorno.
-Cambiarla implica reconstruir — es la consecuencia honesta de un export
-estático, no algo que se arregle con un placeholder que nadie recuerda
-reemplazar.
+Cambiar `EXPO_PUBLIC_API_URL` implica reconstruir (`docker compose up -d --build`)
+— es la consecuencia honesta de un export estático, no algo que se arregle con
+un placeholder que nadie recuerda reemplazar. Un `.env` nuevo no alcanza.
+
+**Cookie `httpOnly` y dominio.** El host todavía no está elegido. Lo que sí
+está cerrado: el cliente web y la API tienen que compartir **un dominio
+registrable**. `SameSite=lax` no manda la cookie entre sitios distintos.
+Hostnames de ejemplo (no de producción): `ilia.example` y `api.ilia.example`.
+
+En `.env` (ver `docs/deploy.env.example`):
+
+| Variable | Qué es |
+|---|---|
+| `ILIA_CORS_ORIGINS` | Origen exacto del cliente web (esquema + host + puerto). JSON, no lista por comas. Ej. `["https://ilia.example"]` |
+| `ILIA_COOKIE_DOMAIN` | Vacío = host-only (web y API en el mismo host). Subdominios del mismo registrable: `.ilia.example` |
+| `EXPO_PUBLIC_API_URL` | URL de la API. Se hornea al construir la imagen; cambiarla implica reconstruir |
+
+`ILIA_COOKIE_SECURE` lo fija el compose en `true`. Las cookies se llaman
+`ilia_session` y `ilia_refresh`.
+
+Smoke, en el navegador, **sin** tokens en `localStorage`:
+
+1. Registrarse (`POST /api/v1/auth/register`)
+2. Iniciar sesión (`POST /api/v1/auth/login`)
+3. Pedir el perfil (`GET /api/v1/auth/me`)
+
+Application → Cookies: `ilia_session` e `ilia_refresh`, las dos `HttpOnly`.
+Application → Local Storage: sin `access_token` ni `refresh_token`. El cuerpo
+de login/register en web trae solo el perfil.
 
 **El healthcheck usa `/health/ready`, no `/health`.** Son preguntas distintas:
 `/health` responde «el proceso vive» y no depende de nada; `/health/ready`
@@ -161,8 +187,10 @@ resueltas.
    restricción de despliegue: el cliente web y la API deben compartir dominio
    registrable. Ver [`apps/api/README.md`](apps/api/README.md#autenticación).
 2. ~~**Base de datos.**~~ ✅ **PostgreSQL**, adoptando la propuesta del TRD §2.4.
-   **Sigue abierto dónde se despliega**, y eso importa: la estrategia de cookie
-   exige que el cliente web y la API compartan dominio registrable.
+   **Sigue abierto dónde se despliega.** El operador no elige el host en este
+   repo: completa `ILIA_CORS_ORIGINS`, `ILIA_COOKIE_DOMAIN` y
+   `EXPO_PUBLIC_API_URL` cuando lo haya, y reconstruye la imagen web. Ver
+   [Desplegar](#desplegar) y `docs/pilot-charla.md`.
 3. **Proveedor y modelo de LLM.** El motor de EVALs **ya está construido y
    probado** detrás de un puerto (TRD T4). `RunEvaluation` es el motor enviado;
    no se añade LangGraph. Hoy el default es `local-stub` hasta que el entorno

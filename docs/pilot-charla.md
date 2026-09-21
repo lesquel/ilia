@@ -9,6 +9,28 @@ Aún no hay host elegido. La sesión web es cookie `httpOnly`: el cliente y la
 API tienen que compartir **un dominio registrable**. Sin eso, el navegador no
 manda la cookie. No se inventa un hostname acá.
 
+Cuando sí haya host, el operador completa `.env` (ver `docs/deploy.env.example`)
+y reconstruye. Los nombres de abajo son los que el compose y la API leen.
+Los hostnames son ejemplos, no el destino.
+
+| Variable | Qué pone el operador |
+|---|---|
+| `ILIA_CORS_ORIGINS` | Origen exacto del cliente web. JSON. Ej. `["https://ilia.example"]` |
+| `ILIA_COOKIE_DOMAIN` | Vacío si web y API son el mismo host. Si son subdominios: `.ilia.example` |
+| `EXPO_PUBLIC_API_URL` | URL de la API. Ej. `https://api.ilia.example`. Se hornea al construir la imagen; cambiarla implica `docker compose up -d --build` |
+
+`ILIA_COOKIE_SECURE` lo fija el compose en `true`.
+
+Smoke, en el navegador, sin tokens en `localStorage`:
+
+1. Registrarse (`POST /api/v1/auth/register`).
+2. Iniciar sesión (`POST /api/v1/auth/login`).
+3. Pedir el perfil (`GET /api/v1/auth/me`).
+
+Application → Cookies: `ilia_session` e `ilia_refresh`, las dos `HttpOnly`.
+Application → Local Storage: sin `access_token` ni `refresh_token`. El cuerpo
+de login/register en web trae solo el perfil.
+
 ## LLM
 
 Hasta que el entorno tenga `ILIA_LLM_PROVIDER` y `ILIA_LLM_API_KEY`, el motor
