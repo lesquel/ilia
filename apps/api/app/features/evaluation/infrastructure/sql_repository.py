@@ -67,9 +67,7 @@ def _to_rubric(row: RubricModel) -> Rubric:
     )
 
 
-def _to_activity(
-    row: ActivityModel, *, course_slug: str = "", course_title: str = ""
-) -> Activity:
+def _to_activity(row: ActivityModel, *, course_slug: str = "", course_title: str = "") -> Activity:
     return Activity(
         id=row.id,
         module_id=row.module_id,
