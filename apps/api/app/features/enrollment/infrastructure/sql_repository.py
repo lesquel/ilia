@@ -11,6 +11,7 @@ from app.features.auth.infrastructure.models import CohortModel
 from app.features.catalog.infrastructure.models import LessonModel
 from app.features.enrollment.domain.entities import Cohort, Enrollment, LessonContent
 from app.features.enrollment.domain.errors import AlreadyEnrolledError, CohortCodeTakenError
+from app.features.evaluation.domain.real_pass import SIMULATED_EVALUATION_MODEL
 from app.features.evaluation.infrastructure.models import (
     ActivityModel,
     EvaluationModel,
@@ -123,6 +124,7 @@ class SqlAlchemyProgressRepository:
                     SubmissionModel.user_id == user_id,
                     ActivityModel.course_id == course_id,
                     EvaluationModel.passed.is_(True),
+                    EvaluationModel.model != SIMULATED_EVALUATION_MODEL,
                 )
             )
             return {row[0] for row in rows.all()}
