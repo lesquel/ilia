@@ -92,7 +92,8 @@ PROMPTING_LESSONS_M1: list[Lesson] = [
         "Qué tienen que saber hacer. El nombre del tema no alcanza: "
         "«lectura» lo puede entender como receta o como ensayo de "
         "bachillerato. En séptimo es un párrafo con una sola idea y cinco "
-        "preguntas que se contestan con el texto.\n\n"
+        "preguntas que se contestan con el texto, para que distingan el "
+        "tema de las ideas principales.\n\n"
         "Cuántos y cómo lo quieres de vuelta. «El párrafo primero y, "
         "debajo, las cinco preguntas con su respuesta.» Si no lo dices, te "
         "llega todo mezclado y lo tienes que reordenar a mano.\n\n"
@@ -473,9 +474,9 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
             "Eres docente de lengua de séptimo. Ya leyeron un cuento y "
             "saben qué es el narrador. Escribe un párrafo de ocho líneas "
             "con una sola idea, y cinco preguntas que se contestan con el "
-            "texto, para que distingan la idea del párrafo y no inventen "
-            "una historia. No inventes el autor. Devuélvelo: el párrafo y, "
-            "debajo, las preguntas con la respuesta.",
+            "texto, para que distingan el tema de las ideas principales y "
+            "no inventen una historia. No inventes el autor. Devuélvelo: "
+            "el párrafo y, debajo, las preguntas con la respuesta.",
         ),
         (
             "Esperamos: la hoja que sí se puede usar",
@@ -484,11 +485,11 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
             "lleva dos libras. Su hijo anota en un cuaderno qué compraron, "
             "no para una tarea: para que en casa sepan qué falta el lunes.\n\n"
             "| # | Pregunta | Se contesta con |\n"
-            "| 1 | ¿Dónde está Juana? | En el mercado de Tarqui |\n"
-            "| 2 | ¿Qué día? | El sábado |\n"
-            "| 3 | ¿Qué se lleva? | Dos libras de pescado |\n"
-            "| 4 | ¿Quién anota? | Su hijo |\n"
-            "| 5 | ¿Para qué anota? | Para saber qué falta el lunes |",
+            "| 1 | ¿De qué trata el párrafo, en general? Ese es el tema. | De una compra el sábado en el mercado de Tarqui |\n"
+            "| 2 | ¿Cuál es la idea principal, la que une las frases? | Que anotan lo comprado para saber el lunes qué falta |\n"
+            "| 3 | «Se oye primero a quien vende pescado»: ¿es tema, idea principal o un detalle? | Un detalle. El párrafo no va de quién se oye primero |\n"
+            "| 4 | ¿Qué frase dice esa idea, no el dato suelto? | «para que en casa sepan qué falta el lunes» |\n"
+            "| 5 | Un compañero dice que el párrafo es «sobre el pescado». ¿Qué idea se le escapó? | Que anotan la compra para el lunes; el pescado es lo que se llevan |",
         ),
     ],
     "Qué ocurre": [
@@ -523,7 +524,8 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
             "de la costa. Ya leyeron un cuento y saben qué es el narrador. "
             "Hay quienes todavía lo confunden con el protagonista.\n"
             "Escribe un párrafo de ocho líneas con una sola idea, y cinco "
-            "preguntas que se contestan con el texto. La hora dura 45 "
+            "preguntas que se contestan con el texto, para que distingan "
+            "el tema de las ideas principales. La hora dura 45 "
             "minutos. No inventes el autor. No pidas una receta ni un "
             "ensayo.\n"
             "Devuélvelo: el párrafo y, debajo, las preguntas con la "
@@ -537,11 +539,11 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
             "lleva dos libras. Su hijo anota en un cuaderno qué compraron, "
             "no para una tarea: para que en casa sepan qué falta el lunes.\n\n"
             "| # | Pregunta | Se contesta con |\n"
-            "| 1 | ¿Dónde está Juana? | En el mercado de Tarqui |\n"
-            "| 2 | ¿Qué día? | El sábado |\n"
-            "| 3 | ¿Qué se lleva? | Dos libras |\n"
-            "| 4 | ¿Quién anota? | Su hijo |\n"
-            "| 5 | ¿Para qué anota? | Para saber qué falta el lunes |",
+            "| 1 | ¿De qué trata el párrafo, en general? Ese es el tema. | De una compra el sábado en el mercado de Tarqui |\n"
+            "| 2 | ¿Cuál es la idea principal, la que une las frases? | Que anotan lo comprado para saber el lunes qué falta |\n"
+            "| 3 | «Se oye primero a quien vende pescado»: ¿es tema, idea principal o un detalle? | Un detalle. El párrafo no va de quién se oye primero |\n"
+            "| 4 | ¿Qué frase dice esa idea, no el dato suelto? | «para que en casa sepan qué falta el lunes» |\n"
+            "| 5 | Un compañero dice que el párrafo es «sobre el pescado». ¿Qué idea se le escapó? | Que anotan la compra para el lunes; el pescado es lo que se llevan |",
         ),
     ],
     "El recuadro": [
@@ -550,7 +552,8 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
             "Usa solo lo que está entre las líneas.\n"
             "---\n"
             "En el mercado de Tarqui el sábado se oye primero a quien "
-            "vende pescado. Juana llega temprano y se lleva dos libras.\n"
+            "vende pescado. Juana llega temprano y se lleva dos libras. "
+            "Su hijo anota qué compraron para que el lunes sepa qué falta.\n"
             "---\n"
             "El tono y la longitud de las preguntas nuevas tienen que "
             "parecerse a estas. Si un dato no está ahí, escribe: no está "
@@ -559,8 +562,8 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
         (
             "Esperamos: dos preguntas al mismo tono",
             "| # | Pregunta | Se contesta con |\n"
-            "| 1 | ¿A qué mercado llega Juana? | Al de Tarqui |\n"
-            "| 2 | ¿Cuántas libras se lleva? | Dos |",
+            "| 1 | ¿De qué trata el párrafo? Ese es el tema. | De una compra en Tarqui |\n"
+            "| 2 | ¿Cuál es la idea, no el detalle de quién se oye? | Anotan para saber qué falta el lunes |",
         ),
     ],
     "Adjuntar tus archivos": [
@@ -569,7 +572,8 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
             "Adjunto el capítulo 4 del texto de séptimo y mi planificación "
             "de la unidad.\n"
             "Usa solo esos archivos. Escribe un párrafo con una sola idea "
-            "y cinco preguntas que se contestan con el texto.\n"
+            "y cinco preguntas que se contestan con el texto, para que "
+            "distingan el tema de las ideas principales.\n"
             "Al lado de cada pregunta pon la página de donde sale la "
             "respuesta. Si algo no está en los archivos, escribe: no está "
             "en el archivo. No inventes el autor.",
@@ -577,9 +581,9 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
         (
             "Esperamos: cada respuesta con su página",
             "| # | Pregunta | Se contesta con | Página |\n"
-            "| 1 | ¿Dónde está Juana? | En el mercado de Tarqui | p. 61 |\n"
-            "| 2 | ¿Qué se lleva? | Dos libras | p. 61 |\n"
-            "| 3 | ¿Para qué anota el hijo? | Para saber qué falta el lunes | p. 62 |\n"
+            "| 1 | ¿De qué trata el párrafo? Ese es el tema. | De una compra en Tarqui | p. 61 |\n"
+            "| 2 | ¿Cuál es la idea principal? | Anotan para saber qué falta el lunes | p. 62 |\n"
+            "| 3 | ¿«pregunta el precio» es idea o detalle? | Detalle | p. 61 |\n"
             "| 4 | ¿Quién escribió el capítulo? | no está en el archivo | — |",
         ),
     ],
@@ -588,7 +592,8 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
             "El pedido de la hoja completa",
             "Eres docente de lengua de séptimo. Ya leyeron un cuento y "
             "saben qué es el narrador. Arma una hoja: un párrafo con una "
-            "idea y seis preguntas del texto, de más fácil a más difícil. "
+            "idea y seis preguntas del texto, de más fácil a más difícil, "
+            "para que distingan el tema de las ideas principales. "
             "La hora dura 45 minutos. Al final, las respuestas en otro "
             "bloque. No inventes el autor. No pidas una receta.",
         ),
@@ -599,12 +604,12 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
             "lleva dos libras. Su hijo anota qué compraron para que en "
             "casa sepan qué falta el lunes.\n\n"
             "| # | Pregunta | Se contesta con |\n"
-            "| 1 | ¿Qué día va Juana al mercado? | El sábado |\n"
-            "| 2 | ¿A quién se oye primero? | A quien vende pescado |\n"
-            "| 3 | ¿Qué pregunta Juana? | El precio |\n"
-            "| 4 | ¿Qué se lleva? | Dos libras |\n"
-            "| 5 | ¿Quién anota? | Su hijo |\n"
-            "| 6 | ¿Para qué anota? | Para saber qué falta el lunes |",
+            "| 1 | ¿De qué trata el párrafo, en general? | De una compra el sábado en Tarqui |\n"
+            "| 2 | ¿Cuál es la idea principal? | Que anotan lo comprado para saber qué falta el lunes |\n"
+            "| 3 | ¿«pregunta el precio» es idea o detalle? | Detalle |\n"
+            "| 4 | ¿Qué frase dice esa idea? | «para que en casa sepan qué falta el lunes» |\n"
+            "| 5 | Si el título fuera «El pescado», ¿qué idea queda fuera? | Que anotan la compra para el lunes |\n"
+            "| 6 | Un compañero dice que es una tarea del hijo. ¿Qué dice el texto? | Que no es una tarea: anota para el lunes |",
         ),
     ],
     "Un resumen para alguien": [
@@ -620,8 +625,8 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
             "Hoy en séptimo leímos un párrafo corto y respondimos solo "
             "con lo que decía el texto. No era inventar una historia ni "
             "hacer un ensayo.\n"
-            "En casa pueden preguntar: ¿qué fue lo único que hizo Juana "
-            "en el mercado, según el párrafo?",
+            "En casa pueden preguntar: ¿cuál era la idea del párrafo, no "
+            "el detalle del pescado?",
         ),
     ],
     "Cuarenta y cinco minutos": [
@@ -638,9 +643,10 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
             "Esperamos: el plan de los 45 minutos",
             "| Tiempo | Momento | Qué hace quién |\n"
             "| 8 min | Apertura | El docente lee el párrafo en voz alta. "
-            "Pregunta: ¿qué pasó, según el texto? No según ustedes. |\n"
-            "| 20 min | Práctica | Juntos marcan la frase que responde "
-            "la primera pregunta. El docente no acepta lo que no está "
+            "Pregunta: ¿de qué trata, según el texto? El tema, no un "
+            "detalle. |\n"
+            "| 20 min | Práctica | Juntos marcan la frase que dice la "
+            "idea principal. El docente no acepta lo que no está "
             "escrito. |\n"
             "| 12 min | Individual | Cada quien responde las otras "
             "cuatro. El docente circula. |\n"
@@ -659,7 +665,8 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
             "Antes: «Teniendo en cuenta los elementos narrativos del "
             "fragmento, determine el espacio en el que se desarrolla la "
             "acción.»\n"
-            "Después: «¿Dónde está Juana, según el párrafo?»",
+            "Después: «¿Cuál es la idea principal, no el detalle del "
+            "pescado?»",
         ),
     ],
     "Antes de fotocopiar": [
@@ -673,9 +680,9 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
         (
             "Esperamos: la hoja después de los cinco chequeos",
             "| # | Pregunta | Se contesta con |\n"
-            "| 1 | ¿Dónde está Juana? | En el mercado de Tarqui |\n"
-            "| 2 | ¿Qué se lleva? | Dos libras |\n"
-            "| 3 | ¿Para qué anota el hijo? | Para saber qué falta el lunes |",
+            "| 1 | ¿De qué trata el párrafo? Ese es el tema. | De una compra en Tarqui |\n"
+            "| 2 | ¿Cuál es la idea principal? | Que anotan para saber qué falta el lunes |\n"
+            "| 3 | «Se oye primero a quien vende pescado»: ¿idea o detalle? | Detalle |",
         ),
     ],
     "Por qué trabaja con tus fuentes": [
@@ -877,7 +884,8 @@ TEACHER_ACTIVITIES: list[dict[str, Any]] = [
             "Escribe el pedido para el material de TU próxima clase, "
             "como hizo Norma el domingo. Si aún no tienes el tema, usa "
             "el de ella: 7.º EGB, un párrafo con una idea y cinco "
-            "preguntas que se contestan con el texto. No pidas una "
+            "preguntas que se contestan con el texto, para que distingan "
+            "el tema de las ideas principales. No pidas una "
             "receta ni un ensayo.\n\n"
             "Tiene que: decirle quién es el modelo, para quién es "
             "(el grado), qué ya vieron, cuántas preguntas, y cómo lo "

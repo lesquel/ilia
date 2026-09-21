@@ -76,3 +76,28 @@ def test_prompting_example_titles_say_pedido_not_prompt() -> None:
     for lesson_title in prompting_titles:
         for example_title, _example_body in LESSON_EXAMPLES[lesson_title]:
             assert not example_title.startswith("Prompt")
+
+
+def test_prompting_worked_sheet_distinguishes_theme_from_main_ideas() -> None:
+    """LL.3.3.3 is tema vs ideas principales, not ¿dónde / qué día / quién."""
+    sheets = []
+    prompting_titles = {title for title, _kind, _duration, _body in _prompting_lessons()}
+    for lesson_title in prompting_titles:
+        for example_title, body in LESSON_EXAMPLES[lesson_title]:
+            if example_title.startswith("Esperamos"):
+                assert "¿Dónde está Juana?" not in body, lesson_title
+            if example_title.startswith("Esperamos: la hoja"):
+                sheets.append(body)
+    assert sheets, "expected the worked five-question sheets"
+    for sheet in sheets:
+        lower = sheet.lower()
+        assert "tema" in lower
+        assert "idea principal" in lower
+
+    pedido = next(
+        body
+        for title, body in LESSON_EXAMPLES["Las cinco piezas"]
+        if title == "El pedido con las cinco piezas"
+    )
+    assert "tema" in pedido.lower()
+    assert "ideas principales" in pedido.lower()
