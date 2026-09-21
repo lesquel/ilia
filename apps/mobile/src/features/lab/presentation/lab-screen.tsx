@@ -10,6 +10,7 @@ import {
   TextInput,
   View,
   useWindowDimensions,
+  type TextStyle,
 } from 'react-native';
 
 import { INSTITUTE_SHORT_NAME } from '@/core/brand';
@@ -166,7 +167,9 @@ export function LabScreen() {
               style={[
                 styles.editor,
                 { color: theme.colors.text },
-                Platform.OS === 'web' ? styles.editorWeb : undefined,
+                Platform.OS === 'web'
+                  ? ({ outlineStyle: 'none' } as unknown as TextStyle)
+                  : undefined,
               ]}
             />
           </View>
@@ -394,9 +397,6 @@ const styles = StyleSheet.create({
     minHeight: 200,
     padding: 0,
     borderWidth: 0,
-  },
-  editorWeb: {
-    outlineStyle: 'none',
   },
   marginSlip: {
     borderWidth: 1,
