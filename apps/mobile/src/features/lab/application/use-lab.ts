@@ -3,6 +3,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { isInFlight, type SubmissionResult } from '@/features/lab/domain/entities';
 import { labRepository, type LabRepository } from '@/features/lab/data/lab-repository';
 
+import { globalSubmissionKeys } from './use-global-submissions';
+
 export const labKeys = {
   activity: (id: string) => ['lab', 'activity', id] as const,
   result: (id: string) => ['lab', 'result', id] as const,
@@ -70,6 +72,7 @@ export function useSubmitPrompt(
       // The attempt counter moved, so the activity is stale.
       void queryClient.invalidateQueries({ queryKey: labKeys.activity(activityId) });
       void queryClient.invalidateQueries({ queryKey: labKeys.submissions(activityId) });
+      void queryClient.invalidateQueries({ queryKey: globalSubmissionKeys.all });
     },
   });
 }

@@ -71,6 +71,8 @@ export function CatalogScreen() {
         ]}
       />
 
+      {/* Category chips from mockup #4 are not wired: the API exposes level, query
+          and cursor only — no category field in ORM or catalog router. */}
       <View style={styles.filters}>
         <LevelChip label="Todos" active={level === undefined} onPress={() => setLevel(undefined)} />
         {LEVELS.map((option) => (

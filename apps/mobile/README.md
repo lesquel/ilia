@@ -70,7 +70,8 @@ Features implementadas: `auth`, `catalog`, `enrollment`, `lab`, `certificates`,
 | `/login` | Iniciar sesión |
 | `/catalog` | Catálogo, con búsqueda, filtro por nivel y scroll infinito |
 | `/catalog/[slug]` | Detalle del curso, inscripción y marcado de lecciones |
-| `/my-courses` | Mis cursos con progreso y punto de retomada |
+| `/my-courses` | Mis cursos con progreso, tarjeta «Continuar curso» (mockup #6) y enlace al historial |
+| `/evaluations` | Historial global de entregas de actividades (mockup #12; compuesto en cliente) |
 | `/lab/[activityId]` | Laboratorio IA: enunciado, requisitos, rúbrica y editor de prompt |
 | `/lab/submissions/[submissionId]` | Resultado, con polling hasta que la evaluación llega |
 | `/catalog/[slug]/forum` | Foro del curso |
@@ -124,6 +125,15 @@ componentes pensados para un teléfono. Es un costo asumido, no un descuido.
 
 ## Deuda y decisiones abiertas
 
+- **Filtro por categoría (mockup #4).** El prototipo muestra chips de categoría,
+  pero el backend solo expone `level`, `query` y cursor en el catálogo: no hay
+  campo `category` en el ORM ni en el router. No se simula en cliente; el lugar
+  del filtro está comentado en `catalog-screen.tsx`.
+- **Historial global de entregas.** No existe `GET /lab/submissions` transversal.
+  `/evaluations` recorre las actividades del temario de cada curso inscrito y
+  llama a `GET /lab/activities/{id}/submissions`. Vive en la feature `lab` con
+  ruta propia (no en `/account`: esa pantalla pertenece a `auth` y el hub de
+  aprendizaje es `/my-courses`).
 - **Fuentes.** Los tokens declaran Barlow y Barlow Condensed, pero todavía no se
   empaquetan como assets. Hasta que se haga, el sistema usa su fallback. No
   pueden depender de la red: los docentes tienen datos limitados.

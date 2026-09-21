@@ -141,6 +141,11 @@ export function CourseDetailScreen({
               ? ` · ${course.modules.length} ${course.modules.length === 1 ? 'capítulo' : 'capítulos'}`
               : ''}
           </Text>
+          {course.instructorName.trim() ? (
+            <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>
+              Docente: {course.instructorName}
+            </Text>
+          ) : null}
           {!isEnrolled ? (
             enrollmentSlot
           ) : followHref ? (

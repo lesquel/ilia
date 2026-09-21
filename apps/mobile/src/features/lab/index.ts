@@ -19,4 +19,6 @@ export {
   useSubmissionResult,
   useSubmitPrompt,
 } from './application/use-lab';
+export { globalSubmissionKeys, useGlobalSubmissionHistory } from './application/use-global-submissions';
 export { AttemptHistory } from './presentation/attempt-history';
+export { EvaluationsScreen } from './presentation/evaluations-screen';

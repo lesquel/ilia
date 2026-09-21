@@ -14,6 +14,7 @@ import { useCourses } from '@/features/catalog';
 import { useSession } from '@/features/auth';
 import { useMyCourses } from '@/features/enrollment/application/use-enrollment';
 import { callToAction, type EnrolledCourse } from '@/features/enrollment/domain/entities';
+import { ContinueHero } from '@/features/enrollment/presentation/continue-hero';
 
 export function MyCoursesScreen() {
   const theme = useTheme();
@@ -56,6 +57,7 @@ export function MyCoursesScreen() {
 
   const hasOnlyFinishedCourses =
     courses.length > 0 && courses.every((item) => item.progress.isComplete);
+  const showContinueHero = courses.some((item) => !item.progress.isComplete);
 
   return (
     <FlatList
@@ -72,8 +74,16 @@ export function MyCoursesScreen() {
           <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
             {hasOnlyFinishedCourses
               ? 'Ya terminaste lo que tenías abierto. Sigue por la ruta.'
-              : 'Retoma donde quedaste.'}
+              : 'Continúa aprendiendo donde lo dejaste.'}
           </Text>
+          {showContinueHero ? <ContinueHero courses={courses} /> : null}
+          <Link
+            href="/evaluations"
+            style={[styles.historyLink, { color: theme.colors.accent }]}
+            accessibilityRole="link"
+          >
+            Historial de entregas
+          </Link>
         </View>
       }
       ListEmptyComponent={
@@ -123,6 +133,11 @@ function EnrolledCourseCard({
         </Text>
 
         <Text style={[styles.courseTitle, { color: theme.colors.text }]}>{course.title}</Text>
+        {course.instructorName.trim() ? (
+          <Text style={[styles.instructor, { color: theme.colors.neutral[600] }]}>
+            {course.instructorName}
+          </Text>
+        ) : null}
 
         {progress.isComplete ? (
           <Text style={[styles.closing, { color: theme.colors.neutral[700] }]}>
@@ -235,6 +250,12 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 15,
   },
+  historyLink: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginTop: 4,
+    marginBottom: 4,
+  },
   link: {
     textAlign: 'center',
     fontSize: 16,
@@ -257,6 +278,9 @@ const styles = StyleSheet.create({
   courseTitle: {
     fontSize: 22,
     fontWeight: '600',
+  },
+  instructor: {
+    fontSize: 13,
   },
   closing: {
     fontSize: 15,
