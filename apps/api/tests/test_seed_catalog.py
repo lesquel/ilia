@@ -8,9 +8,16 @@ this runs.
 
 import inspect
 from pathlib import Path
+from uuid import UUID
 
 from app.content.teacher_catalog import TEACHER_COURSES
-from scripts.seed_catalog import CANONICAL_SLUGS, CATALOG_COURSES
+from scripts.seed_catalog import (
+    CANONICAL_RUBRIC_ID,
+    CANONICAL_RUBRIC_NAME,
+    CANONICAL_SLUGS,
+    CATALOG_COURSES,
+    CATALOG_DIMENSIONS,
+)
 
 EXPECTED_SLUGS = (
     "prompting-para-docentes",
@@ -52,3 +59,24 @@ def test_demo_seed_still_refuses_production() -> None:
     source = inspect.getsource(seed_demo_main)
     assert "is_production" in source
     assert "Refusing to seed demo data in production" in source
+
+
+def test_canonical_rubric_has_a_stable_identity() -> None:
+    assert isinstance(CANONICAL_RUBRIC_ID, UUID)
+    assert CANONICAL_RUBRIC_NAME == "Rúbrica base de prompting"
+    keys = [row[0] for row in CATALOG_DIMENSIONS]
+    assert keys == list(dict.fromkeys(keys))
+    assert "deterministic" in keys
+
+
+def test_catalog_seed_does_not_take_the_first_rubric_in_the_database() -> None:
+    source = (
+        Path(__file__)
+        .resolve()
+        .parents[1]
+        .joinpath("scripts", "seed_catalog.py")
+        .read_text(encoding="utf-8")
+    )
+    assert "select(RubricModel).limit(1)" not in source
+    assert "CANONICAL_RUBRIC_ID" in source
+    assert "CANONICAL_RUBRIC_NAME" in source

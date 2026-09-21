@@ -13,9 +13,10 @@ from __future__ import annotations
 import asyncio
 import secrets
 from datetime import UTC, datetime, timedelta
-from uuid import uuid4
+from uuid import NAMESPACE_URL, uuid4, uuid5
 
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.content.teacher_catalog import TEACHER_ACTIVITIES, TEACHER_COURSES
@@ -45,6 +46,11 @@ CATALOG_ACTIVITIES = TEACHER_ACTIVITIES
 # still register with their own address; the password is random and never printed.
 CATALOG_OWNER_EMAIL = "catalogo@ilia.local"
 CATALOG_OWNER_NAME = "Eduardo Calvache"
+
+# Stable identity for the seed rubric. Looking up "whatever is first in the
+# table" would attach labs to an unrelated rubric an instructor already wrote.
+CANONICAL_RUBRIC_ID = uuid5(NAMESPACE_URL, "https://ilia.local/catalog/rubric/prompting")
+CANONICAL_RUBRIC_NAME = "Rúbrica base de prompting"
 
 # The rubric proposed in PRD 9.2, plus the deterministic anchor. The judged
 # dimensions carry the PRD's suggested weights; `deterministic` is what the
@@ -136,6 +142,92 @@ async def ensure_catalog_owner(database: Database) -> AuthUser:
     return owner
 
 
+def _dimension_tuple(dimension: RubricDimensionModel) -> tuple[str, str, str, str, float]:
+    return (
+        dimension.key,
+        dimension.name,
+        dimension.description,
+        dimension.kind,
+        float(dimension.weight),
+    )
+
+
+def _wanted_dimensions() -> dict[str, tuple[str, str, str, float]]:
+    return {
+        key: (name, description, kind, float(weight))
+        for key, name, description, kind, weight in CATALOG_DIMENSIONS
+    }
+
+
+def _sync_rubric_dimensions(rubric: RubricModel) -> bool:
+    """Make the canonical rubric match CATALOG_DIMENSIONS. True if it changed."""
+    wanted = _wanted_dimensions()
+    by_key = {dimension.key: dimension for dimension in rubric.dimensions}
+    changed = False
+
+    for key, (name, description, kind, weight) in wanted.items():
+        dimension = by_key.get(key)
+        if dimension is None:
+            rubric.dimensions.append(
+                RubricDimensionModel(
+                    id=uuid4(),
+                    key=key,
+                    name=name,
+                    description=description,
+                    kind=kind,
+                    weight=weight,
+                )
+            )
+            changed = True
+            continue
+        if _dimension_tuple(dimension) != (key, name, description, kind, weight):
+            dimension.name = name
+            dimension.description = description
+            dimension.kind = kind
+            dimension.weight = weight
+            changed = True
+
+    for dimension in list(rubric.dimensions):
+        if dimension.key not in wanted:
+            rubric.dimensions.remove(dimension)
+            changed = True
+
+    return changed
+
+
+async def _ensure_canonical_rubric(session: AsyncSession) -> RubricModel:
+    """The prompting rubric this seed owns, never 'whatever row is first'."""
+    found = await session.execute(
+        select(RubricModel)
+        .options(selectinload(RubricModel.dimensions))
+        .where(RubricModel.id == CANONICAL_RUBRIC_ID)
+    )
+    rubric = found.scalar_one_or_none()
+    if rubric is None:
+        found = await session.execute(
+            select(RubricModel)
+            .options(selectinload(RubricModel.dimensions))
+            .where(RubricModel.name == CANONICAL_RUBRIC_NAME)
+            .order_by(RubricModel.version.desc())
+            .limit(1)
+        )
+        rubric = found.scalar_one_or_none()
+
+    if rubric is None:
+        rubric = RubricModel(id=CANONICAL_RUBRIC_ID, version=1, name=CANONICAL_RUBRIC_NAME)
+        rubric.dimensions = []
+        session.add(rubric)
+        _sync_rubric_dimensions(rubric)
+        await session.flush()
+        return rubric
+
+    rubric.name = CANONICAL_RUBRIC_NAME
+    if _sync_rubric_dimensions(rubric):
+        rubric.version += 1
+    await session.flush()
+    return rubric
+
+
 async def publish_catalog(database: Database, instructor: AuthUser) -> int:
     """Idempotently publish TEACHER_COURSES and their labs."""
     _require_canonical_catalog()
@@ -198,22 +290,7 @@ async def publish_catalog(database: Database, instructor: AuthUser) -> int:
             session.add(course)
 
     async with database.session() as session:
-        shared_rubric = (await session.execute(select(RubricModel).limit(1))).scalar_one_or_none()
-        if shared_rubric is None:
-            shared_rubric = RubricModel(id=uuid4(), version=1, name="Rúbrica base de prompting")
-            shared_rubric.dimensions = [
-                RubricDimensionModel(
-                    id=uuid4(),
-                    key=key,
-                    name=name,
-                    description=description,
-                    kind=kind,
-                    weight=weight,
-                )
-                for key, name, description, kind, weight in CATALOG_DIMENSIONS
-            ]
-            session.add(shared_rubric)
-            await session.flush()
+        shared_rubric = await _ensure_canonical_rubric(session)
 
         for activity_data in CATALOG_ACTIVITIES:
             course_row = (
@@ -231,6 +308,7 @@ async def publish_catalog(database: Database, instructor: AuthUser) -> int:
             if existing_activity is not None:
                 existing_activity.statement = activity_data["statement"]
                 existing_activity.checks = activity_data["checks"]
+                existing_activity.rubric_id = shared_rubric.id
                 continue
 
             previous = await session.execute(
@@ -241,6 +319,7 @@ async def publish_catalog(database: Database, instructor: AuthUser) -> int:
                 previous_activity.title = activity_data["title"]
                 previous_activity.statement = activity_data["statement"]
                 previous_activity.checks = activity_data["checks"]
+                previous_activity.rubric_id = shared_rubric.id
                 continue
 
             module_row = (
