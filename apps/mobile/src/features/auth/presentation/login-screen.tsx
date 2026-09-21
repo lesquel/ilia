@@ -120,6 +120,13 @@ export function LoginScreen() {
             accessibilityLabel="Contraseña"
           />
 
+          <Link
+            href="/forgot-password"
+            style={[styles.forgotLink, { color: theme.colors.accent }]}
+          >
+            Olvidé mi contraseña
+          </Link>
+
           {login.isError ? (
             <Text
               style={[styles.error, { color: theme.colors.accentRamp[700] }]}
@@ -199,6 +206,12 @@ const styles = StyleSheet.create({
     paddingVertical: 10.2,
     fontSize: 16,
     marginBottom: 20.4,
+  },
+  forgotLink: {
+    fontSize: 14,
+    marginTop: -12,
+    marginBottom: 16,
+    alignSelf: 'flex-end',
   },
   error: {
     fontSize: 14,

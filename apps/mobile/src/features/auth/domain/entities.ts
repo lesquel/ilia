@@ -48,6 +48,15 @@ export interface PasswordChange {
   newPassword: string;
 }
 
+export interface PasswordResetRequest {
+  email: string;
+}
+
+export interface PasswordResetConfirm {
+  resetToken: string;
+  newPassword: string;
+}
+
 /**
  * A session as the app sees it.
  *
@@ -86,7 +95,14 @@ export function safeDestination(next: string | undefined | null): string {
 
   const path = next.trim();
   if (!path.startsWith('/') || path.startsWith('//')) return DEFAULT_DESTINATION;
-  if (path.startsWith('/login') || path.startsWith('/register')) return DEFAULT_DESTINATION;
+  if (
+    path.startsWith('/login') ||
+    path.startsWith('/register') ||
+    path.startsWith('/forgot-password') ||
+    path.startsWith('/reset-password')
+  ) {
+    return DEFAULT_DESTINATION;
+  }
 
   return path;
 }

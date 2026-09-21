@@ -5,6 +5,8 @@ import { clearSessionScopedStorage } from '@/core/storage';
 import type {
   Credentials,
   PasswordChange,
+  PasswordResetConfirm,
+  PasswordResetRequest,
   Registration,
   User,
 } from '@/features/auth/domain/entities';
@@ -106,5 +108,22 @@ export function useLogout(repository: AuthRepository = authRepository) {
 export function useChangePassword(repository: AuthRepository = authRepository) {
   return useMutation({
     mutationFn: (input: PasswordChange) => repository.changePassword(input),
+  });
+}
+
+export function useRequestPasswordReset(repository: AuthRepository = authRepository) {
+  return useMutation({
+    mutationFn: (input: PasswordResetRequest) => repository.requestPasswordReset(input),
+  });
+}
+
+export function useConfirmPasswordReset(repository: AuthRepository = authRepository) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: PasswordResetConfirm) => repository.confirmPasswordReset(input),
+    onSuccess: (session) => {
+      queryClient.setQueryData(authKeys.session, session.user);
+    },
   });
 }

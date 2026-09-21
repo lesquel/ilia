@@ -2,6 +2,8 @@ import { HttpClient, httpClient } from '@/core/api/http-client';
 import type {
   Credentials,
   PasswordChange,
+  PasswordResetConfirm,
+  PasswordResetRequest,
   Registration,
   Session,
   User,
@@ -68,6 +70,19 @@ export class HttpAuthRepository implements AuthRepository {
       current_password: input.currentPassword,
       new_password: input.newPassword,
     });
+  }
+
+  async requestPasswordReset(input: PasswordResetRequest): Promise<void> {
+    await this.http.post<void>('/auth/password-reset/request', { email: input.email });
+  }
+
+  async confirmPasswordReset(input: PasswordResetConfirm): Promise<Session> {
+    return this.persist(
+      await this.http.post<SessionDto>('/auth/password-reset/confirm', {
+        reset_token: input.resetToken,
+        new_password: input.newPassword,
+      }),
+    );
   }
 
   async currentUser(): Promise<User> {
