@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Protocol
 from uuid import UUID
 
-from app.features.auth.domain.entities import Email, User
+from app.features.auth.domain.entities import Email, PasswordResetToken, User
 
 
 class UserRepository(Protocol):
@@ -62,3 +62,27 @@ class Clock(Protocol):
     be tested without sleeping."""
 
     def now(self) -> datetime: ...
+
+
+class PasswordResetTokenRepository(Protocol):
+    async def save(self, token: PasswordResetToken) -> None: ...
+
+    async def invalidate_unused_for_user(self, user_id: UUID) -> None: ...
+
+    async def get_active_for_user(
+        self, user_id: UUID, *, at: datetime
+    ) -> PasswordResetToken | None: ...
+
+    async def mark_used(self, token_id: UUID, *, used_at: datetime) -> None: ...
+
+
+class ResetAuditLog(Protocol):
+    """Append-only audit for password recovery.
+
+    Declared in auth so application code never imports the admin feature
+    (that would cycle: admin already depends on auth entities).
+    """
+
+    async def record_issued(self, *, actor: User, target: User) -> None: ...
+
+    async def record_completed(self, *, user: User) -> None: ...

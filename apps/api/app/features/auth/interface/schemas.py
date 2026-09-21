@@ -1,3 +1,4 @@
+from datetime import datetime
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field
@@ -24,6 +25,24 @@ class ChangePasswordRequest(BaseModel):
 class LoginRequest(BaseModel):
     email: str
     password: str
+
+
+class PasswordResetRequest(BaseModel):
+    email: str
+
+
+class PasswordResetIssueRequest(BaseModel):
+    email: str
+
+
+class PasswordResetConfirmRequest(BaseModel):
+    reset_token: str = Field(min_length=16, max_length=512)
+    new_password: str = Field(min_length=8, max_length=128)
+
+
+class PasswordResetIssueResponse(BaseModel):
+    reset_token: str
+    expires_at: datetime
 
 
 class UserResponse(BaseModel):

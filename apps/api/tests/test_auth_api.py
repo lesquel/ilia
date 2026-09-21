@@ -7,6 +7,9 @@ and must never hand a browser something the page can read.
 
 from fastapi.testclient import TestClient
 
+from app.features.auth.domain.entities import Email, Role
+from app.features.auth.infrastructure.memory_repository import InMemoryUserRepository
+
 WEB = {"X-Client-Platform": "web"}
 NATIVE = {"X-Client-Platform": "native"}
 
@@ -19,6 +22,16 @@ ACCOUNT = {
 
 def register(client: TestClient, headers: dict[str, str], **overrides: str):  # type: ignore[no-untyped-def]
     return client.post("/api/v1/auth/register", json={**ACCOUNT, **overrides}, headers=headers)
+
+
+def set_role(client: TestClient, email: str, role: Role) -> None:
+    repo = client.app.state.auth["users"]
+    assert isinstance(repo, InMemoryUserRepository)
+    for user in repo._by_id.values():
+        if user.email == Email(email):
+            user.role = role
+            return
+    raise AssertionError(f"user {email} not found")
 
 
 class TestRegistration:
@@ -347,3 +360,80 @@ class TestChangePassword:
         assert "set-cookie" in {k.lower() for k in changed.headers}
         assert client.get("/api/v1/auth/me", headers=WEB).status_code == 200
         assert session.status_code == 201
+
+
+class TestPasswordReset:
+    def test_request_always_returns_empty(self, client: TestClient) -> None:
+        register(client, WEB)
+
+        known = client.post(
+            "/api/v1/auth/password-reset/request",
+            json={"email": ACCOUNT["email"]},
+            headers=WEB,
+        )
+        unknown = client.post(
+            "/api/v1/auth/password-reset/request",
+            json={"email": "nadie@colegio.edu"},
+            headers=WEB,
+        )
+
+        assert known.status_code == 204
+        assert unknown.status_code == 204
+
+    def test_issue_requires_instructor(self, client: TestClient) -> None:
+        register(client, NATIVE)
+        token = register(
+            client,
+            NATIVE,
+            email="instr@colegio.edu",
+            full_name="Instr",
+        ).json()["access_token"]
+
+        refused = client.post(
+            "/api/v1/auth/password-reset/issue",
+            json={"email": ACCOUNT["email"]},
+            headers={**NATIVE, "Authorization": f"Bearer {token}"},
+        )
+        assert refused.status_code == 403
+
+    def test_teacher_can_reset_with_assisted_token(self, client: TestClient) -> None:
+        register(client, WEB)
+        register(client, NATIVE, email="instr@ilia.edu", full_name="Instr")
+        set_role(client, "instr@ilia.edu", Role.INSTRUCTOR)
+
+        instr_login = client.post(
+            "/api/v1/auth/login",
+            json={"email": "instr@ilia.edu", "password": "una-clave-larga"},
+            headers=NATIVE,
+        )
+        instr_token = instr_login.json()["access_token"]
+
+        issued = client.post(
+            "/api/v1/auth/password-reset/issue",
+            json={"email": ACCOUNT["email"]},
+            headers={**NATIVE, "Authorization": f"Bearer {instr_token}"},
+        )
+        assert issued.status_code == 200
+        reset_token = issued.json()["reset_token"]
+
+        confirmed = client.post(
+            "/api/v1/auth/password-reset/confirm",
+            json={"reset_token": reset_token, "new_password": "clave-nueva-larga"},
+            headers=WEB,
+        )
+        assert confirmed.status_code == 200
+        assert confirmed.json()["user"]["email"] == ACCOUNT["email"]
+
+        login_old = client.post(
+            "/api/v1/auth/login",
+            json={"email": ACCOUNT["email"], "password": ACCOUNT["password"]},
+            headers=WEB,
+        )
+        assert login_old.status_code == 401
+
+        login_new = client.post(
+            "/api/v1/auth/login",
+            json={"email": ACCOUNT["email"], "password": "clave-nueva-larga"},
+            headers=WEB,
+        )
+        assert login_new.status_code == 200

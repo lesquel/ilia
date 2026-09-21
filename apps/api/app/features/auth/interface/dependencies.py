@@ -15,20 +15,36 @@ from app.core.database import Database
 from app.features.auth.application.use_cases import (
     AuthenticateUser,
     ChangePassword,
+    CompletePasswordReset,
     GetCurrentUser,
+    IssuePasswordReset,
     RefreshSession,
     RegisterUser,
+    RequestPasswordReset,
 )
 from app.features.auth.domain.entities import Role, User
 from app.features.auth.domain.errors import InvalidTokenError
-from app.features.auth.domain.ports import PasswordHasher, TokenService, UserRepository
+from app.features.auth.domain.ports import (
+    PasswordHasher,
+    PasswordResetTokenRepository,
+    ResetAuditLog,
+    TokenService,
+    UserRepository,
+)
 from app.features.auth.infrastructure.memory_repository import InMemoryUserRepository
+from app.features.auth.infrastructure.memory_reset_repository import (
+    InMemoryPasswordResetTokenRepository,
+)
+from app.features.auth.infrastructure.reset_audit import AdminResetAuditLog
 from app.features.auth.infrastructure.security import (
     Argon2PasswordHasher,
     JwtTokenService,
     SystemClock,
 )
 from app.features.auth.infrastructure.sql_repository import SqlAlchemyUserRepository
+from app.features.auth.infrastructure.sql_reset_repository import (
+    SqlAlchemyPasswordResetTokenRepository,
+)
 from app.features.auth.interface.throttle import build_auth_limiter
 from app.features.auth.interface.transport import read_access_token
 from app.shared.errors import PermissionDeniedError
@@ -39,8 +55,10 @@ SettingsDep = Annotated[Settings, Depends(get_app_settings)]
 def build_auth_container(settings: Settings, database: Database | None = None) -> dict[str, object]:
     """Build the auth singletons once, at application startup."""
     users: UserRepository
+    resets: PasswordResetTokenRepository
     if database is not None:
         users = SqlAlchemyUserRepository(database)
+        resets = SqlAlchemyPasswordResetTokenRepository(database)
     else:
         # Loud on purpose. Silently forgetting every account on restart is the
         # kind of thing that gets discovered in front of a room of teachers.
@@ -49,9 +67,11 @@ def build_auth_container(settings: Settings, database: Database | None = None) -
             detail="ILIA_DATABASE_URL is not set; accounts will be lost on restart",
         )
         users = InMemoryUserRepository()
+        resets = InMemoryPasswordResetTokenRepository()
 
     return {
         "users": users,
+        "resets": resets,
         "hasher": Argon2PasswordHasher(),
         # One limiter for the whole process, built here so it outlives requests.
         "limiter": build_auth_limiter(settings),
@@ -103,6 +123,77 @@ def get_refresh_session(users: UsersDep, tokens: TokensDep) -> RefreshSession:
 
 def get_change_password(users: UsersDep, hasher: HasherDep) -> ChangePassword:
     return ChangePassword(users=users, hasher=hasher)
+
+
+def get_password_reset_repository(request: Request) -> PasswordResetTokenRepository:
+    return request.app.state.auth["resets"]  # type: ignore[no-any-return]
+
+
+ResetsDep = Annotated[PasswordResetTokenRepository, Depends(get_password_reset_repository)]
+
+
+def get_reset_audit(request: Request) -> ResetAuditLog:
+    audit = request.app.state.admin["audit"]
+    clock = request.app.state.auth["clock"]
+    return AdminResetAuditLog(audit=audit, clock=clock)
+
+
+ResetAuditDep = Annotated[ResetAuditLog, Depends(get_reset_audit)]
+
+
+def get_request_password_reset(
+    request: Request,
+    users: UsersDep,
+    resets: ResetsDep,
+    hasher: HasherDep,
+) -> RequestPasswordReset:
+    settings = request.app.state.settings
+    clock = request.app.state.auth["clock"]
+    return RequestPasswordReset(
+        users=users,
+        resets=resets,
+        hasher=hasher,
+        clock=clock,
+        token_ttl=timedelta(hours=settings.password_reset_ttl_hours),
+    )
+
+
+def get_issue_password_reset(
+    request: Request,
+    users: UsersDep,
+    resets: ResetsDep,
+    hasher: HasherDep,
+    audit: ResetAuditDep,
+) -> IssuePasswordReset:
+    settings = request.app.state.settings
+    clock = request.app.state.auth["clock"]
+    return IssuePasswordReset(
+        users=users,
+        resets=resets,
+        hasher=hasher,
+        clock=clock,
+        audit=audit,
+        token_ttl=timedelta(hours=settings.password_reset_ttl_hours),
+    )
+
+
+def get_complete_password_reset(
+    request: Request,
+    users: UsersDep,
+    resets: ResetsDep,
+    hasher: HasherDep,
+    tokens: TokensDep,
+    audit: ResetAuditDep,
+) -> CompletePasswordReset:
+    clock = request.app.state.auth["clock"]
+    return CompletePasswordReset(
+        users=users,
+        resets=resets,
+        hasher=hasher,
+        tokens=tokens,
+        clock=clock,
+        audit=audit,
+    )
 
 
 async def get_current_user(

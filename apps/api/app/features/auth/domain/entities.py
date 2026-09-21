@@ -114,3 +114,18 @@ class User:
 
     def has_at_least(self, role: Role) -> bool:
         return self.role.can_act_as(role)
+
+
+@dataclass
+class PasswordResetToken:
+    """One recover-password credential. Only the hash is persisted."""
+
+    id: UUID
+    user_id: UUID
+    token_hash: str
+    expires_at: datetime
+    used_at: datetime | None = None
+    created_at: datetime | None = None
+
+    def is_usable(self, *, at: datetime) -> bool:
+        return self.used_at is None and self.expires_at > at

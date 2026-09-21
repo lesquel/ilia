@@ -102,6 +102,10 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_ttl_minutes: int = 15
     refresh_token_ttl_days: int = 30
+    # Single-use reset tokens expire after this many hours. Long enough for an
+    # instructor to hand a code during class; short enough that a leaked token
+    # is not a permanent back door.
+    password_reset_ttl_hours: int = 24
 
     # Cookie session, for the web client only (TRD 4.5).
     session_cookie_name: str = "ilia_session"

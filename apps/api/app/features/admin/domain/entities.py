@@ -84,6 +84,8 @@ class AuditAction(StrEnum):
     CERTIFICATE_REVOKED = "certificate_revoked"
     COURSE_PUBLISHED = "course_published"
     COURSE_UNPUBLISHED = "course_unpublished"
+    PASSWORD_RESET_ISSUED = "password_reset_issued"
+    PASSWORD_RESET_COMPLETED = "password_reset_completed"
 
 
 @dataclass
