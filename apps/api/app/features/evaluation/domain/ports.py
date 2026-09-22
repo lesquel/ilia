@@ -130,6 +130,12 @@ class SubmissionRepository(Protocol):
 
     async def list_for_activity(self, *, user_id: UUID, activity_id: UUID) -> list[Submission]: ...
 
+    async def find_by_idempotency_key(
+        self, *, user_id: UUID, activity_id: UUID, idempotency_key: str
+    ) -> Submission | None:
+        """A prior submission for this retry key, scoped to this teacher and activity."""
+        ...
+
 
 class EvaluationRepository(Protocol):
     async def add(self, evaluation: Evaluation) -> None: ...

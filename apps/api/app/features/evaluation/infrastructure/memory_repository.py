@@ -40,6 +40,19 @@ class InMemorySubmissionRepository:
         spent = await self.list_for_activity(user_id=user_id, activity_id=activity_id)
         return sum(1 for item in spent if item.status is not SubmissionStatus.FAILED)
 
+    async def find_by_idempotency_key(
+        self, *, user_id: UUID, activity_id: UUID, idempotency_key: str
+    ) -> Submission | None:
+        # In-memory tests often freeze time far in the past; TTL is enforced in SQL.
+        for item in self._submissions.values():
+            if (
+                item.user_id == user_id
+                and item.activity_id == activity_id
+                and item.idempotency_key == idempotency_key
+            ):
+                return item
+        return None
+
     async def list_for_activity(self, *, user_id: UUID, activity_id: UUID) -> list[Submission]:
         return sorted(
             (

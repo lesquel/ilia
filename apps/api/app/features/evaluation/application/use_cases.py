@@ -26,6 +26,7 @@ from app.features.evaluation.domain.entities import (
 )
 from app.features.evaluation.domain.errors import (
     ActivityNotFoundError,
+    ConcurrentSubmissionError,
     EmptyPromptError,
     EvaluationQuotaExceededError,
     NoAttemptsLeftError,
@@ -79,10 +80,27 @@ class SubmitPrompt:
         self._queue = queue
         self._clock = clock
 
-    async def execute(self, *, user_id: UUID, activity_id: UUID, prompt: str) -> Submission:
+    async def execute(
+        self,
+        *,
+        user_id: UUID,
+        activity_id: UUID,
+        prompt: str,
+        idempotency_key: str | None = None,
+    ) -> Submission:
         activity = await self._activities.get(activity_id)
         if activity is None:
             raise ActivityNotFoundError()
+
+        key = idempotency_key.strip() if idempotency_key else None
+        if key == "":
+            key = None
+        if key is not None:
+            existing = await self._submissions.find_by_idempotency_key(
+                user_id=user_id, activity_id=activity_id, idempotency_key=key
+            )
+            if existing is not None:
+                return existing
 
         cleaned = prompt.strip()
         if not cleaned:
@@ -104,8 +122,18 @@ class SubmitPrompt:
             prompt=cleaned,
             attempt=used + 1,
             created_at=self._clock.now(),
+            idempotency_key=key,
         )
-        await self._submissions.add(submission)
+        try:
+            await self._submissions.add(submission)
+        except ConcurrentSubmissionError:
+            if key is not None:
+                existing = await self._submissions.find_by_idempotency_key(
+                    user_id=user_id, activity_id=activity_id, idempotency_key=key
+                )
+                if existing is not None:
+                    return existing
+            raise
 
         # Consume after the submission exists. The other order would charge a
         # teacher for an evaluation that was never recorded.
@@ -145,6 +173,10 @@ class RunEvaluation:
         submission = await self._submissions.get(submission_id)
         if submission is None:
             raise SubmissionNotFoundError()
+
+        existing = await self._evaluations.get_for_submission(submission_id)
+        if existing is not None:
+            return existing
 
         activity = await self._activities.get(submission.activity_id)
         if activity is None:

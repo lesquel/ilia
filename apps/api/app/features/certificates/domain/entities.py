@@ -11,6 +11,10 @@ from datetime import datetime
 from enum import StrEnum
 from uuid import UUID, uuid4
 
+from app.features.evaluation.domain import real_pass
+
+SIMULATED_EVALUATION_MODEL = real_pass.SIMULATED_EVALUATION_MODEL
+
 # Unambiguous alphabet: no O/0, no I/1/L. A code gets read aloud, written on a
 # whiteboard and typed by someone who was not the one who received it.
 _ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
@@ -106,10 +110,6 @@ class Certificate:
         self.revoked_at = at
 
 
-# Same string the stub evaluator writes on Evaluation.model
-# (`local_provider.MODEL_NAME` / `STUB_LLM_NAME`). A certificate issued from
-# those notes cannot be defended.
-SIMULATED_EVALUATION_MODEL = "local-stub"
 SIMULATED_NOTES_MESSAGE = (
     "Estas notas son simuladas. No hay un modelo conectado. No sirven para certificar."
 )

@@ -459,8 +459,7 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
     "Un pedido de una línea": [
         (
             "El pedido de una línea",
-            "Hazme una lectura de séptimo, bien creativa, con varias "
-            "preguntas.",
+            "Hazme una lectura de séptimo, bien creativa, con varias preguntas.",
         ),
         (
             "Esperamos: lo que devuelve",
@@ -510,8 +509,7 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
     "Las cinco piezas": [
         (
             "El pedido al que le faltan las cinco",
-            "Hazme una lectura de séptimo, bien creativa, con varias "
-            "preguntas.",
+            "Hazme una lectura de séptimo, bien creativa, con varias preguntas.",
         ),
         (
             "Esperamos: el modelo elige por ti",

@@ -6,12 +6,12 @@ from sqlalchemy import func, select
 
 from app.core.database import Database
 from app.features.certificates.domain.entities import (
-    SIMULATED_EVALUATION_MODEL,
     ActivityResultCounts,
     Certificate,
     CertificateStatus,
     VerificationCode,
 )
+from app.features.evaluation.domain.real_pass import SIMULATED_EVALUATION_MODEL
 from app.features.evaluation.infrastructure.models import (
     ActivityModel,
     EvaluationModel,
