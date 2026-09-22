@@ -5,23 +5,21 @@ posterior necesita otra cosa, se cambia ahí; el esquema no.
 
 ## Host y dominio
 
-Aún no hay host elegido. La sesión web es cookie `httpOnly`: el cliente y la
-API tienen que compartir **un dominio registrable**. Sin eso, el navegador no
-manda la cookie. No se inventa un hostname acá.
+**Decidido: mismo host.** El edge de `docker compose` sirve la UI y la API bajo
+un solo origin. Cookie host-only: `ILIA_COOKIE_DOMAIN` vacío.
 
-Cuando sí haya host, el operador completa `.env` (ver `docs/deploy.env.example`)
-y reconstruye. Los nombres de abajo son los que el compose y la API leen.
-Los hostnames son ejemplos, no el destino.
-
-| Variable | Qué pone el operador |
+| Variable | Valor del piloto (HTTP local) |
 |---|---|
-| `ILIA_CORS_ORIGINS` | Origen exacto del cliente web. JSON. Ej. `["https://ilia.example"]` |
-| `ILIA_COOKIE_DOMAIN` | Vacío si web y API son el mismo host. Si son subdominios: `.ilia.example` |
-| `EXPO_PUBLIC_API_URL` | URL de la API. Ej. `https://api.ilia.example`. Se hornea al construir la imagen; cambiarla implica `docker compose up -d --build` |
+| `ILIA_CORS_ORIGINS` | `["http://localhost:8080"]` |
+| `ILIA_COOKIE_DOMAIN` | vacío |
+| `EXPO_PUBLIC_API_URL` | `http://localhost:8080` |
+| `ILIA_ENVIRONMENT` | `staging` (pasar a `production` + `ILIA_COOKIE_SECURE=true` cuando el edge tenga TLS) |
 
-`ILIA_COOKIE_SECURE` lo fija el compose en `true`.
+El hostname público real (si deja de ser `localhost`) es un dato de ops: se
+cambia en `.env` y se reconstruye la imagen web. No hace falta inventarlo en el
+repo.
 
-Smoke, en el navegador, sin tokens en `localStorage`:
+Smoke, en el navegador, contra el edge, sin tokens en `localStorage`:
 
 1. Registrarse (`POST /api/v1/auth/register`).
 2. Iniciar sesión (`POST /api/v1/auth/login`).
@@ -33,23 +31,31 @@ de login/register en web trae solo el perfil.
 
 ## LLM
 
-Hasta que el entorno tenga `ILIA_LLM_PROVIDER` y `ILIA_LLM_API_KEY`, el motor
-corre el stub local. El motor que evalúa es `RunEvaluation` (Python). No es
-LangGraph.
+**Decidido: multi-proveedor, listo para la clave.** El motor es `RunEvaluation`.
+No es LangGraph. Compatibles sin tocar código: `anthropic`, `openai`, `gemini`,
+`deepseek`, `openai-compatible`.
 
-`ILIA_LLM_PROVIDER` — uno de: `anthropic`, `openai`, `gemini`, `deepseek`,
-`openai-compatible`. Modelos por defecto (sobreescribibles con `ILIA_LLM_MODEL`):
+Hasta que `.env` tenga `ILIA_LLM_PROVIDER` **y** `ILIA_LLM_API_KEY`, corre el
+stub. Dejá los dos vacíos hasta pegar la clave: un proveedor nombrado sin clave
+falla al arrancar.
+
+Modelos por defecto (sobreescribibles con `ILIA_LLM_MODEL`):
 `claude-sonnet-4-5`, `gpt-4o-mini`, `gemini-2.0-flash`, `deepseek-chat`.
 `openai-compatible` exige además `ILIA_LLM_MODEL` e `ILIA_LLM_BASE_URL`.
 
-Cómo se prueba, sin llamar a un proveedor de pago:
-
 ```sh
-curl -sS http://localhost:8000/health/ready
+curl -sS http://localhost:8080/health/ready
 ```
 
 El campo `llm` tiene que ser el nombre del proveedor, **no** `local-stub`.
-Esas notas del stub **no son reales** y no se certifica a nadie con ellas.
+Notas del stub **no** certificar.
+
+## Almacenamiento
+
+**Decidido: MinIO (API S3) en el compose.** El adaptador local no se usa en el
+piloto. Variables: `ILIA_STORAGE_*` apuntando al puerto publicado de MinIO
+(`http://localhost:9000` en local). El mismo adaptador sirve para AWS/R2/Spaces
+cambiando el endpoint.
 
 ## Certificación
 
@@ -60,13 +66,16 @@ producto; la copia no promete ministerio ni descarga.
 ## Videos
 
 El texto de las lecciones alcanza. Los seis guiones están en
-`docs/curriculum/ruta-docentes.md`. Hasta que alguien suba el archivo, la
-lección se lee. Cambiar a `kind=video` es un acto en el panel de instructor,
-no un deploy.
+`docs/curriculum/ruta-docentes.md`. El bucket ya acepta subidas firmadas desde
+instructor (web). Hasta que alguien suba el archivo, la lección se lee. Cambiar
+a `kind=video` es un acto en el panel de instructor, no un deploy. La lámina
+HyperFrames se renderiza cuando haya tiempo de contenido; no bloquea la charla.
 
 ## Recuperación de contraseña
 
-Fuera de la primera charla. Quien se trabe, lo atiende quien esté en la sala.
+Stopgap asistido por instructor (API + pantallas). Ver
+`apps/api/docs/recuperacion-contrasena-asistida.md`. Correo propio sigue
+pendiente de proveedor.
 
 ## Freemium
 
@@ -78,14 +87,3 @@ Números editables con un `UPDATE`; no hay camino de pago en este piloto.
 El currículo canónico está en `docs/curriculum/`. No se inventan códigos de
 destreza ni cifras de Ineval. La voz de la lección es sala de profesores; Lía
 no habla ahí.
-
-## Catálogo
-
-Un compose nuevo no tiene cursos. Publicarlos:
-
-```sh
-docker compose run --rm api python -m scripts.seed_catalog
-```
-
-Slugs: `prompting-para-docentes`, `notebooklm-en-el-aula`,
-`evaluacion-asistida-por-ia`.
