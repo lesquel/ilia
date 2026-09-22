@@ -42,6 +42,8 @@ describe('safeDestination', () => {
     expect(safeDestination('/login')).toBe(DEFAULT_DESTINATION);
     expect(safeDestination('/login?next=/login')).toBe(DEFAULT_DESTINATION);
     expect(safeDestination('/register')).toBe(DEFAULT_DESTINATION);
+    expect(safeDestination('/forgot-password')).toBe(DEFAULT_DESTINATION);
+    expect(safeDestination('/reset-password')).toBe(DEFAULT_DESTINATION);
   });
 
   it('ignores surrounding whitespace rather than treating it as a bad path', () => {

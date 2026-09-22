@@ -6,8 +6,11 @@ milliseconds with fakes.
 """
 
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from uuid import UUID
 
+from app.features.admin.domain.errors import UserNotFoundError
+from app.features.auth.application.reset_token import mint_reset_token, parse_reset_token
 from app.features.auth.domain.entities import Email, Role, User
 from app.features.auth.domain.errors import (
     EmailAlreadyRegisteredError,
@@ -19,6 +22,8 @@ from app.features.auth.domain.errors import (
 from app.features.auth.domain.ports import (
     Clock,
     PasswordHasher,
+    PasswordResetTokenRepository,
+    ResetAuditLog,
     TokenPair,
     TokenService,
     UserRepository,
@@ -173,3 +178,142 @@ class ChangePassword:
         await self._users.update(user)
 
         return user
+
+
+@dataclass(frozen=True)
+class IssuedPasswordReset:
+    reset_token: str
+    expires_at: datetime
+
+
+class RequestPasswordReset:
+    """Teacher asks to recover access. No email provider yet — a token is still
+    persisted so an instructor can deliver it through the assisted path."""
+
+    def __init__(
+        self,
+        *,
+        users: UserRepository,
+        resets: PasswordResetTokenRepository,
+        hasher: PasswordHasher,
+        clock: Clock,
+        token_ttl: timedelta,
+    ) -> None:
+        self._users = users
+        self._resets = resets
+        self._hasher = hasher
+        self._clock = clock
+        self._token_ttl = token_ttl
+
+    async def execute(self, *, email: str) -> None:
+        try:
+            address = Email(email)
+        except ValueError:
+            # Same outward behaviour as an unknown account — no enumeration.
+            self._hasher.hash(email)
+            return
+
+        user = await self._users.get_by_email(address)
+        if user is None or not user.is_active:
+            self._hasher.hash(email)
+            return
+
+        await self._resets.invalidate_unused_for_user(user.id)
+        _, entity = mint_reset_token(
+            user_id=user.id,
+            hasher=self._hasher,
+            clock=self._clock,
+            ttl=self._token_ttl,
+        )
+        await self._resets.save(entity)
+
+
+class IssuePasswordReset:
+    """Instructor- or admin-assisted delivery (PRD E-01 stopgap).
+
+    Returns the raw token once so it can be handed to the teacher in person.
+    Every issuance is audited.
+    """
+
+    def __init__(
+        self,
+        *,
+        users: UserRepository,
+        resets: PasswordResetTokenRepository,
+        hasher: PasswordHasher,
+        clock: Clock,
+        audit: ResetAuditLog,
+        token_ttl: timedelta,
+    ) -> None:
+        self._users = users
+        self._resets = resets
+        self._hasher = hasher
+        self._clock = clock
+        self._audit = audit
+        self._token_ttl = token_ttl
+
+    async def execute(self, *, actor: User, email: str) -> IssuedPasswordReset:
+        address = Email(email)
+        target = await self._users.get_by_email(address)
+        if target is None or not target.is_active:
+            raise UserNotFoundError()
+
+        await self._resets.invalidate_unused_for_user(target.id)
+        raw, entity = mint_reset_token(
+            user_id=target.id,
+            hasher=self._hasher,
+            clock=self._clock,
+            ttl=self._token_ttl,
+        )
+        await self._resets.save(entity)
+        await self._audit.record_issued(actor=actor, target=target)
+
+        return IssuedPasswordReset(reset_token=raw, expires_at=entity.expires_at)
+
+
+class CompletePasswordReset:
+    def __init__(
+        self,
+        *,
+        users: UserRepository,
+        resets: PasswordResetTokenRepository,
+        hasher: PasswordHasher,
+        tokens: TokenService,
+        clock: Clock,
+        audit: ResetAuditLog,
+    ) -> None:
+        self._users = users
+        self._resets = resets
+        self._hasher = hasher
+        self._tokens = tokens
+        self._clock = clock
+        self._audit = audit
+
+    async def execute(self, *, reset_token: str, new_password: str) -> Session:
+        user_id = parse_reset_token(reset_token)
+        stored = None
+        user = None
+        if user_id is not None:
+            user = await self._users.get_by_id(user_id)
+            if user is not None:
+                stored = await self._resets.get_active_for_user(user_id, at=self._clock.now())
+
+        if (
+            user is None
+            or not user.is_active
+            or stored is None
+            or not self._hasher.verify(reset_token, stored.token_hash)
+        ):
+            # Equal work on a bad token and a good one where possible.
+            self._hasher.hash(new_password)
+            raise InvalidTokenError("The reset link is invalid or has expired")
+
+        if self._hasher.verify(new_password, user.password_hash):
+            raise SamePasswordError()
+
+        user.change_password(self._hasher.hash(new_password))
+        await self._users.update(user)
+        await self._resets.mark_used(stored.id, used_at=self._clock.now())
+        await self._audit.record_completed(user=user)
+
+        return Session(user=user, tokens=self._tokens.issue_pair(user))

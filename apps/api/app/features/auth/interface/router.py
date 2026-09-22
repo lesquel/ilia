@@ -7,22 +7,34 @@ from pydantic import BaseModel
 from app.features.auth.application.use_cases import (
     AuthenticateUser,
     ChangePassword,
+    CompletePasswordReset,
+    IssuePasswordReset,
     RefreshSession,
     RegisterUser,
+    RequestPasswordReset,
     Session,
 )
+from app.features.auth.domain.entities import Role, User
 from app.features.auth.domain.errors import InvalidTokenError
 from app.features.auth.interface.dependencies import (
     CurrentUser,
     SettingsDep,
     get_authenticate_user,
     get_change_password,
+    get_complete_password_reset,
+    get_issue_password_reset,
     get_refresh_session,
     get_register_user,
+    get_request_password_reset,
+    require_role,
 )
 from app.features.auth.interface.schemas import (
     ChangePasswordRequest,
     LoginRequest,
+    PasswordResetConfirmRequest,
+    PasswordResetIssueRequest,
+    PasswordResetIssueResponse,
+    PasswordResetRequest,
     RegisterRequest,
     SessionResponse,
     UserResponse,
@@ -42,6 +54,10 @@ RegisterUserDep = Annotated[RegisterUser, Depends(get_register_user)]
 AuthenticateUserDep = Annotated[AuthenticateUser, Depends(get_authenticate_user)]
 RefreshSessionDep = Annotated[RefreshSession, Depends(get_refresh_session)]
 ChangePasswordDep = Annotated[ChangePassword, Depends(get_change_password)]
+RequestPasswordResetDep = Annotated[RequestPasswordReset, Depends(get_request_password_reset)]
+IssuePasswordResetDep = Annotated[IssuePasswordReset, Depends(get_issue_password_reset)]
+CompletePasswordResetDep = Annotated[CompletePasswordReset, Depends(get_complete_password_reset)]
+InstructorUser = Annotated[User, Depends(require_role(Role.INSTRUCTOR))]
 
 
 def _deliver(
@@ -144,6 +160,48 @@ async def logout(response: Response, settings: SettingsDep) -> None:
 @router.get("/me", response_model=UserResponse)
 async def me(user: CurrentUser) -> UserResponse:
     return UserResponse.from_entity(user)
+
+
+@router.post("/password-reset/request", status_code=status.HTTP_204_NO_CONTENT)
+async def request_password_reset(
+    payload: PasswordResetRequest,
+    request: Request,
+    use_case: RequestPasswordResetDep,
+) -> None:
+    """Ask to recover access. Response is always empty — no account enumeration."""
+    enforce(request, action="reset_request")
+    await use_case.execute(email=payload.email)
+
+
+@router.post("/password-reset/issue", response_model=PasswordResetIssueResponse)
+async def issue_password_reset(
+    payload: PasswordResetIssueRequest,
+    actor: InstructorUser,
+    use_case: IssuePasswordResetDep,
+) -> PasswordResetIssueResponse:
+    """Instructor/admin-assisted delivery until email is configured (PRD E-01)."""
+    issued = await use_case.execute(actor=actor, email=payload.email)
+    return PasswordResetIssueResponse(
+        reset_token=issued.reset_token,
+        expires_at=issued.expires_at,
+    )
+
+
+@router.post("/password-reset/confirm", response_model=SessionResponse)
+async def confirm_password_reset(
+    payload: PasswordResetConfirmRequest,
+    request: Request,
+    response: Response,
+    settings: SettingsDep,
+    use_case: CompletePasswordResetDep,
+) -> SessionResponse:
+    enforce(request, action="reset_confirm")
+    session = await use_case.execute(
+        reset_token=payload.reset_token,
+        new_password=payload.new_password,
+    )
+    forget(request, action="reset_confirm")
+    return _deliver(session, request, response, settings)
 
 
 @router.post("/password", status_code=status.HTTP_204_NO_CONTENT)

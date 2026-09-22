@@ -206,6 +206,10 @@ export function RegisterScreen() {
             >
               Iniciar sesión
             </Link>
+            {' · '}
+            <Link href="/forgot-password" style={{ color: theme.colors.accent }}>
+              Olvidé mi contraseña
+            </Link>
           </Text>
         </View>
       </ScrollView>

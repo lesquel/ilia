@@ -56,7 +56,20 @@ class FakeTokenService:
             subject=user.id,
             role=user.role.value,
             expires_at=datetime.now(UTC) + timedelta(minutes=15),
+            generation=user.token_generation,
         )
+
+
+class FakeResetAuditLog:
+    def __init__(self) -> None:
+        self.issued: list[tuple] = []
+        self.completed: list = []
+
+    async def record_issued(self, *, actor, target) -> None:  # type: ignore[no-untyped-def]
+        self.issued.append((actor.id, target.id))
+
+    async def record_completed(self, *, user) -> None:  # type: ignore[no-untyped-def]
+        self.completed.append(user.id)
 
 
 class FrozenClock:
