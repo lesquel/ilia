@@ -1,12 +1,12 @@
-# TRD — PRAXIS.AI
+# TRD — ILIA
 ### Documento de requisitos técnicos
 
 | | |
 |---|---|
-| **Versión** | 0.1 — borrador para revisión |
-| **Fecha** | 7 de septiembre de 2026 |
-| **Documento padre** | PRD PRAXIS.AI v0.1 |
-| **Estado** | Levantamiento de requisitos |
+| **Versión** | 0.2 — alineado al código en `main` |
+| **Fecha** | 7 de septiembre de 2026 *(v0.1)* · actualizado 21 de septiembre de 2026 |
+| **Documento padre** | PRD ILIA v0.2 |
+| **Estado** | Stack y sesión web implementados; despliegue productivo y SEO siguen abiertos |
 
 ---
 
@@ -19,17 +19,25 @@ Dos advertencias de método, porque afectan a cómo deben usar esto:
 - **No incluyo firmas de funciones ni APIs concretas de librerías.** Ni de LangGraph, ni de React Native, ni de ningún SDK. La razón es simple: esas APIs cambian entre versiones y no tengo forma de verificar hoy cuál es la vigente. Todo lo que digo sobre una librería es a nivel de responsabilidad y arquitectura; **la sintaxis hay que sacarla de la documentación oficial en el momento de implementar.**
 - Donde no tenía información suficiente, dejé una pregunta abierta en vez de rellenar el hueco.
 
+**Archivo:** este documento se llamaba `docs/TRD_PRAXIS_AI_v0.1.md`. Las decisiones marcadas ✅ abajo están respaldadas por el repositorio a la fecha de v0.2.
+
 ---
 
 ## 1. Decisiones ya tomadas
 
-| Área | Decisión | Origen |
+| Área | Decisión | Origen / prueba en código |
 |---|---|---|
 | Plataforma cliente | **Multiplataforma: iOS, Android y web, con React Native + React Native Web** | Equipo |
-| Backend | **Python** | Equipo |
-| Orquestación de IA | **LangGraph** | Equipo |
+| Toolchain cliente | **Expo** (Router, export web) | ✅ `apps/mobile/package.json` (`expo`, `expo-router`) |
+| Lenguaje cliente | **TypeScript** | ✅ `apps/mobile/tsconfig.json` |
+| Datos de servidor (cliente) | **TanStack Query** | ✅ `apps/mobile/package.json` |
+| Backend | **Python + FastAPI** | ✅ `apps/api/app/main.py` (`FastAPI`) |
+| Base de datos | **PostgreSQL 17** + SQLAlchemy async + Alembic | ✅ `docker-compose.yml` (`postgres:17-alpine`); ✅ `apps/api/migrations/` |
+| Orquestación de IA | **`RunEvaluation`** (Python sobre puertos; **no** LangGraph) | ✅ `apps/api/app/features/evaluation/application/use_cases.py` |
 | Evaluación | **EVALs** sobre prompts y resultados | Equipo + reunión |
-| Arquitectura | **Clean Architecture organizada por features**, tanto en frontend como en backend | Equipo |
+| Sesión web | Cookie **`httpOnly`** (`ilia_session`, `ilia_refresh`); bearer en nativo | ✅ `apps/api/app/features/auth/interface/transport.py`; ✅ `apps/api/app/core/config.py` |
+| Cohortes | Tabla `cohort`; admin crea; docente une con `cohort_code` al inscribirse | ✅ `apps/api/migrations/versions/06c6677beaee_create_cohort_and_app_user.py`; ✅ `POST /admin/cohorts` en `apps/api/app/features/admin/interface/router.py` |
+| Arquitectura | **Clean Architecture organizada por features**, en frontend y backend | Equipo + estructura `apps/*/app/features/` |
 | Costo de LLM | Lo asume la plataforma, con API propia | Equipo |
 | Roles | Estudiante, Instructor, Administrador | Equipo |
 
@@ -37,14 +45,23 @@ Dos advertencias de método, porque afectan a cómo deben usar esto:
 
 ## 2. Cosas que quedaron sin definir y que necesito de ustedes
 
-1. **Framework web del backend.** Python está definido, el framework no. Propongo **FastAPI** por async nativo (importante porque las llamadas a LLM son lentas y bloqueantes), tipado con Pydantic y OpenAPI automático para el contrato con la app. **[A confirmar]**
-2. **Librería de queries en el frontend.** Dijiste "algo para manejar las queries" pero la grabación se cortó ahí. Asumo que te referías a **TanStack Query (React Query)**, que es lo estándar para esto en React Native. **Si te referías a otra cosa, dímelo y lo cambio.**
-3. **"Mickey Serrano"** — esa parte del audio no se entendió y no quiero adivinar qué era. ¿Qué querías decir ahí?
-4. **Base de datos.** No la mencionaste. Propongo **PostgreSQL**. **[A confirmar]**
-5. **Dónde se despliega.** No lo mencionaste. **[A confirmar]**
-6. **Proveedor de LLM.** Definiste que la plataforma paga, pero no qué proveedor ni qué modelo. **[A confirmar]**
-7. **Expo o React Native CLI.** Afecta al flujo de build y a qué librerías nativas se pueden usar. Con web en el alcance, **Expo lleva ventaja** porque trae la salida web integrada; con RN CLI hay que configurar React Native Web y el empaquetador a mano. **[A confirmar]**
-8. **Navegadores y versiones mínimas a soportar.** **[A confirmar]**
+### ✅ Resueltas en v0.2 (no reabrir salvo cambio de producto)
+
+1. ~~Framework web del backend.~~ **FastAPI** — ver `apps/api/app/main.py`.
+2. ~~Librería de queries en el frontend.~~ **TanStack Query** — ver `apps/mobile/package.json`.
+3. ~~Base de datos.~~ **PostgreSQL 17** — ver `docker-compose.yml` y migraciones Alembic.
+4. ~~Expo o React Native CLI.~~ **Expo** — ver `apps/mobile/package.json`.
+5. ~~Estrategia de sesión en web.~~ Cookies `httpOnly` — ver `apps/api/app/features/auth/interface/transport.py` y README §Desplegar.
+6. ~~Cohortes ligadas a charla presencial.~~ **Sí, con cohortes** — ver migración `cohort` y inscripción con `cohort_code` en `apps/api/app/features/enrollment/interface/schemas.py`.
+
+### Siguen abiertas
+
+1. **"Mickey Serrano"** — esa parte del audio no se entendió y no quiero adivinar qué era. ¿Qué querías decir ahí?
+2. **Dónde se despliega** (host, dominio registrable, topología más allá de un solo nodo). El piloto usa `docker-compose.yml` en una máquina; no es la topología municipal final. Ver `docs/pilot-charla.md` y README §Desplegar.
+3. **Proveedor y modelo de LLM** por entorno. El motor **`RunEvaluation`** está listo; el default sin claves es `local-stub` (no certifica). Ver README §Conectar un LLM.
+4. **Navegadores y versiones mínimas a soportar.** **[A confirmar]**
+5. **SEO / indexación** de landing y catálogo público. **[A confirmar]**
+6. **Número aproximado de docentes por sesión presencial** (dimensionamiento). **[A confirmar — pedir a la Dirección de Educación]**
 
 ---
 
@@ -75,7 +92,7 @@ Dos advertencias de método, porque afectan a cómo deben usar esto:
                  ┌───────▼──────┐  └─────────────┘
                  │ Servicio de  │
                  │ evaluación   │
-                 │ (LangGraph)  │
+                 │(RunEvaluation)│
                  └───────┬──────┘
                          │
                  ┌───────▼──────┐
@@ -94,13 +111,13 @@ Dos advertencias de método, porque afectan a cómo deben usar esto:
 
 | Pieza | Propuesta | Estado |
 |---|---|---|
-| Framework | React Native | Definido |
-| Salida web | React Native Web | Definido |
-| Toolchain | Expo (soporte web integrado) o RN CLI con RNW configurado a mano | **[A confirmar]** |
-| Lenguaje | TypeScript | **[A confirmar, muy recomendado]** |
-| Datos de servidor | TanStack Query | **[A confirmar — ver §2.2]** |
+| Framework | React Native | ✅ Definido |
+| Salida web | React Native Web | ✅ Definido |
+| Toolchain | **Expo** (soporte web integrado) | ✅ Definido — `apps/mobile/package.json` |
+| Lenguaje | TypeScript | ✅ Definido |
+| Datos de servidor | TanStack Query | ✅ Definido |
 | Estado local/UI | Estado de React + un store ligero solo si hace falta | **[A confirmar]** |
-| Navegación | Expo Router o React Navigation; en web debe producir **URLs reales**, historial navegable y enlaces compartibles | **[A confirmar]** |
+| Navegación | **Expo Router**; en web debe producir **URLs reales**, historial navegable y enlaces compartibles | ✅ Definido — `expo-router` |
 | Formularios y validación | Librería de formularios + validación por esquema | **[A confirmar]** |
 | Almacenamiento seguro de tokens | Keychain / Keystore vía librería dedicada, **nunca** almacenamiento plano | Requisito |
 
@@ -167,7 +184,7 @@ Faltan por completo las de **instructor** y **admin**, que según §6 se diseña
 
 ### 4.5 Consideraciones específicas de web
 
-- **Almacenamiento de tokens.** Esta es la diferencia de seguridad más importante entre las dos plataformas. En móvil se usa el almacén seguro del sistema; en web ese almacén no existe. Guardar un JWT en `localStorage` lo expone a XSS. La alternativa habitual son cookies `httpOnly` + `Secure` + `SameSite`, lo que implica **una estrategia de sesión distinta en el backend para el cliente web**. Hay que decidirlo explícitamente. **[A confirmar]**
+- **Almacenamiento de tokens.** En móvil se usa el almacén seguro del sistema (`expo-secure-store`); en web, cookies `httpOnly` + `Secure` + `SameSite` (`ilia_session`, `ilia_refresh`). ✅ **Decidido e implementado** — `apps/api/app/features/auth/interface/transport.py`. Implica que web y API compartan dominio registrable (README §Desplegar).
 - **URLs y enlaces profundos.** En web se espera poder compartir el enlace de un curso o de una entrega. La navegación tiene que estar diseñada para eso desde el principio, no parcheada después.
 - **Tamaño del bundle.** React Native Web arrastra peso. Conviene medirlo pronto y aplicar carga diferida por ruta, sobre todo para las secciones de instructor y admin que el estudiante nunca abre.
 - **Subida de archivos.** El instructor sube vídeo y presentaciones desde web: hace falta subida directa al object storage con URL prefirmada, progreso visible y reanudación en archivos grandes.
@@ -211,17 +228,17 @@ Reglas:
 - `interface` traduce HTTP ↔ casos de uso. Aquí vive la autorización por rol.
 - La inyección de dependencias se resuelve en el arranque, no dentro de los casos de uso.
 
-Ejemplo del principio, sin código concreto: el caso de uso "evaluar entrega" depende de un puerto `EvaluadorDePrompts`. La implementación con LangGraph vive en `infrastructure`. Eso permite testear el caso de uso con un evaluador falso, sin gastar tokens.
+Ejemplo del principio, sin código concreto: el caso de uso "evaluar entrega" depende de un puerto `EvaluadorDePrompts`. La implementación enviada es **`RunEvaluation`** en `application`/`infrastructure` (Python ordinario sobre puertos). **No se usa LangGraph.** Eso permite testear el caso de uso con un evaluador falso, sin gastar tokens.
 
 ### 5.2 Procesamiento asíncrono
 
-Se necesita una cola para: evaluación de prompts, generación de certificados PDF, transcodificación o procesamiento de vídeo si aplica, y envío de correos.
+Se necesita una cola para: evaluación de prompts, transcodificación o procesamiento de vídeo si aplica, y envío de correos. **Generación de certificado PDF:** no está en Fase 1 — el producto emite código + verificación pública; no hay job ni endpoint de descarga (`apps/api/app/features/certificates/interface/router.py`).
 
 Opciones habituales en el ecosistema Python: Celery, RQ, Dramatiq, o colas gestionadas del proveedor cloud. **[A confirmar cuál]**
 
 ---
 
-## 6. Servicio de evaluación (LangGraph + EVALs)
+## 6. Servicio de evaluación (`RunEvaluation` + EVALs)
 
 ### 6.1 Grafo propuesto
 
@@ -320,7 +337,7 @@ Entidades principales (atributos indicativos, no exhaustivos):
 | `llm_usage` | usuario, submission, tokens entrada/salida, costo estimado |
 | `audit_log` | acciones sensibles de admin |
 
-**Nota pendiente:** si se decide trabajar con **cohortes** ligadas a cada charla presencial (pregunta abierta 7 del PRD), hace falta una entidad `cohort` y ligar `enrollment` a ella. Es más fácil añadirla ahora que después.
+**Cohortes (decidido):** entidad `cohort` con código legible; `enrollment.cohort_id` opcional. Admin crea cohortes; el docente envía `cohort_code` al inscribirse. ✅ Migraciones y API en `apps/api/app/features/admin/interface/router.py` y `enrollment`.
 
 ---
 
@@ -356,8 +373,9 @@ Endpoints principales, agrupados por feature:
 - Listar hilos, crear hilo, responder.
 
 **Certificados**
-- Listar mis certificados, descargar.
+- Listar mis certificados, comprobar elegibilidad, emitir (según plan).
 - Verificación pública por código (**sin autenticación**, es el punto que da credibilidad).
+- **Sin descarga de PDF en Fase 1** — rutas en `apps/api/app/features/certificates/interface/router.py`: `verify`, `me`, `eligibility`, `issue`, `revoke`; no hay `download`.
 
 **Instructor**
 - CRUD de cursos, módulos, lecciones, actividades y rúbricas.
@@ -378,7 +396,7 @@ Convenciones: paginación por cursor en listados largos, errores con formato uni
 
 ## 9. Autenticación y autorización
 
-- **JWT** con access token corto y refresh token, almacenados en el almacenamiento seguro del sistema operativo. **[A confirmar duraciones]**
+- **JWT** con access token corto y refresh token. En **nativo**, el cliente los guarda en almacén seguro; en **web**, salen como cookies `httpOnly` (`ilia_session`, `ilia_refresh`) — ver `apps/api/app/features/auth/interface/router.py`. **[A confirmar duraciones finales]**
 - **RBAC** con los tres roles. La autorización se comprueba en la capa `interface` y las reglas de propiedad ("es *mi* curso") en la capa `application`.
 - **Regla no negociable:** ninguna decisión de permisos se toma en la app móvil. El cliente oculta botones por comodidad; el backend siempre revalida. Un APK se puede inspeccionar y modificar.
 - Rate limiting por usuario y por IP, con límites más estrictos en los endpoints que gastan tokens.
@@ -446,24 +464,23 @@ Sobre el último punto: vale la pena preguntarle a Eduardo qué dispositivos usa
 | T4 | Dependencia de un solo proveedor de LLM | Abstraer tras un puerto de dominio desde el día 1 |
 | T5 | El mockup no traduce directamente a móvil nativo | Rediseño explícito presupuestado, no "portar" |
 | T6 | La presentación diverge entre móvil y web y el ahorro de código compartido resulta menor de lo esperado | Compartir dominio, datos y casos de uso; asumir desde el plan que las pantallas de instructor y admin se hacen para web |
-| T8 | Sesión y almacenamiento de token distintos en web (§4.5) | Definir la estrategia antes de implementar auth, no después |
+| T8 | Sesión y almacenamiento de token distintos en web (§4.5) | ✅ Cookies `httpOnly` implementadas; vigilar dominio y CORS al desplegar |
 | T9 | Peso del bundle web | Medición temprana y carga diferida por ruta |
 | T7 | Equipo pequeño y con disponibilidad de estudiantes | Alcance recortado, features verticales completas antes que capas horizontales |
 
 ---
 
-## 15. Lo que necesito de ustedes para pasar a v0.2
+## 15. Lo que falta para pasar más allá de v0.2
 
-Por orden de impacto:
+**Ya cerrado en código y reflejado arriba:** FastAPI, PostgreSQL, Expo, TanStack Query, TypeScript, cookies `httpOnly` en web, cohortes, motor **`RunEvaluation`** (sin LangGraph).
 
-1. Framework backend (¿FastAPI?)
-2. Confirmar TanStack Query, o decirme qué era lo que mencionaste
-3. Qué era "Mickey Serrano"
-4. Base de datos y dónde se despliega
-5. Proveedor y modelo de LLM
-6. Expo o RN CLI (con web en el alcance, Expo lleva ventaja)
-7. Estrategia de sesión en web: cookies `httpOnly` o token en cliente (§4.5)
-8. ¿La creación de cursos estará también en móvil, o solo en web?
-9. Navegadores y versiones mínimas a soportar
-10. ¿La landing y el catálogo deben ser indexables por buscadores?
-11. Número aproximado de docentes por sesión presencial
+**Sigue abierto (orden de impacto):**
+
+1. Qué era **"Mickey Serrano"** en la grabación
+2. **Dónde se despliega** (host, dominio, topología multi-réplica)
+3. **Proveedor y modelo de LLM** por entorno productivo
+4. ¿La creación de cursos estará también en móvil, o solo en web?
+5. **Navegadores y versiones mínimas** a soportar
+6. ¿La landing y el catálogo deben ser **indexables** (SEO)?
+7. **Número aproximado de docentes por sesión** presencial
+8. **Certificado PDF descargable** — cortado en Fase 1; ver PRD §10 y decisión en el PR (`decision-pendiente`)
