@@ -1,7 +1,7 @@
 """Create password_reset_token for recover-password flow.
 
 Revision ID: c4a8e2f91b03
-Revises: b7e2c1a90d44
+Revises: e8f3a2b1c4d5
 """
 
 from collections.abc import Sequence
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision: str = "c4a8e2f91b03"
-down_revision: str | Sequence[str] | None = "b7e2c1a90d44"
+down_revision: str | Sequence[str] | None = "e8f3a2b1c4d5"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
