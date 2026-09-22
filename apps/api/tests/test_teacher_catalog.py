@@ -36,9 +36,7 @@ def _prompting_bodies() -> str:
 
 def _prompting_lab() -> dict:
     return next(
-        activity
-        for activity in TEACHER_ACTIVITIES
-        if activity["course_slug"] == PROMPTING_SLUG
+        activity for activity in TEACHER_ACTIVITIES if activity["course_slug"] == PROMPTING_SLUG
     )
 
 

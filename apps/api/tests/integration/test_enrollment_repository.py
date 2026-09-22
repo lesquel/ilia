@@ -126,6 +126,7 @@ async def seed_activity_with_attempts(
     *,
     passed_on: list[bool],
     for_other_user: bool = False,
+    model: str = "fake",
 ):  # type: ignore[no-untyped-def]
     """A course with one activity and a series of graded attempts.
 
@@ -186,9 +187,14 @@ async def seed_activity_with_attempts(
                 text("""
                     INSERT INTO evaluation
                         (id, submission_id, rubric_version, total, passed, model, model_version)
-                    VALUES (:id, :submission_id, 1, 80, :passed, 'fake', '1')
+                    VALUES (:id, :submission_id, 1, 80, :passed, :model, '1')
                 """),
-                {"id": uuid4(), "submission_id": submission_id, "passed": passed},
+                {
+                    "id": uuid4(),
+                    "submission_id": submission_id,
+                    "passed": passed,
+                    "model": model,
+                },
             )
 
     return teacher.id, course.id, activity_id
@@ -449,3 +455,37 @@ class TestPassedActivities:
         )
 
         assert passed == set()
+
+    @pytest.mark.asyncio
+    async def test_a_stub_pass_does_not_mark_the_activity_done(
+        self, database: Database, instructor: AuthUser, teacher: AuthUser
+    ) -> None:
+        from app.features.evaluation.infrastructure.local_provider import MODEL_NAME
+
+        user_id, course_id, _ = await seed_activity_with_attempts(
+            database,
+            instructor,
+            teacher,
+            passed_on=[True],
+            model=MODEL_NAME,
+        )
+
+        passed = await SqlAlchemyProgressRepository(database).passed_activity_ids(
+            user_id=user_id, course_id=course_id
+        )
+
+        assert passed == set()
+
+    @pytest.mark.asyncio
+    async def test_a_real_provider_pass_marks_the_activity_done(
+        self, database: Database, instructor: AuthUser, teacher: AuthUser
+    ) -> None:
+        user_id, course_id, activity_id = await seed_activity_with_attempts(
+            database, instructor, teacher, passed_on=[True], model="gpt-4o-mini"
+        )
+
+        passed = await SqlAlchemyProgressRepository(database).passed_activity_ids(
+            user_id=user_id, course_id=course_id
+        )
+
+        assert passed == {activity_id}

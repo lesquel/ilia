@@ -45,6 +45,8 @@ select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
 # Alembic writes these, not us. Fighting the line length in generated SQL
 # column definitions is churn with no reader on the other end.
 "migrations/versions/*" = ["E501"]
+# Lesson bodies and worked examples are prose tables; wrapping breaks the seed text.
+"app/content/teacher_catalog.py" = ["E501"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["app"]

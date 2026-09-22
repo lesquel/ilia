@@ -142,6 +142,55 @@ class TestAttempts:
         assert await repo.count_attempts(user_id=other, activity_id=activity.id) == 0
 
 
+class TestIdempotency:
+    async def test_the_same_key_returns_one_submission_and_one_quota_charge(
+        self, activity: Activity
+    ) -> None:
+        quota = FixedQuota(2)
+        use_case, repo, queue = build_submit(activity, quota=quota)
+        key = "retry-1"
+
+        first = await use_case.execute(
+            user_id=TEACHER,
+            activity_id=activity.id,
+            prompt=GOOD_PROMPT,
+            idempotency_key=key,
+        )
+        second = await use_case.execute(
+            user_id=TEACHER,
+            activity_id=activity.id,
+            prompt=GOOD_PROMPT + " extra",
+            idempotency_key=key,
+        )
+
+        assert first.id == second.id
+        assert await repo.count_attempts(user_id=TEACHER, activity_id=activity.id) == 1
+        assert await quota.remaining(TEACHER) == 1
+        assert queue.enqueued == [first.id]
+
+    async def test_different_keys_create_two_submissions(self, activity: Activity) -> None:
+        quota = FixedQuota(2)
+        use_case, repo, queue = build_submit(activity, quota=quota)
+
+        first = await use_case.execute(
+            user_id=TEACHER,
+            activity_id=activity.id,
+            prompt=GOOD_PROMPT,
+            idempotency_key="a",
+        )
+        second = await use_case.execute(
+            user_id=TEACHER,
+            activity_id=activity.id,
+            prompt=GOOD_PROMPT,
+            idempotency_key="b",
+        )
+
+        assert first.id != second.id
+        assert await repo.count_attempts(user_id=TEACHER, activity_id=activity.id) == 2
+        assert await quota.remaining(TEACHER) == 0
+        assert queue.enqueued == [first.id, second.id]
+
+
 class TestQuota:
     async def test_a_teacher_out_of_quota_is_refused(self, activity: Activity) -> None:
         # The main lever of the free tier (PRD 11).
@@ -200,6 +249,18 @@ class TestUsageRecording:
         assert evaluation.model == "fake-judge"
         assert evaluation.model_version == "1"
         assert evaluation.rubric_version == activity.rubric.version
+
+    async def test_run_evaluation_is_idempotent_when_the_queue_redelivers(self) -> None:
+        activity = activity_with(rubric_with("claridad"))
+        run, repos = build_run_evaluation(activity, executor=EchoExecutor(), judge=CompliantJudge())
+        submission = await submit(repos, activity, prompt=GOOD_PROMPT)
+
+        first = await run.execute(submission.id)
+        second = await run.execute(submission.id)
+
+        assert first is not None and second is not None
+        assert first.id == second.id
+        assert len(repos.usage.records) == 1
 
     async def test_the_generated_sheet_is_kept_with_the_grade(self) -> None:
         # The teacher came for the material. Judging it and throwing it away

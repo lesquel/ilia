@@ -105,6 +105,7 @@ class DimensionResponse(BaseModel):
 
 class SubmitPromptRequest(BaseModel):
     prompt: str = Field(min_length=1, max_length=MAX_PROMPT_CHARS)
+    idempotency_key: str | None = Field(default=None, max_length=128)
 
 
 class SubmissionResponse(BaseModel):
