@@ -1,12 +1,19 @@
 # The whole application, for a pilot deployment on one machine.
 #
-# Not a production topology for a municipality: there is one API container, the
-# evaluation queue lives inside it, and the rate limiter counts in its memory.
-# Scaling past one replica needs the shared-store decision (TRD §5.2) first —
-# `docs/` says so, and so does `apps/api/README.md`.
+# Topology (decided for the first charla): **same host**. A reverse proxy
+# (`edge`) serves the web UI and the API under one origin so cookie
+# `httpOnly` sessions work with an empty `ILIA_COOKIE_DOMAIN`. Media lives
+# on MinIO (S3 API) on a separate published port — signed URLs do not need
+# the session cookie.
 #
-# What it does give: the same images CI builds, the migrations applied before
-# anything serves, and nothing starting until what it depends on is healthy.
+# Not a production topology for a municipality: there is one API container,
+# the evaluation queue lives inside it, and the rate limiter counts in its
+# memory. Scaling past one replica needs the shared-store decision
+# (TRD §5.2) first — `docs/` says so, and so does `apps/api/README.md`.
+#
+# What it does give: the same images CI builds, the migrations applied
+# before anything serves, MinIO instead of local storage, and nothing
+# starting until what it depends on is healthy.
 
 services:
   db:
@@ -23,6 +30,36 @@ services:
       timeout: 5s
       retries: 10
     restart: unless-stopped
+
+  minio:
+    image: minio/minio:latest
+    command: ['server', '/data', '--console-address', ':9001']
+    environment:
+      MINIO_ROOT_USER: ${ILIA_STORAGE_ACCESS_KEY:?set ILIA_STORAGE_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${ILIA_STORAGE_SECRET_KEY:?set ILIA_STORAGE_SECRET_KEY}
+    volumes:
+      - ilia-minio-data:/data
+    ports:
+      # Browser-reachable: signed URLs use this host (see ILIA_STORAGE_ENDPOINT).
+      - '${MINIO_API_PORT:-9000}:9000'
+      - '${MINIO_CONSOLE_PORT:-9001}:9001'
+    # No HEALTHCHECK: the server image has no curl/mc. `minio-init` retries
+    # until the API accepts credentials.
+    restart: unless-stopped
+
+  minio-init:
+    image: minio/mc:latest
+    environment:
+      MINIO_ENDPOINT: http://minio:9000
+      ILIA_STORAGE_ACCESS_KEY: ${ILIA_STORAGE_ACCESS_KEY:?set ILIA_STORAGE_ACCESS_KEY}
+      ILIA_STORAGE_SECRET_KEY: ${ILIA_STORAGE_SECRET_KEY:?set ILIA_STORAGE_SECRET_KEY}
+      ILIA_STORAGE_BUCKET: ${ILIA_STORAGE_BUCKET:-ilia}
+    volumes:
+      - ./deploy/minio/init-bucket.sh:/init/init-bucket.sh:ro
+    entrypoint: ['/bin/sh', '/init/init-bucket.sh']
+    depends_on:
+      - minio
+    restart: 'no'
 
   # Migrations run once, to completion, before the API starts. Letting the API
   # migrate on boot would mean N replicas racing to alter the same tables.
@@ -42,38 +79,43 @@ services:
     build:
       context: ./apps/api
     environment:
-      ILIA_ENVIRONMENT: production
+      # `staging` for HTTP localhost pilots (Secure cookies need TLS).
+      # `production` once the edge terminates HTTPS.
+      ILIA_ENVIRONMENT: ${ILIA_ENVIRONMENT:-staging}
       ILIA_DATABASE_URL: ${ILIA_DATABASE_URL:?set ILIA_DATABASE_URL}
       ILIA_JWT_SECRET: ${ILIA_JWT_SECRET:?set ILIA_JWT_SECRET}
       ILIA_CORS_ORIGINS: ${ILIA_CORS_ORIGINS:?set ILIA_CORS_ORIGINS}
-      ILIA_COOKIE_SECURE: 'true'
+      ILIA_COOKIE_SECURE: ${ILIA_COOKIE_SECURE:-false}
+      # Empty = host-only. Required for the same-host topology.
       ILIA_COOKIE_DOMAIN: ${ILIA_COOKIE_DOMAIN:-}
       # Empty runs the local stub, which grades nothing and says so. Prove a
       # real provider with GET /health/ready: `llm` must not be `local-stub`.
       # Allowed: anthropic | openai | gemini | deepseek | openai-compatible.
+      # Leave empty until the API key is in this file — a named provider with
+      # an empty key refuses to start.
       ILIA_LLM_PROVIDER: ${ILIA_LLM_PROVIDER:-}
       ILIA_LLM_API_KEY: ${ILIA_LLM_API_KEY:-}
       ILIA_LLM_MODEL: ${ILIA_LLM_MODEL:-}
       ILIA_LLM_BASE_URL: ${ILIA_LLM_BASE_URL:-}
       ILIA_LLM_INPUT_PRICE_PER_MILLION: ${ILIA_LLM_INPUT_PRICE_PER_MILLION:-0}
       ILIA_LLM_OUTPUT_PRICE_PER_MILLION: ${ILIA_LLM_OUTPUT_PRICE_PER_MILLION:-0}
-      # Required in production: the local adapter signs nothing, and the API
-      # refuses to start with it there.
-      ILIA_STORAGE_PROVIDER: ${ILIA_STORAGE_PROVIDER:?set ILIA_STORAGE_PROVIDER}
-      ILIA_STORAGE_BUCKET: ${ILIA_STORAGE_BUCKET:-}
+      ILIA_STORAGE_PROVIDER: ${ILIA_STORAGE_PROVIDER:-s3}
+      ILIA_STORAGE_BUCKET: ${ILIA_STORAGE_BUCKET:-ilia}
       ILIA_STORAGE_REGION: ${ILIA_STORAGE_REGION:-us-east-1}
-      ILIA_STORAGE_ACCESS_KEY: ${ILIA_STORAGE_ACCESS_KEY:-}
-      ILIA_STORAGE_SECRET_KEY: ${ILIA_STORAGE_SECRET_KEY:-}
-      ILIA_STORAGE_ENDPOINT: ${ILIA_STORAGE_ENDPOINT:-}
-    ports:
-      - '${API_PORT:-8000}:8000'
+      ILIA_STORAGE_ACCESS_KEY: ${ILIA_STORAGE_ACCESS_KEY:?set ILIA_STORAGE_ACCESS_KEY}
+      ILIA_STORAGE_SECRET_KEY: ${ILIA_STORAGE_SECRET_KEY:?set ILIA_STORAGE_SECRET_KEY}
+      # Must be reachable from the teacher's browser (signed PUT/GET).
+      ILIA_STORAGE_ENDPOINT: ${ILIA_STORAGE_ENDPOINT:?set ILIA_STORAGE_ENDPOINT}
+    # Not published: the edge is the only public HTTP entry for the app.
+    expose:
+      - '8000'
     depends_on:
       db:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
-    # The image writes nothing. Anything that needs to would be a bug worth
-    # finding here rather than in production.
+      minio-init:
+        condition: service_completed_successfully
     read_only: true
     tmpfs:
       - /tmp
@@ -85,11 +127,10 @@ services:
     build:
       context: ./apps/mobile
       args:
-        # Baked into the bundle: Expo inlines EXPO_PUBLIC_* at build time, so
-        # this is one image per environment. Changing it means rebuilding.
+        # Same origin as the edge. Paths are `/api/v1/...` under this base.
         EXPO_PUBLIC_API_URL: ${EXPO_PUBLIC_API_URL:?set EXPO_PUBLIC_API_URL}
-    ports:
-      - '${WEB_PORT:-8080}:80'
+    expose:
+      - '80'
     depends_on:
       api:
         condition: service_healthy
@@ -102,5 +143,26 @@ services:
       - no-new-privileges:true
     restart: unless-stopped
 
+  edge:
+    image: nginx:1.27-alpine
+    ports:
+      - '${WEB_PORT:-8080}:80'
+    volumes:
+      - ./deploy/edge/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      api:
+        condition: service_healthy
+      web:
+        condition: service_started
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+      - /var/run
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
 volumes:
   ilia-db-data:
+  ilia-minio-data:

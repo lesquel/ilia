@@ -19,8 +19,9 @@ cp docs/deploy.env.example .env   # y completá los valores
 docker compose up -d --build
 ```
 
-Levanta cuatro cosas en orden: la base, las **migraciones hasta terminar**, la
-API y el cliente web. Nada arranca hasta que lo que necesita está sano.
+Levanta, en orden: la base, **MinIO** (bucket listo), las **migraciones hasta
+terminar**, la API, el cliente web y el **edge** (un solo origin en
+`WEB_PORT`). Nada arranca hasta que lo que necesita está sano.
 
 ### El primer administrador
 
@@ -78,23 +79,23 @@ Cambiar `EXPO_PUBLIC_API_URL` implica reconstruir (`docker compose up -d --build
 — es la consecuencia honesta de un export estático, no algo que se arregle con
 un placeholder que nadie recuerda reemplazar. Un `.env` nuevo no alcanza.
 
-**Cookie `httpOnly` y dominio.** El host todavía no está elegido. Lo que sí
-está cerrado: el cliente web y la API tienen que compartir **un dominio
-registrable**. `SameSite=lax` no manda la cookie entre sitios distintos.
-Hostnames de ejemplo (no de producción): `ilia.example` y `api.ilia.example`.
+**Cookie `httpOnly` y mismo host.** Decidido para el piloto: un solo origin
+(`edge`). `ILIA_COOKIE_DOMAIN` vacío (host-only). `SameSite=lax` no manda la
+cookie entre sitios distintos — por eso web y API no van en puertos/hosts
+separados hacia el navegador.
 
-En `.env` (ver `docs/deploy.env.example`):
+En `.env` (ver `docs/deploy.env.example` y `docs/pilot-charla.md`):
 
 | Variable | Qué es |
 |---|---|
-| `ILIA_CORS_ORIGINS` | Origen exacto del cliente web (esquema + host + puerto). JSON, no lista por comas. Ej. `["https://ilia.example"]` |
-| `ILIA_COOKIE_DOMAIN` | Vacío = host-only (web y API en el mismo host). Subdominios del mismo registrable: `.ilia.example` |
-| `EXPO_PUBLIC_API_URL` | URL de la API. Se hornea al construir la imagen; cambiarla implica reconstruir |
+| `ILIA_CORS_ORIGINS` | Origen exacto del edge. JSON. Ej. `["http://localhost:8080"]` |
+| `ILIA_COOKIE_DOMAIN` | Vacío en topología same-host |
+| `EXPO_PUBLIC_API_URL` | Misma base que el edge. Se hornea al construir; cambiarla implica reconstruir |
+| `ILIA_COOKIE_SECURE` | `false` en HTTP local (`staging`); `true` con TLS (`production`) |
 
-`ILIA_COOKIE_SECURE` lo fija el compose en `true`. Las cookies se llaman
-`ilia_session` y `ilia_refresh`.
+Las cookies se llaman `ilia_session` y `ilia_refresh`.
 
-Smoke, en el navegador, **sin** tokens en `localStorage`:
+Smoke, en el navegador contra el edge, **sin** tokens en `localStorage`:
 
 1. Registrarse (`POST /api/v1/auth/register`)
 2. Iniciar sesión (`POST /api/v1/auth/login`)
@@ -103,6 +104,11 @@ Smoke, en el navegador, **sin** tokens en `localStorage`:
 Application → Cookies: `ilia_session` e `ilia_refresh`, las dos `HttpOnly`.
 Application → Local Storage: sin `access_token` ni `refresh_token`. El cuerpo
 de login/register en web trae solo el perfil.
+
+**Media en MinIO (S3).** El compose no usa storage local. Firmas path-style;
+`ILIA_STORAGE_ENDPOINT` es la URL que el navegador alcanza (p. ej.
+`http://localhost:9000`). AWS/R2/Spaces: mismo `ILIA_STORAGE_PROVIDER=s3`, otro
+endpoint.
 
 **El healthcheck usa `/health/ready`, no `/health`.** Son preguntas distintas:
 `/health` responde «el proceso vive» y no depende de nada; `/health/ready`
@@ -132,12 +138,12 @@ En `.env` (ver `docs/deploy.env.example`):
 Cómo se prueba, **sin** llamar a un proveedor de pago:
 
 ```sh
-curl -sS http://localhost:8000/health/ready
+curl -sS http://localhost:8080/health/ready
 ```
 
 El campo `llm` tiene que ser el nombre del proveedor, **no** `local-stub`. Un
-proveedor nombrado sin clave falla al arrancar. Las notas del stub no son
-reales y no sirven para certificar.
+proveedor nombrado sin clave falla al arrancar — dejá ambos vacíos hasta pegar
+la clave. Las notas del stub no son reales y no sirven para certificar.
 
 ## Estado
 
@@ -183,29 +189,16 @@ Detalle en [`apps/api/README.md`](apps/api/README.md) y
 
 ## Decisiones que bloquean el siguiente paso
 
-El TRD §15 lista once. Estas son las cuatro de mayor impacto; tres ya están
-resueltas.
-
-1. ~~**Estrategia de sesión en web.**~~ ✅ **Decidido:** cookie `httpOnly` para
-   web, bearer token para nativo. Implementado en las dos puntas. Trae una
-   restricción de despliegue: el cliente web y la API deben compartir dominio
-   registrable. Ver [`apps/api/README.md`](apps/api/README.md#autenticación).
-2. ~~**Base de datos.**~~ ✅ **PostgreSQL**, adoptando la propuesta del TRD §2.4.
-   **Sigue abierto dónde se despliega.** El operador no elige el host en este
-   repo: completa `ILIA_CORS_ORIGINS`, `ILIA_COOKIE_DOMAIN` y
-   `EXPO_PUBLIC_API_URL` cuando lo haya, y reconstruye la imagen web. Ver
-   [Desplegar](#desplegar) y `docs/pilot-charla.md`.
-3. **Proveedor y modelo de LLM.** El motor de EVALs **ya está construido y
-   probado** detrás de un puerto (TRD T4). `RunEvaluation` es el motor enviado;
-   no se añade LangGraph. Hoy el default es `local-stub` hasta que el entorno
-   tenga `ILIA_LLM_PROVIDER` y `ILIA_LLM_API_KEY`. El stub produce salida válida
-   y **no evalúa nada**; el docente lo lee arriba de la nota, y
-   `/health/ready` lo dice. Ver [Conectar un LLM](#conectar-un-llm).
-4. ~~**Cohortes sí o no.**~~ ✅ **Decidido: con cohortes.** La tabla `cohort` y
-   `app_user.cohort_id` ya están en la primera migración, así que no habrá que
-   migrar datos de docentes reales después. Un admin crea la charla
-   (`POST /admin/cohorts`) con un código legible (`MANTA-SEP-01`); el docente se
-   une con `cohort_code` opcional al inscribirse, no al registrarse.
+1. ~~**Estrategia de sesión en web.**~~ ✅ cookie `httpOnly` / bearer nativo.
+2. ~~**Base de datos.**~~ ✅ PostgreSQL 17.
+3. ~~**Topología web + API.**~~ ✅ **Mismo host** vía `edge` (ver
+   `docs/pilot-charla.md`). El hostname público, si deja de ser `localhost`,
+   es solo un cambio de `.env` + rebuild.
+4. **Clave de LLM.** Multi-proveedor listo (`anthropic` · `openai` · `gemini` ·
+   `deepseek` · `openai-compatible`). Pegá `ILIA_LLM_PROVIDER` +
+   `ILIA_LLM_API_KEY` en `.env` cuando la tengas; hasta entonces el stub.
+5. ~~**Cohortes.**~~ ✅ create en admin + join en inscripción.
+6. ~~**Storage de media.**~~ ✅ MinIO (S3) en el compose; no local.
 
 ## Documentación
 
