@@ -1,6 +1,15 @@
 import { Link, useLocalSearchParams } from 'expo-router';
 import type { ReactNode } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import {
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+  type ViewStyle,
+} from 'react-native';
 
 import { INSTITUTE_SHORT_NAME } from '@/core/brand';
 import { breakpoint, useTheme } from '@/core/theme';
@@ -115,6 +124,9 @@ export function CourseDetailScreen({
               borderRadius: theme.radius.lg,
             },
             isWide ? styles.cardWide : undefined,
+            isWide && Platform.OS === 'web'
+              ? ({ position: 'sticky', top: 16 } as unknown as ViewStyle)
+              : undefined,
           ]}
         >
           <View style={styles.kickerRow}>
@@ -141,6 +153,11 @@ export function CourseDetailScreen({
               ? ` · ${course.modules.length} ${course.modules.length === 1 ? 'capítulo' : 'capítulos'}`
               : ''}
           </Text>
+          {course.instructorName.trim() ? (
+            <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>
+              Docente: {course.instructorName}
+            </Text>
+          ) : null}
           {!isEnrolled ? (
             enrollmentSlot
           ) : followHref ? (
@@ -428,7 +445,6 @@ const styles = StyleSheet.create({
   cardWide: {
     width: 320,
     flexShrink: 0,
-    ...(Platform.OS === 'web' ? { position: 'sticky' as const, top: 16 } : {}),
   },
   kickerRow: {
     flexDirection: 'row',
