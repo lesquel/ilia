@@ -54,6 +54,7 @@ export function LoginScreen() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [revealed, setRevealed] = useState(false);
 
   const canSubmit = email.trim().length > 0 && password.length > 0 && !login.isPending;
 
@@ -106,14 +107,25 @@ export function LoginScreen() {
             accessibilityLabel="Correo electrónico"
           />
 
-          <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>Contraseña</Text>
+          <View style={styles.labelRow}>
+            <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>Contraseña</Text>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={revealed ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              onPress={() => setRevealed((on) => !on)}
+            >
+              <Text style={[styles.toggle, { color: theme.colors.accent }]}>
+                {revealed ? 'Ocultar' : 'Mostrar'}
+              </Text>
+            </Pressable>
+          </View>
           <TextInput
             style={inputStyle}
             value={password}
             onChangeText={setPassword}
             placeholder="••••••••"
             placeholderTextColor={theme.colors.neutral[500]}
-            secureTextEntry
+            secureTextEntry={!revealed}
             autoComplete="current-password"
             onSubmitEditing={submit}
             returnKeyType="go"
@@ -198,6 +210,16 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 13,
+    marginBottom: 6.8,
+  },
+  labelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+  },
+  toggle: {
+    fontSize: 13,
+    fontWeight: '600',
     marginBottom: 6.8,
   },
   input: {

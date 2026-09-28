@@ -7,7 +7,7 @@ WEB_DIR := apps/mobile
 API_PORT ?= 8000
 WEB_PORT ?= 8081
 
-.PHONY: help install install-api install-web env db migrate api web dev run up all test lint typecheck check
+.PHONY: help install install-api install-web env db migrate create-admin api web dev run up all test lint typecheck check
 
 help: ## Show available commands
 	@awk 'BEGIN {FS = ":.*## "; printf "Usage: make <target>\n\nTargets:\n"} /^[a-zA-Z0-9_-]+:.*## / {printf "  %-12s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -33,6 +33,9 @@ db: ## Start the local PostgreSQL database
 
 migrate: ## Apply database migrations
 	cd $(API_DIR) && uv run alembic upgrade head
+
+create-admin: ## Create the first admin from ILIA_BOOTSTRAP_ADMIN_* environment variables
+	cd $(API_DIR) && uv run python -m app.cli create-admin
 
 api: ## Run the FastAPI backend with hot reload
 	cd $(API_DIR) && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port $(API_PORT)

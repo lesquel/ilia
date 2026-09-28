@@ -19,7 +19,12 @@ export function useOverview(repository: AdminRepository = adminRepository) {
     retry: false,
   });
 
-  return { overview: query.data ?? null, isLoading: query.isLoading, error: query.error };
+  return {
+    overview: query.data ?? null,
+    isLoading: query.isLoading,
+    error: query.error,
+    refetch: query.refetch,
+  };
 }
 
 export function useUsage(days = 30, repository: AdminRepository = adminRepository) {
@@ -29,7 +34,12 @@ export function useUsage(days = 30, repository: AdminRepository = adminRepositor
     retry: false,
   });
 
-  return { report: query.data ?? null, isLoading: query.isLoading, error: query.error };
+  return {
+    report: query.data ?? null,
+    isLoading: query.isLoading,
+    error: query.error,
+    refetch: query.refetch,
+  };
 }
 
 export function useManagedUsers(
@@ -51,6 +61,7 @@ export function useManagedUsers(
     page: result.data ?? null,
     isLoading: result.isLoading,
     error: result.error,
+    refetch: result.refetch,
   };
 }
 
@@ -85,6 +96,7 @@ export function useAuditLog(offset = 0, repository: AdminRepository = adminRepos
     page: query.data ?? null,
     isLoading: query.isLoading,
     error: query.error,
+    refetch: query.refetch,
   };
 }
 

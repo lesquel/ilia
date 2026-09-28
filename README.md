@@ -23,22 +23,33 @@ Levanta, en orden: la base, **MinIO** (bucket listo), las **migraciones hasta
 terminar**, la API, el cliente web y el **edge** (un solo origin en
 `WEB_PORT`). Nada arranca hasta que lo que necesita está sano.
 
-### El primer administrador
+### The first administrator
 
-Un despliegue nuevo nace bloqueado: los roles se otorgan y nunca se reclaman
-(PRD A-02), así que sin admin no hay quien otorgue nada — y sin instructores no
-hay cursos. Nunca.
+A new deployment starts without an administrator. Provision the first one only
+as an explicit operator action; API startup never creates an account and no HTTP
+provisioning endpoint exists.
+
+Set these values in the deployment environment (see
+[`docs/deploy.env.example`](docs/deploy.env.example)):
+
+- `ILIA_BOOTSTRAP_ADMIN_EMAIL`
+- `ILIA_BOOTSTRAP_ADMIN_NAME`
+- `ILIA_BOOTSTRAP_ADMIN_PASSWORD`
+
+Then run the audited, one-time command:
 
 ```sh
-# 1. registrate por la app como cualquier docente
-# 2. promovete una sola vez
-docker compose run --rm api python -m app.cli bootstrap-admin tu@correo.gob
+make create-admin
+# Equivalent inside the API container:
+# python -m app.cli create-admin
 ```
 
-Se niega si ya existe un administrador. Después de ese, promover es cosa del
-producto, donde queda auditado y es reversible: un comando de consola que sigue
-funcionando es una puerta lateral permanente. Ese único otorgamiento que nadie
-aprobó queda marcado en el log de auditoría como `bootstrap`, para siempre.
+The command refuses production, validates all required values, hashes the
+password with Argon2, and records the bootstrap in the audit log. It is idempotent
+for the same existing administrator without changing that administrator's
+password. It refuses an existing administrator or an account collision in every
+other case. Never commit real credentials to `.env`, this example file, or source
+control.
 
 Los planes (`free` y `pro`) los siembra una migración, porque sin ellos la
 plataforma no puede responder qué tiene permitido un docente. **Los números son

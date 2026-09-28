@@ -1,11 +1,4 @@
-"""Bootstrapping the first administrator.
-
-This exists to break a deadlock: roles are granted and never claimed (PRD A-02),
-so a fresh deployment has nobody who can grant them. No admin means no
-instructors, which means no courses — the platform frozen the moment it ships.
-
-Against a real database because the whole point is what it does to rows.
-"""
+"""Integration tests for explicit first-admin provisioning."""
 
 import asyncio
 import os
@@ -17,17 +10,12 @@ from sqlalchemy import text
 from app.cli import main as _main
 from app.core.config import Settings
 from app.core.database import Base, Database
+from app.features.auth.infrastructure.security import Argon2PasswordHasher
 
 TEST_DATABASE_URL = os.getenv("ILIA_TEST_DATABASE_URL")
 
 
 async def main(argv: list[str]) -> int:
-    """Run the real entry point off the test's event loop.
-
-    `main` calls `asyncio.run`, which refuses to nest. A thread has no loop of
-    its own, so this exercises the command exactly as an operator's shell does
-    rather than reaching past it into the internals.
-    """
     return await asyncio.to_thread(_main, argv)
 
 
@@ -39,11 +27,11 @@ pytestmark = pytest.mark.skipif(
 
 @pytest.fixture(autouse=True)
 def environment(monkeypatch: pytest.MonkeyPatch) -> None:
-    """The CLI reads settings from the environment, as an operator would."""
     monkeypatch.setenv("ILIA_DATABASE_URL", TEST_DATABASE_URL or "")
     monkeypatch.setenv("ILIA_JWT_SECRET", "test-secret-long-enough-for-hmac-sha256")
-    # `get_settings` is cached for startup use; the CLI is a fresh process in
-    # real life, so the cache has to be dropped here.
+    monkeypatch.setenv("ILIA_BOOTSTRAP_ADMIN_EMAIL", "jefa@ministerio.gob")
+    monkeypatch.setenv("ILIA_BOOTSTRAP_ADMIN_NAME", "Jefa de Ministerio")
+    monkeypatch.setenv("ILIA_BOOTSTRAP_ADMIN_PASSWORD", "correct horse battery staple")
     from app.core.config import get_settings
 
     get_settings.cache_clear()
@@ -74,12 +62,15 @@ async def _add_user(email: str, role: str = "student") -> None:
         await db.dispose()
 
 
-async def _roles() -> dict[str, str]:
+async def _user(email: str) -> dict[str, str] | None:
     db = Database(Settings(database_url=TEST_DATABASE_URL, jwt_secret="x" * 32))
     try:
         async with db.engine.begin() as connection:
-            rows = await connection.execute(text("SELECT email, role FROM app_user"))
-            return {email: role for email, role in rows.all()}
+            row = (await connection.execute(
+                text("SELECT role, full_name, password_hash FROM app_user WHERE email = :email"),
+                {"email": email},
+            )).one_or_none()
+            return dict(row._mapping) if row else None
     finally:
         await db.dispose()
 
@@ -95,56 +86,70 @@ async def _audit_reasons() -> list[str]:
 
 
 @pytest.mark.asyncio
-async def test_it_promotes_the_first_administrator() -> None:
+async def test_it_creates_the_first_administrator_from_environment() -> None:
     await _reset()
-    await _add_user("jefa@ministerio.gob")
 
-    assert await main(["bootstrap-admin", "jefa@ministerio.gob"]) == 0
-    assert (await _roles())["jefa@ministerio.gob"] == "admin"
+    assert await main(["create-admin"]) == 0
+    created = await _user("jefa@ministerio.gob")
+    assert created is not None
+    assert created["role"] == "admin"
+    assert created["full_name"] == "Jefa de Ministerio"
+    assert Argon2PasswordHasher().verify("correct horse battery staple", created["password_hash"])
 
 
 @pytest.mark.asyncio
 async def test_the_grant_is_audited_and_marked_as_a_bootstrap() -> None:
-    """The one grant nobody approved has to be identifiable, for ever."""
     await _reset()
-    await _add_user("jefa@ministerio.gob")
 
-    await main(["bootstrap-admin", "jefa@ministerio.gob"])
+    await main(["create-admin"])
 
     assert await _audit_reasons() == ["bootstrap: first administrator"]
 
 
 @pytest.mark.asyncio
-async def test_it_refuses_once_an_administrator_exists() -> None:
-    """A shell command that keeps working is a permanent side door.
-
-    After the first one, promotion belongs in the product — where it is audited,
-    reversible, and done by somebody accountable.
-    """
+async def test_it_refuses_once_another_administrator_exists() -> None:
     await _reset()
-    await _add_user("jefa@ministerio.gob", role="admin")
-    await _add_user("otro@ministerio.gob")
+    await _add_user("otro@ministerio.gob", role="admin")
 
-    assert await main(["bootstrap-admin", "otro@ministerio.gob"]) == 1
-    assert (await _roles())["otro@ministerio.gob"] == "student"
+    assert await main(["create-admin"]) == 1
+    assert not (await _user("jefa@ministerio.gob"))
 
 
 @pytest.mark.asyncio
-async def test_it_refuses_an_account_that_does_not_exist() -> None:
-    # Creating one here would mean a password on the command line, where it
-    # lands in shell history.
+async def test_running_it_twice_for_the_same_administrator_is_harmless() -> None:
     await _reset()
 
-    assert await main(["bootstrap-admin", "fantasma@ministerio.gob"]) == 1
-    assert await _roles() == {}
+    assert await main(["create-admin"]) == 0
+    original_hash = (await _user("jefa@ministerio.gob"))["password_hash"]
+    assert await main(["create-admin"]) == 0
+    assert (await _user("jefa@ministerio.gob"))["password_hash"] == original_hash
+    assert len(await _audit_reasons()) == 1
 
 
 @pytest.mark.asyncio
-async def test_running_it_twice_on_the_same_person_is_harmless() -> None:
+async def test_it_refuses_an_existing_non_admin_account() -> None:
     await _reset()
     await _add_user("jefa@ministerio.gob")
 
-    assert await main(["bootstrap-admin", "jefa@ministerio.gob"]) == 0
-    assert await main(["bootstrap-admin", "jefa@ministerio.gob"]) == 0
-    # And it did not write a second audit entry for a change that did not happen.
-    assert len(await _audit_reasons()) == 1
+    assert await main(["create-admin"]) == 1
+
+
+@pytest.mark.asyncio
+async def test_it_validates_required_environment_values(monkeypatch: pytest.MonkeyPatch) -> None:
+    await _reset()
+    monkeypatch.delenv("ILIA_BOOTSTRAP_ADMIN_PASSWORD")
+    from app.core.config import get_settings
+
+    get_settings.cache_clear()
+    assert await main(["create-admin"]) == 2
+
+
+@pytest.mark.asyncio
+async def test_it_refuses_production(monkeypatch: pytest.MonkeyPatch) -> None:
+    await _reset()
+    monkeypatch.setenv("ILIA_ENVIRONMENT", "production")
+    monkeypatch.setenv("ILIA_JWT_SECRET", "x" * 32)
+    from app.core.config import get_settings
+
+    get_settings.cache_clear()
+    assert await main(["create-admin"]) == 1

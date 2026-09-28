@@ -1,0 +1,9 @@
+# Feature task mirror
+
+Status: complete
+
+- Add environment-backed admin provisioning: complete
+- Add Make target, tests, and docs: complete
+- Create and verify local demo admin: complete
+
+Evidence: `make create-admin` provisioned `admin@ilia.local`; API login and `/api/v1/admin/overview` succeeded; ruff, mypy, and diff checks passed. Integration tests were skipped because `ILIA_TEST_DATABASE_URL` is not configured.

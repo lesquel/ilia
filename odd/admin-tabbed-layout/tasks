@@ -1,0 +1,10 @@
+# Feature task mirror
+
+Status: phase 1 complete
+
+- Map admin sections into tabs: complete
+- Separate certificates and LLM usage: complete
+- Add resilient tab states: complete
+- Verify and document next CRUD phases: complete
+
+Evidence: `npm test` passed (22 files, 106 tests); modified-area typecheck is clean; full typecheck and lint retain unrelated pre-existing repository failures. No generic CRUD or secret exposure was added.

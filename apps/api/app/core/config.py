@@ -107,6 +107,12 @@ class Settings(BaseSettings):
     # is not a permanent back door.
     password_reset_ttl_hours: int = 24
 
+    # One-time operator provisioning. These values are read only by the explicit
+    # `create-admin` command; application startup never creates an account.
+    bootstrap_admin_email: str = ""
+    bootstrap_admin_name: str = ""
+    bootstrap_admin_password: str = ""
+
     # Cookie session, for the web client only (TRD 4.5).
     session_cookie_name: str = "ilia_session"
     refresh_cookie_name: str = "ilia_refresh"
