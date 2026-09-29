@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arquitectura V1 ILIA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap">
+<style>
+/* Layout: single reading column, two numbered deliverables, each = diagram + tables. */
+:root{
+  --bg:#f5f7f8; --surface:#ffffff; --fg:#17242b; --muted:#56666e; --line:#cfd8dc;
+  --accent:#0a6c86; --async:#b0620a; --ok:#2e7d4f; --soft:#e7eef1;
+  --display:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10181c; --surface:#16222a; --fg:#e3eaed; --muted:#9aaab2; --line:#2e3f48;
+  --accent:#4fb8d6; --async:#f0a347; --ok:#6cc596; --soft:#1c2c35; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10181c; --surface:#16222a; --fg:#e3eaed; --muted:#9aaab2; --line:#2e3f48;
+  --accent:#4fb8d6; --async:#f0a347; --ok:#6cc596; --soft:#1c2c35; color-scheme:dark}
+
+body{background:var(--bg);color:var(--fg);font:15px/1.6 var(--body)}
+main{max-width:960px;margin:0 auto;padding-inline:20px;padding-block:40px 64px;display:grid;gap:40px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:2.3rem}
+h2{font-size:1.6rem}
+h3{font-size:1.1rem;margin-top:8px}
+p{margin:0;max-width:68ch}
+.eyebrow{font:500 .75rem var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+header{display:grid;gap:10px}
+section{display:grid;gap:18px}
+.meta{color:var(--muted)}
+figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px;display:grid;gap:10px;overflow-x:auto}
+figure svg{width:100%;min-width:640px;height:auto;display:block;color:var(--fg)}
+figcaption{color:var(--muted);font-size:.9rem}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:640px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:600 .72rem var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--soft)}
+tr:last-child td{border-bottom:0}
+code,.mono{font-family:var(--mono);font-size:.85em;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;font:500 .72rem var(--mono);padding:2px 8px;border-radius:99px;border:1px solid currentColor;white-space:nowrap}
+.sync{color:var(--accent)} .dec{color:var(--async)}
+pre{margin:0;background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:14px;overflow-x:auto;font:.82rem/1.55 var(--mono)}
+.note{border-left:3px solid var(--async);background:var(--surface);padding:12px 16px;display:grid;gap:6px}
+.note ul{margin:0;padding-left:18px;display:grid;gap:6px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.grid2>*{min-width:0}
+</style>
+
+<style>@media print{@page{size:A4;margin:14mm}main{padding-block:0}figure,pre,.note,tr{break-inside:avoid}h2,h3{break-after:avoid}main,section,header,.grid2,.grid2>div{display:block}main>*,section>*,header>*,.grid2>div>*{margin-bottom:12px}main>section{margin-top:26px}figure svg{min-width:0;max-height:120mm}.tbl,figure{overflow:visible}figure{padding:10px}table{min-width:0;font-size:.78rem}th,td{padding:6px 8px}td code{word-break:break-all}.grid2{grid-template-columns:1fr}pre{white-space:pre-wrap;word-break:break-all;font-size:.74rem}}</style>
+</head>
+<body>
+<main>
+<header>
+  <span class="eyebrow">IS-803 · Unidad 1 · Tema 1.4 · Proyecto integrador</span>
+  <h1>ILIA — Arquitectura lógica y física V1</h1>
+  <p class="meta">Plataforma para docentes: cliente web (Expo Web) y app móvil, API en FastAPI, PostgreSQL 17 y almacenamiento de archivos compatible con S3. Despliegue en 5 laptops de la red del laboratorio.</p>
+</header>
+
+<!-- ================= ENTREGABLE 1 ================= -->
+<section>
+  <span class="eyebrow">Entregable 1</span>
+  <h2>Arquitectura lógica</h2>
+
+  <figure>
+    <svg viewBox="0 0 900 560" role="img" aria-label="Los clientes entran por el balanceador Nginx, que envía la ruta raíz al frontend y la ruta /api a dos contenedores del backend. El backend consulta PostgreSQL de forma síncrona, firma URLs para el servidor de archivos y encola las evaluaciones al proveedor LLM de forma desacoplada.">
+      <defs>
+        <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+        <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c9771a"/></marker>
+      </defs>
+      <g font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13" fill="currentColor">
+        <!-- Clients -->
+        <rect x="300" y="15" width="140" height="60" rx="6" fill="none" stroke="currentColor"/>
+        <text x="370" y="40" text-anchor="middle" font-weight="600">Navegador web</text>
+        <text x="370" y="60" text-anchor="middle" font-size="12" opacity=".75">descarga la app web</text>
+        <rect x="460" y="15" width="140" height="60" rx="6" fill="none" stroke="currentColor"/>
+        <text x="530" y="40" text-anchor="middle" font-weight="600">App móvil</text>
+        <text x="530" y="60" text-anchor="middle" font-size="12" opacity=".75">instalada en el celular</text>
+
+        <!-- LB -->
+        <rect x="320" y="130" width="260" height="64" rx="6" fill="none" stroke="currentColor" stroke-width="2"/>
+        <text x="450" y="157" text-anchor="middle" font-weight="600">① Balanceador · Nginx</text>
+        <text x="450" y="177" text-anchor="middle" font-size="12" opacity=".75">reverse proxy + load balancer</text>
+
+        <!-- Frontend -->
+        <rect x="30" y="270" width="230" height="70" rx="6" fill="none" stroke="currentColor"/>
+        <text x="145" y="298" text-anchor="middle" font-weight="600">② Frontend web</text>
+        <text x="145" y="318" text-anchor="middle" font-size="12" opacity=".75">Nginx + bundle Expo Web</text>
+
+        <!-- Backend group -->
+        <rect x="320" y="250" width="340" height="110" rx="6" fill="none" stroke="currentColor" stroke-width="2"/>
+        <text x="490" y="275" text-anchor="middle" font-weight="600">③ Backend API · FastAPI</text>
+        <rect x="335" y="290" width="150" height="55" rx="4" fill="none" stroke="currentColor" stroke-dasharray="2 3"/>
+        <text x="410" y="314" text-anchor="middle">Contenedor 1</text>
+        <text x="410" y="332" text-anchor="middle" font-size="11" opacity=".75">api-1 · cola interna</text>
+        <rect x="495" y="290" width="150" height="55" rx="4" fill="none" stroke="currentColor" stroke-dasharray="2 3"/>
+        <text x="570" y="314" text-anchor="middle">Contenedor 2</text>
+        <text x="570" y="332" text-anchor="middle" font-size="11" opacity=".75">api-2 · cola interna</text>
+
+        <!-- LLM external -->
+        <rect x="705" y="270" width="160" height="70" rx="6" fill="none" stroke="currentColor" stroke-dasharray="6 4" opacity=".8"/>
+        <text x="785" y="298" text-anchor="middle" font-weight="600">Proveedor LLM</text>
+        <text x="785" y="318" text-anchor="middle" font-size="12" opacity=".75">externo a la red</text>
+
+        <!-- DB / Files -->
+        <rect x="230" y="455" width="230" height="70" rx="6" fill="none" stroke="currentColor"/>
+        <text x="345" y="483" text-anchor="middle" font-weight="600">④ Base de datos</text>
+        <text x="345" y="503" text-anchor="middle" font-size="12" opacity=".75">PostgreSQL 17</text>
+        <rect x="520" y="455" width="230" height="70" rx="6" fill="none" stroke="currentColor"/>
+        <text x="635" y="483" text-anchor="middle" font-weight="600">⑤ Servidor de archivos</text>
+        <text x="635" y="503" text-anchor="middle" font-size="12" opacity=".75">MinIO (API S3)</text>
+
+        <!-- Arrows: synchronous -->
+        <g stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#a)">
+          <line x1="370" y1="75" x2="370" y2="128"/>
+          <line x1="530" y1="75" x2="530" y2="128"/>
+          <path d="M380,194 V230 H145 V268"/>
+          <line x1="490" y1="194" x2="490" y2="248"/>
+          <path d="M400,360 V405 H345 V453"/>
+          <path d="M600,360 V405 H635 V453"/>
+          <path d="M600,40 H885 V490 H752"/>
+        </g>
+        <!-- Arrow: decoupled -->
+        <line x1="660" y1="305" x2="703" y2="305" stroke="#c9771a" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#b)"/>
+
+        <!-- Arrow labels -->
+        <g font-family="IBM Plex Mono, monospace" font-size="11">
+          <text x="296" y="106">/ y /api</text>
+          <text x="538" y="106">solo /api</text>
+          <text x="160" y="224">GET / → estáticos</text>
+          <text x="500" y="222">/api/* · round robin</text>
+          <text x="262" y="400">SQL/TCP :5432</text>
+          <text x="645" y="400">S3 · firma URL</text>
+          <text x="612" y="32">URL firmada (subir/bajar)</text>
+          <text x="666" y="295" fill="#c9771a">encola</text>
+          <text x="706" y="362" fill="#c9771a">HTTPS 443, en 2.º plano</text>
+        </g>
+
+        <!-- Legend -->
+        <g font-size="11">
+          <line x1="30" y1="30" x2="70" y2="30" stroke="currentColor" stroke-width="1.5"/>
+          <text x="78" y="34">síncrono (petición-respuesta)</text>
+          <line x1="30" y1="52" x2="70" y2="52" stroke="#c9771a" stroke-width="1.8" stroke-dasharray="6 4"/>
+          <text x="78" y="56">desacoplado (cola)</text>
+        </g>
+      </g>
+    </svg>
+    <figcaption>Todo el tráfico de usuarios entra por ① (HTTP :80). Web y móvil salen del mismo proyecto Expo: la versión web se descarga desde ②, mientras que la app móvil ya viene instalada en el celular y solo llama a <code>/api</code>. El frontend ② entrega archivos estáticos; es el navegador quien llama a la API. Los archivos viajan directo entre el cliente y ⑤ con una URL firmada por ③, así el backend no carga con los bytes. La evaluación con IA es la única comunicación desacoplada.</figcaption>
+  </figure>
+
+  <h3>Nodos y responsabilidad</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Nodo</th><th>Tecnología</th><th>Responsabilidad principal</th><th>Depende de</th></tr></thead>
+    <tbody>
+      <tr><td>① Balanceador</td><td>Nginx</td><td>Punto único de entrada. Enruta <code>/</code> al frontend y <code>/api/*</code> a los backends con round robin; saca de rotación un backend caído.</td><td>②, ③</td></tr>
+      <tr><td>② Frontend web</td><td>Nginx + Expo Web</td><td>Servir la aplicación web (HTML/JS/CSS) y resolver rutas profundas hacia <code>index.html</code>.</td><td>Ninguno en tiempo de ejecución</td></tr>
+      <tr><td>③ Backend API</td><td>FastAPI + uvicorn, 2 contenedores</td><td>Autenticación (JWT en cookie), lógica de negocio, firma de URLs de archivos, cola de evaluación con IA.</td><td>④, ⑤, LLM</td></tr>
+      <tr><td>④ Base de datos</td><td>PostgreSQL 17</td><td>Persistencia de usuarios, cursos, entregas y evaluaciones. Migraciones con Alembic.</td><td>—</td></tr>
+      <tr><td>⑤ Servidor de archivos</td><td>MinIO (compatible S3)</td><td>Guardar y entregar archivos subidos (material, evidencias) mediante URLs firmadas con caducidad.</td><td>—</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Cada flecha: quién llama, a quién, por qué medio y qué pasa si falla</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Origen → destino</th><th>Por qué</th><th>Medio</th><th>Tipo</th><th>Si falla</th></tr></thead>
+    <tbody>
+      <tr><td>Navegador web → ①</td><td>Descargar la app web y llamar a la API</td><td>HTTP :80 (<code>/</code> y <code>/api</code>)</td><td><span class="pill sync">síncrono</span></td><td>El sistema no es accesible. Es el punto único de falla de la V1.</td></tr>
+      <tr><td>App móvil → ①</td><td>Llamar a la API (la app ya está instalada)</td><td>HTTP :80 (solo <code>/api</code>)</td><td><span class="pill sync">síncrono</span></td><td>La app muestra error de conexión y reintenta.</td></tr>
+      <tr><td>① → ②</td><td>Descargar la app web</td><td>HTTP proxy :8080</td><td><span class="pill sync">síncrono</span></td><td>No carga la web (502). La app móvil sigue funcionando porque solo usa la API.</td></tr>
+      <tr><td>① → ③</td><td>Llamadas a la API</td><td>HTTP proxy :8001 / :8002</td><td><span class="pill sync">síncrono</span></td><td>Si cae un contenedor, Nginx reintenta en el otro. Si caen ambos, 502 en toda la API.</td></tr>
+      <tr><td>③ → ④</td><td>Leer y escribir datos</td><td>TCP :5432 (protocolo PostgreSQL, asyncpg)</td><td><span class="pill sync">síncrono</span></td><td><code>/health/ready</code> responde error, Nginx retira el backend y el usuario recibe 502/503. No se pierden datos ya confirmados.</td></tr>
+      <tr><td>③ → ⑤</td><td>Firmar URL de subida o descarga</td><td>HTTP :9000 (API S3)</td><td><span class="pill sync">síncrono</span></td><td>Falla solo lo relacionado a archivos; login y cursos siguen funcionando.</td></tr>
+      <tr><td>Cliente → ⑤</td><td>Subir o bajar el archivo real</td><td>HTTP :9000 con URL firmada</td><td><span class="pill sync">síncrono</span></td><td>La subida falla y el cliente reintenta. Si la URL caducó, pide otra a ③.</td></tr>
+      <tr><td>③ → LLM</td><td>Evaluar una entrega con IA</td><td>Cola interna + worker, HTTPS 443</td><td><span class="pill dec">desacoplado</span></td><td>El usuario no espera: la evaluación queda pendiente y se reintenta. Al reiniciar, el contenedor recupera las evaluaciones pendientes.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ================= ENTREGABLE 2 ================= -->
+<section>
+  <span class="eyebrow">Entregable 2</span>
+  <h2>Arquitectura física</h2>
+
+  <figure>
+    <svg viewBox="0 0 900 390" role="img" aria-label="Cinco laptops conectadas al mismo switch del laboratorio en la red 192.168.1.0/24, cada una con su IP y los puertos que expone.">
+      <g font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13" fill="currentColor">
+        <!-- switch bar -->
+        <rect x="40" y="185" width="820" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="2"/>
+        <text x="450" y="203" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12">Switch / Wi-Fi del laboratorio · 192.168.1.0/24</text>
+        <g stroke="currentColor" stroke-width="1.5">
+          <line x1="150" y1="130" x2="150" y2="185"/><line x1="450" y1="130" x2="450" y2="185"/><line x1="750" y1="130" x2="750" y2="185"/>
+          <line x1="300" y1="211" x2="300" y2="265"/><line x1="600" y1="211" x2="600" y2="265"/>
+        </g>
+        <!-- top row -->
+        <rect x="30" y="20" width="240" height="110" rx="6" fill="none" stroke="currentColor" stroke-width="2"/>
+        <text x="150" y="44" text-anchor="middle" font-weight="600">Laptop 1 · Balanceador</text>
+        <text x="150" y="68" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12">192.168.1.10</text>
+        <text x="150" y="90" text-anchor="middle" font-size="12" opacity=".8">nginx → :80</text>
+        <text x="150" y="110" text-anchor="middle" font-size="11" opacity=".65">entrada pública</text>
+
+        <rect x="330" y="20" width="240" height="110" rx="6" fill="none" stroke="currentColor"/>
+        <text x="450" y="44" text-anchor="middle" font-weight="600">Laptop 2 · Frontend</text>
+        <text x="450" y="68" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12">192.168.1.11</text>
+        <text x="450" y="90" text-anchor="middle" font-size="12" opacity=".8">web (Docker) → :8080</text>
+        <text x="450" y="110" text-anchor="middle" font-size="11" opacity=".65">contenedor :80 → host :8080</text>
+
+        <rect x="630" y="20" width="240" height="110" rx="6" fill="none" stroke="currentColor"/>
+        <text x="750" y="44" text-anchor="middle" font-weight="600">Laptop 3 · Backend</text>
+        <text x="750" y="68" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12">192.168.1.12</text>
+        <text x="750" y="90" text-anchor="middle" font-size="12" opacity=".8">api-1 → :8001 · api-2 → :8002</text>
+        <text x="750" y="110" text-anchor="middle" font-size="11" opacity=".65">ambos contenedores :8000</text>
+
+        <!-- bottom row -->
+        <rect x="180" y="265" width="240" height="100" rx="6" fill="none" stroke="currentColor"/>
+        <text x="300" y="290" text-anchor="middle" font-weight="600">Laptop 4 · Base de datos</text>
+        <text x="300" y="314" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12">192.168.1.13</text>
+        <text x="300" y="338" text-anchor="middle" font-size="12" opacity=".8">postgres → :5432</text>
+
+        <rect x="480" y="265" width="240" height="100" rx="6" fill="none" stroke="currentColor"/>
+        <text x="600" y="290" text-anchor="middle" font-weight="600">Laptop 5 · Archivos</text>
+        <text x="600" y="314" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12">192.168.1.14</text>
+        <text x="600" y="338" text-anchor="middle" font-size="12" opacity=".8">minio → :9000 · consola :9001</text>
+      </g>
+    </svg>
+    <figcaption>Una laptop por nodo, todas en la misma subred. Las IP son de ejemplo: reemplázalas por las que asigne el router del laboratorio (conviene reservarlas por MAC para que no cambien el día de la demo).</figcaption>
+  </figure>
+
+  <h3>Equipo, IP, puerto y protocolo</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Equipo</th><th>Componente</th><th>IP</th><th>Puerto</th><th>Protocolo</th><th>Acepta conexiones de</th></tr></thead>
+    <tbody>
+      <tr><td>Laptop 1</td><td>Nginx (balanceador)</td><td class="mono">192.168.1.10</td><td class="mono">80</td><td>HTTP</td><td>Cualquier cliente</td></tr>
+      <tr><td>Laptop 2</td><td>Nginx + Expo Web</td><td class="mono">192.168.1.11</td><td class="mono">8080</td><td>HTTP</td><td>Laptop 1</td></tr>
+      <tr><td>Laptop 3</td><td>FastAPI api-1 / api-2</td><td class="mono">192.168.1.12</td><td class="mono">8001 / 8002</td><td>HTTP (REST/JSON)</td><td>Laptop 1</td></tr>
+      <tr><td>Laptop 4</td><td>PostgreSQL 17</td><td class="mono">192.168.1.13</td><td class="mono">5432</td><td>TCP (protocolo PostgreSQL)</td><td>Laptop 3</td></tr>
+      <tr><td>Laptop 5</td><td>MinIO</td><td class="mono">192.168.1.14</td><td class="mono">9000 / 9001</td><td>HTTP (API S3) / consola web</td><td>Laptop 3 y clientes con URL firmada</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="grid2">
+    <div style="display:grid;gap:8px">
+      <h3>Configuración del balanceador (Laptop 1)</h3>
+      <pre>upstream ilia_api {
+    server 192.168.1.12:8001 max_fails=3 fail_timeout=10s;
+    server 192.168.1.12:8002 max_fails=3 fail_timeout=10s;
+}
+
+server {
+    listen 80;
+
+    location /api/ {
+        proxy_pass http://ilia_api/;
+        proxy_next_upstream error timeout http_502 http_503;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $remote_addr;
+    }
+
+    location / {
+        proxy_pass http://192.168.1.11:8080;
+    }
+}</pre>
+    </div>
+    <div style="display:grid;gap:8px">
+      <h3>Variables clave del backend (Laptop 3)</h3>
+      <pre>ILIA_DATABASE_URL=postgresql+asyncpg://ilia:***@192.168.1.13:5432/ilia
+ILIA_CORS_ORIGINS=http://192.168.1.10
+ILIA_STORAGE_ENDPOINT=http://192.168.1.14:9000
+ILIA_COOKIE_SECURE=false   # solo en el laboratorio (HTTP)
+
+# Frontend (Laptop 2), se fija al compilar:
+EXPO_PUBLIC_API_URL=http://192.168.1.10/api</pre>
+      <p class="meta" style="font-size:.88rem">Revisa el formato exacto de <code>ILIA_DATABASE_URL</code> y el valor de <code>ILIA_STORAGE_PROVIDER</code> en <code>apps/api/.env.example</code>.</p>
+    </div>
+  </div>
+
+  <h3>Evidencia de pruebas de conectividad</h3>
+  <p class="meta">Ejecuta cada prueba desde el equipo indicado y pega la captura en la columna de evidencia.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Desde</th><th>Hacia</th><th>Comando</th><th>Resultado esperado</th><th>Evidencia</th></tr></thead>
+    <tbody>
+      <tr><td>Laptop 1</td><td>Todas</td><td><code>ping -c 3 192.168.1.1X</code></td><td>0% packet loss</td><td>captura</td></tr>
+      <tr><td>Laptop 1</td><td>Frontend</td><td><code>curl -I http://192.168.1.11:8080</code></td><td><code>HTTP/1.1 200 OK</code></td><td>captura</td></tr>
+      <tr><td>Laptop 1</td><td>Backend 1 y 2</td><td><code>curl http://192.168.1.12:8001/health/ready</code> (y :8002)</td><td>200 en ambos</td><td>captura</td></tr>
+      <tr><td>Laptop 3</td><td>PostgreSQL</td><td><code>nc -zv 192.168.1.13 5432</code></td><td><code>succeeded</code></td><td>captura</td></tr>
+      <tr><td>Laptop 3</td><td>MinIO</td><td><code>curl -I http://192.168.1.14:9000/minio/health/live</code></td><td><code>200 OK</code></td><td>captura</td></tr>
+      <tr><td>Cliente</td><td>Sistema completo</td><td>Abrir <code>http://192.168.1.10</code> e iniciar sesión</td><td>La web carga y el login funciona</td><td>captura</td></tr>
+      <tr><td>Cliente</td><td>Balanceo</td><td>Detener api-1 (<code>docker stop</code>) y repetir el login</td><td>Sigue funcionando vía api-2</td><td>captura</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="note">
+    <strong>Límites conocidos de la V1</strong>
+    <ul>
+      <li>La Laptop 1 es un punto único de falla: si se apaga, nadie entra.</li>
+      <li>La cola de evaluación y el límite de peticiones viven en la memoria de cada contenedor. Con dos réplicas cada una cuenta por separado; para escalar en serio hace falta un almacén compartido (por ejemplo Redis).</li>
+      <li>El backend marca las cookies como <code>Secure</code> por defecto. Sobre HTTP simple el navegador no las guarda, así que en el laboratorio hay que desactivarlo o poner TLS en el balanceador.</li>
+      <li>Las migraciones (<code>alembic upgrade head</code>) se ejecutan una sola vez desde la Laptop 3 antes de levantar los dos contenedores.</li>
+    </ul>
+  </div>
+</section>
+</main>
+</body>
+</html>
