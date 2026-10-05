@@ -66,10 +66,14 @@ async def _user(email: str) -> dict[str, str] | None:
     db = Database(Settings(database_url=TEST_DATABASE_URL, jwt_secret="x" * 32))
     try:
         async with db.engine.begin() as connection:
-            row = (await connection.execute(
-                text("SELECT role, full_name, password_hash FROM app_user WHERE email = :email"),
-                {"email": email},
-            )).one_or_none()
+            row = (
+                await connection.execute(
+                    text(
+                        "SELECT role, full_name, password_hash FROM app_user WHERE email = :email"
+                    ),
+                    {"email": email},
+                )
+            ).one_or_none()
             return dict(row._mapping) if row else None
     finally:
         await db.dispose()
