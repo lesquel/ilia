@@ -30,7 +30,6 @@ export type CommonErrorCode =
  * `string & {}` keeps autocomplete for the common codes while still accepting
  * a feature-specific one, instead of forcing a cast at every call site.
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
 export type ApiErrorCode = CommonErrorCode | (string & {});
 
 export interface ApiErrorEnvelope {

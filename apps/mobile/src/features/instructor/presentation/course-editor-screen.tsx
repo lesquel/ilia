@@ -13,7 +13,6 @@ import {
 import { ApiError } from '@/core/errors/api-error';
 import { useTheme } from '@/core/theme';
 import { ErrorState, LoadingState } from '@/core/ui/state-view';
-import { useCourse } from '@/features/catalog';
 import { formatDuration } from '@/features/catalog/domain/entities';
 import {
   useAddLesson,

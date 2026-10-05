@@ -230,8 +230,6 @@ export function ForumScreen() {
 }
 
 function ThreadRow({ thread, slug }: { thread: ThreadSummary; slug: string }) {
-  const theme = useTheme();
-
   return (
     <View style={styles.rowWrap}>
       <ThreadLink thread={thread} slug={slug} />

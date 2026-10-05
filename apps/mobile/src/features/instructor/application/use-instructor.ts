@@ -1,9 +1,9 @@
-import type { ActivityInput } from '@/features/instructor/data/instructor-repository';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { catalogKeys } from '@/features/catalog/application/use-catalog';
 import {
   instructorRepository,
+  type ActivityInput,
   type CourseInput,
   type InstructorRepository,
   type LessonInput,

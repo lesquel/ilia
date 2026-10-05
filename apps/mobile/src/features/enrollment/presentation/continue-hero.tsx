@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { Link, type Href } from 'expo-router';
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import { breakpoint, useTheme } from '@/core/theme';
@@ -17,10 +17,10 @@ export function ContinueHero({ courses }: { courses: readonly EnrolledCourse[] }
   const isWide = width >= breakpoint.compact;
 
   const primary = primaryCourseToContinue(courses);
+  const { course: detail, isLoading } = useCourse(primary?.course.slug ?? '');
   if (!primary) return null;
 
   const { course, progress } = primary;
-  const { course: detail, isLoading } = useCourse(course.slug);
 
   const target =
     detail && !isLoading
@@ -76,7 +76,7 @@ export function ContinueHero({ courses }: { courses: readonly EnrolledCourse[] }
         </View>
 
         <View style={styles.actions}>
-          <Link href={target.href} asChild>
+          <Link href={target.href as Href} asChild>
             <Pressable accessibilityRole="link" accessibilityLabel="Continuar curso">
               {({ pressed }) => (
                 <View

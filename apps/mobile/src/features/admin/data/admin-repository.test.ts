@@ -1,10 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
+import { HttpAdminRepository } from './admin-repository';
 
 vi.mock('react-native', () => ({
   Platform: { OS: 'web' },
 }));
-
-import { HttpAdminRepository } from './admin-repository';
 
 /**
  * Proves the admin form's repository actually hits the new endpoints.

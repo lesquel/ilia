@@ -1,11 +1,10 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useSession } from '@/features/auth';
 import { CourseDetailScreen } from '@/features/catalog/presentation/course-detail-screen';
 import { useCourseProgress } from '@/features/enrollment/application/use-enrollment';
 import { useCourse } from '@/features/catalog';
 import { CertificatePanel } from '@/features/certificates/presentation/certificate-panel';
-import { Link } from 'expo-router';
 import { EnrollPanel } from '@/features/enrollment/presentation/enroll-panel';
 
 /**

@@ -11,7 +11,7 @@ import {
   UserRound,
   type LucideIcon,
 } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import { breakpoint, useTheme } from '@/core/theme';
@@ -84,20 +84,16 @@ export function AccountBar() {
         ))}
       </View>
 
-      <SessionMenu user={user} currentPath={pathname} />
+      <SessionMenu key={pathname} user={user} />
     </View>
   );
 }
 
-function SessionMenu({ user, currentPath }: { user: User; currentPath: string }) {
+function SessionMenu({ user }: { user: User }) {
   const theme = useTheme();
   const logout = useLogout();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const givenName = firstGivenName(user.fullName);
-
-  useEffect(() => {
-    setIsMenuOpen(false);
-  }, [currentPath]);
 
   const closeMenu = () => setIsMenuOpen(false);
 

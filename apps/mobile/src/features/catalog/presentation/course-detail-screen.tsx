@@ -1,4 +1,4 @@
-import { Link, useLocalSearchParams } from 'expo-router';
+import { Link, useLocalSearchParams, type Href } from 'expo-router';
 import type { ReactNode } from 'react';
 import {
   Platform,
@@ -161,7 +161,7 @@ export function CourseDetailScreen({
           {!isEnrolled ? (
             enrollmentSlot
           ) : followHref ? (
-            <Link href={followHref} asChild>
+            <Link href={followHref as Href} asChild>
               <Pressable accessibilityRole="link">
                 {({ pressed }) => (
                   <View

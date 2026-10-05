@@ -181,7 +181,7 @@ export function LessonStudio({
           { borderTopColor: theme.colors.divider, backgroundColor: theme.colors.surface },
         ]}
       >
-        <View style={styles.dockActions}>
+        <View style={[styles.dockActions, isWide ? undefined : styles.dockActionsCompact]}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Paso anterior"
@@ -212,6 +212,7 @@ export function LessonStudio({
           }}
           style={({ pressed }) => [
             styles.controlPrimary,
+            isWide ? undefined : styles.controlPrimaryCompact,
             {
               backgroundColor:
                 primary.kind === 'complete' && isCompleted
@@ -253,6 +254,7 @@ export function LessonStudio({
             onPress={onOpenNextLesson}
             style={({ pressed }) => [
               styles.nextLesson,
+              isWide ? undefined : styles.nextLessonCompact,
               {
                 backgroundColor: theme.colors.accent,
                 borderRadius: theme.radius.md,
@@ -273,7 +275,11 @@ export function LessonStudio({
         <Pressable
           accessibilityRole="button"
           onPress={() => setReadAllAtOnce(true)}
-          style={({ pressed }) => [styles.readAllLink, { opacity: pressed ? 0.7 : 1 }]}
+          style={({ pressed }) => [
+            styles.readAllLink,
+            isWide ? undefined : styles.readAllLinkCompact,
+            { opacity: pressed ? 0.7 : 1 },
+          ]}
         >
           <Text style={[styles.textLinkLabel, { color: theme.colors.neutral[600] }]}>
             Leer de un tirón
@@ -318,7 +324,7 @@ function FadingStage({
   stageKey: string;
   children: ReactNode;
 }) {
-  const opacity = useRef(new Animated.Value(0)).current;
+  const [opacity] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
     opacity.setValue(0);
@@ -467,6 +473,8 @@ function useTypedPrompt(fullPrompt: string, isComposing: boolean): string {
 
   useEffect(() => {
     if (!isComposing) {
+      // Reset the simulated typing when the reader leaves this phase.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setVisibleCount(0);
       return;
     }
@@ -492,7 +500,9 @@ function LabProcessor({
   onFinished: (finishedSceneIndex: number) => void;
 }) {
   const onFinishedRef = useRef(onFinished);
-  onFinishedRef.current = onFinished;
+  useEffect(() => {
+    onFinishedRef.current = onFinished;
+  }, [onFinished]);
 
   useEffect(() => {
     if (!isProcessing) return;
@@ -602,6 +612,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 12,
   },
+  dockActionsCompact: { width: '100%', flexWrap: 'wrap' },
   readAllLink: {
     position: 'absolute',
     right: 24,
@@ -609,6 +620,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
   },
+  readAllLinkCompact: { position: 'relative', right: undefined, top: undefined, bottom: undefined, marginTop: 8 },
   lab: {
     gap: 14,
   },
@@ -648,6 +660,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 18,
   },
+  controlPrimaryCompact: { minWidth: 0, flexGrow: 1, flexShrink: 1 },
   controlPrimaryLabel: {
     color: '#ffffff',
     fontSize: 16,
@@ -661,6 +674,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 2,
   },
+  nextLessonCompact: { width: '100%', maxWidth: undefined },
   nextLessonKicker: {
     color: 'rgba(255, 255, 255, 0.78)',
     fontSize: 11,

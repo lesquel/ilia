@@ -4,8 +4,7 @@ import {
   toCourse as toCatalogCourse,
   type CourseDetailDto,
 } from '@/features/catalog/data/dto';
-import type { Course } from '@/features/catalog/domain/entities';
-import type { Level } from '@/features/catalog/domain/entities';
+import type { Course, Level } from '@/features/catalog/domain/entities';
 import type {
   AuthoredCourse,
   CourseStatus,

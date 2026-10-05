@@ -87,10 +87,10 @@ export function parseLessonBody(body: string): LessonBlock[] {
 
 function splitProseAndExamples(
   body: string,
-): Array<{ kind: 'prose'; body: string } | { kind: 'example'; title: string; body: string }> {
-  const segments: Array<
+): ({ kind: 'prose'; body: string } | { kind: 'example'; title: string; body: string })[] {
+  const segments: (
     { kind: 'prose'; body: string } | { kind: 'example'; title: string; body: string }
-  > = [];
+  )[] = [];
   let cursor = 0;
   EXAMPLE_FENCE.lastIndex = 0;
 

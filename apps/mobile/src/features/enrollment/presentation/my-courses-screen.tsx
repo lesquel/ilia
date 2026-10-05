@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { Link, type Href } from 'expo-router';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
@@ -198,7 +198,7 @@ function ActionLink({
   const isPrimary = kind === 'primary';
 
   return (
-    <Link href={href} asChild>
+    <Link href={href as Href} asChild>
       <Pressable accessibilityRole="link">
         {({ pressed }) => (
           <View

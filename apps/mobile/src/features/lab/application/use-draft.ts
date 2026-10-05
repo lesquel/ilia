@@ -76,7 +76,9 @@ export function useDraft(activityId: string, store: DraftStore = draftStore) {
   // The latest text, readable from the unmount cleanup without making that
   // effect depend on `text` — which would re-register it on every keystroke.
   const latest = useRef(text);
-  latest.current = text;
+  useEffect(() => {
+    latest.current = text;
+  }, [text]);
 
   // On unmount, flush rather than cancel. Leaving the screen right after typing
   // is exactly when a draft is most worth having, and dropping the pending

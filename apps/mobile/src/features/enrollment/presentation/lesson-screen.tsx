@@ -1,5 +1,5 @@
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
 import { ErrorState, LoadingState } from '@/core/ui/state-view';
