@@ -46,6 +46,10 @@ class ProgressResponse(BaseModel):
     is_complete: bool
     completed_lesson_ids: list[UUID]
     passed_activity_ids: list[UUID] = []
+    # Lessons done is not "finished" while a practice is pending; `is_finished`
+    # is the one the client uses to announce a finished course.
+    pending_activity_count: int = 0
+    is_finished: bool = False
     # Null once the course is finished — that absence is what the client uses to
     # swap "continuar" for "completado".
     next_lesson: NextLessonResponse | None
@@ -59,6 +63,8 @@ class ProgressResponse(BaseModel):
             is_complete=progress.is_complete,
             completed_lesson_ids=sorted(progress.completed_lesson_ids, key=str),
             passed_activity_ids=sorted(progress.passed_activity_ids, key=str),
+            pending_activity_count=len(progress.pending_activity_ids),
+            is_finished=progress.is_finished,
             next_lesson=(
                 NextLessonResponse.from_entity(progress.next_lesson)
                 if progress.next_lesson

@@ -58,8 +58,8 @@ export function MyCoursesScreen() {
   }
 
   const hasOnlyFinishedCourses =
-    courses.length > 0 && courses.every((item) => item.progress.isComplete);
-  const showContinueHero = courses.some((item) => !item.progress.isComplete);
+    courses.length > 0 && courses.every((item) => item.progress.isFinished);
+  const showContinueHero = courses.some((item) => !item.progress.isFinished);
 
   return (
     <FlatList

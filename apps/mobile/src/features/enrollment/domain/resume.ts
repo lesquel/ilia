@@ -21,7 +21,7 @@ export interface ResumeTarget {
 export function primaryCourseToContinue(
   enrolled: readonly EnrolledCourse[],
 ): EnrolledCourse | undefined {
-  const inProgress = enrolled.filter((row) => !row.progress.isComplete);
+  const inProgress = enrolled.filter((row) => !row.progress.isFinished);
   if (inProgress.length === 0) return undefined;
 
   const started = inProgress.filter((row) => hasStarted(row.progress));

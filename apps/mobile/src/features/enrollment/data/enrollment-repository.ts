@@ -22,6 +22,8 @@ interface ProgressDto {
   is_complete: boolean;
   completed_lesson_ids: string[];
   passed_activity_ids?: string[];
+  pending_activity_count?: number;
+  is_finished?: boolean;
   next_lesson: NextLessonDto | null;
 }
 
@@ -46,6 +48,9 @@ function toProgress(dto: ProgressDto): CourseProgress {
     isComplete: dto.is_complete,
     completedLessonIds: dto.completed_lesson_ids,
     passedActivityIds: dto.passed_activity_ids ?? [],
+    pendingActivityCount: dto.pending_activity_count ?? 0,
+    // Older API: fall back to lessons-only, the best it could say.
+    isFinished: dto.is_finished ?? dto.is_complete,
     nextLesson: dto.next_lesson
       ? {
           lessonId: dto.next_lesson.lesson_id,
