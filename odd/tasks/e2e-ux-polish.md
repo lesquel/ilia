@@ -15,6 +15,7 @@ Mode: off (no project/session configuration found). Ordinary checks: `npm run ty
 - [x] T3. Register shows a specific message when the API rejects the email (e.g. reserved `.local` domain, 422) instead of the generic "No pudimos crear tu cuenta".
 - [x] T4. Empty catalog with no search/filters shows an "no courses yet" message instead of "Prueba con otra búsqueda o quita los filtros".
 - [x] T5. Logging out from `/admin` must not fire an extra `GET /admin/overview` that returns 401.
+- [x] T6. "Mis cursos" header ("Ya terminaste lo que tenías abierto") and `ContinueHero` must not treat a course with a pending practice as finished.
 
 ## Route
 Delegated direct (writer trigger: 2+ non-trivial files across T1–T5).
@@ -27,6 +28,7 @@ Full test suites were NOT run on purpose (the user's machine runs out of RAM). C
 - T3: tsc clean, eslint clean, vitest auth/domain/entities.test.ts 9 passed. Root cause: the API's 422 is `schema_error` with FastAPI's `detail` list; the screen only mapped `validation_error`, so it fell to the generic message. New `isEmailFieldRejected(detail)` picks the email case. Commit: 737d4b8.
 - T4: tsc clean, eslint clean, vitest catalog/domain/entities.test.ts 10 passed. Root cause: the empty state was a fixed string. New `emptyCatalogMessage(filters)` returns the neutral "Todavía no hay cursos publicados" when no query/level is active. Commit: b25a275.
 - T5: tsc clean, eslint clean, vitest auth/application/session-cache.test.ts 1 passed. Root cause: `useLogout.onSettled` called `queryClient.invalidateQueries()`, which refetches every mounted query; the admin screen was still mounted, so `useOverview` fired once more with no session (401). Now `dropSessionData` removes non-auth cached queries instead (no refetch). Commit: 3caf8ce.
+- T6: Root cause: `progress.isComplete` counts lessons only, and `ListMyCourses` never passed passed activities to `compute_progress`. Now `CourseProgress` has `pending_activity_ids`/`is_finished` (is_complete unchanged), `ProgressResponse` adds `pending_activity_count` and `is_finished` (defaults 0/False), and the client uses `isFinished` in the header, hero and `primaryCourseToContinue`. Checks: pytest test_enrollment_domain.py 12 passed, test_enrollment_use_cases.py 19 passed; ruff check/format and mypy clean on changed files; tsc clean, eslint clean on src/features/enrollment, vitest resume.test.ts 4 passed. Commit: 2cd955a.
 
 ## Next step
 All tasks done on branch; not pushed. Review and open a PR.
