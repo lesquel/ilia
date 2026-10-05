@@ -6,11 +6,13 @@ import { ProgressBar } from '@/core/ui/progress-bar';
 import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
 import {
   LEVEL_LABELS,
+  isSyllabusFinished,
   nextCourseAlongLearningPath,
+  nextOpenSyllabusItem,
   type CourseSummary,
 } from '@/features/catalog/domain/entities';
 import { CourseCoverArt } from '@/features/catalog/presentation/course-cover-art';
-import { useCourses } from '@/features/catalog';
+import { useCourse, useCourses } from '@/features/catalog';
 import { useSession } from '@/features/auth';
 import { useMyCourses } from '@/features/enrollment/application/use-enrollment';
 import { callToAction, type EnrolledCourse } from '@/features/enrollment/domain/entities';
@@ -109,7 +111,20 @@ function EnrolledCourseCard({
 }) {
   const theme = useTheme();
   const { course, progress } = enrolled;
-  const followingCourse = progress.isComplete
+  // Same rule as the course page: lessons done is not enough while a practice
+  // is pending. Until the syllabus loads, a lessons-complete course is not
+  // announced as finished.
+  const { course: detail } = useCourse(course.slug);
+  const isFinished =
+    progress.isComplete &&
+    detail !== null &&
+    detail !== undefined &&
+    isSyllabusFinished(detail.modules, progress.completedLessonIds, progress.passedActivityIds);
+  const pendingPractice =
+    progress.isComplete && !isFinished && detail
+      ? nextOpenSyllabusItem(detail.modules, progress.completedLessonIds, progress.passedActivityIds)
+      : undefined;
+  const followingCourse = isFinished
     ? nextCourseAlongLearningPath(course, catalog)
     : undefined;
 
@@ -129,7 +144,7 @@ function EnrolledCourseCard({
       <View style={styles.cardBody}>
         <Text style={[styles.level, { color: theme.colors.accentRamp[700] }]}>
           {LEVEL_LABELS[course.level]}
-          {progress.isComplete ? ' · terminado' : ''}
+          {isFinished ? ' · terminado' : ''}
         </Text>
 
         <Text style={[styles.courseTitle, { color: theme.colors.text }]}>{course.title}</Text>
@@ -139,11 +154,15 @@ function EnrolledCourseCard({
           </Text>
         ) : null}
 
-        {progress.isComplete ? (
+        {isFinished ? (
           <Text style={[styles.closing, { color: theme.colors.neutral[700] }]}>
             {followingCourse
               ? `Este ya está. Sigue con ${followingCourse.title}.`
               : 'Terminaste la ruta. Puedes repasar o emitir el certificado en el curso.'}
+          </Text>
+        ) : pendingPractice ? (
+          <Text style={[styles.next, { color: theme.colors.neutral[600] }]} numberOfLines={2}>
+            Lecciones listas · falta la práctica: {pendingPractice.title}
           </Text>
         ) : (
           <>
@@ -159,7 +178,7 @@ function EnrolledCourseCard({
           </>
         )}
 
-        {progress.isComplete && followingCourse ? (
+        {isFinished && followingCourse ? (
           <ActionLink
             href={`/catalog/${followingCourse.slug}`}
             label={`Sigue: ${followingCourse.title}`}
@@ -169,15 +188,19 @@ function EnrolledCourseCard({
 
         <ActionLink
           href={
-            progress.nextLesson
+            pendingPractice
+              ? `/lab/${pendingPractice.id}`
+              : progress.nextLesson
               ? `/catalog/${course.slug}/lessons/${progress.nextLesson.lessonId}`
               : `/catalog/${course.slug}`
           }
-          label={progress.isComplete ? 'Abrir el curso' : callToAction(progress)}
-          kind={progress.isComplete && followingCourse ? 'ghost' : 'primary'}
+          label={
+            isFinished ? 'Abrir el curso' : pendingPractice ? 'Hacer la práctica' : callToAction(progress)
+          }
+          kind={isFinished && followingCourse ? 'ghost' : 'primary'}
         />
 
-        {progress.isComplete ? (
+        {isFinished ? (
           <ActionLink href="/certificates" label="Ver certificados" kind="ghost" />
         ) : null}
       </View>

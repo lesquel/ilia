@@ -130,6 +130,18 @@ export function isModuleFinished(
   return lessonsFinished && activitiesFinished;
 }
 
+/** Every lesson done and every practice passed: the rule behind "Terminado". */
+export function isSyllabusFinished(
+  modules: readonly Module[],
+  completedLessonIds: readonly string[],
+  passedActivityIds: readonly string[],
+): boolean {
+  return (
+    modules.length > 0 &&
+    modules.every((module) => isModuleFinished(module, completedLessonIds, passedActivityIds))
+  );
+}
+
 /**
  * Visitor: first chapter is "now". Enrolled: done / here / waiting,
  * so the timeline can show where you actually are.
