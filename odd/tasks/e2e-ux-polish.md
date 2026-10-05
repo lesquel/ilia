@@ -11,7 +11,7 @@ Mode: off (no project/session configuration found). Ordinary checks: `npm run ty
 
 ## Tasks
 - [x] T1. `/my-courses` must not say "Terminaste la ruta" while a practice activity is still pending; align with the course page ("falta la práctica").
-- [ ] T2. Instructor course editor lists the activities already created for each lesson.
+- [x] T2. Instructor course editor lists the activities already created for each lesson.
 - [ ] T3. Register shows a specific message when the API rejects the email (e.g. reserved `.local` domain, 422) instead of the generic "No pudimos crear tu cuenta".
 - [ ] T4. Empty catalog with no search/filters shows an "no courses yet" message instead of "Prueba con otra búsqueda o quita los filtros".
 - [ ] T5. Logging out from `/admin` must not fire an extra `GET /admin/overview` that returns 401.
@@ -22,7 +22,8 @@ Delegated direct (writer trigger: 2+ non-trivial files across T1–T5).
 ## Evidence
 Full test suites were NOT run on purpose (the user's machine runs out of RAM). Checks per task are focused: `npx tsc --noEmit`, `npx eslint <changed files>`, `npx vitest run <changed test file>` (runner is vitest, not jest).
 
-- T1: tsc clean, eslint clean, vitest catalog/domain/entities.test.ts 8 passed. Commit: 766ea69. Root cause: My Courses used `progress.isComplete` (lessons only); now uses `isSyllabusFinished` (same rule as the course page) with the syllabus from `useCourse(slug)`.
+- T1: tsc clean, eslint clean, vitest catalog/domain/entities.test.ts 8 passed. Commit: 720cf4b. Root cause: My Courses used `progress.isComplete` (lessons only); now uses `isSyllabusFinished` (same rule as the course page) with the syllabus from `useCourse(slug)`.
+- T2: tsc clean, eslint clean on course-editor-screen.tsx; no presentation tests exist for this screen, none added. Backend not changed: `/instructor/courses/{id}/detail` already returns `modules[].activities` and the client DTO mapper already parses them; the editor just never rendered them (activities belong to modules, not lessons, so they list per module). Commit: 1af40a5.
 
 ## Next step
 Delegate T1–T5 to one writer, one commit per task.

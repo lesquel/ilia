@@ -194,6 +194,13 @@ export function CourseEditorScreen() {
             ))
           )}
 
+          {module.activities.map((activity) => (
+            <Text key={activity.id} style={[styles.lesson, { color: theme.colors.neutral[700] }]}>
+              ◆ Actividad: {activity.title} · {activity.maxAttempts}{' '}
+              {activity.maxAttempts === 1 ? 'intento' : 'intentos'}
+            </Text>
+          ))}
+
           {/* The activity is what the course is for; the lessons lead up to
               it. Offered on every module, right where the lessons are. */}
           <ActivityComposer courseId={course.id} moduleId={module.id} />
