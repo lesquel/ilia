@@ -125,14 +125,20 @@ export function EnrollPanel({ slug, level }: { slug: string; level?: Level }) {
           <Text style={[styles.hint, { color: theme.colors.neutral[600] }]}>
             Sigue: {progress.nextLesson.moduleTitle} · {progress.nextLesson.lessonTitle}
           </Text>
-        ) : (
+        ) : progress.isFinished ? (
           <Text style={[styles.hint, { color: theme.colors.accentRamp[700] }]}>
             Completaste el curso 🎉
           </Text>
+        ) : (
+          <Text style={[styles.hint, { color: theme.colors.neutral[600] }]}>
+            Lecciones listas · falta la práctica
+          </Text>
         )}
-        <Text style={[styles.enrolled, { color: theme.colors.neutral[600] }]}>
-          {callToAction(progress)} marcando las lecciones del temario.
-        </Text>
+        {progress.isComplete ? null : (
+          <Text style={[styles.enrolled, { color: theme.colors.neutral[600] }]}>
+            {callToAction(progress)} marcando las lecciones del temario.
+          </Text>
+        )}
       </View>
     );
   }

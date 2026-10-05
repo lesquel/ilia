@@ -50,7 +50,8 @@ export function hasStarted(progress: CourseProgress): boolean {
  */
 export function callToAction(progress: CourseProgress | null): string {
   if (!progress) return 'Inscribirme';
-  if (progress.isComplete) return 'Repasar el curso';
+  if (progress.isFinished) return 'Repasar el curso';
+  if (progress.isComplete) return 'Hacer la práctica';
   return hasStarted(progress) ? 'Continuar' : 'Empezar';
 }
 
