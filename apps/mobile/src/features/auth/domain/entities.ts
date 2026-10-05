@@ -106,3 +106,16 @@ export function safeDestination(next: string | undefined | null): string {
 
   return path;
 }
+
+/**
+ * Whether a 422 `schema_error` detail (FastAPI's list of `{loc, ...}` items)
+ * points at the email field, e.g. a malformed address or a reserved domain.
+ */
+export function isEmailFieldRejected(detail: unknown): boolean {
+  if (!Array.isArray(detail)) return false;
+
+  return detail.some((item) => {
+    const loc = (item as { loc?: unknown } | null)?.loc;
+    return Array.isArray(loc) && loc.includes('email');
+  });
+}

@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import {
   currentItemIdInModule,
   nextCourseAlongLearningPath,
+  emptyCatalogMessage,
+  isSyllabusFinished,
   nextOpenSyllabusItem,
   sortCoursesAlongLearningPath,
   syllabusStationLabel,
@@ -86,5 +88,33 @@ describe('syllabusStationStatuses', () => {
   it('points at the practice when the lessons are done and the lab is not', () => {
     const open = nextOpenSyllabusItem([first, second], ['a', 'b', 'c'], []);
     expect(open).toEqual({ id: 'prac', title: 'prac', kind: 'activity' });
+  });
+});
+
+describe('isSyllabusFinished', () => {
+  const modules = [moduleFixture('oficio', ['a', 'b'], ['prac'])];
+
+  it('is not finished while a practice is pending, even with every lesson done', () => {
+    expect(isSyllabusFinished(modules, ['a', 'b'], [])).toBe(false);
+  });
+
+  it('is finished once lessons are done and practices passed', () => {
+    expect(isSyllabusFinished(modules, ['a', 'b'], ['prac'])).toBe(true);
+  });
+
+  it('is never finished for an empty syllabus', () => {
+    expect(isSyllabusFinished([], [], [])).toBe(false);
+  });
+});
+
+describe('emptyCatalogMessage', () => {
+  it('suggests changing the search only when a search or filter is active', () => {
+    expect(emptyCatalogMessage({ query: 'zzz' }).hint).toMatch(/quita los filtros/);
+    expect(emptyCatalogMessage({ level: 'beginner' }).title).toBe('No encontramos cursos');
+  });
+
+  it('is neutral when nothing is being filtered', () => {
+    expect(emptyCatalogMessage({}).title).toBe('Todavía no hay cursos publicados');
+    expect(emptyCatalogMessage({ query: '  ' }).title).toBe('Todavía no hay cursos publicados');
   });
 });

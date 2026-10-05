@@ -21,6 +21,7 @@ function enrolled(
   percentage: number,
   completedLessons: number,
   isComplete = false,
+  isFinished = isComplete,
 ): EnrolledCourse {
   return {
     course: { ...baseCourse, slug, title: slug },
@@ -32,6 +33,8 @@ function enrolled(
       isComplete,
       completedLessonIds: [],
       passedActivityIds: [],
+      pendingActivityCount: 0,
+      isFinished,
       nextLesson: null,
     },
   };
@@ -53,6 +56,17 @@ describe('primaryCourseToContinue', () => {
   });
 });
 
+describe('primaryCourseToContinue with a pending practice', () => {
+  it('keeps a lessons-complete course in progress until the practice is passed', () => {
+    const practicePending = {
+      ...enrolled('practice', 100, 4, true, false),
+    };
+    practicePending.progress.pendingActivityCount = 1;
+
+    expect(primaryCourseToContinue([practicePending])?.course.slug).toBe('practice');
+  });
+});
+
 describe('resumeTargetForCourse', () => {
   const modules: Module[] = [
     {
@@ -71,6 +85,8 @@ describe('resumeTargetForCourse', () => {
     isComplete: false,
     completedLessonIds: ['l1'],
     passedActivityIds: [],
+    pendingActivityCount: 1,
+    isFinished: false,
     nextLesson: null,
   };
 

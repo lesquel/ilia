@@ -17,6 +17,7 @@ import {
   LEVELS,
   LEVEL_LABELS,
   sortCoursesAlongLearningPath,
+  emptyCatalogMessage,
   type Level,
 } from '@/features/catalog/domain/entities';
 
@@ -117,10 +118,7 @@ export function CatalogScreen() {
         isLoading ? (
           <LoadingState label="Buscando cursos…" />
         ) : (
-          <EmptyState
-            title="No encontramos cursos"
-            hint="Prueba con otra búsqueda o quita los filtros."
-          />
+          <EmptyState {...emptyCatalogMessage(filters)} />
         )
       }
       ListFooterComponent={

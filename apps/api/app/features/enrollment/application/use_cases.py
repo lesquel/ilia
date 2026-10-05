@@ -152,11 +152,14 @@ class ListMyCourses:
                 # is nothing to render, so it is skipped rather than crashing.
                 continue
 
+            passed = await self._progress.passed_activity_ids(user_id=user_id, course_id=course.id)
             results.append(
                 EnrolledCourse(
                     course=course.as_summary(),
                     enrolled_at=enrollment.enrolled_at,
-                    progress=compute_progress(course, completions.get(enrollment.id, set())),
+                    progress=compute_progress(
+                        course, completions.get(enrollment.id, set()), passed
+                    ),
                 )
             )
 

@@ -17,6 +17,10 @@ export interface CourseProgress {
   completedLessonIds: string[];
   /** Actividades ya aprobadas, con la misma regla que usa el certificado. */
   passedActivityIds: string[];
+  /** Practices still to pass. `isComplete` counts lessons only; see `isFinished`. */
+  pendingActivityCount: number;
+  /** Lessons done and no practice pending: the only "terminaste" the UI may claim. */
+  isFinished: boolean;
   /** Null once the course is finished — that absence swaps "continuar" for "completado". */
   nextLesson: NextLesson | null;
 }
@@ -46,7 +50,8 @@ export function hasStarted(progress: CourseProgress): boolean {
  */
 export function callToAction(progress: CourseProgress | null): string {
   if (!progress) return 'Inscribirme';
-  if (progress.isComplete) return 'Repasar el curso';
+  if (progress.isFinished) return 'Repasar el curso';
+  if (progress.isComplete) return 'Hacer la práctica';
   return hasStarted(progress) ? 'Continuar' : 'Empezar';
 }
 

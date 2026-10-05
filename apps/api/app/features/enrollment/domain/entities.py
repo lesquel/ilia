@@ -118,6 +118,8 @@ class CourseProgress:
     completed_lesson_ids: frozenset[UUID]
     next_lesson: LessonRef | None
     passed_activity_ids: frozenset[UUID] = frozenset()
+    # Activities of the course that the teacher has not passed yet.
+    pending_activity_ids: frozenset[UUID] = frozenset()
 
     @property
     def completed_lessons(self) -> int:
@@ -134,6 +136,12 @@ class CourseProgress:
         # An empty course is not a finished course. Without this guard a syllabus
         # still being written would hand out completion for free.
         return self.total_lessons > 0 and self.completed_lessons >= self.total_lessons
+
+    @property
+    def is_finished(self) -> bool:
+        # `is_complete` counts lessons only (certificates rely on that). A course
+        # with a practice still to pass is not finished from the teacher's side.
+        return self.is_complete and not self.pending_activity_ids
 
     @property
     def has_started(self) -> bool:
@@ -161,11 +169,20 @@ def compute_progress(
 
     next_lesson = next((ref for ref in order if ref.lesson_id not in relevant), None)
 
+    passed = passed_activity_ids or set()
+    pending_activity_ids = frozenset(
+        activity.id
+        for module in course.modules
+        for activity in module.activities
+        if activity.id not in passed
+    )
+
     return CourseProgress(
         total_lessons=len(order),
         completed_lesson_ids=frozenset(relevant),
         next_lesson=next_lesson,
-        passed_activity_ids=frozenset(passed_activity_ids or set()),
+        passed_activity_ids=frozenset(passed),
+        pending_activity_ids=pending_activity_ids,
     )
 
 

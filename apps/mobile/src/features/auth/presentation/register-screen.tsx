@@ -17,7 +17,7 @@ import { ApiError } from '@/core/errors/api-error';
 import { breakpoint, useTheme } from '@/core/theme';
 import { AuthShell } from '@/features/auth/presentation/auth-shell';
 import { useRegister } from '@/features/auth/application/use-auth';
-import { safeDestination } from '@/features/auth/domain/entities';
+import { isEmailFieldRejected, safeDestination } from '@/features/auth/domain/entities';
 
 /** Mirrors `RegisterRequest` on the API. Kept in sync deliberately, not guessed. */
 const MIN_PASSWORD = 8;
@@ -31,6 +31,10 @@ function messageFor(error: unknown): string {
   switch (error.code) {
     case 'email_already_registered':
       return 'Ya existe una cuenta con ese correo. Prueba iniciar sesión.';
+    case 'schema_error':
+      return isEmailFieldRejected(error.detail)
+        ? 'Ese correo no es válido. Usa un correo real.'
+        : 'No pudimos crear tu cuenta. Vuelve a intentarlo.';
     case 'validation_error':
       return 'Revisa los datos: el correo tiene que ser válido y la contraseña de al menos 8 caracteres.';
     case 'network_error':

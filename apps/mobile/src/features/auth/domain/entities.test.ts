@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { DEFAULT_DESTINATION, safeDestination } from './entities';
+import { DEFAULT_DESTINATION, isEmailFieldRejected, safeDestination } from './entities';
 
 describe('safeDestination', () => {
   it('keeps an internal path so the person lands where they were going', () => {
@@ -48,5 +48,18 @@ describe('safeDestination', () => {
 
   it('ignores surrounding whitespace rather than treating it as a bad path', () => {
     expect(safeDestination('  /certificates  ')).toBe('/certificates');
+  });
+});
+
+describe('isEmailFieldRejected', () => {
+  it('detects a rejected email in a FastAPI validation detail', () => {
+    const detail = [{ loc: ['body', 'email'], msg: 'special-use domain', type: 'value_error' }];
+    expect(isEmailFieldRejected(detail)).toBe(true);
+  });
+
+  it('ignores errors on other fields and malformed details', () => {
+    expect(isEmailFieldRejected([{ loc: ['body', 'password'] }])).toBe(false);
+    expect(isEmailFieldRejected(undefined)).toBe(false);
+    expect(isEmailFieldRejected([null, {}])).toBe(false);
   });
 });
