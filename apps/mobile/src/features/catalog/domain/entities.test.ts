@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   currentItemIdInModule,
   nextCourseAlongLearningPath,
+  emptyCatalogMessage,
   isSyllabusFinished,
   nextOpenSyllabusItem,
   sortCoursesAlongLearningPath,
@@ -103,5 +104,17 @@ describe('isSyllabusFinished', () => {
 
   it('is never finished for an empty syllabus', () => {
     expect(isSyllabusFinished([], [], [])).toBe(false);
+  });
+});
+
+describe('emptyCatalogMessage', () => {
+  it('suggests changing the search only when a search or filter is active', () => {
+    expect(emptyCatalogMessage({ query: 'zzz' }).hint).toMatch(/quita los filtros/);
+    expect(emptyCatalogMessage({ level: 'beginner' }).title).toBe('No encontramos cursos');
+  });
+
+  it('is neutral when nothing is being filtered', () => {
+    expect(emptyCatalogMessage({}).title).toBe('Todavía no hay cursos publicados');
+    expect(emptyCatalogMessage({ query: '  ' }).title).toBe('Todavía no hay cursos publicados');
   });
 });

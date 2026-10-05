@@ -55,6 +55,17 @@ export interface CatalogFilters {
   query?: string;
 }
 
+/** What the catalog says when it has nothing to show, given what is being asked. */
+export function emptyCatalogMessage(filters: CatalogFilters): { title: string; hint: string } {
+  if (filters.level || filters.query?.trim()) {
+    return {
+      title: 'No encontramos cursos',
+      hint: 'Prueba con otra búsqueda o quita los filtros.',
+    };
+  }
+  return { title: 'Todavía no hay cursos publicados', hint: 'Vuelve pronto.' };
+}
+
 export interface CoursePage {
   items: CourseSummary[];
   /** Null on the last page. Its presence is the only "is there more" signal. */
