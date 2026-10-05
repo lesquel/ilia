@@ -12,6 +12,7 @@ import type {
 } from '@/features/auth/domain/entities';
 import type { AuthRepository } from '@/features/auth/domain/repository';
 import { authRepository } from '@/features/auth/data/auth-repository';
+import { dropSessionData } from '@/features/auth/application/session-cache';
 
 /**
  * Application layer: the use cases a screen actually calls.
@@ -93,7 +94,9 @@ export function useLogout(repository: AuthRepository = authRepository) {
       // Clear on settle, not on success: if the request failed, the local cache
       // must still stop showing another teacher's data.
       queryClient.setQueryData(authKeys.session, null);
-      void queryClient.invalidateQueries();
+      // Remove, don't invalidate: invalidating refetches every mounted query,
+      // so a screen still on display fired one last request and got a 401.
+      dropSessionData(queryClient);
     },
   });
 }
