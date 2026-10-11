@@ -1,10 +1,9 @@
 """PostgreSQL implementations of the billing ports."""
 
-from datetime import datetime
+from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy import func, select
-from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from app.core.database import Database
 from app.features.billing.domain.entities import Plan, PlanCatalog, Subscription
@@ -62,7 +61,10 @@ class SqlAlchemySubscriptionRepository:
     async def for_user(self, user_id: UUID) -> Subscription | None:
         async with self._db.session() as session:
             result = await session.execute(
-                select(SubscriptionModel).where(SubscriptionModel.user_id == user_id)
+                select(SubscriptionModel)
+                .where(SubscriptionModel.user_id == user_id, SubscriptionModel.ended_at.is_(None))
+                .order_by(SubscriptionModel.started_at.desc())
+                .limit(1)
             )
             row = result.scalar_one_or_none()
 
@@ -75,32 +77,43 @@ class SqlAlchemySubscriptionRepository:
             plan_code=row.plan_code,
             started_at=row.started_at,
             expires_at=row.expires_at,
+            ended_at=row.ended_at,
         )
 
     async def upsert(self, subscription: Subscription) -> None:
-        # One row per teacher, replaced rather than appended: two live
-        # subscriptions would make "which plan am I on?" ambiguous.
-        statement = (
-            pg_insert(SubscriptionModel)
-            .values(
-                id=subscription.id,
-                user_id=subscription.user_id,
-                plan_code=subscription.plan_code,
-                started_at=subscription.started_at,
-                expires_at=subscription.expires_at,
-            )
-            .on_conflict_do_update(
-                index_elements=[SubscriptionModel.user_id],
-                set_={
-                    "plan_code": subscription.plan_code,
-                    "started_at": subscription.started_at,
-                    "expires_at": subscription.expires_at,
-                },
-            )
-        )
-
         async with self._db.session() as session:
-            await session.execute(statement)
+            # Lock the account so concurrent plan changes cannot create two
+            # current subscriptions and each transition keeps its own history.
+            from app.features.auth.infrastructure.models import UserModel
+
+            await session.execute(
+                select(UserModel.id).where(UserModel.id == subscription.user_id).with_for_update()
+            )
+            current = await session.execute(
+                select(SubscriptionModel)
+                .where(SubscriptionModel.user_id == subscription.user_id, SubscriptionModel.ended_at.is_(None))
+                .with_for_update()
+            )
+            prior = current.scalar_one_or_none()
+            started_at = subscription.started_at or datetime.now(UTC)
+            if prior is not None:
+                if started_at <= prior.started_at:
+                    started_at = datetime.now(UTC)
+                    if started_at <= prior.started_at:
+                        from datetime import timedelta
+
+                        started_at = prior.started_at + timedelta(microseconds=1)
+                prior.ended_at = started_at
+            session.add(
+                SubscriptionModel(
+                    id=subscription.id,
+                    user_id=subscription.user_id,
+                    plan_code=subscription.plan_code,
+                    started_at=started_at,
+                    expires_at=subscription.expires_at,
+                    ended_at=None,
+                )
+            )
 
 
 class SqlEvaluationCounter:

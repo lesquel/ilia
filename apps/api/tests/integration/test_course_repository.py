@@ -30,7 +30,7 @@ pytestmark = pytest.mark.skipif(
 )
 
 BASE_TIME = datetime(2026, 9, 1, 12, 0, tzinfo=UTC)
-TABLES = "lesson, course_module, course, app_user, cohort"
+TABLES = "catalog.lesson, catalog.course_module, catalog.course, auth.app_user, learning.cohort"
 
 
 @pytest.fixture
@@ -92,10 +92,11 @@ async def seed_course(
     )
 
     if lesson_durations:
-        module = ModuleModel(id=uuid4(), title="Módulo 1", position=1)
+        module = ModuleModel(id=uuid4(), course_id=course.id, title="Módulo 1", position=1)
         module.lessons = [
             LessonModel(
                 id=uuid4(),
+                course_id=course.id,
                 title=f"Lección {index}",
                 kind="video",
                 position=index,

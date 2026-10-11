@@ -3,7 +3,9 @@
 import argparse
 import asyncio
 import sys
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
+
+from sqlalchemy import select, update
 
 import structlog
 
@@ -14,6 +16,12 @@ from app.features.admin.infrastructure.sql_repository import SqlAlchemyAuditLog
 from app.features.auth.domain.entities import Email, Role, User
 from app.features.auth.infrastructure.security import Argon2PasswordHasher
 from app.features.auth.infrastructure.sql_repository import SqlAlchemyUserRepository
+from app.features.evaluation.infrastructure.models import (
+    EvaluationModel,
+    EvaluationScoreModel,
+    ModelOutputModel,
+    SubmissionModel,
+)
 
 logger = structlog.get_logger()
 
@@ -113,6 +121,45 @@ async def _count_admins(database: Database) -> int:
         return int(result.scalar_one())
 
 
+async def _purge_submission_content(settings: Settings, *, apply: bool) -> int:
+    """Preview or purge student-identifying evaluation text older than 365 days."""
+    if settings.database_url is None:
+        print("ILIA_DATABASE_URL is not set.", file=sys.stderr)
+        return 2
+    cutoff = datetime.now(UTC) - timedelta(days=365)
+    database = Database(settings)
+    try:
+        async with database.session() as session:
+            result = await session.execute(
+                select(SubmissionModel.id).where(
+                    SubmissionModel.status.in_(["scored", "failed"]),
+                    SubmissionModel.created_at < cutoff,
+                    SubmissionModel.content_purged_at.is_(None),
+                )
+            )
+            ids = list(result.scalars())
+            print(f"Submissions elegibles: {len(ids)} (más antiguas que {cutoff.date()}).")
+            if not apply or not ids:
+                print("Vista previa; usa --apply para ejecutar el borrado.")
+                return 0
+
+            await session.execute(update(SubmissionModel).where(SubmissionModel.id.in_(ids)).values(prompt="", content_purged_at=datetime.now(UTC)))
+            await session.execute(update(ModelOutputModel).where(ModelOutputModel.submission_id.in_(ids)).values(text=""))
+            eval_ids = select(EvaluationModel.id).where(EvaluationModel.submission_id.in_(ids))
+            await session.execute(update(EvaluationModel).where(EvaluationModel.submission_id.in_(ids)).values(feedback="", suggestion="", check_failures=[], override_reason=None))
+            await session.execute(update(EvaluationScoreModel).where(EvaluationScoreModel.evaluation_id.in_(eval_ids)).values(justification=""))
+            # Keep actor, timestamp, action and score transition; redact only free-text reason.
+            from app.features.admin.infrastructure.models import AuditLogModel
+            rows = await session.execute(select(AuditLogModel).where(AuditLogModel.action == "score_overridden"))
+            for row in rows.scalars():
+                if row.detail.get("submission_id") in {str(item) for item in ids} and "reason" in row.detail:
+                    row.detail = {key: value for key, value in row.detail.items() if key != "reason"}
+            print(f"Contenido purgado: {len(ids)} entregas.")
+            return 0
+    finally:
+        await database.dispose()
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="ilia", description="ILIA operator commands")
     subcommands = parser.add_subparsers(dest="command", required=True)
@@ -120,10 +167,14 @@ def main(argv: list[str] | None = None) -> int:
         "create-admin",
         help="Create the first administrator from bootstrap environment settings.",
     )
+    purge = subcommands.add_parser("purge-submission-content", help="Purgar contenido sensible con retención de 365 días.")
+    purge.add_argument("--apply", action="store_true", help="Ejecutar el borrado; sin esta opción solo muestra una vista previa.")
 
     arguments = parser.parse_args(argv)
     if arguments.command == "create-admin":
         return asyncio.run(_create_admin(get_settings()))
+    if arguments.command == "purge-submission-content":
+        return asyncio.run(_purge_submission_content(get_settings(), apply=arguments.apply))
     return 2
 
 

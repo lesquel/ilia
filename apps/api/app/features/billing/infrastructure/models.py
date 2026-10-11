@@ -8,15 +8,18 @@ from sqlalchemy import (
     Boolean,
     DateTime,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
     Uuid,
     func,
+    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
+from app.core.schemas import DbSchema
 
 
 class PlanModel(Base):
@@ -27,6 +30,7 @@ class PlanModel(Base):
     """
 
     __tablename__ = "plan"
+    __table_args__ = {"schema": DbSchema.BILLING.value}
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     code: Mapped[str] = mapped_column(String(40), nullable=False, unique=True, index=True)
@@ -55,22 +59,26 @@ class PlanModel(Base):
 
 class SubscriptionModel(Base):
     __tablename__ = "subscription"
+    __table_args__ = (
+        Index("uq_subscription_active_user", "user_id", unique=True, postgresql_where=text("ended_at IS NULL")),
+        {"schema": DbSchema.BILLING.value},
+    )
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
-    # One live subscription per teacher. Two would make "which plan am I on?"
-    # a question with two answers.
+    # Historical rows are retained; a partial unique index allows one current
+    # row while preserving earlier plan periods.
     user_id: Mapped[UUID] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("app_user.id", ondelete="CASCADE"),
+        ForeignKey("auth.app_user.id", ondelete="CASCADE"),
         nullable=False,
-        unique=True,
         index=True,
     )
     plan_code: Mapped[str] = mapped_column(
-        String(40), ForeignKey("plan.code", ondelete="RESTRICT"), nullable=False
+        String(40), ForeignKey("billing.plan.code", ondelete="RESTRICT"), nullable=False
     )
     started_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
     # NULL means it does not expire, which is what the free plan is.
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

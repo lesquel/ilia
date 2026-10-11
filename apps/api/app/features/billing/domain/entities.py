@@ -50,6 +50,7 @@ class Subscription:
     started_at: datetime | None = None
     # None means it does not expire — which is what the free plan is.
     expires_at: datetime | None = None
+    ended_at: datetime | None = None
 
     @classmethod
     def create(
@@ -59,6 +60,7 @@ class Subscription:
         plan_code: str,
         started_at: datetime | None = None,
         expires_at: datetime | None = None,
+        ended_at: datetime | None = None,
     ) -> "Subscription":
         return cls(
             id=uuid4(),
@@ -66,10 +68,12 @@ class Subscription:
             plan_code=plan_code,
             started_at=started_at,
             expires_at=expires_at,
+            ended_at=ended_at,
         )
 
     def is_active(self, at: datetime) -> bool:
-        return self.expires_at is None or self.expires_at > at
+        started = self.started_at is None or self.started_at <= at
+        return started and self.ended_at is None and (self.expires_at is None or self.expires_at > at)
 
 
 @dataclass(frozen=True)

@@ -1,5 +1,6 @@
 """PostgreSQL implementation of the enrollment and progress ports."""
 
+from datetime import datetime
 from uuid import UUID, uuid4
 
 from sqlalchemy import func, select
@@ -81,10 +82,21 @@ class SqlAlchemyProgressRepository:
         async with self._db.session() as session:
             result = await session.execute(
                 select(LessonProgressModel.lesson_id).where(
-                    LessonProgressModel.enrollment_id == enrollment_id
+                    LessonProgressModel.enrollment_id == enrollment_id,
+                    LessonProgressModel.completed_at.is_not(None),
                 )
             )
             return set(result.scalars())
+
+    async def positions_for_enrollment(self, enrollment_id: UUID) -> dict[UUID, int]:
+        async with self._db.session() as session:
+            result = await session.execute(
+                select(LessonProgressModel.lesson_id, LessonProgressModel.position_seconds).where(
+                    LessonProgressModel.enrollment_id == enrollment_id,
+                    LessonProgressModel.completed_at.is_(None),
+                )
+            )
+            return {lesson_id: seconds for lesson_id, seconds in result.all()}
 
     async def completed_by_enrollment(self, enrollment_ids: list[UUID]) -> dict[UUID, set[UUID]]:
         if not enrollment_ids:
@@ -96,7 +108,8 @@ class SqlAlchemyProgressRepository:
         async with self._db.session() as session:
             result = await session.execute(
                 select(LessonProgressModel.enrollment_id, LessonProgressModel.lesson_id).where(
-                    LessonProgressModel.enrollment_id.in_(enrollment_ids)
+                    LessonProgressModel.enrollment_id.in_(enrollment_ids),
+                    LessonProgressModel.completed_at.is_not(None),
                 )
             )
             rows = result.all()
@@ -129,21 +142,41 @@ class SqlAlchemyProgressRepository:
             )
             return {row[0] for row in rows.all()}
 
-    async def mark_completed(self, *, enrollment_id: UUID, lesson_id: UUID) -> None:
+    async def mark_completed(self, *, enrollment_id: UUID, course_id: UUID, lesson_id: UUID) -> None:
         # ON CONFLICT DO NOTHING rather than select-then-insert: idempotent in a
         # single round trip, and immune to two concurrent requests racing.
         statement = (
             pg_insert(LessonProgressModel)
-            .values(id=uuid4(), enrollment_id=enrollment_id, lesson_id=lesson_id)
-            .on_conflict_do_nothing(constraint="uq_progress_enrollment_lesson")
+            .values(id=uuid4(), enrollment_id=enrollment_id, course_id=course_id, lesson_id=lesson_id, completed_at=func.now())
+            .on_conflict_do_update(
+                constraint="uq_progress_enrollment_lesson",
+                set_={"completed_at": func.coalesce(LessonProgressModel.completed_at, func.now())},
+            )
         )
 
         async with self._db.session() as session:
             await session.execute(statement)
 
+    async def record_position(
+        self, *, enrollment_id: UUID, course_id: UUID, lesson_id: UUID, position_seconds: int, at: datetime
+    ) -> None:
+        statement = (
+            pg_insert(LessonProgressModel)
+            .values(
+                id=uuid4(), enrollment_id=enrollment_id, course_id=course_id, lesson_id=lesson_id,
+                position_seconds=max(0, position_seconds), last_viewed_at=at, completed_at=None,
+            )
+            .on_conflict_do_update(
+                constraint="uq_progress_enrollment_lesson",
+                set_={"position_seconds": max(0, position_seconds), "last_viewed_at": at},
+            )
+        )
+        async with self._db.session() as session:
+            await session.execute(statement)
+
 
 def _cohort_to_entity(row: CohortModel) -> Cohort:
-    return Cohort(id=row.id, name=row.name, code=row.code, created_at=row.created_at)
+    return Cohort(id=row.id, name=row.name, code=row.code, starts_on=row.starts_on, created_at=row.created_at)
 
 
 class SqlAlchemyCohortRepository:
@@ -164,6 +197,7 @@ class SqlAlchemyCohortRepository:
                         id=cohort.id,
                         name=cohort.name,
                         code=cohort.code,
+                        starts_on=cohort.starts_on,
                         created_at=cohort.created_at,
                     )
                 )
@@ -171,6 +205,12 @@ class SqlAlchemyCohortRepository:
             # Two admins typing the same code, or a retry after a timeout.
             # The unique index is the guarantee; this turns it into an answer.
             raise CohortCodeTakenError(cohort.code) from exc
+
+    async def delete(self, cohort_id: UUID) -> None:
+        async with self._db.session() as session:
+            row = await session.get(CohortModel, cohort_id)
+            if row is not None:
+                await session.delete(row)
 
     async def list_all(self) -> list[Cohort]:
         async with self._db.session() as session:

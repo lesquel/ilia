@@ -38,6 +38,7 @@ class CourseWriter(Protocol):
     async def add_lesson(
         self,
         *,
+        course_id: UUID,
         module_id: UUID,
         title: str,
         kind: LessonKind,

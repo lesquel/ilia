@@ -154,7 +154,9 @@ class TestGetLesson:
         await enrol(courses, enrollments)
         ids = await lesson_ids(courses)
         enrollment = await enrollments.list_for_user(TEACHER)
-        await progress.mark_completed(enrollment_id=enrollment[0].id, lesson_id=ids[0])
+        await progress.mark_completed(
+            enrollment_id=enrollment[0].id, course_id=enrollment[0].course_id, lesson_id=ids[0]
+        )
 
         view = await get_lesson.execute(user_id=TEACHER, slug="ia-basica", lesson_id=ids[0])
 

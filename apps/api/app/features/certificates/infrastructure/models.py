@@ -7,6 +7,7 @@ from sqlalchemy import DateTime, ForeignKey, String, Text, UniqueConstraint, Uui
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
+from app.core.schemas import DbSchema
 
 
 class CertificateModel(Base):
@@ -14,17 +15,17 @@ class CertificateModel(Base):
 
     # One certificate per teacher per course. Two codes for one achievement is
     # two things to verify and one to explain.
-    __table_args__ = (UniqueConstraint("user_id", "course_id", name="uq_certificate_user_course"),)
+    __table_args__ = (UniqueConstraint("user_id", "course_id", name="uq_certificate_user_course"), {"schema": DbSchema.LEARNING.value})
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     user_id: Mapped[UUID] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("app_user.id", ondelete="CASCADE"),
+        ForeignKey("auth.app_user.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
     course_id: Mapped[UUID] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("course.id", ondelete="CASCADE"), nullable=False
+        Uuid(as_uuid=True), ForeignKey("catalog.course.id", ondelete="CASCADE"), nullable=False
     )
     # The public identifier. Indexed and unique because verification looks the
     # certificate up by this and nothing else.
@@ -45,5 +46,5 @@ class CertificateModel(Base):
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     revoked_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     revoked_by: Mapped[UUID | None] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("app_user.id", ondelete="SET NULL"), nullable=True
+        Uuid(as_uuid=True), ForeignKey("auth.app_user.id", ondelete="SET NULL"), nullable=True
     )

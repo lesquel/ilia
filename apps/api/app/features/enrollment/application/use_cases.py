@@ -1,5 +1,6 @@
 """Enrollment and progress use cases."""
 
+from datetime import date
 from uuid import UUID
 
 from app.features.auth.domain.ports import Clock
@@ -58,9 +59,9 @@ class CreateCohort:
         self._cohorts = cohorts
         self._clock = clock
 
-    async def execute(self, *, name: str, code: str) -> Cohort:
+    async def execute(self, *, name: str, code: str, starts_on: date | None = None) -> Cohort:
         try:
-            cohort = Cohort.create(name=name, code=code, created_at=self._clock.now())
+            cohort = Cohort.create(name=name, code=code, starts_on=starts_on, created_at=self._clock.now())
         except ValueError as exc:
             raise ValidationError(str(exc)) from exc
         if await self._cohorts.id_for_code(cohort.code) is not None:
@@ -186,9 +187,10 @@ class GetCourseProgress:
             raise NotEnrolledError()
 
         completed = await self._progress.completed_lesson_ids(enrollment.id)
+        positions = await self._progress.positions_for_enrollment(enrollment.id)
         passed = await self._progress.passed_activity_ids(user_id=user_id, course_id=course.id)
 
-        return compute_progress(course, completed, passed)
+        return compute_progress(course, completed, passed, positions)
 
 
 class CompleteLesson:
@@ -215,12 +217,30 @@ class CompleteLesson:
         if find_lesson(course, lesson_id) is None:
             raise LessonNotInCourseError()
 
-        await self._progress.mark_completed(enrollment_id=enrollment.id, lesson_id=lesson_id)
+        await self._progress.mark_completed(enrollment_id=enrollment.id, course_id=course.id, lesson_id=lesson_id)
 
         completed = await self._progress.completed_lesson_ids(enrollment.id)
+        positions = await self._progress.positions_for_enrollment(enrollment.id)
         passed = await self._progress.passed_activity_ids(user_id=user_id, course_id=course.id)
 
-        return compute_progress(course, completed, passed)
+        return compute_progress(course, completed, passed, positions)
+
+
+class RecordLessonPosition:
+    def __init__(self, *, courses: CourseRepository, enrollments: EnrollmentRepository, progress: ProgressRepository, clock: Clock) -> None:
+        self._courses, self._enrollments, self._progress, self._clock = courses, enrollments, progress, clock
+
+    async def execute(self, *, user_id: UUID, slug: str, lesson_id: UUID, position_seconds: int) -> None:
+        course = await _published_course(self._courses, slug)
+        enrollment = await self._enrollments.get(user_id=user_id, course_id=course.id)
+        if enrollment is None:
+            raise NotEnrolledError()
+        if find_lesson(course, lesson_id) is None:
+            raise LessonNotInCourseError()
+        await self._progress.record_position(
+            enrollment_id=enrollment.id, course_id=course.id, lesson_id=lesson_id,
+            position_seconds=max(0, position_seconds), at=self._clock.now(),
+        )
 
 
 class GetLesson:
@@ -260,6 +280,7 @@ class GetLesson:
 
         content = await self._contents.get_content(lesson_id)
         completed = await self._progress.completed_lesson_ids(enrollment.id)
+        resume_positions = await self._progress.positions_for_enrollment(enrollment.id)
 
         return LessonView(
             lesson=current,
@@ -267,6 +288,7 @@ class GetLesson:
             duration_seconds=lesson.duration_seconds,
             content=content or LessonContent(lesson_id=lesson_id, body="", resource_ref=None),
             is_completed=lesson_id in completed,
+            resume_position_seconds=resume_positions.get(lesson_id, 0),
             previous=previous,
             next=following,
             position=position,

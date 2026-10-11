@@ -248,6 +248,7 @@ class AddLesson:
             raise ModuleNotFoundError()
 
         return await self._writer.add_lesson(
+            course_id=course.id,
             module_id=module.id,
             title=title.strip(),
             kind=kind,

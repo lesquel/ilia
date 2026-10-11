@@ -7,6 +7,7 @@ from sqlalchemy import JSON, DateTime, ForeignKey, String, Uuid, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
+from app.core.schemas import DbSchema
 
 
 class AuditLogModel(Base):
@@ -18,10 +19,11 @@ class AuditLogModel(Base):
     """
 
     __tablename__ = "audit_log"
+    __table_args__ = {"schema": DbSchema.AUDIT.value}
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     actor_id: Mapped[UUID | None] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("app_user.id", ondelete="SET NULL"), nullable=True
+        Uuid(as_uuid=True), ForeignKey("auth.app_user.id", ondelete="SET NULL"), nullable=True
     )
     actor_name: Mapped[str] = mapped_column(String(120), nullable=False, default="")
     action: Mapped[str] = mapped_column(String(60), nullable=False, index=True)

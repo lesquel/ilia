@@ -8,8 +8,8 @@ force every progress read to reach across the boundary.
 Pure Python — no ORM, no framework.
 """
 
-from dataclasses import dataclass
-from datetime import datetime
+from dataclasses import dataclass, field
+from datetime import date, datetime
 from uuid import UUID, uuid4
 
 from app.features.catalog.domain.entities import Course, CourseSummary, Lesson
@@ -64,17 +64,18 @@ class Cohort:
     id: UUID
     name: str
     code: str
+    starts_on: date | None = None
     created_at: datetime | None = None
 
     @classmethod
-    def create(cls, *, name: str, code: str, created_at: datetime | None = None) -> "Cohort":
+    def create(cls, *, name: str, code: str, starts_on: date | None = None, created_at: datetime | None = None) -> "Cohort":
         cleaned_name = name.strip()
         cleaned_code = code.strip().upper()
         if not cleaned_name:
             raise ValueError("Cohort name cannot be empty")
         if not cleaned_code:
             raise ValueError("Cohort code cannot be empty")
-        return cls(id=uuid4(), name=cleaned_name, code=cleaned_code, created_at=created_at)
+        return cls(id=uuid4(), name=cleaned_name, code=cleaned_code, starts_on=starts_on, created_at=created_at)
 
 
 @dataclass
@@ -120,6 +121,7 @@ class CourseProgress:
     passed_activity_ids: frozenset[UUID] = frozenset()
     # Activities of the course that the teacher has not passed yet.
     pending_activity_ids: frozenset[UUID] = frozenset()
+    lesson_positions: dict[UUID, int] = field(default_factory=dict)
 
     @property
     def completed_lessons(self) -> int:
@@ -152,6 +154,7 @@ def compute_progress(
     course: Course,
     completed_lesson_ids: set[UUID],
     passed_activity_ids: set[UUID] | None = None,
+    lesson_positions: dict[UUID, int] | None = None,
 ) -> CourseProgress:
     """Progress for one course.
 
@@ -166,6 +169,11 @@ def compute_progress(
     # Ignore completions for lessons the course no longer has. An instructor
     # deleting a lesson must not push anyone above 100%.
     relevant = completed_lesson_ids & known_ids
+    relevant_positions = {
+        lesson_id: max(0, int(seconds))
+        for lesson_id, seconds in (lesson_positions or {}).items()
+        if lesson_id in known_ids and lesson_id not in relevant
+    }
 
     next_lesson = next((ref for ref in order if ref.lesson_id not in relevant), None)
 
@@ -183,6 +191,7 @@ def compute_progress(
         next_lesson=next_lesson,
         passed_activity_ids=frozenset(passed),
         pending_activity_ids=pending_activity_ids,
+        lesson_positions=relevant_positions,
     )
 
 
@@ -229,6 +238,7 @@ class LessonView:
     duration_seconds: int
     content: LessonContent
     is_completed: bool
+    resume_position_seconds: int
     previous: LessonRef | None
     next: LessonRef | None
     position: int

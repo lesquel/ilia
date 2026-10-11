@@ -6,10 +6,23 @@ Storage, not domain. `Course` in `domain/entities.py` is the domain.
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import DateTime, ForeignKey, Index, Integer, String, Text, Uuid, func, text
+from sqlalchemy import (
+    DateTime,
+    ForeignKey,
+    ForeignKeyConstraint,
+    Index,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+    Uuid,
+    func,
+    text,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
+from app.core.schemas import DbSchema
 
 
 class CourseModel(Base):
@@ -33,6 +46,7 @@ class CourseModel(Base):
             text("id DESC"),
             postgresql_where=text("status = 'published'"),
         ),
+        {"schema": DbSchema.CATALOG.value},
     )
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
@@ -48,7 +62,7 @@ class CourseModel(Base):
     # sequential scans of every course on the platform.
     instructor_id: Mapped[UUID] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("app_user.id", ondelete="RESTRICT"),
+        ForeignKey("auth.app_user.id", ondelete="RESTRICT"),
         nullable=False,
         index=True,
     )
@@ -65,37 +79,48 @@ class CourseModel(Base):
         back_populates="course",
         cascade="all, delete-orphan",
         order_by="ModuleModel.position",
+        primaryjoin="CourseModel.id == ModuleModel.course_id",
     )
 
 
 class ModuleModel(Base):
     __tablename__ = "course_module"
+    __table_args__ = (UniqueConstraint("id", "course_id", name="uq_course_module_id_course"), {"schema": DbSchema.CATALOG.value})
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     course_id: Mapped[UUID] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("course.id", ondelete="CASCADE"), nullable=False, index=True
+        Uuid(as_uuid=True), ForeignKey("catalog.course.id", ondelete="CASCADE"), nullable=False, index=True
     )
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     position: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
-    course: Mapped[CourseModel] = relationship(back_populates="modules")
+    course: Mapped[CourseModel] = relationship(
+        back_populates="modules", primaryjoin="ModuleModel.course_id == CourseModel.id"
+    )
     lessons: Mapped[list["LessonModel"]] = relationship(
         back_populates="module",
         cascade="all, delete-orphan",
         order_by="LessonModel.position",
+        primaryjoin="and_(ModuleModel.id == LessonModel.module_id, ModuleModel.course_id == LessonModel.course_id)",
     )
 
 
 class LessonModel(Base):
     __tablename__ = "lesson"
+    __table_args__ = (
+        UniqueConstraint("id", "course_id", name="uq_lesson_id_course"),
+        ForeignKeyConstraint(["module_id", "course_id"], ["catalog.course_module.id", "catalog.course_module.course_id"], ondelete="CASCADE", name="fk_lesson_module_course"),
+        Index("ix_lesson_module_course", "module_id", "course_id"),
+        {"schema": DbSchema.CATALOG.value},
+    )
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     module_id: Mapped[UUID] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("course_module.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
+    course_id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), nullable=False, index=True)
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     kind: Mapped[str] = mapped_column(String(20), nullable=False, default="text")
     position: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
@@ -114,4 +139,7 @@ class LessonModel(Base):
     # defeat that the first time someone copies it.
     resource_ref: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
-    module: Mapped[ModuleModel] = relationship(back_populates="lessons")
+    module: Mapped[ModuleModel] = relationship(
+        back_populates="lessons",
+        primaryjoin="and_(LessonModel.module_id == ModuleModel.id, LessonModel.course_id == ModuleModel.course_id)",
+    )

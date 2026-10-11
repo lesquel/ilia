@@ -4,6 +4,7 @@ Not for production, same as its siblings.
 """
 
 import asyncio
+from datetime import datetime
 from uuid import UUID
 
 from app.features.enrollment.domain.entities import Cohort, Enrollment, LessonContent
@@ -44,9 +45,16 @@ class InMemoryEnrollmentRepository:
 class InMemoryProgressRepository:
     def __init__(self) -> None:
         self._completed: dict[UUID, set[UUID]] = {}
+        self._positions: dict[UUID, dict[UUID, int]] = {}
 
     async def completed_lesson_ids(self, enrollment_id: UUID) -> set[UUID]:
         return set(self._completed.get(enrollment_id, set()))
+
+    async def positions_for_enrollment(self, enrollment_id: UUID) -> dict[UUID, int]:
+        return {
+            lesson_id: seconds for lesson_id, seconds in self._positions.get(enrollment_id, {}).items()
+            if lesson_id not in self._completed.get(enrollment_id, set())
+        }
 
     async def completed_by_enrollment(self, enrollment_ids: list[UUID]) -> dict[UUID, set[UUID]]:
         return {
@@ -60,9 +68,13 @@ class InMemoryProgressRepository:
         # activity as passed, rather than inventing one that is.
         return set()
 
-    async def mark_completed(self, *, enrollment_id: UUID, lesson_id: UUID) -> None:
+    async def mark_completed(self, *, enrollment_id: UUID, course_id: UUID, lesson_id: UUID) -> None:
         # A set makes this idempotent for free, which is the contract.
         self._completed.setdefault(enrollment_id, set()).add(lesson_id)
+        self._positions.setdefault(enrollment_id, {}).pop(lesson_id, None)
+
+    async def record_position(self, *, enrollment_id: UUID, course_id: UUID, lesson_id: UUID, position_seconds: int, at: datetime) -> None:
+        self._positions.setdefault(enrollment_id, {})[lesson_id] = max(0, position_seconds)
 
 
 class InMemoryCohortRepository:
@@ -86,6 +98,9 @@ class InMemoryCohortRepository:
     async def list_all(self) -> list[Cohort]:
         # Newest first. Insertion order is the clock when timestamps collide.
         return list(reversed(self._cohorts))
+
+    async def delete(self, cohort_id: UUID) -> None:
+        self._cohorts = [item for item in self._cohorts if item.id != cohort_id]
 
 
 class InMemoryLessonContentRepository:

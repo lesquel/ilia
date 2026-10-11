@@ -7,6 +7,7 @@ from sqlalchemy import (
     Boolean,
     DateTime,
     ForeignKey,
+    ForeignKeyConstraint,
     Index,
     Integer,
     String,
@@ -17,6 +18,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
+from app.core.schemas import DbSchema
 
 
 class ForumThreadModel(Base):
@@ -24,19 +26,24 @@ class ForumThreadModel(Base):
 
     # The listing reads a course's threads newest-activity-first, so that is the
     # index. Without it every forum page load sorts the whole table.
-    __table_args__ = (Index("ix_forum_thread_course_activity", "course_id", "last_activity_at"),)
+    __table_args__ = (
+        Index("ix_forum_thread_course_activity", "course_id", "last_activity_at"),
+        ForeignKeyConstraint(["module_id", "course_id"], ["catalog.course_module.id", "catalog.course_module.course_id"], ondelete="CASCADE", name="fk_forum_thread_module_course"),
+        Index("ix_forum_thread_module_course", "module_id", "course_id"),
+        {"schema": DbSchema.COMMUNITY.value},
+    )
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     course_id: Mapped[UUID] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("course.id", ondelete="CASCADE"), nullable=False
+        Uuid(as_uuid=True), ForeignKey("catalog.course.id", ondelete="CASCADE"), nullable=False
     )
     # Null means the thread belongs to the course as a whole — which is what the
     # mockup shows ("Foro del curso"), despite what PRD open question 8 claims.
     module_id: Mapped[UUID | None] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("course_module.id", ondelete="CASCADE"), nullable=True
+        Uuid(as_uuid=True), nullable=True
     )
     author_id: Mapped[UUID] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("app_user.id", ondelete="CASCADE"), nullable=False
+        Uuid(as_uuid=True), ForeignKey("auth.app_user.id", ondelete="CASCADE"), nullable=False
     )
     # Copied so a thread still shows who wrote it after the account is gone.
     author_name: Mapped[str] = mapped_column(String(120), nullable=False)
@@ -62,16 +69,17 @@ class ForumThreadModel(Base):
 
 class ForumPostModel(Base):
     __tablename__ = "forum_post"
+    __table_args__ = {"schema": DbSchema.COMMUNITY.value}
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     thread_id: Mapped[UUID] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("forum_thread.id", ondelete="CASCADE"),
+        ForeignKey("community.forum_thread.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
     author_id: Mapped[UUID] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("app_user.id", ondelete="CASCADE"), nullable=False
+        Uuid(as_uuid=True), ForeignKey("auth.app_user.id", ondelete="CASCADE"), nullable=False
     )
     author_name: Mapped[str] = mapped_column(String(120), nullable=False)
     body: Mapped[str] = mapped_column(Text, nullable=False)

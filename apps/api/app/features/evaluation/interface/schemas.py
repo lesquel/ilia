@@ -1,3 +1,4 @@
+from datetime import datetime
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -115,6 +116,7 @@ class SubmissionResponse(BaseModel):
     status: str
     prompt: str
     failure_reason: str | None
+    created_at: datetime | None
 
     @classmethod
     def from_entity(cls, submission: Submission) -> "SubmissionResponse":
@@ -125,6 +127,7 @@ class SubmissionResponse(BaseModel):
             status=submission.status.value,
             prompt=submission.prompt,
             failure_reason=submission.failure_reason,
+            created_at=submission.created_at,
         )
 
 

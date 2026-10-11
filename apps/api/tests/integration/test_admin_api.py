@@ -28,9 +28,11 @@ NATIVE = {"X-Client-Platform": "native"}
 API = "/api/v1/admin"
 
 TABLES = (
-    "audit_log, lesson_progress, enrollment, certificate, forum_post, forum_thread, "
-    "evaluation_score, evaluation, model_output, llm_usage, submission, activity, "
-    "rubric_dimension, rubric, lesson, course_module, course, app_user, cohort"
+    "audit.audit_log, learning.lesson_progress, learning.enrollment, learning.certificate, "
+    "community.forum_post, community.forum_thread, assessment.evaluation_score, "
+    "assessment.evaluation, assessment.model_output, billing.llm_usage, assessment.submission, "
+    "assessment.activity, assessment.rubric_dimension, assessment.rubric, catalog.lesson, "
+    "catalog.course_module, catalog.course, auth.app_user, learning.cohort, billing.subscription, billing.plan"
 )
 
 
@@ -81,7 +83,7 @@ def auth(token: str) -> dict[str, str]:
 
 
 def promote(email: str, role: Role) -> None:
-    sql([f"UPDATE app_user SET role = '{role.value}' WHERE email = '{email}'"])
+    sql([f"UPDATE auth.app_user SET role = '{role.value}' WHERE email = '{email}'"])
 
 
 @pytest.fixture

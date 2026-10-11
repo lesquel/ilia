@@ -35,7 +35,7 @@ pytestmark = pytest.mark.skipif(
     reason="ILIA_TEST_DATABASE_URL is not set (run `docker compose up -d` first)",
 )
 
-TABLES = f"lesson_progress, enrollment, {CATALOG_TABLES}"
+TABLES = f"learning.lesson_progress, learning.enrollment, {CATALOG_TABLES}, learning.cohort"
 
 
 @pytest.fixture
@@ -144,19 +144,19 @@ async def seed_activity_with_attempts(
         if for_other_user:
             await connection.execute(
                 text("""
-                    INSERT INTO app_user (id, email, full_name, password_hash, role, is_active)
+                    INSERT INTO auth.app_user (id, email, full_name, password_hash, role, is_active)
                     VALUES (:id, :email, 'Otra', 'argon2::fake', 'student', true)
                 """),
                 {"id": author, "email": f"{author}@colegio.edu"},
             )
 
         await connection.execute(
-            text("INSERT INTO rubric (id, version, name) VALUES (:id, 1, 'R')"),
+            text("INSERT INTO assessment.rubric (id, version, name) VALUES (:id, 1, 'R')"),
             {"id": rubric_id},
         )
         await connection.execute(
             text("""
-                INSERT INTO activity
+                INSERT INTO assessment.activity
                     (id, module_id, course_id, rubric_id, title, statement, max_attempts, checks)
                 VALUES (:id, :module_id, :course_id, :rubric_id, 'Actividad', 'Enunciado', 3, '{}')
             """),
@@ -172,7 +172,7 @@ async def seed_activity_with_attempts(
             submission_id = uuid4()
             await connection.execute(
                 text("""
-                    INSERT INTO submission
+                    INSERT INTO assessment.submission
                         (id, activity_id, user_id, prompt, attempt, status, recoveries)
                     VALUES (:id, :activity_id, :user_id, 'x', :attempt, 'scored', 0)
                 """),
@@ -185,7 +185,7 @@ async def seed_activity_with_attempts(
             )
             await connection.execute(
                 text("""
-                    INSERT INTO evaluation
+                    INSERT INTO assessment.evaluation
                         (id, submission_id, rubric_version, total, passed, model, model_version)
                     VALUES (:id, :submission_id, 1, 80, :passed, :model, '1')
                 """),
@@ -285,7 +285,7 @@ class TestProgressRepository:
         enrollment = await make_enrollment(enrollments, user_id=teacher.id, course_id=course.id)
         lesson = course.ordered_modules[0].ordered_lessons[0]
 
-        await progress.mark_completed(enrollment_id=enrollment.id, lesson_id=lesson.id)
+        await progress.mark_completed(enrollment_id=enrollment.id, course_id=course.id, lesson_id=lesson.id)
 
         assert await progress.completed_lesson_ids(enrollment.id) == {lesson.id}
 
@@ -303,8 +303,8 @@ class TestProgressRepository:
         enrollment = await make_enrollment(enrollments, user_id=teacher.id, course_id=course.id)
         lesson = course.ordered_modules[0].ordered_lessons[0]
 
-        await progress.mark_completed(enrollment_id=enrollment.id, lesson_id=lesson.id)
-        await progress.mark_completed(enrollment_id=enrollment.id, lesson_id=lesson.id)
+        await progress.mark_completed(enrollment_id=enrollment.id, course_id=course.id, lesson_id=lesson.id)
+        await progress.mark_completed(enrollment_id=enrollment.id, course_id=course.id, lesson_id=lesson.id)
 
         assert len(await progress.completed_lesson_ids(enrollment.id)) == 1
 
@@ -332,7 +332,7 @@ class TestProgressRepository:
         one = await make_enrollment(enrollments, user_id=teacher.id, course_id=first.id)
         two = await make_enrollment(enrollments, user_id=teacher.id, course_id=second.id)
         await progress.mark_completed(
-            enrollment_id=one.id, lesson_id=first.ordered_modules[0].ordered_lessons[0].id
+            enrollment_id=one.id, course_id=first.id, lesson_id=first.ordered_modules[0].ordered_lessons[0].id
         )
 
         completions = await progress.completed_by_enrollment([one.id, two.id])
@@ -362,7 +362,7 @@ class TestProgressRepository:
         ana = await make_enrollment(enrollments, user_id=teacher.id, course_id=course.id)
         luis = await make_enrollment(enrollments, user_id=other.id, course_id=course.id)
         await progress.mark_completed(
-            enrollment_id=ana.id, lesson_id=course.ordered_modules[0].ordered_lessons[0].id
+            enrollment_id=ana.id, course_id=course.id, lesson_id=course.ordered_modules[0].ordered_lessons[0].id
         )
 
         assert await progress.completed_lesson_ids(luis.id) == set()

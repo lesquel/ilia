@@ -50,7 +50,7 @@ def build_evaluation_container(
         activities: ActivityRepository = SqlAlchemyActivityRepository(database)
         submissions: SubmissionRepository = SqlAlchemySubmissionRepository(database)
         evaluations: EvaluationRepository = SqlAlchemyEvaluationRepository(database)
-        usage: object = SqlAlchemyUsageRecorder(database)
+        usage: object = SqlAlchemyUsageRecorder(database, settings)
     else:
         structlog.get_logger().warning(
             "evaluation_using_in_memory_repositories",

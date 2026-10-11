@@ -42,7 +42,7 @@ async def _reset() -> None:
     try:
         async with db.engine.begin() as connection:
             await connection.run_sync(Base.metadata.create_all)
-            await connection.execute(text("TRUNCATE audit_log, app_user CASCADE"))
+            await connection.execute(text("TRUNCATE audit.audit_log, auth.app_user CASCADE"))
     finally:
         await db.dispose()
 
@@ -53,7 +53,7 @@ async def _add_user(email: str, role: str = "student") -> None:
         async with db.engine.begin() as connection:
             await connection.execute(
                 text("""
-                    INSERT INTO app_user (id, email, full_name, password_hash, role, is_active)
+                    INSERT INTO auth.app_user (id, email, full_name, password_hash, role, is_active)
                     VALUES (:id, :email, 'Persona', 'argon2::fake', :role, true)
                 """),
                 {"id": uuid4(), "email": email, "role": role},
@@ -69,7 +69,7 @@ async def _user(email: str) -> dict[str, str] | None:
             row = (
                 await connection.execute(
                     text(
-                        "SELECT role, full_name, password_hash FROM app_user WHERE email = :email"
+                        "SELECT role, full_name, password_hash FROM auth.app_user WHERE email = :email"
                     ),
                     {"email": email},
                 )
@@ -83,7 +83,7 @@ async def _audit_reasons() -> list[str]:
     db = Database(Settings(database_url=TEST_DATABASE_URL, jwt_secret="x" * 32))
     try:
         async with db.engine.begin() as connection:
-            rows = await connection.execute(text("SELECT detail->>'reason' FROM audit_log"))
+            rows = await connection.execute(text("SELECT detail->>'reason' FROM audit.audit_log"))
             return [row[0] for row in rows.all()]
     finally:
         await db.dispose()

@@ -370,8 +370,9 @@ class SqlAlchemyEvaluationRepository:
 
 
 class SqlAlchemyUsageRecorder:
-    def __init__(self, database: Database) -> None:
+    def __init__(self, database: Database, settings) -> None:  # type: ignore[no-untyped-def]
         self._db = database
+        self._settings = settings
 
     async def record(
         self,
@@ -382,6 +383,22 @@ class SqlAlchemyUsageRecorder:
         input_tokens: int,
         output_tokens: int,
     ) -> None:
+        from decimal import Decimal
+
+        input_price = self._settings.llm_input_price_per_million
+        output_price = self._settings.llm_output_price_per_million
+        input_price_value = Decimal(str(input_price)) if input_price > 0 else None
+        output_price_value = Decimal(str(output_price)) if output_price > 0 else None
+        input_cost = (
+            Decimal(input_tokens) * input_price_value / Decimal(1_000_000)
+            if input_price_value is not None
+            else None
+        )
+        output_cost = (
+            Decimal(output_tokens) * output_price_value / Decimal(1_000_000)
+            if output_price_value is not None
+            else None
+        )
         async with self._db.session() as session:
             session.add(
                 LlmUsageModel(
@@ -391,5 +408,11 @@ class SqlAlchemyUsageRecorder:
                     model=model,
                     input_tokens=input_tokens,
                     output_tokens=output_tokens,
+                    provider=self._settings.llm_provider.strip().lower() or "local-stub",
+                    input_price_per_million=input_price_value,
+                    output_price_per_million=output_price_value,
+                    input_cost_usd=input_cost,
+                    output_cost_usd=output_cost,
+                    total_cost_usd=(input_cost + output_cost if input_cost is not None and output_cost is not None else None),
                 )
             )

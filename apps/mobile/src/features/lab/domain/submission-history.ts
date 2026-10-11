@@ -16,10 +16,9 @@ export function sortSubmissionHistory(
   items: readonly SubmissionHistoryItem[],
 ): SubmissionHistoryItem[] {
   return [...items].sort((a, b) => {
-    const courseCmp = a.courseTitle.localeCompare(b.courseTitle, 'es');
-    if (courseCmp !== 0) return courseCmp;
-    const activityCmp = a.activityTitle.localeCompare(b.activityTitle, 'es');
-    if (activityCmp !== 0) return activityCmp;
+    const aTime = a.submission.createdAt ? Date.parse(a.submission.createdAt) : 0;
+    const bTime = b.submission.createdAt ? Date.parse(b.submission.createdAt) : 0;
+    if (aTime !== bTime) return bTime - aTime;
     return b.submission.attempt - a.submission.attempt;
   });
 }

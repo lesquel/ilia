@@ -268,12 +268,14 @@ class CreateCohortRequest(BaseModel):
     name: str = Field(min_length=1, max_length=160)
     # Handed out at the talk, e.g. MANTA-SEP-01. Unique across charlas.
     code: str = Field(min_length=1, max_length=32)
+    starts_on: datetime | None = None
 
 
 class CohortResponse(BaseModel):
     id: UUID
     name: str
     code: str
+    starts_on: datetime | None = None
     created_at: datetime | None
 
     @classmethod
@@ -282,6 +284,7 @@ class CohortResponse(BaseModel):
             id=cohort.id,
             name=cohort.name,
             code=cohort.code,
+            starts_on=cohort.starts_on,
             created_at=cohort.created_at,
         )
 
@@ -299,7 +302,7 @@ async def create_cohort(
 ) -> CohortResponse:
     """Open a charla. Teachers join later with this code on enroll."""
     created = await CreateCohort(cohorts=cohorts, clock=request.app.state.auth["clock"]).execute(
-        name=payload.name, code=payload.code
+        name=payload.name, code=payload.code, starts_on=payload.starts_on
     )
     return CohortResponse.from_entity(created)
 

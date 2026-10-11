@@ -44,6 +44,7 @@ interface SubmissionDto {
   status: string;
   prompt: string;
   failure_reason: string | null;
+  created_at?: string | null;
 }
 
 interface EvaluationDto {
@@ -112,6 +113,7 @@ function toSubmission(dto: SubmissionDto): Submission {
     status: toStatus(dto.status),
     prompt: dto.prompt,
     failureReason: dto.failure_reason,
+    createdAt: dto.created_at ?? null,
   };
 }
 

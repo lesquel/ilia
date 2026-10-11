@@ -1,4 +1,5 @@
 from typing import Protocol
+from datetime import datetime
 from uuid import UUID
 
 from app.features.enrollment.domain.entities import Cohort, Enrollment, LessonContent
@@ -14,6 +15,8 @@ class EnrollmentRepository(Protocol):
 
 class ProgressRepository(Protocol):
     async def completed_lesson_ids(self, enrollment_id: UUID) -> set[UUID]: ...
+
+    async def positions_for_enrollment(self, enrollment_id: UUID) -> dict[UUID, int]: ...
 
     async def completed_by_enrollment(self, enrollment_ids: list[UUID]) -> dict[UUID, set[UUID]]:
         """Completions for several enrollments at once.
@@ -37,13 +40,17 @@ class ProgressRepository(Protocol):
         """
         ...
 
-    async def mark_completed(self, *, enrollment_id: UUID, lesson_id: UUID) -> None:
+    async def mark_completed(self, *, enrollment_id: UUID, course_id: UUID, lesson_id: UUID) -> None:
         """Idempotent: marking a lesson done twice is not an error.
 
         A flaky connection retrying the request must not be punished, and the
         teacher pressing the button again should see the same thing.
         """
         ...
+
+    async def record_position(
+        self, *, enrollment_id: UUID, course_id: UUID, lesson_id: UUID, position_seconds: int, at: datetime
+    ) -> None: ...
 
 
 class CohortRepository(Protocol):
@@ -52,6 +59,8 @@ class CohortRepository(Protocol):
     async def add(self, cohort: Cohort) -> None: ...
 
     async def list_all(self) -> list[Cohort]: ...
+
+    async def delete(self, cohort_id: UUID) -> None: ...
 
 
 class LessonContentRepository(Protocol):

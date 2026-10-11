@@ -28,16 +28,18 @@ pytestmark = pytest.mark.skipif(
 NATIVE = {"X-Client-Platform": "native"}
 
 TABLES = (
-    "subscription, audit_log, lesson_progress, enrollment, certificate, forum_post, "
-    "forum_thread, evaluation_score, evaluation, model_output, llm_usage, submission, "
-    "activity, rubric_dimension, rubric, lesson, course_module, course, app_user, "
-    "cohort, plan"
+    "billing.subscription, audit.audit_log, learning.lesson_progress, learning.enrollment, "
+    "learning.certificate, community.forum_post, community.forum_thread, "
+    "assessment.evaluation_score, assessment.evaluation, assessment.model_output, "
+    "billing.llm_usage, assessment.submission, assessment.activity, assessment.rubric_dimension, "
+    "assessment.rubric, catalog.lesson, catalog.course_module, catalog.course, auth.app_user, "
+    "learning.cohort, billing.plan"
 )
 
 # The plans under test. Numbers are [A confirmar] in production; here they are
 # fixed so the gates have something unambiguous to be checked against.
 PLANS = """
-INSERT INTO plan (id, code, name, description, monthly_evaluations, allowed_levels,
+INSERT INTO billing.plan (id, code, name, description, monthly_evaluations, allowed_levels,
                   can_issue_certificates, can_post_in_forum, price_cents, is_default)
 VALUES
  (gen_random_uuid(), 'free', 'Gratis', '', 2, '["beginner"]', false, false, 0, true),
@@ -52,7 +54,7 @@ def set_quota(code: str, evaluations: int) -> None:
     The plans are rows, so this is what an administrator would do — no deploy,
     no constant to edit.
     """
-    sql([f"UPDATE plan SET monthly_evaluations = {evaluations} WHERE code = '{code}'"])
+    sql([f"UPDATE billing.plan SET monthly_evaluations = {evaluations} WHERE code = '{code}'"])
 
 
 async def _run_sql(statements: list[str], create_schema: bool = False) -> None:
@@ -102,15 +104,15 @@ def auth(token: str) -> dict[str, str]:
 
 
 def promote(email: str, role: Role) -> None:
-    sql([f"UPDATE app_user SET role = '{role.value}' WHERE email = '{email}'"])
+    sql([f"UPDATE auth.app_user SET role = '{role.value}' WHERE email = '{email}'"])
 
 
 def subscribe(email: str, plan_code: str) -> None:
     sql(
         [
-            "INSERT INTO subscription (id, user_id, plan_code, started_at) "
+            "INSERT INTO billing.subscription (id, user_id, plan_code, started_at) "
             f"SELECT gen_random_uuid(), id, '{plan_code}', now() "
-            f"FROM app_user WHERE email = '{email}'"
+            f"FROM auth.app_user WHERE email = '{email}'"
         ]
     )
 
@@ -427,13 +429,13 @@ class TestEvaluationQuota:
 
         sql(
             [
-                "INSERT INTO rubric (id, version, name) "
+                "INSERT INTO assessment.rubric (id, version, name) "
                 "VALUES ('11111111-1111-1111-1111-111111111111', 1, 'Base')",
-                "INSERT INTO rubric_dimension "
+                "INSERT INTO assessment.rubric_dimension "
                 "(id, rubric_id, key, name, description, kind, weight) "
                 "VALUES (gen_random_uuid(), '11111111-1111-1111-1111-111111111111', "
                 "'claridad', 'Claridad', '', 'prompt', 1)",
-                "INSERT INTO activity (id, module_id, course_id, rubric_id, title, statement, "
+                "INSERT INTO assessment.activity (id, module_id, course_id, rubric_id, title, statement, "
                 "max_attempts, checks) VALUES "
                 "('22222222-2222-2222-2222-222222222222', "
                 f"'{module_id}', '{course_id}', "

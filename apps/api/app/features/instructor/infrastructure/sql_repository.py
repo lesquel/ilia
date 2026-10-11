@@ -8,6 +8,7 @@ from sqlalchemy import update as sa_update
 from sqlalchemy.orm import selectinload
 
 from app.core.database import Database
+from app.features.admin.infrastructure.models import AuditLogModel
 from app.features.auth.infrastructure.models import CohortModel, UserModel
 from app.features.catalog.domain.entities import Course, CourseStatus, LessonKind
 from app.features.catalog.infrastructure.models import (
@@ -100,6 +101,7 @@ class SqlAlchemyCourseWriter:
     async def add_lesson(
         self,
         *,
+        course_id: UUID,
         module_id: UUID,
         title: str,
         kind: LessonKind,
@@ -112,6 +114,7 @@ class SqlAlchemyCourseWriter:
             session.add(
                 LessonModel(
                     id=lesson_id,
+                    course_id=course_id,
                     module_id=module_id,
                     title=title,
                     kind=kind.value,
@@ -331,6 +334,9 @@ class SqlAlchemyScoreOverrideWriter:
             if row is None:
                 return
 
+            actor = await session.get(UserModel, instructor_id)
+            previous_total = row.override_total if row.override_total is not None else row.total
+
             # Written beside `total`, never over it. The automatic mark, the
             # human one, who changed it and why all survive — which is what
             # makes the correction defensible in the first place.
@@ -338,6 +344,13 @@ class SqlAlchemyScoreOverrideWriter:
             row.override_reason = reason
             row.override_by = instructor_id
             row.override_at = at
+            session.add(AuditLogModel(
+                id=uuid4(), actor_id=instructor_id,
+                actor_name=actor.full_name if actor else "",
+                action="score_overridden", target_type="evaluation", target_id=row.id,
+                detail={"submission_id": str(submission_id), "previous_total": previous_total,
+                        "new_total": new_total, "reason": reason}, occurred_at=at,
+            ))
 
 
 class SqlAlchemyRosterReader:

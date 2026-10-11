@@ -25,18 +25,18 @@ export function ContinueHero({ courses }: { courses: readonly EnrolledCourse[] }
   const target =
     detail && !isLoading
       ? resumeTargetForCourse(course.slug, course.instructorName, detail.modules, progress)
-      : progress.nextLesson
-        ? {
-            href: `/catalog/${course.slug}/lessons/${progress.nextLesson.lessonId}`,
-            contextLine: [
-              progress.nextLesson.moduleTitle,
-              progress.nextLesson.lessonTitle,
-              course.instructorName,
-            ]
-              .filter(Boolean)
-              .join(' · '),
-          }
-        : { href: `/catalog/${course.slug}`, contextLine: course.instructorName };
+      : {
+          href: progress.nextLesson
+            ? `/catalog/${course.slug}/lessons/${progress.nextLesson.lessonId}`
+            : `/catalog/${course.slug}`,
+          contextLine: [
+            progress.nextLesson?.moduleTitle,
+            progress.nextLesson?.lessonTitle,
+            course.instructorName,
+          ]
+            .filter(Boolean)
+            .join(' · '),
+        };
 
   return (
     <View

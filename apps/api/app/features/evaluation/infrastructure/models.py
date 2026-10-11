@@ -1,16 +1,20 @@
 """ORM mapping for activities, rubrics, submissions and evaluations."""
 
 from datetime import datetime
+from decimal import Decimal
 from uuid import UUID
 
 from sqlalchemy import (
     JSON,
     Boolean,
     DateTime,
+    ForeignKeyConstraint,
     Float,
     ForeignKey,
     Index,
     Integer,
+    CheckConstraint,
+    Numeric,
     String,
     Text,
     UniqueConstraint,
@@ -21,10 +25,12 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
+from app.core.schemas import DbSchema
 
 
 class RubricModel(Base):
     __tablename__ = "rubric"
+    __table_args__ = {"schema": DbSchema.ASSESSMENT.value}
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     # Bumped whenever an instructor edits the dimensions. A submission stores
@@ -41,11 +47,11 @@ class RubricModel(Base):
 class RubricDimensionModel(Base):
     __tablename__ = "rubric_dimension"
 
-    __table_args__ = (UniqueConstraint("rubric_id", "key", name="uq_dimension_rubric_key"),)
+    __table_args__ = (UniqueConstraint("rubric_id", "key", name="uq_dimension_rubric_key"), {"schema": DbSchema.ASSESSMENT.value})
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     rubric_id: Mapped[UUID] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("rubric.id", ondelete="CASCADE"), nullable=False, index=True
+        Uuid(as_uuid=True), ForeignKey("assessment.rubric.id", ondelete="CASCADE"), nullable=False, index=True
     )
     key: Mapped[str] = mapped_column(String(60), nullable=False)
     name: Mapped[str] = mapped_column(String(160), nullable=False)
@@ -58,19 +64,24 @@ class RubricDimensionModel(Base):
 
 class ActivityModel(Base):
     __tablename__ = "activity"
+    __table_args__ = (
+        CheckConstraint("max_attempts > 0", name="ck_activity_max_attempts_positive"),
+        ForeignKeyConstraint(["module_id", "course_id"], ["catalog.course_module.id", "catalog.course_module.course_id"], ondelete="CASCADE", name="fk_activity_module_course"),
+        Index("ix_activity_module_course", "module_id", "course_id"),
+        {"schema": DbSchema.ASSESSMENT.value},
+    )
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     module_id: Mapped[UUID] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("course_module.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
     course_id: Mapped[UUID] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("course.id", ondelete="CASCADE"), nullable=False, index=True
+        Uuid(as_uuid=True), ForeignKey("catalog.course.id", ondelete="CASCADE"), nullable=False, index=True
     )
     rubric_id: Mapped[UUID] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("rubric.id", ondelete="RESTRICT"), nullable=False
+        Uuid(as_uuid=True), ForeignKey("assessment.rubric.id", ondelete="RESTRICT"), nullable=False
     )
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     statement: Mapped[str] = mapped_column(Text, nullable=False)
@@ -90,6 +101,7 @@ class SubmissionModel(Base):
 
     __table_args__ = (
         UniqueConstraint("user_id", "activity_id", "attempt", name="uq_submission_attempt"),
+        CheckConstraint("attempt > 0", name="ck_submission_attempt_positive"),
         Index(
             "uq_submission_idempotency",
             "user_id",
@@ -107,18 +119,20 @@ class SubmissionModel(Base):
             "updated_at",
             postgresql_where=text("status IN ('pending', 'running')"),
         ),
+        Index("ix_submission_status_updated_at", "status", "updated_at"),
+        {"schema": DbSchema.ASSESSMENT.value},
     )
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     activity_id: Mapped[UUID] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("activity.id", ondelete="CASCADE"),
+        ForeignKey("assessment.activity.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
     user_id: Mapped[UUID] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("app_user.id", ondelete="CASCADE"),
+        ForeignKey("auth.app_user.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
@@ -144,15 +158,17 @@ class SubmissionModel(Base):
         server_default=func.now(),
         onupdate=func.now(),
     )
+    content_purged_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class ModelOutputModel(Base):
     __tablename__ = "model_output"
+    __table_args__ = {"schema": DbSchema.ASSESSMENT.value}
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     submission_id: Mapped[UUID] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("submission.id", ondelete="CASCADE"),
+        ForeignKey("assessment.submission.id", ondelete="CASCADE"),
         nullable=False,
         unique=True,
     )
@@ -165,11 +181,12 @@ class ModelOutputModel(Base):
 
 class EvaluationModel(Base):
     __tablename__ = "evaluation"
+    __table_args__ = {"schema": DbSchema.ASSESSMENT.value}
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     submission_id: Mapped[UUID] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("submission.id", ondelete="CASCADE"),
+        ForeignKey("assessment.submission.id", ondelete="CASCADE"),
         nullable=False,
         unique=True,
     )
@@ -195,7 +212,7 @@ class EvaluationModel(Base):
     override_total: Mapped[float | None] = mapped_column(Float, nullable=True)
     override_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     override_by: Mapped[UUID | None] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("app_user.id", ondelete="SET NULL"), nullable=True
+        Uuid(as_uuid=True), ForeignKey("auth.app_user.id", ondelete="SET NULL"), nullable=True
     )
     override_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
@@ -209,12 +226,13 @@ class EvaluationScoreModel(Base):
 
     __table_args__ = (
         UniqueConstraint("evaluation_id", "dimension_key", name="uq_score_evaluation_dimension"),
+        {"schema": DbSchema.ASSESSMENT.value},
     )
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     evaluation_id: Mapped[UUID] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("evaluation.id", ondelete="CASCADE"),
+        ForeignKey("assessment.evaluation.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
@@ -233,20 +251,27 @@ class LlmUsageModel(Base):
     """
 
     __tablename__ = "llm_usage"
+    __table_args__ = {"schema": DbSchema.BILLING.value}
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     user_id: Mapped[UUID] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("app_user.id", ondelete="SET NULL"),
+        ForeignKey("auth.app_user.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
     )
     submission_id: Mapped[UUID | None] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("submission.id", ondelete="SET NULL"), nullable=True
+        Uuid(as_uuid=True), ForeignKey("assessment.submission.id", ondelete="SET NULL"), nullable=True
     )
     model: Mapped[str] = mapped_column(String(120), nullable=False, default="")
     input_tokens: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     output_tokens: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    provider: Mapped[str] = mapped_column(String(60), nullable=False, server_default="unknown", default="unknown")
+    input_price_per_million: Mapped[Decimal | None] = mapped_column(Numeric(14, 6), nullable=True)
+    output_price_per_million: Mapped[Decimal | None] = mapped_column(Numeric(14, 6), nullable=True)
+    input_cost_usd: Mapped[Decimal | None] = mapped_column(Numeric(14, 8), nullable=True)
+    output_cost_usd: Mapped[Decimal | None] = mapped_column(Numeric(14, 8), nullable=True)
+    total_cost_usd: Mapped[Decimal | None] = mapped_column(Numeric(14, 8), nullable=True)
     occurred_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now(), index=True
     )

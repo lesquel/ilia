@@ -57,6 +57,7 @@ export interface Submission {
   status: SubmissionStatus;
   prompt: string;
   failureReason: string | null;
+  createdAt: string | null;
 }
 
 export interface DimensionScore {

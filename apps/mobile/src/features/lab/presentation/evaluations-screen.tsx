@@ -21,6 +21,16 @@ function statusLabel(status: SubmissionStatus): string {
   }
 }
 
+function submissionDate(value: string | null): string {
+  if (!value) return 'Fecha no disponible';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Fecha no disponible';
+  return new Intl.DateTimeFormat('es-EC', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(date);
+}
+
 export function EvaluationsScreen() {
   const theme = useTheme();
   const { isAuthenticated, isLoading: isCheckingSession } = useSession();
@@ -62,7 +72,7 @@ export function EvaluationsScreen() {
       renderItem={({ item }) => <HistoryRow item={item} />}
       ListHeaderComponent={
         <View style={styles.header}>
-          <Text style={[styles.title, { color: theme.colors.text }]}>Evaluaciones</Text>
+          <Text style={[styles.title, { color: theme.colors.text }]}>Historial de entregas</Text>
           <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
             Historial de entregas en tus cursos inscritos.
           </Text>
@@ -105,7 +115,7 @@ function HistoryRow({ item }: { item: SubmissionHistoryItem }) {
           Intento {item.submission.attempt}
         </Text>
         <Text style={[styles.status, { color: theme.colors.neutral[600] }]}>
-          {statusLabel(item.submission.status)}
+          {submissionDate(item.submission.createdAt)} · {statusLabel(item.submission.status)}
         </Text>
       </View>
 

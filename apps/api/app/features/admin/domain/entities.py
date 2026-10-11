@@ -86,6 +86,7 @@ class AuditAction(StrEnum):
     COURSE_UNPUBLISHED = "course_unpublished"
     PASSWORD_RESET_ISSUED = "password_reset_issued"
     PASSWORD_RESET_COMPLETED = "password_reset_completed"
+    SCORE_OVERRIDDEN = "score_overridden"
 
 
 @dataclass

@@ -37,9 +37,11 @@ pytestmark = pytest.mark.skipif(
 COURSES = "/api/v1/catalog/courses"
 
 TABLES = (
-    "lesson_progress, enrollment, certificate, forum_post, forum_thread, "
-    "evaluation_score, evaluation, model_output, llm_usage, submission, activity, "
-    "rubric_dimension, rubric, lesson, course_module, course, app_user, cohort"
+    "learning.lesson_progress, learning.enrollment, learning.certificate, community.forum_post, "
+    "community.forum_thread, assessment.evaluation_score, assessment.evaluation, "
+    "assessment.model_output, billing.llm_usage, assessment.submission, assessment.activity, "
+    "assessment.rubric_dimension, assessment.rubric, catalog.lesson, catalog.course_module, "
+    "catalog.course, auth.app_user, learning.cohort, billing.subscription, billing.plan"
 )
 
 
@@ -96,7 +98,7 @@ async def _canonical_activity_rubrics() -> list[tuple[str, str, tuple[str, ...]]
                     (
                         await session.execute(
                             text(
-                                "SELECT key FROM rubric_dimension "
+                                "SELECT key FROM assessment.rubric_dimension "
                                 "WHERE rubric_id = :id ORDER BY key"
                             ),
                             {"id": rubric_id},
@@ -116,7 +118,7 @@ async def _owner_exists() -> bool:
     try:
         async with db.session() as session:
             row = await session.execute(
-                text("SELECT 1 FROM app_user WHERE email = :email"),
+                text("SELECT 1 FROM auth.app_user WHERE email = :email"),
                 {"email": CATALOG_OWNER_EMAIL},
             )
             return row.first() is not None
@@ -146,7 +148,7 @@ def test_empty_database_then_run_then_catalog_lists_canonical_slugs(
 
 def test_canonical_labs_ignore_a_preexisting_unrelated_rubric(client: TestClient) -> None:
     sql(
-        [f"INSERT INTO rubric (id, version, name) VALUES ('{uuid4()}', 1, 'Rúbrica de otro curso')"]
+        [f"INSERT INTO assessment.rubric (id, version, name) VALUES ('{uuid4()}', 1, 'Rúbrica de otro curso')"]
     )
 
     asyncio.run(run(_settings()))

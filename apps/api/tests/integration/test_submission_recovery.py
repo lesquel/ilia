@@ -30,8 +30,8 @@ pytestmark = pytest.mark.skipif(
 
 NOW = datetime(2026, 9, 9, 12, 0, tzinfo=UTC)
 TABLES = (
-    "submission, activity, rubric_dimension, rubric, lesson, "
-    "course_module, course, app_user, cohort"
+    "assessment.submission, assessment.activity, assessment.rubric_dimension, assessment.rubric, "
+    "catalog.lesson, catalog.course_module, catalog.course, auth.app_user, learning.cohort"
 )
 
 
@@ -62,14 +62,14 @@ async def seed(database: Database, *, status: str, age_seconds: int, recoveries:
     async with database.engine.begin() as connection:
         await connection.execute(
             text("""
-                INSERT INTO app_user (id, email, full_name, password_hash, role, is_active)
+                INSERT INTO auth.app_user (id, email, full_name, password_hash, role, is_active)
                 VALUES (:uid, :email, 'Docente', 'argon2::fake', 'student', true)
             """),
             {"uid": user_id, "email": f"{user_id}@colegio.edu"},
         )
         await connection.execute(
             text("""
-                INSERT INTO submission
+                INSERT INTO assessment.submission
                     (id, activity_id, user_id, prompt, attempt, status, recoveries,
                      created_at, updated_at)
                 VALUES
@@ -93,7 +93,7 @@ async def seed(database: Database, *, status: str, age_seconds: int, recoveries:
 async def no_activity_fk(database: Database):  # type: ignore[no-untyped-def]
     async with database.engine.begin() as connection:
         await connection.execute(
-            text("ALTER TABLE submission DROP CONSTRAINT IF EXISTS submission_activity_id_fkey")
+                text("ALTER TABLE assessment.submission DROP CONSTRAINT IF EXISTS submission_activity_id_fkey")
         )
     yield
 
@@ -150,7 +150,7 @@ class TestClaiming:
 
         async with database.engine.begin() as connection:
             result = await connection.execute(
-                text("SELECT recoveries, status FROM submission WHERE id = :id"),
+                text("SELECT recoveries, status FROM assessment.submission WHERE id = :id"),
                 {"id": stranded},
             )
             recoveries, status = result.one()
@@ -186,7 +186,7 @@ class TestAttemptFairness:
         async with database.engine.begin() as connection:
             await connection.execute(
                 text("""
-                    INSERT INTO app_user (id, email, full_name, password_hash, role, is_active)
+                    INSERT INTO auth.app_user (id, email, full_name, password_hash, role, is_active)
                     VALUES (:uid, :email, 'Docente', 'argon2::fake', 'student', true)
                 """),
                 {"uid": user_id, "email": f"{user_id}@colegio.edu"},
@@ -194,7 +194,7 @@ class TestAttemptFairness:
             for attempt, status in enumerate(["scored", "failed", "failed"], start=1):
                 await connection.execute(
                     text("""
-                        INSERT INTO submission
+                        INSERT INTO assessment.submission
                             (id, activity_id, user_id, prompt, attempt, status, recoveries,
                              created_at, updated_at)
                         VALUES (:id, :aid, :uid, 'x', :att, :status, 0, :ts, :ts)

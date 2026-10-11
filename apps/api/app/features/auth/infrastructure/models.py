@@ -5,13 +5,14 @@ domain; this is how it is stored. The repository translates between the two, so
 a column rename never reaches a use case.
 """
 
-from datetime import datetime
+from datetime import date, datetime
 from uuid import UUID
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, String, Uuid, func
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Index, Integer, String, Uuid, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
+from app.core.schemas import DbSchema
 
 
 class CohortModel(Base):
@@ -25,13 +26,14 @@ class CohortModel(Base):
     """
 
     __tablename__ = "cohort"
+    __table_args__ = {"schema": DbSchema.LEARNING.value}
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     name: Mapped[str] = mapped_column(String(160), nullable=False)
     # Short code handed out at the talk, so a teacher can attach their new
     # account to the session they attended.
-    code: Mapped[str] = mapped_column(String(32), nullable=False, unique=True, index=True)
-    starts_on: Mapped[datetime | None] = mapped_column(Date(), nullable=True)
+    code: Mapped[str] = mapped_column(String(32), nullable=False, unique=True)
+    starts_on: Mapped[date | None] = mapped_column(Date(), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
@@ -39,12 +41,16 @@ class CohortModel(Base):
 
 class UserModel(Base):
     __tablename__ = "app_user"
+    __table_args__ = (
+        Index("uq_app_user_email", "email", unique=True),
+        {"schema": DbSchema.AUTH.value},
+    )
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     # Stored already normalized by the domain. The unique index is what actually
     # enforces it: two concurrent registrations both pass an existence check,
     # and only the constraint stops the second one.
-    email: Mapped[str] = mapped_column(String(320), nullable=False, unique=True, index=True)
+    email: Mapped[str] = mapped_column(String(320), nullable=False)
     full_name: Mapped[str] = mapped_column(String(120), nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[str] = mapped_column(String(20), nullable=False, default="student")
@@ -58,20 +64,14 @@ class UserModel(Base):
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
 
-    # Nullable on purpose: enrollment is open, and a teacher who signs up on
-    # their own simply has no cohort to attribute.
-    cohort_id: Mapped[UUID | None] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("cohort.id", ondelete="SET NULL"), nullable=True
-    )
-
-
 class PasswordResetTokenModel(Base):
     __tablename__ = "password_reset_token"
+    __table_args__ = {"schema": DbSchema.AUTH.value}
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     user_id: Mapped[UUID] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("app_user.id", ondelete="CASCADE"),
+        ForeignKey("auth.app_user.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )

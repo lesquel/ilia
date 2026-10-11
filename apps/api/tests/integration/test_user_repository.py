@@ -34,14 +34,14 @@ async def database():  # type: ignore[no-untyped-def]
     # a suite that stays red until someone drops the database by hand.
     async with db.engine.begin() as connection:
         await connection.run_sync(Base.metadata.create_all)
-        await connection.execute(text("TRUNCATE app_user, cohort CASCADE"))
+        await connection.execute(text("TRUNCATE auth.app_user, learning.cohort CASCADE"))
 
     yield db
 
     # Truncate rather than drop: keeps the schema Alembic built and still leaves
     # each test with an empty table.
     async with db.engine.begin() as connection:
-        await connection.execute(text("TRUNCATE app_user, cohort CASCADE"))
+        await connection.execute(text("TRUNCATE auth.app_user, learning.cohort CASCADE"))
     await db.dispose()
 
 

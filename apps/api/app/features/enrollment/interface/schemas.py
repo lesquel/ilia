@@ -45,6 +45,7 @@ class ProgressResponse(BaseModel):
     percentage: int
     is_complete: bool
     completed_lesson_ids: list[UUID]
+    resume_positions: dict[UUID, int] = Field(default_factory=dict)
     passed_activity_ids: list[UUID] = []
     # Lessons done is not "finished" while a practice is pending; `is_finished`
     # is the one the client uses to announce a finished course.
@@ -62,6 +63,7 @@ class ProgressResponse(BaseModel):
             percentage=progress.percentage,
             is_complete=progress.is_complete,
             completed_lesson_ids=sorted(progress.completed_lesson_ids, key=str),
+            resume_positions=progress.lesson_positions,
             passed_activity_ids=sorted(progress.passed_activity_ids, key=str),
             pending_activity_count=len(progress.pending_activity_ids),
             is_finished=progress.is_finished,
@@ -123,6 +125,7 @@ class LessonViewResponse(BaseModel):
     media_url: str | None = None
     media_expires_in: int | None = None
     is_completed: bool
+    resume_position_seconds: int
     position: int
     total_lessons: int
     previous: NextLessonResponse | None
@@ -141,6 +144,7 @@ class LessonViewResponse(BaseModel):
             media_url=media.url if media else None,
             media_expires_in=media.expires_in_seconds if media else None,
             is_completed=view.is_completed,
+            resume_position_seconds=view.resume_position_seconds,
             position=view.position,
             total_lessons=view.total_lessons,
             previous=NextLessonResponse.from_entity(view.previous) if view.previous else None,

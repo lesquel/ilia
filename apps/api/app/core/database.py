@@ -14,9 +14,12 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
+from sqlalchemy import event
+from sqlalchemy.schema import CreateSchema
 from sqlalchemy.orm import DeclarativeBase
 
 from app.core.config import Settings
+from app.core.schemas import DbSchema
 
 
 class Base(DeclarativeBase):
@@ -26,6 +29,15 @@ class Base(DeclarativeBase):
     would each need their own migration chain, and cross-feature foreign keys
     would stop being expressible.
     """
+
+
+@event.listens_for(Base.metadata, "before_create")
+def _create_schemas_for_metadata(connection, **_: object) -> None:  # type: ignore[no-untyped-def]
+    """Create application schemas for test/dev `metadata.create_all` runs."""
+    if connection.dialect.name != "postgresql":
+        return
+    for schema in DbSchema:
+        connection.execute(CreateSchema(schema.value, if_not_exists=True))
 
 
 class Database:

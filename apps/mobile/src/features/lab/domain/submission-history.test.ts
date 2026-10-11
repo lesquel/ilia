@@ -7,6 +7,7 @@ function item(
   courseTitle: string,
   activityTitle: string,
   attempt: number,
+  createdAt: string | null = null,
 ): SubmissionHistoryItem {
   const submission: Submission = {
     id: `${courseTitle}-${attempt}`,
@@ -15,6 +16,7 @@ function item(
     status: 'scored',
     prompt: 'p',
     failureReason: null,
+    createdAt,
   };
   return {
     submission,
@@ -26,11 +28,11 @@ function item(
 }
 
 describe('sortSubmissionHistory', () => {
-  it('orders by course, activity, then attempt descending', () => {
+  it('orders newest submissions first, then attempt descending when timestamps match', () => {
     const sorted = sortSubmissionHistory([
-      item('Beta', 'Act', 1),
-      item('Alfa', 'Z', 2),
-      item('Alfa', 'A', 3),
+      item('Beta', 'Act', 1, '2026-10-01T10:00:00Z'),
+      item('Alfa', 'Z', 2, '2026-10-03T10:00:00Z'),
+      item('Alfa', 'A', 3, '2026-10-03T10:00:00Z'),
     ]);
     expect(sorted.map((row) => row.courseTitle)).toEqual(['Alfa', 'Alfa', 'Beta']);
     expect(sorted[0]?.submission.attempt).toBe(3);
