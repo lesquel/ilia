@@ -60,5 +60,10 @@ apps/api/media/
 
 # Playwright's scratch output from browser verification runs.
 .playwright-mcp/
+/.playwright-cli/
 *.png
 !apps/mobile/assets/**/*.png
+
+# One-off audit snapshots and temporary document-generation scripts.
+/.audit-mobile-*/
+/tmp/
