@@ -21,7 +21,7 @@ Out of scope: the landing hero and the lesson reader layout (already designed), 
 
 ## Tasks
 - [x] T1. Shared surface primitives in `core/ui` and upgraded empty/loading/error states. Route: delegated.
-- [ ] T2. Student screens: my courses, delivery history, certificates, forum list and thread, plans, verify, lab layout, forgot/reset password. Route: delegated.
+- [x] T2. Student screens: my courses, delivery history, certificates, forum list and thread, plans, verify, lab layout, forgot/reset password. Route: delegated.
 - [ ] T3. Consistency fixes L1–L8. Route: delegated.
 
 ## Consistency fixes
@@ -44,5 +44,10 @@ Forecast: about 1,200 authored lines. Feature-branch chain; one work-unit commit
 ## Evidence
 - T1 (`e1bb51e`): `core/ui/surface.tsx` added (Card, SubCard, SectionHeading, ScreenHeader, Field, FieldLabel, Tag, Fact, Primary/Outline buttons and links); `EmptyState` framed with optional `glyph` and `action`, existing props unchanged; `ErrorState` keeps no frame (it replaces whole screens that leave no room around a border) and gains an icon and the shared outline retry. Observed: `npx tsc --noEmit -p .` clean; `npx eslint src/core/ui` no issues. Layout unobserved in a browser.
 
+- T2 (`8b0fb1b` my courses, `5550128` delivery history, `ce24e67` certificates and verify, `da477c5` forum, `93e03f8` plans, `51a5a59` lab, `ce49cb9` forgot/reset password): every screen now uses the T1 primitives. Observed: `npx tsc --noEmit -p .` clean; `npx eslint` over core/ui, the changed features and `src/app` no issues. Layouts unobserved in a browser: the writer cannot see one.
+  - The continue block gives the cover a width on wide screens (it had none beside the copy and collapsed).
+  - Reset password gains the same show/hide toggle as sign-in and sign-up.
+  - `ErrorState` is not framed; the result screen is untouched and the lab takes its 1080 frame.
+
 ## Next step
-T2.
+T3.
