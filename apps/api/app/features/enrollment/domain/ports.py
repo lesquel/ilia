@@ -1,5 +1,5 @@
-from typing import Protocol
 from datetime import datetime
+from typing import Protocol
 from uuid import UUID
 
 from app.features.enrollment.domain.entities import Cohort, Enrollment, LessonContent
@@ -40,7 +40,9 @@ class ProgressRepository(Protocol):
         """
         ...
 
-    async def mark_completed(self, *, enrollment_id: UUID, course_id: UUID, lesson_id: UUID) -> None:
+    async def mark_completed(
+        self, *, enrollment_id: UUID, course_id: UUID, lesson_id: UUID
+    ) -> None:
         """Idempotent: marking a lesson done twice is not an error.
 
         A flaky connection retrying the request must not be punished, and the
@@ -49,7 +51,13 @@ class ProgressRepository(Protocol):
         ...
 
     async def record_position(
-        self, *, enrollment_id: UUID, course_id: UUID, lesson_id: UUID, position_seconds: int, at: datetime
+        self,
+        *,
+        enrollment_id: UUID,
+        course_id: UUID,
+        lesson_id: UUID,
+        position_seconds: int,
+        at: datetime,
     ) -> None: ...
 
 

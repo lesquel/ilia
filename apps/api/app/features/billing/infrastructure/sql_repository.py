@@ -91,7 +91,10 @@ class SqlAlchemySubscriptionRepository:
             )
             current = await session.execute(
                 select(SubscriptionModel)
-                .where(SubscriptionModel.user_id == subscription.user_id, SubscriptionModel.ended_at.is_(None))
+                .where(
+                    SubscriptionModel.user_id == subscription.user_id,
+                    SubscriptionModel.ended_at.is_(None),
+                )
                 .with_for_update()
             )
             prior = current.scalar_one_or_none()

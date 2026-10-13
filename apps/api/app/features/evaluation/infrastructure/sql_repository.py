@@ -413,6 +413,10 @@ class SqlAlchemyUsageRecorder:
                     output_price_per_million=output_price_value,
                     input_cost_usd=input_cost,
                     output_cost_usd=output_cost,
-                    total_cost_usd=(input_cost + output_cost if input_cost is not None and output_cost is not None else None),
+                    total_cost_usd=(
+                        input_cost + output_cost
+                        if input_cost is not None and output_cost is not None
+                        else None
+                    ),
                 )
             )

@@ -52,7 +52,8 @@ class InMemoryProgressRepository:
 
     async def positions_for_enrollment(self, enrollment_id: UUID) -> dict[UUID, int]:
         return {
-            lesson_id: seconds for lesson_id, seconds in self._positions.get(enrollment_id, {}).items()
+            lesson_id: seconds
+            for lesson_id, seconds in self._positions.get(enrollment_id, {}).items()
             if lesson_id not in self._completed.get(enrollment_id, set())
         }
 
@@ -68,12 +69,22 @@ class InMemoryProgressRepository:
         # activity as passed, rather than inventing one that is.
         return set()
 
-    async def mark_completed(self, *, enrollment_id: UUID, course_id: UUID, lesson_id: UUID) -> None:
+    async def mark_completed(
+        self, *, enrollment_id: UUID, course_id: UUID, lesson_id: UUID
+    ) -> None:
         # A set makes this idempotent for free, which is the contract.
         self._completed.setdefault(enrollment_id, set()).add(lesson_id)
         self._positions.setdefault(enrollment_id, {}).pop(lesson_id, None)
 
-    async def record_position(self, *, enrollment_id: UUID, course_id: UUID, lesson_id: UUID, position_seconds: int, at: datetime) -> None:
+    async def record_position(
+        self,
+        *,
+        enrollment_id: UUID,
+        course_id: UUID,
+        lesson_id: UUID,
+        position_seconds: int,
+        at: datetime,
+    ) -> None:
         self._positions.setdefault(enrollment_id, {})[lesson_id] = max(0, position_seconds)
 
 

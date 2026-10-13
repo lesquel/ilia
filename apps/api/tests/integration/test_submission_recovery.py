@@ -93,7 +93,10 @@ async def seed(database: Database, *, status: str, age_seconds: int, recoveries:
 async def no_activity_fk(database: Database):  # type: ignore[no-untyped-def]
     async with database.engine.begin() as connection:
         await connection.execute(
-                text("ALTER TABLE assessment.submission DROP CONSTRAINT IF EXISTS submission_activity_id_fkey")
+            text(
+                "ALTER TABLE assessment.submission "
+                "DROP CONSTRAINT IF EXISTS submission_activity_id_fkey"
+            )
         )
     yield
 

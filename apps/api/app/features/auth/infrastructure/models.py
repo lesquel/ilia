@@ -26,7 +26,7 @@ class CohortModel(Base):
     """
 
     __tablename__ = "cohort"
-    __table_args__ = {"schema": DbSchema.LEARNING.value}
+    __table_args__ = ({"schema": DbSchema.LEARNING.value},)
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     name: Mapped[str] = mapped_column(String(160), nullable=False)
@@ -64,9 +64,10 @@ class UserModel(Base):
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
 
+
 class PasswordResetTokenModel(Base):
     __tablename__ = "password_reset_token"
-    __table_args__ = {"schema": DbSchema.AUTH.value}
+    __table_args__ = ({"schema": DbSchema.AUTH.value},)
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     user_id: Mapped[UUID] = mapped_column(

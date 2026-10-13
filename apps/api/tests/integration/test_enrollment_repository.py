@@ -285,7 +285,9 @@ class TestProgressRepository:
         enrollment = await make_enrollment(enrollments, user_id=teacher.id, course_id=course.id)
         lesson = course.ordered_modules[0].ordered_lessons[0]
 
-        await progress.mark_completed(enrollment_id=enrollment.id, course_id=course.id, lesson_id=lesson.id)
+        await progress.mark_completed(
+            enrollment_id=enrollment.id, course_id=course.id, lesson_id=lesson.id
+        )
 
         assert await progress.completed_lesson_ids(enrollment.id) == {lesson.id}
 
@@ -303,8 +305,12 @@ class TestProgressRepository:
         enrollment = await make_enrollment(enrollments, user_id=teacher.id, course_id=course.id)
         lesson = course.ordered_modules[0].ordered_lessons[0]
 
-        await progress.mark_completed(enrollment_id=enrollment.id, course_id=course.id, lesson_id=lesson.id)
-        await progress.mark_completed(enrollment_id=enrollment.id, course_id=course.id, lesson_id=lesson.id)
+        await progress.mark_completed(
+            enrollment_id=enrollment.id, course_id=course.id, lesson_id=lesson.id
+        )
+        await progress.mark_completed(
+            enrollment_id=enrollment.id, course_id=course.id, lesson_id=lesson.id
+        )
 
         assert len(await progress.completed_lesson_ids(enrollment.id)) == 1
 
@@ -332,7 +338,9 @@ class TestProgressRepository:
         one = await make_enrollment(enrollments, user_id=teacher.id, course_id=first.id)
         two = await make_enrollment(enrollments, user_id=teacher.id, course_id=second.id)
         await progress.mark_completed(
-            enrollment_id=one.id, course_id=first.id, lesson_id=first.ordered_modules[0].ordered_lessons[0].id
+            enrollment_id=one.id,
+            course_id=first.id,
+            lesson_id=first.ordered_modules[0].ordered_lessons[0].id,
         )
 
         completions = await progress.completed_by_enrollment([one.id, two.id])
@@ -362,7 +370,9 @@ class TestProgressRepository:
         ana = await make_enrollment(enrollments, user_id=teacher.id, course_id=course.id)
         luis = await make_enrollment(enrollments, user_id=other.id, course_id=course.id)
         await progress.mark_completed(
-            enrollment_id=ana.id, course_id=course.id, lesson_id=course.ordered_modules[0].ordered_lessons[0].id
+            enrollment_id=ana.id,
+            course_id=course.id,
+            lesson_id=course.ordered_modules[0].ordered_lessons[0].id,
         )
 
         assert await progress.completed_lesson_ids(luis.id) == set()

@@ -30,7 +30,7 @@ class PlanModel(Base):
     """
 
     __tablename__ = "plan"
-    __table_args__ = {"schema": DbSchema.BILLING.value}
+    __table_args__ = ({"schema": DbSchema.BILLING.value},)
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     code: Mapped[str] = mapped_column(String(40), nullable=False, unique=True, index=True)
@@ -60,7 +60,12 @@ class PlanModel(Base):
 class SubscriptionModel(Base):
     __tablename__ = "subscription"
     __table_args__ = (
-        Index("uq_subscription_active_user", "user_id", unique=True, postgresql_where=text("ended_at IS NULL")),
+        Index(
+            "uq_subscription_active_user",
+            "user_id",
+            unique=True,
+            postgresql_where=text("ended_at IS NULL"),
+        ),
         {"schema": DbSchema.BILLING.value},
     )
 

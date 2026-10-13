@@ -85,11 +85,17 @@ class CourseModel(Base):
 
 class ModuleModel(Base):
     __tablename__ = "course_module"
-    __table_args__ = (UniqueConstraint("id", "course_id", name="uq_course_module_id_course"), {"schema": DbSchema.CATALOG.value})
+    __table_args__ = (
+        UniqueConstraint("id", "course_id", name="uq_course_module_id_course"),
+        {"schema": DbSchema.CATALOG.value},
+    )
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     course_id: Mapped[UUID] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("catalog.course.id", ondelete="CASCADE"), nullable=False, index=True
+        Uuid(as_uuid=True),
+        ForeignKey("catalog.course.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     position: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
@@ -101,7 +107,10 @@ class ModuleModel(Base):
         back_populates="module",
         cascade="all, delete-orphan",
         order_by="LessonModel.position",
-        primaryjoin="and_(ModuleModel.id == LessonModel.module_id, ModuleModel.course_id == LessonModel.course_id)",
+        primaryjoin=(
+            "and_(ModuleModel.id == LessonModel.module_id, "
+            "ModuleModel.course_id == LessonModel.course_id)"
+        ),
     )
 
 
@@ -109,7 +118,12 @@ class LessonModel(Base):
     __tablename__ = "lesson"
     __table_args__ = (
         UniqueConstraint("id", "course_id", name="uq_lesson_id_course"),
-        ForeignKeyConstraint(["module_id", "course_id"], ["catalog.course_module.id", "catalog.course_module.course_id"], ondelete="CASCADE", name="fk_lesson_module_course"),
+        ForeignKeyConstraint(
+            ["module_id", "course_id"],
+            ["catalog.course_module.id", "catalog.course_module.course_id"],
+            ondelete="CASCADE",
+            name="fk_lesson_module_course",
+        ),
         Index("ix_lesson_module_course", "module_id", "course_id"),
         {"schema": DbSchema.CATALOG.value},
     )
@@ -141,5 +155,8 @@ class LessonModel(Base):
 
     module: Mapped[ModuleModel] = relationship(
         back_populates="lessons",
-        primaryjoin="and_(LessonModel.module_id == ModuleModel.id, LessonModel.course_id == ModuleModel.course_id)",
+        primaryjoin=(
+            "and_(LessonModel.module_id == ModuleModel.id, "
+            "LessonModel.course_id == ModuleModel.course_id)"
+        ),
     )

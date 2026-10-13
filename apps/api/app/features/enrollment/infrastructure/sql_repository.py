@@ -142,12 +142,20 @@ class SqlAlchemyProgressRepository:
             )
             return {row[0] for row in rows.all()}
 
-    async def mark_completed(self, *, enrollment_id: UUID, course_id: UUID, lesson_id: UUID) -> None:
+    async def mark_completed(
+        self, *, enrollment_id: UUID, course_id: UUID, lesson_id: UUID
+    ) -> None:
         # ON CONFLICT DO NOTHING rather than select-then-insert: idempotent in a
         # single round trip, and immune to two concurrent requests racing.
         statement = (
             pg_insert(LessonProgressModel)
-            .values(id=uuid4(), enrollment_id=enrollment_id, course_id=course_id, lesson_id=lesson_id, completed_at=func.now())
+            .values(
+                id=uuid4(),
+                enrollment_id=enrollment_id,
+                course_id=course_id,
+                lesson_id=lesson_id,
+                completed_at=func.now(),
+            )
             .on_conflict_do_update(
                 constraint="uq_progress_enrollment_lesson",
                 set_={"completed_at": func.coalesce(LessonProgressModel.completed_at, func.now())},
@@ -158,13 +166,24 @@ class SqlAlchemyProgressRepository:
             await session.execute(statement)
 
     async def record_position(
-        self, *, enrollment_id: UUID, course_id: UUID, lesson_id: UUID, position_seconds: int, at: datetime
+        self,
+        *,
+        enrollment_id: UUID,
+        course_id: UUID,
+        lesson_id: UUID,
+        position_seconds: int,
+        at: datetime,
     ) -> None:
         statement = (
             pg_insert(LessonProgressModel)
             .values(
-                id=uuid4(), enrollment_id=enrollment_id, course_id=course_id, lesson_id=lesson_id,
-                position_seconds=max(0, position_seconds), last_viewed_at=at, completed_at=None,
+                id=uuid4(),
+                enrollment_id=enrollment_id,
+                course_id=course_id,
+                lesson_id=lesson_id,
+                position_seconds=max(0, position_seconds),
+                last_viewed_at=at,
+                completed_at=None,
             )
             .on_conflict_do_update(
                 constraint="uq_progress_enrollment_lesson",
@@ -176,7 +195,9 @@ class SqlAlchemyProgressRepository:
 
 
 def _cohort_to_entity(row: CohortModel) -> Cohort:
-    return Cohort(id=row.id, name=row.name, code=row.code, starts_on=row.starts_on, created_at=row.created_at)
+    return Cohort(
+        id=row.id, name=row.name, code=row.code, starts_on=row.starts_on, created_at=row.created_at
+    )
 
 
 class SqlAlchemyCohortRepository:

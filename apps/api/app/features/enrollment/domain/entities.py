@@ -68,14 +68,27 @@ class Cohort:
     created_at: datetime | None = None
 
     @classmethod
-    def create(cls, *, name: str, code: str, starts_on: date | None = None, created_at: datetime | None = None) -> "Cohort":
+    def create(
+        cls,
+        *,
+        name: str,
+        code: str,
+        starts_on: date | None = None,
+        created_at: datetime | None = None,
+    ) -> "Cohort":
         cleaned_name = name.strip()
         cleaned_code = code.strip().upper()
         if not cleaned_name:
             raise ValueError("Cohort name cannot be empty")
         if not cleaned_code:
             raise ValueError("Cohort code cannot be empty")
-        return cls(id=uuid4(), name=cleaned_name, code=cleaned_code, starts_on=starts_on, created_at=created_at)
+        return cls(
+            id=uuid4(),
+            name=cleaned_name,
+            code=cleaned_code,
+            starts_on=starts_on,
+            created_at=created_at,
+        )
 
 
 @dataclass
