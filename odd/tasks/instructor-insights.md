@@ -25,7 +25,7 @@ Out of scope: exporting data, per-student drill-down beyond the existing roster,
 ## Tasks
 - [x] T1. Backend: `GET /api/v1/instructor/courses/{course_id}/insights`. Route: delegated.
 - [x] T2. Frontend: insights on the roster screen (stat tiles, completion-by-lesson chart, enrolments over time, recent forum threads). Route: delegated.
-- [ ] T3. Frontend: polish the instructor courses list and the course editor. Route: delegated.
+- [x] T3. Frontend: polish the instructor courses list and the course editor. Route: delegated.
 
 ## Acceptance
 - The endpoint returns, for an owned course: enrolled count, finished count, in-progress count, not-started count, completion rate, per-lesson completed counts in syllabus order, per-activity passed counts, and enrolments per day.
@@ -52,6 +52,12 @@ Forecast: about 900 authored lines (backend ~250, insights UI ~350, polish ~300)
   - Left out: the enrolled count on the courses-list cards — `GET /instructor/courses` does not return it, and a call per card was ruled out.
   - Decisions: the enrolments chart shows the latest 14 days that have enrolments and says so when it cuts; with one day it is a sentence; day labels are read from the ISO text so the device timezone cannot shift them; the roster moved from `FlatList` to rows inside a card (no virtualisation).
   - Size: 968 added lines, about 150 of them tests; the screen is one file with five small components and its styles.
+- T3 — commit `8ec242a`. No test-first: framing only, with no new pure logic to drive from a test. `npx tsc --noEmit -p .`: no errors. `npx eslint src/features/instructor src/features/forum src/app/instructor`: no findings. `npx vitest run src/features/instructor/domain/entities.test.ts`: 20 passed.
+  - Not observed: the layout in a browser.
+  - Found already in place, so not changed: the new-course form and the add-lesson form were already collapsed behind their buttons (the brief described them as always open). They are now framed; the new-module form stays always open, in its own card.
+  - One addition beyond framing: the lesson form has a "Cancelar" that only closes it (it had no way to close before). The typed text is kept, as the course form's cancel does.
+  - Shared pieces live in `apps/mobile/src/features/instructor/presentation/ui.tsx` (card, sub-card, field, status tag, fact, outline button/link); the review screen's two inputs use the shared field too.
+  - Known limit: `neutral[600]`/`[700]` are not flipped for the dark theme in `core/theme/tokens.ts`, so muted prose (here and across the product) sits under AA on the dark surface. Data labels on the roster screen use `neutral[800]`, which is flipped. The tokens are outside this feature's surface.
 
 ## Next step
-T3.
+Look at the three screens in a browser (roster with real enrolments, courses list, editor) on both themes and at phone width; then decide on the `before_create` listener fix in `apps/api/app/core/database.py` so the integration suite runs without a shim.
