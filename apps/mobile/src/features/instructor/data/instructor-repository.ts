@@ -7,6 +7,7 @@ import {
 import type { Course, Level } from '@/features/catalog/domain/entities';
 import type {
   AuthoredCourse,
+  CourseInsights,
   CourseStatus,
   ReviewItem,
   RosterEntry,
@@ -70,6 +71,7 @@ export interface InstructorRepository {
   inbox(courseId?: string, offset?: number): Promise<Page<ReviewItem>>;
   override(submissionId: string, total: number, reason: string): Promise<void>;
   roster(courseId: string): Promise<RosterEntry[]>;
+  insights(courseId: string): Promise<CourseInsights>;
   detail(courseId: string): Promise<Course>;
   addActivity(courseId: string, moduleId: string, input: ActivityInput): Promise<string>;
   prepareMedia(courseId: string, lessonId: string, contentType: string): Promise<MediaUpload>;
@@ -225,6 +227,49 @@ export class HttpInstructorRepository implements InstructorRepository {
       percentage: row.percentage,
       lastActivityAt: row.last_activity_at,
     }));
+  }
+
+  async insights(courseId: string): Promise<CourseInsights> {
+    const dto = await this.http.get<{
+      enrolled: number;
+      finished: number;
+      in_progress: number;
+      not_started: number;
+      completion_rate: number;
+      lessons: { lesson_id: string; title: string; module_title: string; completed: number }[];
+      activities: {
+        activity_id: string;
+        title: string;
+        module_title: string;
+        attempted: number;
+        passed: number;
+      }[];
+      enrollments_by_day: { day: string; count: number }[];
+      last_activity_at: string | null;
+    }>(`/instructor/courses/${encodeURIComponent(courseId)}/insights`);
+
+    return {
+      enrolled: dto.enrolled,
+      finished: dto.finished,
+      inProgress: dto.in_progress,
+      notStarted: dto.not_started,
+      completionRate: dto.completion_rate,
+      lessons: dto.lessons.map((row) => ({
+        lessonId: row.lesson_id,
+        title: row.title,
+        moduleTitle: row.module_title,
+        completed: row.completed,
+      })),
+      activities: dto.activities.map((row) => ({
+        activityId: row.activity_id,
+        title: row.title,
+        moduleTitle: row.module_title,
+        attempted: row.attempted,
+        passed: row.passed,
+      })),
+      enrollmentsByDay: dto.enrollments_by_day,
+      lastActivityAt: dto.last_activity_at,
+    };
   }
 
   async prepareMedia(

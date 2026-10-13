@@ -5,7 +5,7 @@ this instructor owns *this* course is decided in the application layer, because
 it needs the course to answer.
 """
 
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from typing import Annotated
 from uuid import UUID
 
@@ -32,12 +32,15 @@ from app.features.instructor.application.use_cases import (
     PrepareLessonMedia,
     PublishCourse,
     ReadAuthoredCourse,
+    ReadCourseInsights,
     UnpublishCourse,
     UpdateCourse,
 )
 from app.features.instructor.domain.authoring import check_publish_readiness
+from app.features.instructor.domain.insights import CourseInsights
 from app.features.instructor.domain.ports import RosterEntry, SubmissionForReview
 from app.features.instructor.interface.dependencies import (
+    InsightsDep,
     OverridesDep,
     ReviewsDep,
     RosterDep,
@@ -377,6 +380,87 @@ async def roster(
         user=user, course_id=course_id
     )
     return [RosterEntryResponse.from_entity(entry) for entry in entries]
+
+
+class LessonInsightResponse(BaseModel):
+    lesson_id: UUID
+    title: str
+    module_title: str
+    completed: int
+
+
+class ActivityInsightResponse(BaseModel):
+    activity_id: UUID
+    title: str
+    module_title: str
+    attempted: int
+    passed: int
+
+
+class DayCountResponse(BaseModel):
+    day: date
+    count: int
+
+
+class CourseInsightsResponse(BaseModel):
+    enrolled: int
+    finished: int
+    in_progress: int
+    not_started: int
+    completion_rate: int
+    lessons: list[LessonInsightResponse]
+    activities: list[ActivityInsightResponse]
+    enrollments_by_day: list[DayCountResponse]
+    last_activity_at: datetime | None
+
+    @classmethod
+    def from_entity(cls, insights: CourseInsights) -> "CourseInsightsResponse":
+        return cls(
+            enrolled=insights.enrolled,
+            finished=insights.finished,
+            in_progress=insights.in_progress,
+            not_started=insights.not_started,
+            completion_rate=insights.completion_rate,
+            lessons=[
+                LessonInsightResponse(
+                    lesson_id=item.lesson_id,
+                    title=item.title,
+                    module_title=item.module_title,
+                    completed=item.completed,
+                )
+                for item in insights.lessons
+            ],
+            activities=[
+                ActivityInsightResponse(
+                    activity_id=item.activity_id,
+                    title=item.title,
+                    module_title=item.module_title,
+                    attempted=item.attempted,
+                    passed=item.passed,
+                )
+                for item in insights.activities
+            ],
+            enrollments_by_day=[
+                DayCountResponse(day=item.day, count=item.count)
+                for item in insights.enrollments_by_day
+            ],
+            last_activity_at=insights.last_activity_at,
+        )
+
+
+@router.get("/courses/{course_id}/insights", response_model=CourseInsightsResponse)
+async def insights(
+    course_id: UUID, user: Instructor, courses: CoursesDep, insights_reader: InsightsDep
+) -> CourseInsightsResponse:
+    """How the course is going: who enrolled, who finished, where people stop.
+
+    Totals only. The names behind them are the roster's job, and "finished"
+    here is the same rule the enrolled teacher sees on their own syllabus.
+    """
+    result = await ReadCourseInsights(courses=courses, insights=insights_reader).execute(
+        user=user, course_id=course_id
+    )
+    return CourseInsightsResponse.from_entity(result)
 
 
 class MediaUploadRequest(BaseModel):

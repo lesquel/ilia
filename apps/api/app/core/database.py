@@ -32,7 +32,7 @@ class Base(DeclarativeBase):
 
 
 @event.listens_for(Base.metadata, "before_create")
-def _create_schemas_for_metadata(connection, **_: object) -> None:  # type: ignore[no-untyped-def]
+def _create_schemas_for_metadata(_target, connection, **_: object) -> None:  # type: ignore[no-untyped-def]
     """Create application schemas for test/dev `metadata.create_all` runs."""
     if connection.dialect.name != "postgresql":
         return

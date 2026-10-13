@@ -10,6 +10,7 @@ import os
 import time
 from collections.abc import Iterator
 from typing import ClassVar
+from uuid import uuid4
 
 import pytest
 from fastapi.testclient import TestClient
@@ -421,6 +422,188 @@ class TestRoster:
 
         assert (
             client.get(f"{API}/courses/{course['id']}/roster", headers=auth(other)).status_code
+            == 403
+        )
+
+
+class TestInsights:
+    """The numbers a course's author sees about it."""
+
+    @staticmethod
+    def published_course(client: TestClient, token: str) -> tuple[dict, str, str]:  # type: ignore[type-arg]
+        """A live course with one lesson and one practice."""
+        course = TestPublishing.build_complete_course(client, token)
+        detail = client.get(f"{API}/courses/{course['id']}/detail", headers=auth(token)).json()
+        module_id = detail["modules"][0]["id"]
+        lesson_id = detail["modules"][0]["lessons"][0]["id"]
+        activity_id = client.post(
+            f"{API}/courses/{course['id']}/modules/{module_id}/activities",
+            json=TestAuthoringActivities.ACTIVITY,
+            headers=auth(token),
+        ).json()["id"]
+        client.post(f"{API}/courses/{course['id']}/publish", headers=auth(token))
+        return course, lesson_id, activity_id
+
+    @staticmethod
+    def enroll(client: TestClient, email: str, name: str) -> str:
+        token = register(client, email, name)
+        client.post("/api/v1/enrollments", json={"course_slug": DRAFT["slug"]}, headers=auth(token))
+        return token
+
+    @staticmethod
+    def complete(client: TestClient, token: str, lesson_id: str) -> None:
+        client.post(
+            f"/api/v1/enrollments/me/{DRAFT['slug']}/lessons/{lesson_id}/complete",
+            headers=auth(token),
+        )
+
+    @staticmethod
+    def submit(email: str, activity_id: str, *, passed: bool, model: str = "gpt-test") -> None:
+        """A scored attempt, written directly.
+
+        Going through the lab would score it with the local stub, and a stub
+        pass deliberately does not count — which is one of the things under test.
+        """
+        submission_id = uuid4()
+        sql(
+            [
+                f"""
+                INSERT INTO assessment.submission
+                    (id, activity_id, user_id, prompt, attempt, status, recoveries)
+                SELECT '{submission_id}', '{activity_id}', id, 'x', 1, 'scored', 0
+                FROM auth.app_user WHERE email = '{email}'
+                """,
+                f"""
+                INSERT INTO assessment.evaluation
+                    (id, submission_id, rubric_version, total, passed, model, model_version)
+                VALUES
+                    ('{uuid4()}', '{submission_id}', 1, 80, {str(passed).lower()}, '{model}', '1')
+                """,
+            ]
+        )
+
+    def read(self, client: TestClient, token: str, course_id: str) -> dict:  # type: ignore[type-arg]
+        response = client.get(f"{API}/courses/{course_id}/insights", headers=auth(token))
+        assert response.status_code == 200
+        return response.json()  # type: ignore[no-any-return]
+
+    def test_a_course_nobody_enrolled_in_reports_zeros(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        course, lesson_id, activity_id = self.published_course(client, instructor)
+
+        insights = self.read(client, instructor, course["id"])
+
+        assert insights["enrolled"] == 0
+        assert insights["finished"] == 0
+        assert insights["in_progress"] == 0
+        assert insights["not_started"] == 0
+        assert insights["completion_rate"] == 0
+        assert insights["lessons"] == [
+            {
+                "lesson_id": lesson_id,
+                "title": "Anatomía de un prompt",
+                "module_title": "Qué es un prompt",
+                "completed": 0,
+            }
+        ]
+        assert insights["activities"] == [
+            {
+                "activity_id": activity_id,
+                "title": "Escribe tu primer prompt",
+                "module_title": "Qué es un prompt",
+                "attempted": 0,
+                "passed": 0,
+            }
+        ]
+        assert insights["enrollments_by_day"] == []
+        assert insights["last_activity_at"] is None
+
+    def test_it_counts_who_finished_who_is_midway_and_who_never_started(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        course, lesson_id, activity_id = self.published_course(client, instructor)
+
+        ana = self.enroll(client, "ana@colegio.edu", "Ana Pérez")
+        self.complete(client, ana, lesson_id)
+        self.submit("ana@colegio.edu", activity_id, passed=True)
+
+        # Lessons done, practice tried and not passed: midway, not finished.
+        luis = self.enroll(client, "luis@colegio.edu", "Luis Mera")
+        self.complete(client, luis, lesson_id)
+        self.submit("luis@colegio.edu", activity_id, passed=False)
+
+        self.enroll(client, "rosa@colegio.edu", "Rosa Vera")
+
+        insights = self.read(client, instructor, course["id"])
+
+        assert insights["enrolled"] == 3
+        assert insights["finished"] == 1
+        assert insights["in_progress"] == 1
+        assert insights["not_started"] == 1
+        assert insights["completion_rate"] == 33
+        assert insights["lessons"][0]["completed"] == 2
+        assert insights["activities"][0]["attempted"] == 2
+        assert insights["activities"][0]["passed"] == 1
+        assert insights["last_activity_at"] is not None
+
+        days = insights["enrollments_by_day"]
+        assert sum(day["count"] for day in days) == 3
+        assert [day["day"] for day in days] == sorted(day["day"] for day in days)
+
+    def test_a_pass_from_the_local_stub_does_not_finish_the_course(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        from app.features.evaluation.infrastructure.local_provider import MODEL_NAME
+
+        course, lesson_id, activity_id = self.published_course(client, instructor)
+        ana = self.enroll(client, "ana@colegio.edu", "Ana Pérez")
+        self.complete(client, ana, lesson_id)
+        self.submit("ana@colegio.edu", activity_id, passed=True, model=MODEL_NAME)
+
+        insights = self.read(client, instructor, course["id"])
+
+        assert insights["finished"] == 0
+        assert insights["in_progress"] == 1
+        assert insights["activities"][0] == {
+            "activity_id": activity_id,
+            "title": "Escribe tu primer prompt",
+            "module_title": "Qué es un prompt",
+            "attempted": 1,
+            "passed": 0,
+        }
+
+    def test_someone_who_tried_the_practice_without_enrolling_is_not_counted(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        course, _, activity_id = self.published_course(client, instructor)
+        self.submit("eduardo@manta.gob.ec", activity_id, passed=True)
+
+        insights = self.read(client, instructor, course["id"])
+
+        assert insights["enrolled"] == 0
+        assert insights["activities"][0]["attempted"] == 0
+        assert insights["activities"][0]["passed"] == 0
+
+    def test_another_instructor_gets_the_same_refusal_as_the_roster(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        course = client.post(f"{API}/courses", json=DRAFT, headers=auth(instructor)).json()
+        other = register(client, "otro@instituto.edu", "Otro Instructor")
+        promote("otro@instituto.edu", Role.INSTRUCTOR)
+
+        refused = client.get(f"{API}/courses/{course['id']}/insights", headers=auth(other))
+        roster = client.get(f"{API}/courses/{course['id']}/roster", headers=auth(other))
+
+        assert refused.status_code == roster.status_code == 403
+        assert refused.json()["error"]["code"] == roster.json()["error"]["code"]
+
+    def test_a_student_cannot_read_them(self, client: TestClient, instructor: str) -> None:
+        course = client.post(f"{API}/courses", json=DRAFT, headers=auth(instructor)).json()
+        student = register(client, "ana@colegio.edu", "Ana Pérez")
+
+        assert (
+            client.get(f"{API}/courses/{course['id']}/insights", headers=auth(student)).status_code
             == 403
         )
 

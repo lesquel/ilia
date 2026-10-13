@@ -21,6 +21,7 @@ from app.features.enrollment.infrastructure.models import (
     EnrollmentModel,
     LessonProgressModel,
 )
+from app.features.evaluation.domain.real_pass import counts_as_real_pass
 from app.features.evaluation.infrastructure.models import (
     ActivityModel,
     EvaluationModel,
@@ -28,6 +29,7 @@ from app.features.evaluation.infrastructure.models import (
     RubricModel,
     SubmissionModel,
 )
+from app.features.instructor.domain.insights import LearnerRecord
 from app.features.instructor.domain.ports import (
     CourseDraft,
     RosterEntry,
@@ -344,13 +346,23 @@ class SqlAlchemyScoreOverrideWriter:
             row.override_reason = reason
             row.override_by = instructor_id
             row.override_at = at
-            session.add(AuditLogModel(
-                id=uuid4(), actor_id=instructor_id,
-                actor_name=actor.full_name if actor else "",
-                action="score_overridden", target_type="evaluation", target_id=row.id,
-                detail={"submission_id": str(submission_id), "previous_total": previous_total,
-                        "new_total": new_total, "reason": reason}, occurred_at=at,
-            ))
+            session.add(
+                AuditLogModel(
+                    id=uuid4(),
+                    actor_id=instructor_id,
+                    actor_name=actor.full_name if actor else "",
+                    action="score_overridden",
+                    target_type="evaluation",
+                    target_id=row.id,
+                    detail={
+                        "submission_id": str(submission_id),
+                        "previous_total": previous_total,
+                        "new_total": new_total,
+                        "reason": reason,
+                    },
+                    occurred_at=at,
+                )
+            )
 
 
 class SqlAlchemyRosterReader:
@@ -411,3 +423,91 @@ class SqlAlchemyRosterReader:
             )
             for row in rows
         ]
+
+
+class SqlAlchemyInsightsReader:
+    def __init__(self, database: Database) -> None:
+        self._db = database
+
+    async def learners(self, course_id: UUID) -> list[LearnerRecord]:
+        enrollments = select(
+            EnrollmentModel.id, EnrollmentModel.user_id, EnrollmentModel.enrolled_at
+        ).where(EnrollmentModel.course_id == course_id)
+
+        progress = select(
+            LessonProgressModel.enrollment_id,
+            LessonProgressModel.lesson_id,
+            LessonProgressModel.completed_at,
+            LessonProgressModel.last_viewed_at,
+        ).where(LessonProgressModel.course_id == course_id)
+
+        # Outer join: a submission still being scored has no evaluation yet,
+        # and it is an attempt all the same.
+        submissions = (
+            select(
+                SubmissionModel.user_id,
+                SubmissionModel.activity_id,
+                SubmissionModel.created_at,
+                EvaluationModel.passed,
+                EvaluationModel.model,
+            )
+            .join(ActivityModel, ActivityModel.id == SubmissionModel.activity_id)
+            .outerjoin(EvaluationModel, EvaluationModel.submission_id == SubmissionModel.id)
+            .where(
+                ActivityModel.course_id == course_id,
+                # Authors and admins can try an activity without enrolling;
+                # they are not part of the course's numbers.
+                SubmissionModel.user_id.in_(
+                    select(EnrollmentModel.user_id).where(EnrollmentModel.course_id == course_id)
+                ),
+            )
+        )
+
+        # Three flat queries whatever the size of the course, rather than one
+        # per enrolled person.
+        async with self._db.session() as session:
+            enrollment_rows = (await session.execute(enrollments)).all()
+            progress_rows = (await session.execute(progress)).all()
+            submission_rows = (await session.execute(submissions)).all()
+
+        completed: dict[UUID, set[UUID]] = {}
+        attempted: dict[UUID, set[UUID]] = {}
+        passed: dict[UUID, set[UUID]] = {}
+        last_seen: dict[UUID, datetime] = {}
+
+        def seen(key: UUID, moment: datetime | None) -> None:
+            if moment is not None and (key not in last_seen or moment > last_seen[key]):
+                last_seen[key] = moment
+
+        for enrollment_id, lesson_id, completed_at, last_viewed_at in progress_rows:
+            # A row without `completed_at` is a saved playback position, not a
+            # finished lesson.
+            if completed_at is not None:
+                completed.setdefault(enrollment_id, set()).add(lesson_id)
+            seen(enrollment_id, completed_at)
+            seen(enrollment_id, last_viewed_at)
+
+        for user_id, activity_id, created_at, was_passed, model in submission_rows:
+            attempted.setdefault(user_id, set()).add(activity_id)
+            if counts_as_real_pass(passed=bool(was_passed), model=model or ""):
+                passed.setdefault(user_id, set()).add(activity_id)
+            seen(user_id, created_at)
+
+        records: list[LearnerRecord] = []
+        for enrollment_id, user_id, enrolled_at in enrollment_rows:
+            moments = [
+                moment
+                for moment in (last_seen.get(enrollment_id), last_seen.get(user_id))
+                if moment is not None
+            ]
+            records.append(
+                LearnerRecord(
+                    enrolled_at=enrolled_at,
+                    completed_lesson_ids=frozenset(completed.get(enrollment_id, set())),
+                    attempted_activity_ids=frozenset(attempted.get(user_id, set())),
+                    passed_activity_ids=frozenset(passed.get(user_id, set())),
+                    last_activity_at=max(moments) if moments else None,
+                )
+            )
+
+        return records

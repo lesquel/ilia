@@ -11,6 +11,7 @@ from typing import Protocol
 from uuid import UUID
 
 from app.features.catalog.domain.entities import Course, CourseStatus, LessonKind, Level
+from app.features.instructor.domain.insights import LearnerRecord
 
 
 @dataclass(frozen=True)
@@ -156,3 +157,13 @@ class RosterEntry:
 
 class RosterReader(Protocol):
     async def roster(self, course_id: UUID) -> list[RosterEntry]: ...
+
+
+class InsightsReader(Protocol):
+    async def learners(self, course_id: UUID) -> list[LearnerRecord]:
+        """What each enrolled person has done, one record per enrolment.
+
+        Raw facts, not totals: deciding who has finished belongs to the domain,
+        which already has the rule the teacher sees.
+        """
+        ...
