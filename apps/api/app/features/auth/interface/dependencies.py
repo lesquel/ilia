@@ -21,6 +21,7 @@ from app.features.auth.application.use_cases import (
     RefreshSession,
     RegisterUser,
     RequestPasswordReset,
+    UpdateProfile,
 )
 from app.features.auth.domain.entities import Role, User
 from app.features.auth.domain.errors import InvalidTokenError
@@ -123,6 +124,10 @@ def get_refresh_session(users: UsersDep, tokens: TokensDep) -> RefreshSession:
 
 def get_change_password(users: UsersDep, hasher: HasherDep) -> ChangePassword:
     return ChangePassword(users=users, hasher=hasher)
+
+
+def get_update_profile(users: UsersDep) -> UpdateProfile:
+    return UpdateProfile(users=users)
 
 
 def get_password_reset_repository(request: Request) -> PasswordResetTokenRepository:

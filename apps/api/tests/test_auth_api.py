@@ -7,7 +7,7 @@ and must never hand a browser something the page can read.
 
 from fastapi.testclient import TestClient
 
-from app.features.auth.domain.entities import Email, Role
+from app.features.auth.domain.entities import FULL_NAME_MAX_LENGTH, Email, Role
 from app.features.auth.infrastructure.memory_repository import InMemoryUserRepository
 
 WEB = {"X-Client-Platform": "web"}
@@ -218,6 +218,69 @@ class TestProtectedRoute:
         )
 
         assert response.status_code == 401
+
+
+class TestUpdateProfile:
+    def test_a_session_is_required(self, client: TestClient) -> None:
+        response = client.patch("/api/v1/auth/me", json={"full_name": "Otro nombre"}, headers=WEB)
+
+        assert response.status_code == 401
+        assert response.json()["error"]["code"] == "invalid_token"
+
+    def test_the_new_name_is_returned_and_then_read_back(self, client: TestClient) -> None:
+        register(client, WEB)
+
+        response = client.patch(
+            "/api/v1/auth/me", json={"full_name": "  Ana María Pérez  "}, headers=WEB
+        )
+
+        assert response.status_code == 200
+        assert response.json()["full_name"] == "Ana María Pérez"
+        assert client.get("/api/v1/auth/me").json()["full_name"] == "Ana María Pérez"
+
+    def test_an_empty_name_is_rejected_and_nothing_changes(self, client: TestClient) -> None:
+        register(client, WEB)
+
+        response = client.patch("/api/v1/auth/me", json={"full_name": ""}, headers=WEB)
+
+        assert response.status_code == 422
+        assert response.json()["error"]["code"] == "schema_error"
+        assert client.get("/api/v1/auth/me").json()["full_name"] == ACCOUNT["full_name"]
+
+    def test_a_blank_name_is_rejected_and_nothing_changes(self, client: TestClient) -> None:
+        # Passes the schema's length floor, so the domain has to be the one to
+        # refuse it.
+        register(client, WEB)
+
+        response = client.patch("/api/v1/auth/me", json={"full_name": "   "}, headers=WEB)
+
+        assert response.status_code == 422
+        assert response.json()["error"]["code"] == "invalid_full_name"
+        assert client.get("/api/v1/auth/me").json()["full_name"] == ACCOUNT["full_name"]
+
+    def test_an_over_long_name_is_rejected_at_the_same_length_as_register(
+        self, client: TestClient
+    ) -> None:
+        too_long = "a" * (FULL_NAME_MAX_LENGTH + 1)
+        assert register(client, WEB, full_name=too_long).status_code == 422
+        register(client, WEB)
+
+        response = client.patch("/api/v1/auth/me", json={"full_name": too_long}, headers=WEB)
+
+        assert response.status_code == 422
+        assert client.get("/api/v1/auth/me").json()["full_name"] == ACCOUNT["full_name"]
+
+    def test_the_email_cannot_be_changed_through_it(self, client: TestClient) -> None:
+        register(client, WEB)
+
+        response = client.patch(
+            "/api/v1/auth/me",
+            json={"full_name": "Ana María Pérez", "email": "otra@colegio.edu"},
+            headers=WEB,
+        )
+
+        assert response.status_code == 200
+        assert response.json()["email"] == ACCOUNT["email"]
 
 
 class TestChangePassword:

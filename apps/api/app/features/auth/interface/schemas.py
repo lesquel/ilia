@@ -4,15 +4,20 @@ from uuid import UUID
 from pydantic import BaseModel, EmailStr, Field
 
 from app.features.auth.application.use_cases import Session
-from app.features.auth.domain.entities import User
+from app.features.auth.domain.entities import FULL_NAME_MAX_LENGTH, User
 
 
 class RegisterRequest(BaseModel):
     email: EmailStr
-    full_name: str = Field(min_length=1, max_length=120)
+    full_name: str = Field(min_length=1, max_length=FULL_NAME_MAX_LENGTH)
     # 8 is a floor, not a policy. Length beats composition rules, which mostly
     # teach people to write "Password1!" and reuse it everywhere.
     password: str = Field(min_length=8, max_length=128)
+
+
+class UpdateProfileRequest(BaseModel):
+    # The name and nothing else. An `email` sent here is ignored, not applied.
+    full_name: str = Field(min_length=1, max_length=FULL_NAME_MAX_LENGTH)
 
 
 class ChangePasswordRequest(BaseModel):

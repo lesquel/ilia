@@ -16,6 +16,7 @@ from app.features.auth.domain.errors import (
     EmailAlreadyRegisteredError,
     InactiveAccountError,
     InvalidCredentialsError,
+    InvalidFullNameError,
     InvalidTokenError,
     SamePasswordError,
 )
@@ -175,6 +176,32 @@ class ChangePassword:
             raise SamePasswordError()
 
         user.change_password(self._hasher.hash(new_password))
+        await self._users.update(user)
+
+        return user
+
+
+class UpdateProfile:
+    """Correct your own name.
+
+    Only the name. The email is the login identifier, and changing it needs
+    proof that the new address belongs to the person asking; there is no mail
+    provider to ask yet.
+    """
+
+    def __init__(self, *, users: UserRepository) -> None:
+        self._users = users
+
+    async def execute(self, *, user_id: UUID, full_name: str) -> User:
+        user = await self._users.get_by_id(user_id)
+        if user is None:
+            raise InvalidTokenError()
+
+        try:
+            user.rename(full_name)
+        except ValueError as exc:
+            raise InvalidFullNameError() from exc
+
         await self._users.update(user)
 
         return user

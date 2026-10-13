@@ -4,12 +4,14 @@ from app.features.auth.application.use_cases import (
     AuthenticateUser,
     RefreshSession,
     RegisterUser,
+    UpdateProfile,
 )
-from app.features.auth.domain.entities import Email, Role, User
+from app.features.auth.domain.entities import FULL_NAME_MAX_LENGTH, Email, Role, User
 from app.features.auth.domain.errors import (
     EmailAlreadyRegisteredError,
     InactiveAccountError,
     InvalidCredentialsError,
+    InvalidFullNameError,
     InvalidTokenError,
 )
 from app.features.auth.infrastructure.memory_repository import InMemoryUserRepository
@@ -193,3 +195,74 @@ class TestRefreshSession:
             await RefreshSession(users=users, tokens=tokens).execute(
                 refresh_token=session.tokens.refresh_token
             )
+
+
+class TestUpdateProfile:
+    async def test_stores_the_trimmed_name(
+        self, register: RegisterUser, users: InMemoryUserRepository
+    ) -> None:
+        session = await register.execute(
+            email="docente@colegio.edu", full_name="Ana", password="una-clave-larga"
+        )
+
+        updated = await UpdateProfile(users=users).execute(
+            user_id=session.user.id, full_name="  Ana Pérez  "
+        )
+
+        assert updated.full_name == "Ana Pérez"
+        stored = await users.get_by_id(session.user.id)
+        assert stored is not None
+        assert stored.full_name == "Ana Pérez"
+
+    async def test_leaves_every_session_open(
+        self, register: RegisterUser, users: InMemoryUserRepository
+    ) -> None:
+        # A name is not a credential. Bumping the generation here would sign a
+        # teacher out of their phone for fixing a typo.
+        session = await register.execute(
+            email="docente@colegio.edu", full_name="Ana", password="una-clave-larga"
+        )
+
+        updated = await UpdateProfile(users=users).execute(
+            user_id=session.user.id, full_name="Ana Pérez"
+        )
+
+        assert updated.token_generation == 0
+
+    @pytest.mark.parametrize("full_name", ["", "   ", "a" * (FULL_NAME_MAX_LENGTH + 1)])
+    async def test_rejects_a_name_register_would_not_accept(
+        self, register: RegisterUser, users: InMemoryUserRepository, full_name: str
+    ) -> None:
+        session = await register.execute(
+            email="docente@colegio.edu", full_name="Ana", password="una-clave-larga"
+        )
+
+        with pytest.raises(InvalidFullNameError):
+            await UpdateProfile(users=users).execute(user_id=session.user.id, full_name=full_name)
+
+        stored = await users.get_by_id(session.user.id)
+        assert stored is not None
+        assert stored.full_name == "Ana"
+
+    async def test_accepts_a_name_at_the_limit(
+        self, register: RegisterUser, users: InMemoryUserRepository
+    ) -> None:
+        session = await register.execute(
+            email="docente@colegio.edu", full_name="Ana", password="una-clave-larga"
+        )
+
+        updated = await UpdateProfile(users=users).execute(
+            user_id=session.user.id, full_name="a" * FULL_NAME_MAX_LENGTH
+        )
+
+        assert len(updated.full_name) == FULL_NAME_MAX_LENGTH
+
+    async def test_an_account_that_no_longer_exists_is_an_invalid_session(
+        self, users: InMemoryUserRepository
+    ) -> None:
+        ghost = User.register(
+            email=Email("ya-no@colegio.edu"), full_name="Ya no", password_hash="x"
+        )
+
+        with pytest.raises(InvalidTokenError):
+            await UpdateProfile(users=users).execute(user_id=ghost.id, full_name="Otro nombre")
