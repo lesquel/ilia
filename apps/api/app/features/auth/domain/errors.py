@@ -1,4 +1,9 @@
-from app.shared.errors import AuthenticationError, ConflictError, PermissionDeniedError
+from app.shared.errors import (
+    AuthenticationError,
+    ConflictError,
+    PermissionDeniedError,
+    ValidationError,
+)
 
 
 class EmailAlreadyRegisteredError(ConflictError):
@@ -47,3 +52,16 @@ class SamePasswordError(ConflictError):
 
     def __init__(self) -> None:
         super().__init__("The new password must be different from the current one")
+
+
+class InvalidFullNameError(ValidationError):
+    """The name is blank or too long once trimmed.
+
+    The request schema already bounds the raw length. This is for what it lets
+    through: a name made only of spaces.
+    """
+
+    code = "invalid_full_name"
+
+    def __init__(self) -> None:
+        super().__init__("The name cannot be empty or too long")

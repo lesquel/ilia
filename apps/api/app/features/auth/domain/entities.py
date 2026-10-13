@@ -9,6 +9,19 @@ from datetime import datetime
 from enum import StrEnum
 from uuid import UUID, uuid4
 
+# One limit for the name wherever it is written. It is also the width of the
+# column, so a longer name could not be stored anyway.
+FULL_NAME_MAX_LENGTH = 120
+
+
+def _clean_full_name(full_name: str) -> str:
+    name = full_name.strip()
+    if not name:
+        raise ValueError("Full name cannot be empty")
+    if len(name) > FULL_NAME_MAX_LENGTH:
+        raise ValueError(f"Full name cannot exceed {FULL_NAME_MAX_LENGTH} characters")
+    return name
+
 
 class Role(StrEnum):
     """The three roles of the platform (PRD 5).
@@ -86,6 +99,14 @@ class User:
         self.password_hash = password_hash
         self.token_generation += 1
 
+    def rename(self, full_name: str) -> None:
+        """Correct the name, under the rules registration applied to it.
+
+        No generation bump: a name is not a credential, and nobody should be
+        signed out of their phone for fixing a typo.
+        """
+        self.full_name = _clean_full_name(full_name)
+
     @classmethod
     def register(
         cls,
@@ -99,14 +120,10 @@ class User:
         """A new account. Everyone starts as a student — an instructor or admin
         is made by an explicit, audited role change, never by self-registration
         (PRD A-02)."""
-        name = full_name.strip()
-        if not name:
-            raise ValueError("Full name cannot be empty")
-
         return cls(
             id=uuid4(),
             email=email,
-            full_name=name,
+            full_name=_clean_full_name(full_name),
             password_hash=password_hash,
             role=role,
             created_at=created_at,

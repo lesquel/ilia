@@ -206,11 +206,13 @@ const styles = StyleSheet.create({
   loader: {
     paddingVertical: 20.4,
   },
+  // A rule, not a box: the panel sits inside the course card, and a square
+  // frame inside a rounded one read as a form pasted on top.
   panel: {
-    borderWidth: 1,
-    padding: 20.4,
+    borderTopWidth: 1,
+    paddingTop: 16,
     gap: 10.2,
-    marginVertical: 13.6,
+    marginTop: 8,
   },
   hint: {
     fontSize: 14,

@@ -4,6 +4,7 @@ import type {
   PasswordChange,
   PasswordResetConfirm,
   PasswordResetRequest,
+  ProfileUpdate,
   Registration,
   Session,
   User,
@@ -87,6 +88,15 @@ export class HttpAuthRepository implements AuthRepository {
 
   async currentUser(): Promise<User> {
     return toUser(await this.http.get<UserDto>('/auth/me'));
+  }
+
+  async updateProfile(input: ProfileUpdate): Promise<User> {
+    return toUser(
+      await this.http.request<UserDto>('/auth/me', {
+        method: 'PATCH',
+        body: { full_name: input.fullName },
+      }),
+    );
   }
 
   private async persist(dto: SessionDto): Promise<Session> {

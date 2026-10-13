@@ -13,6 +13,7 @@ from app.features.auth.application.use_cases import (
     RegisterUser,
     RequestPasswordReset,
     Session,
+    UpdateProfile,
 )
 from app.features.auth.domain.entities import Role, User
 from app.features.auth.domain.errors import InvalidTokenError
@@ -26,6 +27,7 @@ from app.features.auth.interface.dependencies import (
     get_refresh_session,
     get_register_user,
     get_request_password_reset,
+    get_update_profile,
     require_role,
 )
 from app.features.auth.interface.schemas import (
@@ -37,6 +39,7 @@ from app.features.auth.interface.schemas import (
     PasswordResetRequest,
     RegisterRequest,
     SessionResponse,
+    UpdateProfileRequest,
     UserResponse,
 )
 from app.features.auth.interface.throttle import enforce, forget
@@ -54,6 +57,7 @@ RegisterUserDep = Annotated[RegisterUser, Depends(get_register_user)]
 AuthenticateUserDep = Annotated[AuthenticateUser, Depends(get_authenticate_user)]
 RefreshSessionDep = Annotated[RefreshSession, Depends(get_refresh_session)]
 ChangePasswordDep = Annotated[ChangePassword, Depends(get_change_password)]
+UpdateProfileDep = Annotated[UpdateProfile, Depends(get_update_profile)]
 RequestPasswordResetDep = Annotated[RequestPasswordReset, Depends(get_request_password_reset)]
 IssuePasswordResetDep = Annotated[IssuePasswordReset, Depends(get_issue_password_reset)]
 CompletePasswordResetDep = Annotated[CompletePasswordReset, Depends(get_complete_password_reset)]
@@ -160,6 +164,17 @@ async def logout(response: Response, settings: SettingsDep) -> None:
 @router.get("/me", response_model=UserResponse)
 async def me(user: CurrentUser) -> UserResponse:
     return UserResponse.from_entity(user)
+
+
+@router.patch("/me", response_model=UserResponse)
+async def update_me(
+    payload: UpdateProfileRequest,
+    user: CurrentUser,
+    use_case: UpdateProfileDep,
+) -> UserResponse:
+    """Correct your own name. The id comes from the session, never the body."""
+    updated = await use_case.execute(user_id=user.id, full_name=payload.full_name)
+    return UserResponse.from_entity(updated)
 
 
 @router.post("/password-reset/request", status_code=status.HTTP_204_NO_CONTENT)

@@ -43,6 +43,36 @@ export interface Registration extends Credentials {
   fullName: string;
 }
 
+export interface ProfileUpdate {
+  fullName: string;
+}
+
+/** The API's limit for a name, and the width of the column behind it. */
+export const FULL_NAME_MAX_LENGTH = 120;
+
+/**
+ * The name the API would store, or `null` when it would refuse it.
+ *
+ * Mirrors the backend rule (trimmed, not empty, within the limit) so the form
+ * can say no before a request does. The backend still decides.
+ */
+export function cleanFullName(input: string): string | null {
+  const name = input.trim();
+  if (name.length === 0 || name.length > FULL_NAME_MAX_LENGTH) return null;
+  return name;
+}
+
+/**
+ * Whether saving this draft would change anything.
+ *
+ * A draft that only differs by the spaces around it is the same name: sending
+ * it would report a change the person cannot see.
+ */
+export function isFullNameChange(draft: string, current: string): boolean {
+  const name = cleanFullName(draft);
+  return name !== null && name !== current.trim();
+}
+
 export interface PasswordChange {
   currentPassword: string;
   newPassword: string;

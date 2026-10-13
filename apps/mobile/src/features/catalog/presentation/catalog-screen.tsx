@@ -1,3 +1,4 @@
+import { Search } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
@@ -12,6 +13,7 @@ import {
 
 import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
 import { breakpoint, useTheme } from '@/core/theme';
+import { Icon } from '@/core/ui/icon';
 import { useCourses } from '@/features/catalog/application/use-catalog';
 import {
   LEVELS,
@@ -30,6 +32,7 @@ export function CatalogScreen() {
   const [level, setLevel] = useState<Level | undefined>();
   const [search, setSearch] = useState('');
   const [submittedSearch, setSubmittedSearch] = useState('');
+  const [searchFocused, setSearchFocused] = useState(false);
 
   const filters = useMemo(
     () => ({ level, query: submittedSearch || undefined }),
@@ -43,6 +46,10 @@ export function CatalogScreen() {
   // Same breakpoints as the mockup's container queries: one column on a phone,
   // two on a tablet, three on a desktop.
   const columns = width >= breakpoint.medium ? 3 : width >= breakpoint.compact ? 2 : 1;
+  // A short last row would otherwise stretch its cards across the whole list:
+  // one course on a desktop became a single full-width card.
+  const contentWidth = Math.min(width, CONTENT_MAX_WIDTH) - CONTENT_PADDING * 2;
+  const cardMaxWidth = (contentWidth - GRID_GAP * (columns - 1)) / columns;
 
   const header = (
     <View style={styles.header}>
@@ -51,26 +58,32 @@ export function CatalogScreen() {
         Aprende haciendo. Cada módulo termina en una actividad, no en un cuestionario.
       </Text>
 
-      <TextInput
-        value={search}
-        onChangeText={setSearch}
-        // Search on submit, not on every keystroke: a request per character is
-        // a request per character of someone else's mobile data.
-        onSubmitEditing={() => setSubmittedSearch(search.trim())}
-        returnKeyType="search"
-        placeholder="Buscar un curso"
-        placeholderTextColor={theme.colors.neutral[500]}
-        accessibilityLabel="Buscar un curso"
+      <View
         style={[
-          styles.search,
+          styles.searchField,
           {
-            backgroundColor: theme.colors.neutral[100],
-            borderColor: theme.colors.divider,
+            backgroundColor: theme.colors.surface,
+            borderColor: searchFocused ? theme.colors.accent : theme.colors.divider,
             borderRadius: theme.radius.md,
-            color: theme.colors.text,
           },
         ]}
-      />
+      >
+        <Icon glyph={Search} size={18} color={theme.colors.neutral[500]} />
+        <TextInput
+          value={search}
+          onChangeText={setSearch}
+          // Search on submit, not on every keystroke: a request per character is
+          // a request per character of someone else's mobile data.
+          onSubmitEditing={() => setSubmittedSearch(search.trim())}
+          onFocus={() => setSearchFocused(true)}
+          onBlur={() => setSearchFocused(false)}
+          returnKeyType="search"
+          placeholder="Buscar un curso"
+          placeholderTextColor={theme.colors.neutral[500]}
+          accessibilityLabel="Buscar un curso"
+          style={[styles.search, { color: theme.colors.text }]}
+        />
+      </View>
 
       {/* Category chips from mockup #4 are not wired: the API exposes level, query
           and cursor only — no category field in ORM or catalog router. */}
@@ -84,6 +97,12 @@ export function CatalogScreen() {
             onPress={() => setLevel(level === option ? undefined : option)}
           />
         ))}
+        {isLoading ? null : (
+          <Text style={[styles.count, { color: theme.colors.neutral[600] }]}>
+            {courses.length} {courses.length === 1 ? 'curso' : 'cursos'}
+            {hasMore ? ' o más' : ''}
+          </Text>
+        )}
       </View>
     </View>
   );
@@ -109,7 +128,7 @@ export function CatalogScreen() {
       columnWrapperStyle={columns > 1 ? styles.column : undefined}
       keyExtractor={(course) => course.id}
       renderItem={({ item }) => (
-        <View style={columns > 1 ? styles.gridItem : undefined}>
+        <View style={columns > 1 ? [styles.gridItem, { maxWidth: cardMaxWidth }] : undefined}>
           <CourseCard course={item} />
         </View>
       )}
@@ -169,20 +188,24 @@ function LevelChip({
   );
 }
 
+const CONTENT_MAX_WIDTH = 1280;
+const CONTENT_PADDING = 20.4;
+const GRID_GAP = 13.6;
+
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
   content: {
-    padding: 20.4,
-    maxWidth: 1280,
+    padding: CONTENT_PADDING,
+    maxWidth: CONTENT_MAX_WIDTH,
     width: '100%',
     alignSelf: 'center',
-    gap: 13.6,
+    gap: GRID_GAP,
   },
   header: {
     gap: 10.2,
-    marginBottom: 6.8,
+    marginBottom: 13.6,
   },
   title: {
     fontSize: 32,
@@ -192,17 +215,32 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
   },
-  search: {
+  searchField: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10.2,
     borderWidth: 1,
     paddingHorizontal: 13.6,
+    marginTop: 6.8,
+    maxWidth: 560,
+  },
+  search: {
+    flex: 1,
     paddingVertical: 10.2,
     fontSize: 16,
-    marginTop: 6.8,
+    // The field draws the frame and its focus colour; the browser's own ring
+    // would double it.
+    outlineWidth: 0,
   },
   filters: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    alignItems: 'center',
     gap: 6.8,
+  },
+  count: {
+    fontSize: 13,
+    marginLeft: 6.8,
   },
   chip: {
     borderWidth: 1,
@@ -214,7 +252,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   column: {
-    gap: 13.6,
+    gap: GRID_GAP,
   },
   gridItem: {
     flex: 1,
