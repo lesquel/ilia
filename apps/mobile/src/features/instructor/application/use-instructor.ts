@@ -13,6 +13,7 @@ export const instructorKeys = {
   courses: ['instructor', 'courses'] as const,
   inbox: (courseId?: string) => ['instructor', 'inbox', courseId ?? 'all'] as const,
   roster: (courseId: string) => ['instructor', 'roster', courseId] as const,
+  insights: (courseId: string) => ['instructor', 'insights', courseId] as const,
 };
 
 export function useAuthoredCourses(
@@ -139,6 +140,24 @@ export function useRoster(
 
   return {
     roster: query.data ?? [],
+    isLoading: query.isLoading,
+    error: query.error,
+  };
+}
+
+export function useCourseInsights(
+  courseId: string,
+  repository: InstructorRepository = instructorRepository,
+) {
+  const query = useQuery({
+    queryKey: instructorKeys.insights(courseId),
+    queryFn: () => repository.insights(courseId),
+    enabled: Boolean(courseId),
+    retry: false,
+  });
+
+  return {
+    insights: query.data ?? null,
     isLoading: query.isLoading,
     error: query.error,
   };

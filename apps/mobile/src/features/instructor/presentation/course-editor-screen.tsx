@@ -126,7 +126,7 @@ export function CourseEditorScreen() {
           href={`/instructor/courses/${course.id}/roster`}
           style={[styles.link, { color: theme.colors.accent }]}
         >
-          Ver inscritos →
+          Estadísticas e inscritos →
         </Link>
       </View>
 

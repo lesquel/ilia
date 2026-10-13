@@ -3,6 +3,7 @@
 export { STATUS_LABELS, canPublish, slugify } from './domain/entities';
 export type {
   AuthoredCourse,
+  CourseInsights,
   CourseStatus,
   ReviewItem,
   RosterEntry,
@@ -11,7 +12,9 @@ export {
   instructorKeys,
   useAddLesson,
   useAddModule,
+  useAuthoredCourseDetail,
   useAuthoredCourses,
+  useCourseInsights,
   useCreateCourse,
   useOverrideScore,
   usePublishCourse,
