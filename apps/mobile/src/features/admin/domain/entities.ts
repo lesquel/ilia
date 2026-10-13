@@ -63,6 +63,22 @@ export interface AuditEntry {
   occurredAt: string | null;
 }
 
+/** How many audit rows the panel puts on screen at once. */
+export const AUDIT_VISIBLE_ROWS = 20;
+
+/**
+ * The line under the audit list, or null when nothing is left out.
+ *
+ * It counts the rows on screen: the page that was loaded can be longer than the
+ * list that is drawn, and the footer used to report the page.
+ */
+export function auditFooter(shown: number, total: number): string | null {
+  if (shown <= 0 || total <= shown) return null;
+  return shown === 1
+    ? `Mostrando la más reciente de ${total}.`
+    : `Mostrando las ${shown} más recientes de ${total}.`;
+}
+
 export interface Cohort {
   id: string;
   name: string;
