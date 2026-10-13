@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   title: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: '600',
     marginBottom: 6.8,
   },
@@ -202,7 +202,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 48,
-    marginBottom: 12,
   },
   buttonLabel: {
     color: '#f2f2f3',

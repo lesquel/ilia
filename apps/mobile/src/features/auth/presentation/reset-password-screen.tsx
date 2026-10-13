@@ -47,6 +47,9 @@ export function ResetPasswordScreen() {
 
   const [resetToken, setResetToken] = useState(typeof tokenParam === 'string' ? tokenParam : '');
   const [newPassword, setNewPassword] = useState('');
+  // The same reveal toggle as sign-in and sign-up: a typo here is a second
+  // trip to the instructor for a new code.
+  const [revealed, setRevealed] = useState(false);
 
   const canSubmit =
     resetToken.trim().length >= 16 && newPassword.length >= 8 && !confirmReset.isPending;
@@ -99,16 +102,27 @@ export function ResetPasswordScreen() {
               accessibilityLabel="Código de recuperación"
             />
 
-            <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>
-              Nueva contraseña
-            </Text>
+            <View style={styles.labelRow}>
+              <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>
+                Nueva contraseña
+              </Text>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={revealed ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                onPress={() => setRevealed((on) => !on)}
+              >
+                <Text style={[styles.toggle, { color: theme.colors.accent }]}>
+                  {revealed ? 'Ocultar' : 'Mostrar'}
+                </Text>
+              </Pressable>
+            </View>
             <TextInput
               style={inputStyle}
               value={newPassword}
               onChangeText={setNewPassword}
               placeholder="Mínimo 8 caracteres"
               placeholderTextColor={theme.colors.neutral[500]}
-              secureTextEntry
+              secureTextEntry={!revealed}
               autoComplete="new-password"
               onSubmitEditing={submit}
               returnKeyType="go"
@@ -172,7 +186,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   title: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: '600',
     marginBottom: 6.8,
   },
@@ -183,6 +197,16 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 13,
+    marginBottom: 6.8,
+  },
+  labelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+  },
+  toggle: {
+    fontSize: 13,
+    fontWeight: '600',
     marginBottom: 6.8,
   },
   input: {
