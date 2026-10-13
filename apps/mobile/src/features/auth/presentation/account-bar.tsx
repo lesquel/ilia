@@ -11,8 +11,7 @@ import {
   UserRound,
   type LucideIcon,
 } from 'lucide-react-native';
-import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useState, useSyncExternalStore } from 'react';
+import { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import { breakpoint, useTheme } from '@/core/theme';
@@ -33,7 +32,7 @@ import {
   type AppSectionId,
 } from '@/features/auth/domain/app-location';
 import type { User } from '@/features/auth/domain/entities';
-import { catalogKeys, type Course } from '@/features/catalog';
+import { useCourse } from '@/features/catalog';
 
 const SECTION_ICONS: Partial<Record<AppSectionId, LucideIcon>> = {
   catalog: BookOpen,
@@ -54,7 +53,7 @@ export function AccountBar() {
   const pathname = usePathname();
   const { width } = useWindowDimensions();
   const { user, isAuthenticated, isLoading } = useSession();
-  const courseTitle = useLoadedCourseTitle(courseSlugInPath(pathname));
+  const courseTitle = useCourseTitle(courseSlugInPath(pathname));
 
   if (isLoading || !isAuthenticated || !user) return null;
 
@@ -94,22 +93,14 @@ export function AccountBar() {
 }
 
 /**
- * The title of a course this session has already loaded, or undefined.
+ * The title of the course the path is inside, or undefined while it loads.
  *
- * It only listens to the cache the course page fills. The bar sits above every
- * screen, and a request of its own just to name the place would be paid on
- * each of them; until the title is there, the trail shows the readable slug.
+ * Same query, same key and same five-minute freshness as the course page, so
+ * arriving from there costs nothing. Landing straight on a lesson or the forum
+ * pays one request, once; until it answers, the trail shows the readable slug.
  */
-function useLoadedCourseTitle(slug: string | undefined): string | undefined {
-  const queryClient = useQueryClient();
-  const subscribe = useCallback(
-    (onChange: () => void) => queryClient.getQueryCache().subscribe(onChange),
-    [queryClient],
-  );
-  const read = () =>
-    slug ? queryClient.getQueryData<Course>(catalogKeys.detail(slug))?.title : undefined;
-
-  return useSyncExternalStore(subscribe, read, read);
+function useCourseTitle(slug: string | undefined): string | undefined {
+  return useCourse(slug ?? '').course?.title;
 }
 
 function SessionMenu({ user }: { user: User }) {

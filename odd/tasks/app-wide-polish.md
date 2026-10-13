@@ -70,5 +70,7 @@ Forecast: about 1,200 authored lines. Feature-branch chain; one work-unit commit
 - `ModerateControl` keeps its own small field and button.
 - The landing's closing block names "Prompting para docentes" as the first course in fixed copy.
 
+- L2 follow-up (parent, inline): the header trail now loads the course title itself through `useCourse(slug)` (same key and freshness as the course page), so a lesson or forum opened directly shows the real title. One request on a direct entry, none when arriving from the course page. Checks: eslint clean on `account-bar.tsx`, `tsc --noEmit` clean, `vitest run src/features/auth/domain/app-location.test.ts` 20 passed; observed in headless Chrome at 1600px on `/catalog/introduccion-a-la-ia-para-docentes/forum` opened cold: trail reads "Catálogo › Introducción a la IA para docentes › Foro".
+
 ## Next step
 Look at the student screens in a browser at phone and desktop widths (nothing here was observed rendered), then decide on the pull request slices: the branch is past the 400-line budget.
