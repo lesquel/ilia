@@ -96,6 +96,30 @@ export const ROLE_LABELS: Record<Role, string> = {
   admin: 'Administrador',
 };
 
+/**
+ * Whether picking a role is a change worth asking about.
+ *
+ * Picking the role the person already holds is not a change, so there is
+ * nothing to confirm and nothing to send.
+ */
+export function roleChangeNeedsConfirmation(current: Role, requested: Role): boolean {
+  return current !== requested;
+}
+
+/**
+ * The question put to the admin before a role changes hands.
+ *
+ * It names the person and both roles so a slip onto the neighbouring row or
+ * the neighbouring button is caught while it can still be cancelled.
+ */
+export function roleChangeQuestion(
+  user: Pick<ManagedUser, 'fullName' | 'email' | 'role'>,
+  requested: Role,
+): string {
+  const who = user.fullName.trim() || user.email;
+  return `¿Cambiar a ${who} de ${ROLE_LABELS[user.role]} a ${ROLE_LABELS[requested]}?`;
+}
+
 export const ACTION_LABELS: Record<string, string> = {
   role_changed: 'Cambio de rol',
   certificate_revoked: 'Certificado revocado',

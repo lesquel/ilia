@@ -192,18 +192,24 @@ export function PrimaryButton({
   onPress,
   disabled = false,
   busy = false,
+  accessibilityLabel,
 }: {
   label: string;
   glyph?: LucideIcon;
   onPress: () => void;
   disabled?: boolean;
   busy?: boolean;
+  /** Says what the button acts on when the visible word alone would not. */
+  accessibilityLabel?: string;
 }) {
   const theme = useTheme();
 
   return (
     <Pressable
       accessibilityRole="button"
+      // The spinner replaces the label, so the name has to be given outright.
+      accessibilityLabel={accessibilityLabel ?? label}
+      accessibilityState={{ disabled, busy }}
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
@@ -233,16 +239,19 @@ export function OutlineButton({
   label,
   onPress,
   disabled = false,
+  accessibilityLabel,
 }: {
   label: string;
   onPress: () => void;
   disabled?: boolean;
+  accessibilityLabel?: string;
 }) {
   const theme = useTheme();
 
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [

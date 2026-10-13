@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { certificationFunnel, cohortListAppearance, funnelSentence } from './entities';
+import {
+  certificationFunnel,
+  cohortListAppearance,
+  funnelSentence,
+  roleChangeNeedsConfirmation,
+  roleChangeQuestion,
+} from './entities';
 
 describe('cohortListAppearance', () => {
   it('does not treat a failed list as an empty list', () => {
@@ -84,5 +90,33 @@ describe('funnelSentence', () => {
     const steps = certificationFunnel({ enrollments: 2, submissions: 1, certificatesIssued: 0 });
 
     expect(funnelSentence(steps)).toBe('2 inscripciones, 1 entrega y 0 certificados');
+  });
+});
+
+describe('roleChangeNeedsConfirmation', () => {
+  it('asks before moving a person to a different role', () => {
+    expect(roleChangeNeedsConfirmation('student', 'instructor')).toBe(true);
+    expect(roleChangeNeedsConfirmation('admin', 'student')).toBe(true);
+  });
+
+  it('has nothing to confirm when the person already holds the role', () => {
+    expect(roleChangeNeedsConfirmation('instructor', 'instructor')).toBe(false);
+  });
+});
+
+describe('roleChangeQuestion', () => {
+  it('names the person and both roles as the panel labels them', () => {
+    expect(
+      roleChangeQuestion(
+        { fullName: 'Ana Pérez', email: 'ana@example.com', role: 'student' },
+        'instructor',
+      ),
+    ).toBe('¿Cambiar a Ana Pérez de Estudiante a Instructor?');
+  });
+
+  it('falls back to the email when the account has no name', () => {
+    expect(
+      roleChangeQuestion({ fullName: '  ', email: 'ana@example.com', role: 'admin' }, 'student'),
+    ).toBe('¿Cambiar a ana@example.com de Administrador a Estudiante?');
   });
 });
