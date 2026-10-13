@@ -24,9 +24,11 @@ from app.features.instructor.domain.errors import (
     PublishedSlugChangeError,
     SlugTakenError,
 )
+from app.features.instructor.domain.insights import CourseInsights, summarize
 from app.features.instructor.domain.ports import (
     CourseDraft,
     CourseWriter,
+    InsightsReader,
     ReviewReader,
     RosterEntry,
     RosterReader,
@@ -347,6 +349,16 @@ class ListRoster:
     async def execute(self, *, user: User, course_id: UUID) -> list[RosterEntry]:
         course = await self._ownership.require(user=user, course_id=course_id)
         return await self._roster.roster(course.id)
+
+
+class ReadCourseInsights:
+    def __init__(self, *, courses: CourseRepository, insights: InsightsReader) -> None:
+        self._ownership = CourseOwnership(courses=courses)
+        self._insights = insights
+
+    async def execute(self, *, user: User, course_id: UUID) -> CourseInsights:
+        course = await self._ownership.require(user=user, course_id=course_id)
+        return summarize(course, await self._insights.learners(course.id))
 
 
 # What an instructor may upload. Not a free-for-all: the content type is signed
