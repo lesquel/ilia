@@ -29,6 +29,7 @@ import {
   type Cohort,
   type ManagedUser,
 } from '@/features/admin/domain/entities';
+import { OverviewPanel } from '@/features/admin/presentation/overview-panel';
 import { ROLES, type Role } from '@/features/auth/domain/entities';
 import { RevokePanel } from '@/features/certificates/presentation/revoke-panel';
 
@@ -123,21 +124,6 @@ const ADMIN_TABS: { id: AdminTab; label: string }[] = [
   { id: 'usage', label: 'LLM y uso' },
   { id: 'audit', label: 'Auditoría' },
 ];
-
-function OverviewPanel({ overview }: { overview: NonNullable<ReturnType<typeof useOverview>['overview']> }) {
-  return (
-    <View style={styles.metrics}>
-      <Metric label="Docentes" value={overview.students} />
-      <Metric label="Instructores" value={overview.instructors} />
-      <Metric label="Cursos publicados" value={overview.coursesPublished} />
-      <Metric label="Borradores" value={overview.coursesDraft} />
-      <Metric label="Inscripciones" value={overview.enrollments} />
-      <Metric label="Entregas" value={overview.submissions} />
-      <Metric label="Certificados" value={overview.certificatesIssued} />
-      <Metric label="Revocados" value={overview.certificatesRevoked} />
-    </View>
-  );
-}
 
 function UsagePanel() {
   const theme = useTheme();
@@ -388,26 +374,6 @@ function Pager({
   );
 }
 
-function Metric({ label, value }: { label: string; value: number }) {
-  const theme = useTheme();
-
-  return (
-    <View
-      style={[
-        styles.metric,
-        {
-          backgroundColor: theme.colors.neutral[100],
-          borderColor: theme.colors.divider,
-          borderRadius: theme.radius.md,
-        },
-      ]}
-    >
-      <Text style={[styles.metricValue, { color: theme.colors.text }]}>{value}</Text>
-      <Text style={[styles.metricLabel, { color: theme.colors.neutral[600] }]}>{label}</Text>
-    </View>
-  );
-}
-
 function UserRow({ user, query }: { user: ManagedUser; query: string }) {
   const theme = useTheme();
   const change = useChangeRole(query);
@@ -492,10 +458,6 @@ const styles = StyleSheet.create({
   tab: { borderWidth: 1, minHeight: 44, justifyContent: 'center', paddingHorizontal: 13.6, paddingVertical: 6.8 },
   tabLabel: { fontSize: 13, fontWeight: '600' },
   panelBlock: { gap: 6.8 },
-  metrics: { flexDirection: 'row', flexWrap: 'wrap', gap: 10.2 },
-  metric: { borderWidth: 1, padding: 13.6, minWidth: 130, flexGrow: 1 },
-  metricValue: { fontSize: 26, fontWeight: '600' },
-  metricLabel: { fontSize: 12 },
   sectionTitle: { fontSize: 20, fontWeight: '600', marginTop: 20.4 },
   pager: {
     flexDirection: 'row',
