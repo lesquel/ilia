@@ -1,10 +1,18 @@
+import { Plus } from 'lucide-react-native';
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { ApiError } from '@/core/errors/api-error';
 import { useTheme } from '@/core/theme';
 import { useAddActivity } from '@/features/instructor/application/use-instructor';
 import type { DimensionInput } from '@/features/instructor/data/instructor-repository';
+import {
+  Field,
+  FieldGroup,
+  FieldLabel,
+  OutlineButton,
+  SubCard,
+} from '@/features/instructor/presentation/ui';
 
 const MAX_DIMENSIONS = 8;
 
@@ -103,223 +111,197 @@ export function ActivityComposer({ courseId, moduleId }: { courseId: string; mod
       current.map((item, position) => (position === index ? { ...item, ...patch } : item)),
     );
 
-  const inputStyle = [
-    styles.input,
-    {
-      backgroundColor: theme.colors.neutral[100],
-      borderColor: theme.colors.divider,
-      color: theme.colors.text,
-      borderRadius: theme.radius.sm,
-    },
-  ];
-
   if (!open) {
-    return (
-      <Pressable accessibilityRole="button" onPress={() => setOpen(true)}>
-        <Text style={[styles.toggle, { color: theme.colors.accent }]}>+ Agregar actividad</Text>
-      </Pressable>
-    );
+    return <OutlineButton glyph={Plus} label="Agregar actividad" onPress={() => setOpen(true)} />;
   }
 
   return (
-    <View
-      style={[styles.panel, { borderColor: theme.colors.divider, borderRadius: theme.radius.md }]}
-    >
-      <Text style={[styles.panelTitle, { color: theme.colors.text }]}>Nueva actividad</Text>
+    <SubCard title="Nueva actividad">
+      <FieldGroup title="La consigna">
+        <FieldLabel>Título</FieldLabel>
+        <Field
+          value={title}
+          onChangeText={setTitle}
+          placeholder="Escribe tu primer prompt"
+          accessibilityLabel="Título de la actividad"
+        />
 
-      <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>Título</Text>
-      <TextInput
-        style={inputStyle}
-        value={title}
-        onChangeText={setTitle}
-        placeholder="Escribe tu primer prompt"
-        placeholderTextColor={theme.colors.neutral[500]}
-        accessibilityLabel="Título de la actividad"
-      />
+        <FieldLabel>Enunciado</FieldLabel>
+        <Field
+          value={statement}
+          onChangeText={setStatement}
+          multiline
+          textAlignVertical="top"
+          placeholder="Qué tiene que lograr el docente con su prompt."
+          accessibilityLabel="Enunciado de la actividad"
+        />
 
-      <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>Enunciado</Text>
-      <TextInput
-        style={[...inputStyle, styles.textarea]}
-        value={statement}
-        onChangeText={setStatement}
-        multiline
-        textAlignVertical="top"
-        placeholder="Qué tiene que lograr el docente con su prompt."
-        placeholderTextColor={theme.colors.neutral[500]}
-        accessibilityLabel="Enunciado de la actividad"
-      />
+        <FieldLabel>Intentos</FieldLabel>
+        <Field
+          style={styles.number}
+          value={maxAttempts}
+          onChangeText={setMaxAttempts}
+          keyboardType="number-pad"
+          accessibilityLabel="Intentos permitidos"
+        />
+      </FieldGroup>
 
-      <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>Intentos</Text>
-      <TextInput
-        style={inputStyle}
-        value={maxAttempts}
-        onChangeText={setMaxAttempts}
-        keyboardType="number-pad"
-        accessibilityLabel="Intentos permitidos"
-      />
+      <FieldGroup
+        title="Qué se evalúa"
+        hint="Los pesos son relativos: se normalizan al calificar, así que quitar una dimensión no reescala la nota de nadie."
+      >
+        {dimensions.map((dimension, index) => (
+          <View
+            key={dimension.key}
+            style={[
+              styles.dimension,
+              { borderColor: theme.colors.divider, borderRadius: theme.radius.md },
+            ]}
+          >
+            <Field
+              value={dimension.name}
+              onChangeText={(value) => updateDimension(index, { name: value })}
+              accessibilityLabel={`Nombre de la dimensión ${index + 1}`}
+            />
+            <Field
+              value={dimension.description}
+              onChangeText={(value) => updateDimension(index, { description: value })}
+              placeholder="Qué mira esta dimensión"
+              accessibilityLabel={`Descripción de la dimensión ${index + 1}`}
+            />
 
-      <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Qué se evalúa</Text>
-      <Text style={[styles.hint, { color: theme.colors.neutral[600] }]}>
-        Los pesos son relativos: se normalizan al calificar, así que quitar una dimensión no
-        reescala la nota de nadie.
-      </Text>
-
-      {dimensions.map((dimension, index) => (
-        <View
-          key={dimension.key}
-          style={[styles.dimension, { borderColor: theme.colors.divider }]}
-        >
-          <TextInput
-            style={inputStyle}
-            value={dimension.name}
-            onChangeText={(value) => updateDimension(index, { name: value })}
-            accessibilityLabel={`Nombre de la dimensión ${index + 1}`}
-          />
-          <TextInput
-            style={inputStyle}
-            value={dimension.description}
-            onChangeText={(value) => updateDimension(index, { description: value })}
-            placeholder="Qué mira esta dimensión"
-            placeholderTextColor={theme.colors.neutral[500]}
-            accessibilityLabel={`Descripción de la dimensión ${index + 1}`}
-          />
-
-          <View style={styles.dimensionRow}>
-            {/* Prompt or result: the split is the product's whole point. Someone
-                who got a good answer by luck and someone who wrote a good
-                instruction do not deserve the same mark. */}
-            {(['prompt', 'result'] as const).map((kind) => (
-              <Pressable
-                key={kind}
-                accessibilityRole="button"
-                onPress={() => updateDimension(index, { kind })}
-                style={[
-                  styles.chip,
-                  {
-                    backgroundColor:
-                      dimension.kind === kind ? theme.colors.accent : 'transparent',
-                    borderColor:
-                      dimension.kind === kind ? theme.colors.accent : theme.colors.divider,
-                    borderRadius: theme.radius.sm,
-                  },
-                ]}
-              >
-                <Text
+            <View style={styles.dimensionRow}>
+              {/* Prompt or result: the split is the product's whole point. Someone
+                  who got a good answer by luck and someone who wrote a good
+                  instruction do not deserve the same mark. */}
+              {(['prompt', 'result'] as const).map((kind) => (
+                <Pressable
+                  key={kind}
+                  accessibilityRole="button"
+                  onPress={() => updateDimension(index, { kind })}
                   style={[
-                    styles.chipLabel,
+                    styles.chip,
                     {
-                      color:
-                        dimension.kind === kind ? '#f2f2f3' : theme.colors.neutral[700],
+                      backgroundColor:
+                        dimension.kind === kind ? theme.colors.accent : 'transparent',
+                      borderColor:
+                        dimension.kind === kind ? theme.colors.accent : theme.colors.divider,
+                      borderRadius: theme.radius.sm,
                     },
                   ]}
                 >
-                  {kind === 'prompt' ? 'El prompt' : 'El resultado'}
-                </Text>
-              </Pressable>
-            ))}
+                  <Text
+                    style={[
+                      styles.chipLabel,
+                      {
+                        color: dimension.kind === kind ? '#f2f2f3' : theme.colors.neutral[800],
+                      },
+                    ]}
+                  >
+                    {kind === 'prompt' ? 'El prompt' : 'El resultado'}
+                  </Text>
+                </Pressable>
+              ))}
 
-            <TextInput
-              style={[...inputStyle, styles.weight]}
-              value={String(dimension.weight)}
-              onChangeText={(value) =>
-                updateDimension(index, { weight: Number(value) || 1 })
-              }
-              keyboardType="decimal-pad"
-              accessibilityLabel={`Peso de la dimensión ${index + 1}`}
-            />
+              <View style={styles.weightGroup}>
+                <Text style={[styles.weightLabel, { color: theme.colors.neutral[800] }]}>Peso</Text>
+                <Field
+                  style={styles.weight}
+                  value={String(dimension.weight)}
+                  onChangeText={(value) => updateDimension(index, { weight: Number(value) || 1 })}
+                  keyboardType="decimal-pad"
+                  accessibilityLabel={`Peso de la dimensión ${index + 1}`}
+                />
 
-            {dimensions.length > 1 ? (
-              <Pressable
-                accessibilityRole="button"
-                onPress={() =>
-                  setDimensions((current) => current.filter((_, i) => i !== index))
-                }
-              >
-                <Text style={[styles.remove, { color: theme.colors.neutral[600] }]}>Quitar</Text>
-              </Pressable>
-            ) : null}
+                {dimensions.length > 1 ? (
+                  <Pressable
+                    accessibilityRole="button"
+                    onPress={() =>
+                      setDimensions((current) => current.filter((_, i) => i !== index))
+                    }
+                    style={styles.removeHit}
+                  >
+                    <Text style={[styles.remove, { color: theme.colors.neutral[600] }]}>
+                      Quitar
+                    </Text>
+                  </Pressable>
+                ) : null}
+              </View>
+            </View>
           </View>
-        </View>
-      ))}
+        ))}
 
-      {dimensions.length < MAX_DIMENSIONS ? (
-        <Pressable
-          accessibilityRole="button"
-          onPress={() =>
-            setDimensions((current) => [
-              ...current,
-              {
-                key: `dimension_${current.length + 1}`,
-                name: 'Nueva dimensión',
-                description: '',
-                kind: 'prompt',
-                weight: 1,
-              },
-            ])
-          }
-        >
-          <Text style={[styles.toggle, { color: theme.colors.accent }]}>+ Otra dimensión</Text>
-        </Pressable>
-      ) : null}
+        {dimensions.length < MAX_DIMENSIONS ? (
+          <Pressable
+            accessibilityRole="button"
+            onPress={() =>
+              setDimensions((current) => [
+                ...current,
+                {
+                  key: `dimension_${current.length + 1}`,
+                  name: 'Nueva dimensión',
+                  description: '',
+                  kind: 'prompt',
+                  weight: 1,
+                },
+              ])
+            }
+            style={styles.addDimension}
+          >
+            <Text style={[styles.toggle, { color: theme.colors.accent }]}>+ Otra dimensión</Text>
+          </Pressable>
+        ) : null}
+      </FieldGroup>
 
-      <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
-        Requisitos verificables
-      </Text>
       {/* Said plainly, because it is the part of the grade that does not move. */}
-      <Text style={[styles.hint, { color: theme.colors.neutral[600] }]}>
-        Los comprueba la plataforma sola, sin modelo de por medio. Se le muestran al docente
-        antes de que escriba: reprobar por algo que nadie avisó es una trampa, no una clase.
-      </Text>
-
-      <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>
-        Términos que el prompt debe mencionar
-      </Text>
-      <TextInput
-        style={[...inputStyle, styles.textarea]}
-        value={terms}
-        onChangeText={setTerms}
-        multiline
-        textAlignVertical="top"
-        placeholder={'Uno por línea. Sinónimos separados por coma:\nfracciones, fraccionarios'}
-        placeholderTextColor={theme.colors.neutral[500]}
-        accessibilityLabel="Términos requeridos"
-      />
-
-      <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>
-        Palabras mínimas
-      </Text>
-      <TextInput
-        style={inputStyle}
-        value={minLength}
-        onChangeText={setMinLength}
-        keyboardType="number-pad"
-        accessibilityLabel="Palabras mínimas"
-      />
-
-      {/* The label is a sibling `Text`, which a screen reader has no way to
-          associate with the switch: it would announce "interruptor, apagado"
-          and nothing else. The name has to be on the control itself. */}
-      <View style={styles.switchRow}>
-        <Switch
-          value={requiresFormat}
-          onValueChange={setRequiresFormat}
-          accessibilityLabel="Debe indicar en qué formato quiere la respuesta"
+      <FieldGroup
+        title="Requisitos verificables"
+        hint="Los comprueba la plataforma sola, sin modelo de por medio. Se le muestran al docente antes de que escriba: reprobar por algo que nadie avisó es una trampa, no una clase."
+      >
+        <FieldLabel>Términos que el prompt debe mencionar</FieldLabel>
+        <Field
+          value={terms}
+          onChangeText={setTerms}
+          multiline
+          textAlignVertical="top"
+          placeholder={'Uno por línea. Sinónimos separados por coma:\nfracciones, fraccionarios'}
+          accessibilityLabel="Términos requeridos"
         />
-        <Text style={[styles.switchLabel, { color: theme.colors.neutral[700] }]}>
-          Debe indicar en qué formato quiere la respuesta
-        </Text>
-      </View>
 
-      <View style={styles.switchRow}>
-        <Switch
-          value={requiresRole}
-          onValueChange={setRequiresRole}
-          accessibilityLabel="Debe darle un rol o una audiencia al modelo"
+        <FieldLabel>Palabras mínimas</FieldLabel>
+        <Field
+          style={styles.number}
+          value={minLength}
+          onChangeText={setMinLength}
+          keyboardType="number-pad"
+          accessibilityLabel="Palabras mínimas"
         />
-        <Text style={[styles.switchLabel, { color: theme.colors.neutral[700] }]}>
-          Debe darle un rol o una audiencia al modelo
-        </Text>
-      </View>
+
+        {/* The label is a sibling `Text`, which a screen reader has no way to
+            associate with the switch: it would announce "interruptor, apagado"
+            and nothing else. The name has to be on the control itself. */}
+        <View style={styles.switchRow}>
+          <Switch
+            value={requiresFormat}
+            onValueChange={setRequiresFormat}
+            accessibilityLabel="Debe indicar en qué formato quiere la respuesta"
+          />
+          <Text style={[styles.switchLabel, { color: theme.colors.neutral[800] }]}>
+            Debe indicar en qué formato quiere la respuesta
+          </Text>
+        </View>
+
+        <View style={styles.switchRow}>
+          <Switch
+            value={requiresRole}
+            onValueChange={setRequiresRole}
+            accessibilityLabel="Debe darle un rol o una audiencia al modelo"
+          />
+          <Text style={[styles.switchLabel, { color: theme.colors.neutral[800] }]}>
+            Debe darle un rol o una audiencia al modelo
+          </Text>
+        </View>
+      </FieldGroup>
 
       {add.isError ? (
         <Text
@@ -332,7 +314,7 @@ export function ActivityComposer({ courseId, moduleId }: { courseId: string; mod
 
       <View style={styles.actions}>
         <Pressable accessibilityRole="button" onPress={() => setOpen(false)}>
-          <Text style={[styles.toggle, { color: theme.colors.neutral[600] }]}>Cancelar</Text>
+          <Text style={[styles.cancel, { color: theme.colors.neutral[600] }]}>Cancelar</Text>
         </Pressable>
         <Pressable
           accessibilityRole="button"
@@ -354,24 +336,24 @@ export function ActivityComposer({ courseId, moduleId }: { courseId: string; mod
           )}
         </Pressable>
       </View>
-    </View>
+    </SubCard>
   );
 }
 
 const styles = StyleSheet.create({
-  panel: { borderWidth: 1, padding: 13.6, gap: 3.4, marginTop: 10.2 },
-  panelTitle: { fontSize: 15, fontWeight: '600', marginBottom: 6.8 },
-  sectionTitle: { fontSize: 14, fontWeight: '600', marginTop: 13.6 },
-  label: { fontSize: 13, marginTop: 6.8, marginBottom: 3.4 },
-  hint: { fontSize: 12, lineHeight: 18, marginBottom: 3.4 },
-  input: { borderWidth: 1, paddingHorizontal: 10.2, paddingVertical: 10.2, fontSize: 14 },
-  textarea: { minHeight: 80 },
-  dimension: { borderLeftWidth: 2, paddingLeft: 10.2, gap: 3.4, marginTop: 6.8 },
+  // A count, not a sentence: a full-width box would promise more than it holds.
+  number: { width: 120 },
+  dimension: { borderWidth: 1, padding: 10.2, gap: 6.8, marginTop: 6.8 },
   dimensionRow: { flexDirection: 'row', alignItems: 'center', gap: 6.8, flexWrap: 'wrap' },
   chip: { borderWidth: 1, paddingHorizontal: 10.2, paddingVertical: 6.8 },
   chipLabel: { fontSize: 12, fontWeight: '600' },
-  weight: { width: 70 },
-  remove: { fontSize: 12, fontWeight: '600' },
+  // Pushed to the far edge so weight and "Quitar" line up down the list.
+  weightGroup: { flexDirection: 'row', alignItems: 'center', gap: 6.8, marginLeft: 'auto' },
+  weightLabel: { fontSize: 13 },
+  weight: { width: 72, textAlign: 'center' },
+  removeHit: { minWidth: 48, alignItems: 'flex-end', paddingVertical: 6.8 },
+  remove: { fontSize: 13, fontWeight: '600' },
+  addDimension: { alignSelf: 'flex-start', paddingVertical: 6.8 },
   switchRow: { flexDirection: 'row', alignItems: 'center', gap: 10.2, marginTop: 10.2 },
   switchLabel: { fontSize: 13, flexShrink: 1 },
   error: { fontSize: 13, marginTop: 6.8 },
@@ -379,10 +361,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    gap: 13.6,
+    gap: 20.4,
     marginTop: 13.6,
   },
-  toggle: { fontSize: 13, fontWeight: '600', marginTop: 6.8 },
+  toggle: { fontSize: 13, fontWeight: '600' },
+  cancel: { fontSize: 14, fontWeight: '600' },
   button: {
     paddingVertical: 10.2,
     paddingHorizontal: 20.4,

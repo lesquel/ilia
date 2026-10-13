@@ -1,11 +1,19 @@
+import { Pencil } from 'lucide-react-native';
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { ApiError } from '@/core/errors/api-error';
 import { useTheme } from '@/core/theme';
 import { LEVELS, LEVEL_LABELS, type Level } from '@/features/catalog/domain/entities';
 import { useUpdateCourse } from '@/features/instructor/application/use-instructor';
 import type { AuthoredCourse } from '@/features/instructor/domain/entities';
+import {
+  Field,
+  FieldGroup,
+  FieldLabel,
+  OutlineButton,
+  SubCard,
+} from '@/features/instructor/presentation/ui';
 
 function messageFor(error: unknown): string {
   if (!(error instanceof ApiError)) return 'No pudimos guardar los cambios.';
@@ -67,103 +75,87 @@ export function CourseDetailsForm({ course }: { course: AuthoredCourse }) {
     });
   };
 
-  const inputStyle = [
-    styles.input,
-    {
-      backgroundColor: theme.colors.neutral[100],
-      borderColor: theme.colors.divider,
-      color: theme.colors.text,
-      borderRadius: theme.radius.sm,
-    },
-  ];
-
   if (!open) {
     return (
-      <Pressable accessibilityRole="button" onPress={() => setOpen(true)}>
-        <Text style={[styles.toggle, { color: theme.colors.accent }]}>Editar los datos del curso</Text>
-      </Pressable>
+      <OutlineButton glyph={Pencil} label="Editar los datos del curso" onPress={() => setOpen(true)} />
     );
   }
 
   return (
-    <View
-      style={[styles.panel, { borderColor: theme.colors.divider, borderRadius: theme.radius.md }]}
-    >
-      <Text style={[styles.panelTitle, { color: theme.colors.text }]}>Datos del curso</Text>
+    <SubCard title="Datos del curso">
+      <FieldGroup title="Nombre y dirección">
+        <FieldLabel>Título</FieldLabel>
+        <Field value={title} onChangeText={setTitle} accessibilityLabel="Título del curso" />
 
-      <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>Título</Text>
-      <TextInput
-        style={inputStyle}
-        value={title}
-        onChangeText={setTitle}
-        accessibilityLabel="Título del curso"
-      />
+        <FieldLabel>Dirección</FieldLabel>
+        <Field
+          style={slugLocked ? styles.locked : undefined}
+          value={slug}
+          onChangeText={setSlug}
+          editable={!slugLocked}
+          autoCapitalize="none"
+          accessibilityLabel="Dirección del curso"
+        />
+        <Text style={[styles.hint, { color: theme.colors.neutral[600] }]}>
+          {slugLocked
+            ? 'No se puede cambiar mientras el curso esté publicado: los enlaces que ya tienen tus estudiantes dejarían de funcionar. Retíralo del catálogo si necesitas cambiarla.'
+            : `Va a quedar como /catalog/${slug || 'direccion-del-curso'}`}
+        </Text>
+      </FieldGroup>
 
-      <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>Dirección</Text>
-      <TextInput
-        style={[...inputStyle, slugLocked ? { opacity: 0.6 } : null]}
-        value={slug}
-        onChangeText={setSlug}
-        editable={!slugLocked}
-        autoCapitalize="none"
-        accessibilityLabel="Dirección del curso"
-      />
-      <Text style={[styles.hint, { color: theme.colors.neutral[600] }]}>
-        {slugLocked
-          ? 'No se puede cambiar mientras el curso esté publicado: los enlaces que ya tienen tus estudiantes dejarían de funcionar. Retíralo del catálogo si necesitas cambiarla.'
-          : `Va a quedar como /catalog/${slug || 'direccion-del-curso'}`}
-      </Text>
+      <FieldGroup title="Lo que se lee en el catálogo">
+        <FieldLabel>Resumen</FieldLabel>
+        <Field
+          style={styles.summary}
+          value={summary}
+          onChangeText={setSummary}
+          multiline
+          textAlignVertical="top"
+          accessibilityLabel="Resumen del curso"
+        />
 
-      <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>Resumen</Text>
-      <TextInput
-        style={inputStyle}
-        value={summary}
-        onChangeText={setSummary}
-        multiline
-        textAlignVertical="top"
-        accessibilityLabel="Resumen del curso"
-      />
+        <FieldLabel>Descripción</FieldLabel>
+        <Field
+          style={styles.textarea}
+          value={description}
+          onChangeText={setDescription}
+          multiline
+          textAlignVertical="top"
+          accessibilityLabel="Descripción del curso"
+        />
+      </FieldGroup>
 
-      <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>Descripción</Text>
-      <TextInput
-        style={[...inputStyle, styles.textarea]}
-        value={description}
-        onChangeText={setDescription}
-        multiline
-        textAlignVertical="top"
-        accessibilityLabel="Descripción del curso"
-      />
-
-      <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>Nivel</Text>
-      <View style={styles.levels}>
-        {LEVELS.map((option) => {
-          const selected = option === level;
-          return (
-            <Pressable
-              key={option}
-              accessibilityRole="button"
-              onPress={() => setLevel(option)}
-              style={[
-                styles.chip,
-                {
-                  backgroundColor: selected ? theme.colors.accent : 'transparent',
-                  borderColor: selected ? theme.colors.accent : theme.colors.divider,
-                  borderRadius: theme.radius.sm,
-                },
-              ]}
-            >
-              <Text
+      <FieldGroup title="Nivel">
+        <View style={styles.levels}>
+          {LEVELS.map((option) => {
+            const selected = option === level;
+            return (
+              <Pressable
+                key={option}
+                accessibilityRole="button"
+                onPress={() => setLevel(option)}
                 style={[
-                  styles.chipLabel,
-                  { color: selected ? '#f2f2f3' : theme.colors.neutral[700] },
+                  styles.chip,
+                  {
+                    backgroundColor: selected ? theme.colors.accent : 'transparent',
+                    borderColor: selected ? theme.colors.accent : theme.colors.divider,
+                    borderRadius: theme.radius.sm,
+                  },
                 ]}
               >
-                {LEVEL_LABELS[option]}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+                <Text
+                  style={[
+                    styles.chipLabel,
+                    { color: selected ? '#f2f2f3' : theme.colors.neutral[800] },
+                  ]}
+                >
+                  {LEVEL_LABELS[option]}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </FieldGroup>
 
       {update.isError ? (
         <Text style={[styles.error, { color: theme.colors.accentRamp[700] }]} accessibilityRole="alert">
@@ -177,7 +169,7 @@ export function CourseDetailsForm({ course }: { course: AuthoredCourse }) {
 
       <View style={styles.actions}>
         <Pressable accessibilityRole="button" onPress={() => setOpen(false)}>
-          <Text style={[styles.toggle, { color: theme.colors.neutral[600] }]}>Cerrar</Text>
+          <Text style={[styles.close, { color: theme.colors.neutral[600] }]}>Cerrar</Text>
         </Pressable>
         <Pressable
           accessibilityRole="button"
@@ -199,18 +191,17 @@ export function CourseDetailsForm({ course }: { course: AuthoredCourse }) {
           )}
         </Pressable>
       </View>
-    </View>
+    </SubCard>
   );
 }
 
 const styles = StyleSheet.create({
-  panel: { borderWidth: 1, padding: 13.6, gap: 3.4, marginTop: 13.6 },
-  panelTitle: { fontSize: 15, fontWeight: '600', marginBottom: 6.8 },
-  label: { fontSize: 13, marginTop: 6.8, marginBottom: 3.4 },
-  input: { borderWidth: 1, paddingHorizontal: 10.2, paddingVertical: 10.2, fontSize: 15 },
-  textarea: { minHeight: 100 },
-  hint: { fontSize: 12, marginTop: 3.4, lineHeight: 18 },
-  levels: { flexDirection: 'row', flexWrap: 'wrap', gap: 6.8, marginTop: 3.4 },
+  locked: { opacity: 0.6 },
+  // The summary is a sentence or two; the description is the long one.
+  summary: { minHeight: 64 },
+  textarea: { minHeight: 110 },
+  hint: { fontSize: 12, marginTop: 6.8, lineHeight: 18 },
+  levels: { flexDirection: 'row', flexWrap: 'wrap', gap: 6.8, marginTop: 6.8 },
   chip: { borderWidth: 1, paddingHorizontal: 13.6, paddingVertical: 6.8 },
   chipLabel: { fontSize: 13, fontWeight: '600' },
   error: { fontSize: 14, marginTop: 6.8 },
@@ -219,10 +210,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    gap: 13.6,
+    gap: 20.4,
     marginTop: 13.6,
   },
-  toggle: { fontSize: 14, fontWeight: '600', marginTop: 13.6 },
+  close: { fontSize: 14, fontWeight: '600' },
   button: {
     paddingVertical: 10.2,
     paddingHorizontal: 20.4,

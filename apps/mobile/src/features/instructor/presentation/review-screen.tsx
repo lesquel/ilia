@@ -6,7 +6,6 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 
@@ -18,6 +17,7 @@ import {
   useReviewInbox,
 } from '@/features/instructor/application/use-instructor';
 import type { ReviewItem } from '@/features/instructor/domain/entities';
+import { Field } from '@/features/instructor/presentation/ui';
 
 /**
  * The review inbox (PRD I-03).
@@ -147,32 +147,21 @@ function ReviewRow({ item }: { item: ReviewItem }) {
 
       {open ? (
         <View style={styles.composer}>
-          <TextInput
+          <Field
             value={score}
             onChangeText={setScore}
             keyboardType="numeric"
             inputMode="numeric"
             accessibilityLabel="Nota corregida"
             placeholder="0 a 100"
-            placeholderTextColor={theme.colors.neutral[500]}
-            style={[
-              styles.input,
-              { borderColor: theme.colors.divider, color: theme.colors.text },
-            ]}
           />
-          <TextInput
+          <Field
             value={reason}
             onChangeText={setReason}
             multiline
             textAlignVertical="top"
             accessibilityLabel="Justificación de la corrección"
             placeholder="Por qué corriges la nota. Es obligatorio y queda registrado."
-            placeholderTextColor={theme.colors.neutral[500]}
-            style={[
-              styles.input,
-              styles.textarea,
-              { borderColor: theme.colors.divider, color: theme.colors.text },
-            ]}
           />
           {/* A correction that failed silently is the worst outcome here: the
               instructor believes the grade was fixed, and the teacher never
@@ -253,8 +242,6 @@ const styles = StyleSheet.create({
   score: { fontSize: 22, fontWeight: '600' },
   verdict: { fontSize: 14, fontWeight: '600' },
   composer: { gap: 6.8, marginTop: 6.8 },
-  input: { borderWidth: 1, paddingHorizontal: 10.2, paddingVertical: 10.2, fontSize: 15 },
-  textarea: { minHeight: 80 },
   actions: {
     flexDirection: 'row',
     justifyContent: 'flex-end',

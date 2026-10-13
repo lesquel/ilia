@@ -1,16 +1,7 @@
 import { Link, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import type { ReactNode } from 'react';
-import {
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  useWindowDimensions,
-  type ViewStyle,
-} from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import { breakpoint, useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
@@ -33,6 +24,7 @@ import {
   type DayCount,
   type RosterEntry,
 } from '@/features/instructor/domain/entities';
+import { Card } from '@/features/instructor/presentation/ui';
 
 /** How many day columns fit one row before the labels start to collide. */
 const MAX_DAY_COLUMNS = 14;
@@ -143,44 +135,9 @@ export function RosterScreen({ commentsSlot }: RosterScreenProps) {
   );
 }
 
-function Card({
-  title,
-  hint,
-  children,
-}: {
-  title?: string;
-  hint?: string;
-  children: ReactNode;
-}) {
-  const theme = useTheme();
-
-  return (
-    <View
-      style={[
-        styles.card,
-        {
-          backgroundColor: theme.colors.surface,
-          borderColor: theme.colors.divider,
-          borderRadius: theme.radius.lg,
-        },
-        Platform.OS === 'web'
-          ? ({ boxShadow: '0 10px 28px rgba(17, 17, 17, 0.06)' } as unknown as ViewStyle)
-          : undefined,
-      ]}
-    >
-      {title ? (
-        <View style={styles.cardHead}>
-          <Text style={[styles.cardTitle, { color: theme.colors.text }]}>{title}</Text>
-          {hint ? (
-            <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>{hint}</Text>
-          ) : null}
-        </View>
-      ) : null}
-      {children}
-    </View>
-  );
-}
-
+// Labels on tiles, bars and rows use neutral 800, the one secondary ink the
+// theme flips for dark: 600 and 700 stay mid-grey there and fall under contrast
+// on the dark surface, and these are the words that carry the numbers.
 function StatTiles({ insights }: { insights: CourseInsights }) {
   const theme = useTheme();
   const { enrolled, finished, inProgress, notStarted, completionRate } = insights;
@@ -195,7 +152,7 @@ function StatTiles({ insights }: { insights: CourseInsights }) {
       <StatTile label="Sin empezar" value={notStarted} note={share(notStarted)} />
 
       <Tile>
-        <Text style={[styles.tileLabel, { color: theme.colors.neutral[600] }]}>Finalización</Text>
+        <Text style={[styles.tileLabel, { color: theme.colors.neutral[800] }]}>Finalización</Text>
         <Text style={[styles.tileValue, { color: theme.colors.text }]}>{completionRate}%</Text>
         <View
           accessibilityRole="progressbar"
@@ -210,7 +167,7 @@ function StatTiles({ insights }: { insights: CourseInsights }) {
             ]}
           />
         </View>
-        <Text style={[styles.tileNote, { color: theme.colors.neutral[600] }]}>
+        <Text style={[styles.tileNote, { color: theme.colors.neutral[800] }]}>
           {finished} de {enrolled} terminaron
         </Text>
       </Tile>
@@ -242,10 +199,10 @@ function StatTile({ label, value, note }: { label: string; value: number; note?:
 
   return (
     <Tile>
-      <Text style={[styles.tileLabel, { color: theme.colors.neutral[600] }]}>{label}</Text>
+      <Text style={[styles.tileLabel, { color: theme.colors.neutral[800] }]}>{label}</Text>
       <Text style={[styles.tileValue, { color: theme.colors.text }]}>{value}</Text>
       {note ? (
-        <Text style={[styles.tileNote, { color: theme.colors.neutral[600] }]}>{note}</Text>
+        <Text style={[styles.tileNote, { color: theme.colors.neutral[800] }]}>{note}</Text>
       ) : null}
     </Tile>
   );
@@ -262,7 +219,7 @@ function LessonProgressChart({ insights }: { insights: CourseInsights }) {
   const { width } = useWindowDimensions();
   const isWide = width >= breakpoint.compact;
   const rows = progressRows(insights);
-  const muted = theme.colors.neutral[600];
+  const muted = theme.colors.neutral[800];
 
   if (rows.length === 0) {
     return (
@@ -289,7 +246,7 @@ function LessonProgressChart({ insights }: { insights: CourseInsights }) {
       {rows.map((row, index) => (
         <View key={row.key} style={[styles.barRow, isWide ? styles.barRowWide : undefined]}>
           <View style={[styles.barTitle, isWide ? styles.barTitleWide : undefined]}>
-            <Text style={[styles.barIndex, { color: theme.colors.neutral[500] }]}>
+            <Text style={[styles.barIndex, { color: theme.colors.neutral[800] }]}>
               {String(index + 1).padStart(2, '0')}
             </Text>
             <Text style={[styles.barName, { color: theme.colors.text }]} numberOfLines={1}>
@@ -335,7 +292,7 @@ function LessonProgressChart({ insights }: { insights: CourseInsights }) {
 
 function EnrollmentsChart({ days }: { days: DayCount[] }) {
   const theme = useTheme();
-  const muted = theme.colors.neutral[600];
+  const muted = theme.colors.neutral[800];
 
   const sentence = enrollmentsSentence(days);
   if (sentence) {
@@ -396,7 +353,7 @@ function RosterRow({ entry, isFirst }: { entry: RosterEntry; isFirst: boolean })
   const theme = useTheme();
   const { width } = useWindowDimensions();
   const isWide = width >= breakpoint.compact;
-  const muted = theme.colors.neutral[600];
+  const muted = theme.colors.neutral[800];
 
   const dates = [
     entry.enrolledAt ? `Se inscribió el ${dayLabel(entry.enrolledAt)}` : null,
@@ -436,7 +393,7 @@ function RosterRow({ entry, isFirst }: { entry: RosterEntry; isFirst: boolean })
               style={[
                 styles.cohortLabel,
                 {
-                  color: entry.cohortName ? theme.colors.accentRamp[800] : theme.colors.neutral[700],
+                  color: entry.cohortName ? theme.colors.accentRamp[800] : theme.colors.neutral[800],
                 },
               ]}
             >
@@ -482,10 +439,6 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 15, lineHeight: 22 },
   body: { fontSize: 15, lineHeight: 22 },
   meta: { fontSize: 13, lineHeight: 19 },
-
-  card: { borderWidth: 1, padding: 20.4, gap: 13.6 },
-  cardHead: { gap: 3.4 },
-  cardTitle: { fontSize: 18, fontWeight: '700', letterSpacing: -0.2 },
 
   tiles: { flexDirection: 'row', flexWrap: 'wrap', gap: 10.2 },
   // Five across on a desktop, two on a phone: the basis is what decides.
