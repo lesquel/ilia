@@ -46,5 +46,7 @@ Forecast: about 350 authored lines. Strategy: ask-on-risk; single PR expected.
 - T2, closing paragraph left unchanged on purpose. `/forgot-password` exists, but its route wraps the screen in `GuestOnly`, which redirects a signed-in person to `/catalog`. Everyone on `/account` is signed in, so a link there would never arrive. Needs a product decision.
 - T2, `register-screen.tsx` keeps its own `MAX_NAME = 120`; it is outside this feature's edit surface, so it does not yet import `FULL_NAME_MAX_LENGTH`.
 
+- Parent check (2026-10-13): against the running API, `PATCH /auth/me` returned 200 with the trimmed name, 422 `invalid_full_name` for a blank name, 422 `schema_error` for an empty one and 401 without a session; `GET /auth/me` returned the new name. In headless Chrome at 1600px, signed in as a student, `/account` rendered both cards, and saving a new name showed "Listo. Guardamos tu nombre." and updated the avatar initial and the header account menu without a reload. The password form was not submitted.
+
 ## Next step
-Look at `/account` in the browser signed in (save a name, watch the header menu), then decide what the closing paragraph should offer a signed-in person.
+Open decision: what the closing paragraph should offer a signed-in person (`/forgot-password` is guest-only). Otherwise ready for a PR.
