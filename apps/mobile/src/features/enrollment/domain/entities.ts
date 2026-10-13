@@ -55,6 +55,20 @@ export function callToAction(progress: CourseProgress | null): string {
   return hasStarted(progress) ? 'Continuar' : 'Empezar';
 }
 
+/**
+ * The enrolments to list under the "continue" block.
+ *
+ * The featured course is already on screen with its progress and its action;
+ * listing it again below made a single enrolment read as two courses.
+ */
+export function enrolmentsBesides(
+  enrolled: readonly EnrolledCourse[],
+  featured: EnrolledCourse | undefined,
+): EnrolledCourse[] {
+  if (!featured) return [...enrolled];
+  return enrolled.filter((row) => row.course.id !== featured.course.id);
+}
+
 export function isLessonCompleted(progress: CourseProgress, lessonId: string): boolean {
   return progress.completedLessonIds.includes(lessonId);
 }

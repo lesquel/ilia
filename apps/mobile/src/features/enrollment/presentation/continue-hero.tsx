@@ -1,26 +1,22 @@
-import { Link, type Href } from 'expo-router';
-import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import type { Href } from 'expo-router';
+import { ArrowRight } from 'lucide-react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { breakpoint, useTheme } from '@/core/theme';
+import { useTheme } from '@/core/theme';
 import { ProgressBar } from '@/core/ui/progress-bar';
-import { useCourse } from '@/features/catalog';
+import { Card, OutlineLink, PrimaryLink, Tag, useIsWide } from '@/core/ui/surface';
+import { LEVEL_LABELS, useCourse } from '@/features/catalog';
 import { CourseCoverArt } from '@/features/catalog/presentation/course-cover-art';
-import {
-  primaryCourseToContinue,
-  resumeTargetForCourse,
-} from '@/features/enrollment/domain/resume';
+import { resumeTargetForCourse } from '@/features/enrollment/domain/resume';
 import type { EnrolledCourse } from '@/features/enrollment/domain/entities';
 
-export function ContinueHero({ courses }: { courses: readonly EnrolledCourse[] }) {
+/** The one course to pick up again: where it stands and the way back in. */
+export function ContinueHero({ enrolled }: { enrolled: EnrolledCourse }) {
   const theme = useTheme();
-  const { width } = useWindowDimensions();
-  const isWide = width >= breakpoint.compact;
+  const isWide = useIsWide();
 
-  const primary = primaryCourseToContinue(courses);
-  const { course: detail, isLoading } = useCourse(primary?.course.slug ?? '');
-  if (!primary) return null;
-
-  const { course, progress } = primary;
+  const { course, progress } = enrolled;
+  const { course: detail, isLoading } = useCourse(course.slug);
 
   const target =
     detail && !isLoading
@@ -39,23 +35,27 @@ export function ContinueHero({ courses }: { courses: readonly EnrolledCourse[] }
         };
 
   return (
-    <View
-      style={[
-        styles.shell,
-        {
-          backgroundColor: theme.colors.surface,
-          borderColor: theme.colors.divider,
-          borderRadius: theme.radius.lg,
-        },
-        isWide ? styles.shellWide : undefined,
-      ]}
-      accessibilityRole="summary"
-      accessibilityLabel={`Curso en progreso: ${course.title}`}
-    >
-      <CourseCoverArt courseSlug={course.slug} />
+    <Card style={[styles.shell, isWide ? styles.shellWide : undefined]}>
+      {/* The cover has no width of its own: beside the copy it needs one, or
+          it collapses and the block reads as a plain white box. */}
+      <View
+        style={[
+          isWide ? styles.coverWide : undefined,
+          { backgroundColor: theme.colors.accentRamp[100] },
+        ]}
+      >
+        <CourseCoverArt courseSlug={course.slug} />
+      </View>
 
-      <View style={styles.body}>
-        <Text style={[styles.kicker, { color: theme.colors.accent }]}>Curso en progreso</Text>
+      <View
+        style={styles.body}
+        accessibilityRole="summary"
+        accessibilityLabel={`Curso en progreso: ${course.title}`}
+      >
+        <View style={styles.tags}>
+          <Tag label="Curso en progreso" tone="accent" filled />
+          <Tag label={LEVEL_LABELS[course.level]} />
+        </View>
         <Text style={[styles.title, { color: theme.colors.text }]}>{course.title}</Text>
         {target.contextLine ? (
           <Text style={[styles.context, { color: theme.colors.neutral[600] }]} numberOfLines={2}>
@@ -76,122 +76,39 @@ export function ContinueHero({ courses }: { courses: readonly EnrolledCourse[] }
         </View>
 
         <View style={styles.actions}>
-          <Link href={target.href as Href} asChild>
-            <Pressable accessibilityRole="link" accessibilityLabel="Continuar curso">
-              {({ pressed }) => (
-                <View
-                  style={[
-                    styles.primaryBtn,
-                    {
-                      backgroundColor: theme.colors.accent,
-                      borderRadius: theme.radius.md,
-                      opacity: pressed ? 0.85 : 1,
-                    },
-                  ]}
-                >
-                  <Text style={styles.primaryLabel}>Continuar curso</Text>
-                </View>
-              )}
-            </Pressable>
-          </Link>
-
-          <Link href={`/catalog/${course.slug}`} asChild>
-            <Pressable accessibilityRole="link" accessibilityLabel="Ver temario del curso">
-              {({ pressed }) => (
-                <View
-                  style={[
-                    styles.secondaryBtn,
-                    {
-                      borderColor: theme.colors.divider,
-                      borderRadius: theme.radius.md,
-                      opacity: pressed ? 0.85 : 1,
-                    },
-                  ]}
-                >
-                  <Text style={[styles.secondaryLabel, { color: theme.colors.text }]}>
-                    Ver temario
-                  </Text>
-                </View>
-              )}
-            </Pressable>
-          </Link>
+          <PrimaryLink
+            href={target.href as Href}
+            label="Continuar curso"
+            glyph={ArrowRight}
+          />
+          <OutlineLink
+            href={`/catalog/${course.slug}`}
+            label="Ver temario"
+            accessibilityLabel="Ver temario del curso"
+          />
         </View>
       </View>
-    </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
-  shell: {
-    borderWidth: 1,
-    overflow: 'hidden',
-    marginBottom: 8,
-  },
-  shellWide: {
-    flexDirection: 'row',
-    alignItems: 'stretch',
-  },
+  // The cover runs to the edge of the card, so the padding moves to the copy.
+  shell: { padding: 0, gap: 0, overflow: 'hidden' },
+  shellWide: { flexDirection: 'row', alignItems: 'stretch' },
+  coverWide: { width: 340, justifyContent: 'center' },
   body: {
-    padding: 20,
-    gap: 8,
+    padding: 20.4,
+    gap: 10.2,
     flex: 1,
+    minWidth: 0,
     justifyContent: 'center',
   },
-  kicker: {
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: '700',
-  },
-  context: {
-    fontSize: 13,
-    lineHeight: 19,
-  },
-  progressRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    marginTop: 4,
-  },
-  progressTrack: {
-    flex: 1,
-  },
-  percent: {
-    fontSize: 20,
-    fontWeight: '700',
-    minWidth: 44,
-    textAlign: 'right',
-  },
-  actions: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    marginTop: 6,
-  },
-  primaryBtn: {
-    paddingVertical: 12,
-    paddingHorizontal: 18,
-    minHeight: 48,
-    justifyContent: 'center',
-  },
-  primaryLabel: {
-    color: '#ffffff',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  secondaryBtn: {
-    borderWidth: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 18,
-    minHeight: 48,
-    justifyContent: 'center',
-  },
-  secondaryLabel: {
-    fontSize: 15,
-    fontWeight: '600',
-  },
+  tags: { flexDirection: 'row', flexWrap: 'wrap', gap: 6.8 },
+  title: { fontSize: 24, fontWeight: '700', lineHeight: 30, letterSpacing: -0.4 },
+  context: { fontSize: 14, lineHeight: 20 },
+  progressRow: { flexDirection: 'row', alignItems: 'center', gap: 13.6 },
+  progressTrack: { flex: 1 },
+  percent: { fontSize: 20, fontWeight: '700', minWidth: 44, textAlign: 'right' },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10.2, marginTop: 3.4 },
 });

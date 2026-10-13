@@ -1,9 +1,20 @@
-import { Link, type Href } from 'expo-router';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import type { Href } from 'expo-router';
+import { ArrowRight, GraduationCap, History, UserRound } from 'lucide-react-native';
+import type { ReactNode } from 'react';
+import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
-import { useTheme } from '@/core/theme';
+import { breakpoint, useTheme } from '@/core/theme';
 import { ProgressBar } from '@/core/ui/progress-bar';
 import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
+import {
+  Card,
+  Fact,
+  OutlineLink,
+  PrimaryLink,
+  ScreenHeader,
+  SectionHeading,
+  Tag,
+} from '@/core/ui/surface';
 import {
   LEVEL_LABELS,
   isSyllabusFinished,
@@ -11,94 +22,117 @@ import {
   nextOpenSyllabusItem,
   type CourseSummary,
 } from '@/features/catalog/domain/entities';
-import { CourseCoverArt } from '@/features/catalog/presentation/course-cover-art';
 import { useCourse, useCourses } from '@/features/catalog';
 import { useSession } from '@/features/auth';
 import { useMyCourses } from '@/features/enrollment/application/use-enrollment';
-import { callToAction, type EnrolledCourse } from '@/features/enrollment/domain/entities';
+import {
+  callToAction,
+  enrolmentsBesides,
+  type EnrolledCourse,
+} from '@/features/enrollment/domain/entities';
+import { primaryCourseToContinue } from '@/features/enrollment/domain/resume';
 import { ContinueHero } from '@/features/enrollment/presentation/continue-hero';
 
+const CONTENT_MAX_WIDTH = 1080;
+const CONTENT_PADDING = 20.4;
+const GRID_GAP = 13.6;
+
 export function MyCoursesScreen() {
-  const theme = useTheme();
+  const { width } = useWindowDimensions();
   const { isAuthenticated, isLoading: isCheckingSession } = useSession();
   const { courses, isLoading, error, refetch } = useMyCourses();
   const { courses: catalog } = useCourses();
 
   if (isCheckingSession) {
     return (
-      <View style={[styles.screen, { backgroundColor: theme.colors.bg }]}>
+      <Screen>
         <LoadingState />
-      </View>
+      </Screen>
     );
   }
 
   if (!isAuthenticated) {
     return (
-      <View style={[styles.screen, { backgroundColor: theme.colors.bg }]}>
+      <Screen>
         <EmptyState
+          glyph={GraduationCap}
           title="Inicia sesión para ver tus cursos"
           hint="Tu progreso queda guardado en tu cuenta."
+          action={{ label: 'Iniciar sesión', href: '/login?next=/my-courses' as Href }}
         />
-        <Link
-          href="/login?next=/my-courses"
-          style={[styles.link, { color: theme.colors.accent }]}
-        >
-          Iniciar sesión
-        </Link>
-      </View>
+      </Screen>
     );
   }
 
   if (error) {
     return (
-      <View style={[styles.screen, { backgroundColor: theme.colors.bg }]}>
+      <Screen>
         <ErrorState error={error} onRetry={() => void refetch()} />
-      </View>
+      </Screen>
     );
   }
 
   const hasOnlyFinishedCourses =
     courses.length > 0 && courses.every((item) => item.progress.isFinished);
-  const showContinueHero = courses.some((item) => !item.progress.isFinished);
+  const featured = primaryCourseToContinue(courses);
+  const others = enrolmentsBesides(courses, featured);
+
+  // Same breakpoints as the catalogue grid, and the same cap: a card takes one
+  // column's width even when it is alone on its row.
+  const columns = width >= breakpoint.medium ? 3 : width >= breakpoint.compact ? 2 : 1;
+  const contentWidth = Math.min(width, CONTENT_MAX_WIDTH) - CONTENT_PADDING * 2;
+  const cardWidth = (contentWidth - GRID_GAP * (columns - 1)) / columns;
 
   return (
-    <FlatList
-      style={{ backgroundColor: theme.colors.bg }}
-      contentContainerStyle={styles.content}
-      data={courses}
-      keyExtractor={(item) => item.course.id}
-      renderItem={({ item }) => (
-        <EnrolledCourseCard enrolled={item} catalog={catalog} />
+    <Screen>
+      <ScreenHeader
+        title="Mis cursos"
+        subtitle={
+          hasOnlyFinishedCourses
+            ? 'Ya terminaste lo que tenías abierto. Sigue por la ruta.'
+            : 'Continúa aprendiendo donde lo dejaste.'
+        }
+        actions={<OutlineLink href="/evaluations" label="Historial de entregas" glyph={History} />}
+      />
+
+      {isLoading ? (
+        <LoadingState label="Cargando tus cursos…" />
+      ) : courses.length === 0 ? (
+        <EmptyState
+          glyph={GraduationCap}
+          title="Todavía no te inscribiste en ningún curso"
+          hint="Explora el catálogo y empieza por la ruta básica."
+          action={{ label: 'Explorar cursos', href: '/catalog' }}
+        />
+      ) : (
+        <>
+          {featured ? <ContinueHero enrolled={featured} /> : null}
+
+          {others.length > 0 ? (
+            <View style={styles.section}>
+              <SectionHeading title={featured ? 'Tus otros cursos' : 'Tus cursos'} />
+              <View style={columns > 1 ? styles.grid : styles.stack}>
+                {others.map((item) => (
+                  <View key={item.course.id} style={columns > 1 ? { width: cardWidth } : undefined}>
+                    <EnrolledCourseCard enrolled={item} catalog={catalog} />
+                  </View>
+                ))}
+              </View>
+            </View>
+          ) : null}
+        </>
       )}
-      ListHeaderComponent={
-        <View style={styles.header}>
-          <Text style={[styles.title, { color: theme.colors.text }]}>Mis cursos</Text>
-          <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
-            {hasOnlyFinishedCourses
-              ? 'Ya terminaste lo que tenías abierto. Sigue por la ruta.'
-              : 'Continúa aprendiendo donde lo dejaste.'}
-          </Text>
-          {showContinueHero ? <ContinueHero courses={courses} /> : null}
-          <Link
-            href="/evaluations"
-            style={[styles.historyLink, { color: theme.colors.accent }]}
-            accessibilityRole="link"
-          >
-            Historial de entregas
-          </Link>
-        </View>
-      }
-      ListEmptyComponent={
-        isLoading ? (
-          <LoadingState label="Cargando tus cursos…" />
-        ) : (
-          <EmptyState
-            title="Todavía no te inscribiste en ningún curso"
-            hint="Explora el catálogo y empieza por la ruta básica."
-          />
-        )
-      }
-    />
+    </Screen>
+  );
+}
+
+function Screen({ children }: { children: ReactNode }) {
+  const theme = useTheme();
+
+  return (
+    <ScrollView style={{ backgroundColor: theme.colors.bg }} contentContainerStyle={styles.content}>
+      {children}
+    </ScrollView>
   );
 }
 
@@ -128,200 +162,96 @@ function EnrolledCourseCard({
     ? nextCourseAlongLearningPath(course, catalog)
     : undefined;
 
+  const courseHref = (
+    pendingPractice
+      ? `/lab/${pendingPractice.id}`
+      : progress.nextLesson
+        ? `/catalog/${course.slug}/lessons/${progress.nextLesson.lessonId}`
+        : `/catalog/${course.slug}`
+  ) as Href;
+  const courseLabel = isFinished
+    ? 'Abrir el curso'
+    : pendingPractice
+      ? 'Hacer la práctica'
+      : callToAction(progress);
+  // One filled button per card: once the course is finished, the next course
+  // on the route is the action and opening this one steps back.
+  const nextCourseIsTheAction = isFinished && followingCourse !== undefined;
+
   return (
-    <View
-      style={[
-        styles.card,
-        {
-          backgroundColor: theme.colors.surface,
-          borderColor: theme.colors.divider,
-          borderRadius: theme.radius.lg,
-        },
-      ]}
-    >
-      <CourseCoverArt courseSlug={course.slug} />
+    <Card style={styles.card}>
+      <View style={styles.tags}>
+        <Tag label={LEVEL_LABELS[course.level]} tone="accent" />
+        {isFinished ? <Tag label="Terminado" filled /> : null}
+      </View>
 
-      <View style={styles.cardBody}>
-        <Text style={[styles.level, { color: theme.colors.accentRamp[700] }]}>
-          {LEVEL_LABELS[course.level]}
-          {isFinished ? ' · terminado' : ''}
+      <View style={styles.cardHead}>
+        <Text style={[styles.courseTitle, { color: theme.colors.text }]} numberOfLines={3}>
+          {course.title}
         </Text>
-
-        <Text style={[styles.courseTitle, { color: theme.colors.text }]}>{course.title}</Text>
         {course.instructorName.trim() ? (
-          <Text style={[styles.instructor, { color: theme.colors.neutral[600] }]}>
-            {course.instructorName}
-          </Text>
+          <Fact glyph={UserRound} label={course.instructorName} />
         ) : null}
+      </View>
 
+      <ProgressBar
+        percentage={progress.percentage}
+        label={`${progress.completedLessons} de ${progress.totalLessons} lecciones · ${Math.round(progress.percentage)}%`}
+      />
+
+      {/* Fills the card, so the actions line up along a row of cards whose
+          notes run to different lengths. */}
+      <View style={styles.next}>
         {isFinished ? (
-          <Text style={[styles.closing, { color: theme.colors.neutral[700] }]}>
+          <Text style={[styles.note, { color: theme.colors.neutral[800] }]}>
             {followingCourse
               ? `Este ya está. Sigue con ${followingCourse.title}.`
               : 'Terminaste la ruta. Puedes repasar o emitir el certificado en el curso.'}
           </Text>
         ) : pendingPractice ? (
-          <Text style={[styles.next, { color: theme.colors.neutral[600] }]} numberOfLines={2}>
+          <Text style={[styles.note, { color: theme.colors.neutral[800] }]} numberOfLines={3}>
             Lecciones listas · falta la práctica: {pendingPractice.title}
           </Text>
-        ) : (
-          <>
-            <ProgressBar
-              percentage={progress.percentage}
-              label={`${progress.completedLessons} de ${progress.totalLessons} lecciones`}
-            />
-            {progress.nextLesson ? (
-              <Text style={[styles.next, { color: theme.colors.neutral[600] }]} numberOfLines={2}>
-                Sigue: {progress.nextLesson.moduleTitle} · {progress.nextLesson.lessonTitle}
-              </Text>
-            ) : null}
-          </>
-        )}
-
-        {isFinished && followingCourse ? (
-          <ActionLink
-            href={`/catalog/${followingCourse.slug}`}
-            label={`Sigue: ${followingCourse.title}`}
-            kind="primary"
-          />
-        ) : null}
-
-        <ActionLink
-          href={
-            pendingPractice
-              ? `/lab/${pendingPractice.id}`
-              : progress.nextLesson
-              ? `/catalog/${course.slug}/lessons/${progress.nextLesson.lessonId}`
-              : `/catalog/${course.slug}`
-          }
-          label={
-            isFinished ? 'Abrir el curso' : pendingPractice ? 'Hacer la práctica' : callToAction(progress)
-          }
-          kind={isFinished && followingCourse ? 'ghost' : 'primary'}
-        />
-
-        {isFinished ? (
-          <ActionLink href="/certificates" label="Ver certificados" kind="ghost" />
+        ) : progress.nextLesson ? (
+          <Text style={[styles.note, { color: theme.colors.neutral[800] }]} numberOfLines={3}>
+            Sigue: {progress.nextLesson.moduleTitle} · {progress.nextLesson.lessonTitle}
+          </Text>
         ) : null}
       </View>
-    </View>
-  );
-}
 
-function ActionLink({
-  href,
-  label,
-  kind,
-}: {
-  href: string;
-  label: string;
-  kind: 'primary' | 'ghost';
-}) {
-  const theme = useTheme();
-  const isPrimary = kind === 'primary';
-
-  return (
-    <Link href={href as Href} asChild>
-      <Pressable accessibilityRole="link">
-        {({ pressed }) => (
-          <View
-            style={[
-              styles.button,
-              {
-                backgroundColor: isPrimary ? theme.colors.text : 'transparent',
-                borderColor: isPrimary ? theme.colors.text : theme.colors.divider,
-                borderRadius: theme.radius.md,
-                opacity: pressed ? 0.85 : 1,
-              },
-            ]}
-          >
-            <Text
-              style={[
-                styles.buttonLabel,
-                { color: isPrimary ? '#ffffff' : theme.colors.text },
-              ]}
-            >
-              {label}
-            </Text>
-          </View>
+      <View style={styles.actions}>
+        {nextCourseIsTheAction ? (
+          <PrimaryLink
+            href={`/catalog/${followingCourse.slug}` as Href}
+            label={`Sigue: ${followingCourse.title}`}
+            glyph={ArrowRight}
+          />
+        ) : (
+          <PrimaryLink href={courseHref} label={courseLabel} glyph={ArrowRight} />
         )}
-      </Pressable>
-    </Link>
+        {nextCourseIsTheAction ? <OutlineLink href={courseHref} label={courseLabel} /> : null}
+        {isFinished ? <OutlineLink href="/certificates" label="Ver certificados" /> : null}
+      </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    paddingTop: 27.2,
-  },
   content: {
-    padding: 20.4,
-    maxWidth: 800,
+    padding: CONTENT_PADDING,
+    maxWidth: CONTENT_MAX_WIDTH,
     width: '100%',
     alignSelf: 'center',
-    gap: 16,
+    gap: 20.4,
   },
-  header: {
-    gap: 6.8,
-    marginBottom: 6.8,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '600',
-  },
-  subtitle: {
-    fontSize: 15,
-  },
-  historyLink: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginTop: 4,
-    marginBottom: 4,
-  },
-  link: {
-    textAlign: 'center',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  card: {
-    borderWidth: 1,
-    overflow: 'hidden',
-  },
-  cardBody: {
-    padding: 20,
-    gap: 10,
-  },
-  level: {
-    fontSize: 11,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  courseTitle: {
-    fontSize: 22,
-    fontWeight: '600',
-  },
-  instructor: {
-    fontSize: 13,
-  },
-  closing: {
-    fontSize: 15,
-    lineHeight: 22,
-  },
-  next: {
-    fontSize: 13,
-  },
-  button: {
-    borderWidth: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 48,
-  },
-  buttonLabel: {
-    fontSize: 15,
-    fontWeight: '600',
-  },
+  section: { gap: 13.6 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'stretch', gap: GRID_GAP },
+  stack: { gap: GRID_GAP },
+  card: { flexGrow: 1, gap: 10.2 },
+  tags: { flexDirection: 'row', flexWrap: 'wrap', gap: 6.8 },
+  cardHead: { gap: 3.4 },
+  courseTitle: { fontSize: 18, fontWeight: '700', lineHeight: 24, letterSpacing: -0.2 },
+  next: { flexGrow: 1 },
+  note: { fontSize: 13, lineHeight: 19 },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10.2 },
 });
