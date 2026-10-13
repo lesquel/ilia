@@ -7,13 +7,13 @@ from uuid import UUID
 from sqlalchemy import (
     JSON,
     Boolean,
+    CheckConstraint,
     DateTime,
-    ForeignKeyConstraint,
     Float,
     ForeignKey,
+    ForeignKeyConstraint,
     Index,
     Integer,
-    CheckConstraint,
     Numeric,
     String,
     Text,
@@ -30,7 +30,7 @@ from app.core.schemas import DbSchema
 
 class RubricModel(Base):
     __tablename__ = "rubric"
-    __table_args__ = {"schema": DbSchema.ASSESSMENT.value}
+    __table_args__ = ({"schema": DbSchema.ASSESSMENT.value},)
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     # Bumped whenever an instructor edits the dimensions. A submission stores
@@ -47,11 +47,17 @@ class RubricModel(Base):
 class RubricDimensionModel(Base):
     __tablename__ = "rubric_dimension"
 
-    __table_args__ = (UniqueConstraint("rubric_id", "key", name="uq_dimension_rubric_key"), {"schema": DbSchema.ASSESSMENT.value})
+    __table_args__ = (
+        UniqueConstraint("rubric_id", "key", name="uq_dimension_rubric_key"),
+        {"schema": DbSchema.ASSESSMENT.value},
+    )
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     rubric_id: Mapped[UUID] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("assessment.rubric.id", ondelete="CASCADE"), nullable=False, index=True
+        Uuid(as_uuid=True),
+        ForeignKey("assessment.rubric.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     key: Mapped[str] = mapped_column(String(60), nullable=False)
     name: Mapped[str] = mapped_column(String(160), nullable=False)
@@ -66,7 +72,12 @@ class ActivityModel(Base):
     __tablename__ = "activity"
     __table_args__ = (
         CheckConstraint("max_attempts > 0", name="ck_activity_max_attempts_positive"),
-        ForeignKeyConstraint(["module_id", "course_id"], ["catalog.course_module.id", "catalog.course_module.course_id"], ondelete="CASCADE", name="fk_activity_module_course"),
+        ForeignKeyConstraint(
+            ["module_id", "course_id"],
+            ["catalog.course_module.id", "catalog.course_module.course_id"],
+            ondelete="CASCADE",
+            name="fk_activity_module_course",
+        ),
         Index("ix_activity_module_course", "module_id", "course_id"),
         {"schema": DbSchema.ASSESSMENT.value},
     )
@@ -78,7 +89,10 @@ class ActivityModel(Base):
         index=True,
     )
     course_id: Mapped[UUID] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("catalog.course.id", ondelete="CASCADE"), nullable=False, index=True
+        Uuid(as_uuid=True),
+        ForeignKey("catalog.course.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     rubric_id: Mapped[UUID] = mapped_column(
         Uuid(as_uuid=True), ForeignKey("assessment.rubric.id", ondelete="RESTRICT"), nullable=False
@@ -158,12 +172,14 @@ class SubmissionModel(Base):
         server_default=func.now(),
         onupdate=func.now(),
     )
-    content_purged_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    content_purged_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
 
 class ModelOutputModel(Base):
     __tablename__ = "model_output"
-    __table_args__ = {"schema": DbSchema.ASSESSMENT.value}
+    __table_args__ = ({"schema": DbSchema.ASSESSMENT.value},)
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     submission_id: Mapped[UUID] = mapped_column(
@@ -181,7 +197,7 @@ class ModelOutputModel(Base):
 
 class EvaluationModel(Base):
     __tablename__ = "evaluation"
-    __table_args__ = {"schema": DbSchema.ASSESSMENT.value}
+    __table_args__ = ({"schema": DbSchema.ASSESSMENT.value},)
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     submission_id: Mapped[UUID] = mapped_column(
@@ -251,7 +267,7 @@ class LlmUsageModel(Base):
     """
 
     __tablename__ = "llm_usage"
-    __table_args__ = {"schema": DbSchema.BILLING.value}
+    __table_args__ = ({"schema": DbSchema.BILLING.value},)
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     user_id: Mapped[UUID] = mapped_column(
@@ -261,12 +277,16 @@ class LlmUsageModel(Base):
         index=True,
     )
     submission_id: Mapped[UUID | None] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("assessment.submission.id", ondelete="SET NULL"), nullable=True
+        Uuid(as_uuid=True),
+        ForeignKey("assessment.submission.id", ondelete="SET NULL"),
+        nullable=True,
     )
     model: Mapped[str] = mapped_column(String(120), nullable=False, default="")
     input_tokens: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     output_tokens: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-    provider: Mapped[str] = mapped_column(String(60), nullable=False, server_default="unknown", default="unknown")
+    provider: Mapped[str] = mapped_column(
+        String(60), nullable=False, server_default="unknown", default="unknown"
+    )
     input_price_per_million: Mapped[Decimal | None] = mapped_column(Numeric(14, 6), nullable=True)
     output_price_per_million: Mapped[Decimal | None] = mapped_column(Numeric(14, 6), nullable=True)
     input_cost_usd: Mapped[Decimal | None] = mapped_column(Numeric(14, 8), nullable=True)

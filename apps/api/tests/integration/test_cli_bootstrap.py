@@ -69,7 +69,8 @@ async def _user(email: str) -> dict[str, str] | None:
             row = (
                 await connection.execute(
                     text(
-                        "SELECT role, full_name, password_hash FROM auth.app_user WHERE email = :email"
+                        "SELECT role, full_name, password_hash FROM auth.app_user "
+                        "WHERE email = :email"
                     ),
                     {"email": email},
                 )

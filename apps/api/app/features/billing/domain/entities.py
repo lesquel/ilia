@@ -73,7 +73,9 @@ class Subscription:
 
     def is_active(self, at: datetime) -> bool:
         started = self.started_at is None or self.started_at <= at
-        return started and self.ended_at is None and (self.expires_at is None or self.expires_at > at)
+        return (
+            started and self.ended_at is None and (self.expires_at is None or self.expires_at > at)
+        )
 
 
 @dataclass(frozen=True)

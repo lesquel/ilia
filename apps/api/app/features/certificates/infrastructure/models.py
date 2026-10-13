@@ -15,7 +15,10 @@ class CertificateModel(Base):
 
     # One certificate per teacher per course. Two codes for one achievement is
     # two things to verify and one to explain.
-    __table_args__ = (UniqueConstraint("user_id", "course_id", name="uq_certificate_user_course"), {"schema": DbSchema.LEARNING.value})
+    __table_args__ = (
+        UniqueConstraint("user_id", "course_id", name="uq_certificate_user_course"),
+        {"schema": DbSchema.LEARNING.value},
+    )
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     user_id: Mapped[UUID] = mapped_column(

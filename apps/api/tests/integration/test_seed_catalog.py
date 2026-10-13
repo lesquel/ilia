@@ -148,7 +148,10 @@ def test_empty_database_then_run_then_catalog_lists_canonical_slugs(
 
 def test_canonical_labs_ignore_a_preexisting_unrelated_rubric(client: TestClient) -> None:
     sql(
-        [f"INSERT INTO assessment.rubric (id, version, name) VALUES ('{uuid4()}', 1, 'Rúbrica de otro curso')"]
+        [
+            "INSERT INTO assessment.rubric (id, version, name) "
+            f"VALUES ('{uuid4()}', 1, 'Rúbrica de otro curso')"
+        ]
     )
 
     asyncio.run(run(_settings()))

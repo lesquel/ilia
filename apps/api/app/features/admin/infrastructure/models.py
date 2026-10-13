@@ -19,7 +19,7 @@ class AuditLogModel(Base):
     """
 
     __tablename__ = "audit_log"
-    __table_args__ = {"schema": DbSchema.AUDIT.value}
+    __table_args__ = ({"schema": DbSchema.AUDIT.value},)
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     actor_id: Mapped[UUID | None] = mapped_column(

@@ -36,7 +36,8 @@ TABLES = (
     "community.forum_thread, assessment.evaluation_score, assessment.evaluation, "
     "assessment.model_output, billing.llm_usage, assessment.submission, assessment.activity, "
     "assessment.rubric_dimension, assessment.rubric, catalog.lesson, catalog.course_module, "
-    "catalog.course, auth.app_user, learning.cohort, billing.subscription, billing.plan, audit.audit_log"
+    "catalog.course, auth.app_user, learning.cohort, billing.subscription, billing.plan, "
+    "audit.audit_log"
 )
 
 DRAFT = {

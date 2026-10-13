@@ -435,7 +435,8 @@ class TestEvaluationQuota:
                 "(id, rubric_id, key, name, description, kind, weight) "
                 "VALUES (gen_random_uuid(), '11111111-1111-1111-1111-111111111111', "
                 "'claridad', 'Claridad', '', 'prompt', 1)",
-                "INSERT INTO assessment.activity (id, module_id, course_id, rubric_id, title, statement, "
+                "INSERT INTO assessment.activity "
+                "(id, module_id, course_id, rubric_id, title, statement, "
                 "max_attempts, checks) VALUES "
                 "('22222222-2222-2222-2222-222222222222', "
                 f"'{module_id}', '{course_id}', "

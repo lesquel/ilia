@@ -8,15 +8,15 @@ belongs to each feature.
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
+from sqlalchemy import event
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy import event
-from sqlalchemy.schema import CreateSchema
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.schema import CreateSchema
 
 from app.core.config import Settings
 from app.core.schemas import DbSchema

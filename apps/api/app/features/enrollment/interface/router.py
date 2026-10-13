@@ -7,9 +7,9 @@ A `user_id` parameter would let anyone enroll anybody.
 
 from datetime import timedelta
 from uuid import UUID
-from pydantic import BaseModel, Field
 
 from fastapi import APIRouter, Request, status
+from pydantic import BaseModel, Field
 
 from app.features.auth.interface.dependencies import CurrentUser, SettingsDep
 from app.features.billing.application.use_cases import require_level
@@ -132,13 +132,23 @@ async def complete_lesson(
 
 @router.patch("/me/{slug}/lessons/{lesson_id}/position", status_code=status.HTTP_204_NO_CONTENT)
 async def record_lesson_position(
-    slug: str, lesson_id: UUID, payload: LessonPositionRequest, request: Request,
-    user: CurrentUser, courses: CoursesDep, enrollments: EnrollmentsDep, progress: ProgressDep,
+    slug: str,
+    lesson_id: UUID,
+    payload: LessonPositionRequest,
+    request: Request,
+    user: CurrentUser,
+    courses: CoursesDep,
+    enrollments: EnrollmentsDep,
+    progress: ProgressDep,
 ) -> None:
-    await RecordLessonPosition(courses=courses, enrollments=enrollments, progress=progress,
-        clock=request.app.state.auth["clock"]).execute(
-            user_id=user.id, slug=slug, lesson_id=lesson_id, position_seconds=payload.position_seconds
-        )
+    await RecordLessonPosition(
+        courses=courses,
+        enrollments=enrollments,
+        progress=progress,
+        clock=request.app.state.auth["clock"],
+    ).execute(
+        user_id=user.id, slug=slug, lesson_id=lesson_id, position_seconds=payload.position_seconds
+    )
 
 
 @router.get("/me/{slug}/lessons/{lesson_id}", response_model=LessonViewResponse)

@@ -40,12 +40,18 @@ class EnrollmentModel(Base):
         index=True,
     )
     course_id: Mapped[UUID] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("catalog.course.id", ondelete="CASCADE"), nullable=False, index=True
+        Uuid(as_uuid=True),
+        ForeignKey("catalog.course.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     # Which in-person talk the enrollment came from. SET NULL preserves the
     # student's course history if a cohort is removed.
     cohort_id: Mapped[UUID | None] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("learning.cohort.id", ondelete="SET NULL"), nullable=True, index=True
+        Uuid(as_uuid=True),
+        ForeignKey("learning.cohort.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
     )
     enrolled_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
@@ -61,8 +67,18 @@ class LessonProgressModel(Base):
     __table_args__ = (
         UniqueConstraint("enrollment_id", "lesson_id", name="uq_progress_enrollment_lesson"),
         CheckConstraint("position_seconds >= 0", name="ck_lesson_progress_position_nonnegative"),
-        ForeignKeyConstraint(["enrollment_id", "course_id"], ["learning.enrollment.id", "learning.enrollment.course_id"], ondelete="CASCADE", name="fk_progress_enrollment_course"),
-        ForeignKeyConstraint(["lesson_id", "course_id"], ["catalog.lesson.id", "catalog.lesson.course_id"], ondelete="CASCADE", name="fk_progress_lesson_course"),
+        ForeignKeyConstraint(
+            ["enrollment_id", "course_id"],
+            ["learning.enrollment.id", "learning.enrollment.course_id"],
+            ondelete="CASCADE",
+            name="fk_progress_enrollment_course",
+        ),
+        ForeignKeyConstraint(
+            ["lesson_id", "course_id"],
+            ["catalog.lesson.id", "catalog.lesson.course_id"],
+            ondelete="CASCADE",
+            name="fk_progress_lesson_course",
+        ),
         Index("ix_progress_enrollment_course", "enrollment_id", "course_id"),
         Index("ix_progress_lesson_course", "lesson_id", "course_id"),
         {"schema": DbSchema.LEARNING.value},
@@ -75,10 +91,10 @@ class LessonProgressModel(Base):
         index=True,
     )
     course_id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), nullable=False, index=True)
-    lesson_id: Mapped[UUID] = mapped_column(
-        Uuid(as_uuid=True), nullable=False
+    lesson_id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), nullable=False)
+    position_seconds: Mapped[int] = mapped_column(
+        Integer, nullable=False, server_default="0", default=0
     )
-    position_seconds: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0", default=0)
     last_viewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True, server_default=func.now()

@@ -28,7 +28,12 @@ class ForumThreadModel(Base):
     # index. Without it every forum page load sorts the whole table.
     __table_args__ = (
         Index("ix_forum_thread_course_activity", "course_id", "last_activity_at"),
-        ForeignKeyConstraint(["module_id", "course_id"], ["catalog.course_module.id", "catalog.course_module.course_id"], ondelete="CASCADE", name="fk_forum_thread_module_course"),
+        ForeignKeyConstraint(
+            ["module_id", "course_id"],
+            ["catalog.course_module.id", "catalog.course_module.course_id"],
+            ondelete="CASCADE",
+            name="fk_forum_thread_module_course",
+        ),
         Index("ix_forum_thread_module_course", "module_id", "course_id"),
         {"schema": DbSchema.COMMUNITY.value},
     )
@@ -39,9 +44,7 @@ class ForumThreadModel(Base):
     )
     # Null means the thread belongs to the course as a whole — which is what the
     # mockup shows ("Foro del curso"), despite what PRD open question 8 claims.
-    module_id: Mapped[UUID | None] = mapped_column(
-        Uuid(as_uuid=True), nullable=True
-    )
+    module_id: Mapped[UUID | None] = mapped_column(Uuid(as_uuid=True), nullable=True)
     author_id: Mapped[UUID] = mapped_column(
         Uuid(as_uuid=True), ForeignKey("auth.app_user.id", ondelete="CASCADE"), nullable=False
     )
@@ -69,7 +72,7 @@ class ForumThreadModel(Base):
 
 class ForumPostModel(Base):
     __tablename__ = "forum_post"
-    __table_args__ = {"schema": DbSchema.COMMUNITY.value}
+    __table_args__ = ({"schema": DbSchema.COMMUNITY.value},)
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     thread_id: Mapped[UUID] = mapped_column(
