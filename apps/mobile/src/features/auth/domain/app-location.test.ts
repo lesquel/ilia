@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   appNavItemsForRole,
+  courseSlugInPath,
   firstGivenName,
   givenNameInitial,
   resolveAppLocation,
@@ -39,6 +40,37 @@ describe('resolveAppLocation', () => {
     ]);
   });
 
+  it('shows a course by its real title once it is known', () => {
+    const location = resolveAppLocation('/catalog/introduccion-a-la-ia-para-docentes/forum', {
+      courseTitle: 'Introducción a la IA para docentes',
+    });
+    expect(location.crumbs.map((crumb) => crumb.label)).toEqual([
+      'Catálogo',
+      'Introducción a la IA para docentes',
+      'Foro',
+    ]);
+    expect(location.crumbs[1]?.href).toBe('/catalog/introduccion-a-la-ia-para-docentes');
+  });
+
+  it('keeps the readable slug while the title is still unknown', () => {
+    const labels = (courseTitle: string | undefined) =>
+      resolveAppLocation('/catalog/prompting-para-docentes', { courseTitle }).crumbs.map(
+        (crumb) => crumb.label,
+      );
+
+    expect(labels(undefined)).toEqual(['Catálogo', 'Prompting para docentes']);
+    expect(labels('   ')).toEqual(['Catálogo', 'Prompting para docentes']);
+  });
+
+  it('names the delivery history as a place under my courses', () => {
+    const location = resolveAppLocation('/evaluations');
+    expect(location.sectionId).toBe('my-courses');
+    expect(location.crumbs).toEqual([
+      { label: 'Mis cursos', href: '/my-courses' },
+      { label: 'Historial de entregas', href: '/evaluations' },
+    ]);
+  });
+
   it('names enrolled courses, certificates and the account', () => {
     expect(resolveAppLocation('/my-courses').sectionLabel).toBe('Mis cursos');
     expect(resolveAppLocation('/certificates').sectionLabel).toBe('Certificados');
@@ -69,6 +101,21 @@ describe('resolveAppLocation', () => {
 
   it('ignores a trailing slash and a query string', () => {
     expect(resolveAppLocation('/catalog/?level=beginner').sectionId).toBe('catalog');
+  });
+});
+
+describe('courseSlugInPath', () => {
+  it('finds the course a catalogue path points at, however deep the path goes', () => {
+    expect(courseSlugInPath('/catalog/prompting-para-docentes')).toBe('prompting-para-docentes');
+    expect(courseSlugInPath('/catalog/prompting-para-docentes/forum/thread-1?x=1')).toBe(
+      'prompting-para-docentes',
+    );
+  });
+
+  it('finds none outside a course', () => {
+    expect(courseSlugInPath('/catalog')).toBeUndefined();
+    expect(courseSlugInPath('/my-courses')).toBeUndefined();
+    expect(courseSlugInPath('/')).toBeUndefined();
   });
 });
 

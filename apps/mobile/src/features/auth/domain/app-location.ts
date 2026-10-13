@@ -72,7 +72,13 @@ export function appNavItemsForRole(role: Role): AppNavItem[] {
   return items;
 }
 
-export function resolveAppLocation(pathname: string): AppLocation {
+/** Names the URL cannot give: known only once the page's own data has loaded. */
+export type AppLocationNames = {
+  /** The title of the course the path points at, when it is already loaded. */
+  courseTitle?: string;
+};
+
+export function resolveAppLocation(pathname: string, names: AppLocationNames = {}): AppLocation {
   const path = normalizePath(pathname);
   const segments = path.split('/').filter(Boolean);
 
@@ -85,7 +91,10 @@ export function resolveAppLocation(pathname: string): AppLocation {
   if (root === 'catalog') {
     const crumbs: AppLocationCrumb[] = [{ label: 'Catálogo', href: '/catalog' }];
     if (second) {
-      crumbs.push({ label: titleFromSlug(second), href: `/catalog/${second}` });
+      // The slug has no accents and no capitals; it only stands in until the
+      // real title is there.
+      const courseTitle = names.courseTitle?.trim();
+      crumbs.push({ label: courseTitle || titleFromSlug(second), href: `/catalog/${second}` });
     }
     if (third === 'lessons') {
       crumbs.push({
@@ -106,6 +115,15 @@ export function resolveAppLocation(pathname: string): AppLocation {
 
   if (root === 'my-courses') {
     return locationOf('my-courses', 'Mis cursos', [{ label: 'Mis cursos', href: '/my-courses' }]);
+  }
+
+  // The delivery history is reached from "Mis cursos" and belongs to it, so
+  // the section stays lit in the navigation.
+  if (root === 'evaluations') {
+    return locationOf('my-courses', 'Mis cursos', [
+      { label: 'Mis cursos', href: '/my-courses' },
+      { label: 'Historial de entregas', href: '/evaluations' },
+    ]);
   }
 
   if (root === 'certificates') {
@@ -161,6 +179,12 @@ export function resolveAppLocation(pathname: string): AppLocation {
   }
 
   return locationOf('other', 'ILIA', [{ label: 'ILIA', href: path }]);
+}
+
+/** The slug of the course a path stands in, if it stands in one. */
+export function courseSlugInPath(pathname: string): string | undefined {
+  const [root, slug] = normalizePath(pathname).split('/').filter(Boolean);
+  return root === 'catalog' ? slug : undefined;
 }
 
 function locationOf(

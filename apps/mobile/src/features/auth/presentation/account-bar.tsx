@@ -11,7 +11,8 @@ import {
   UserRound,
   type LucideIcon,
 } from 'lucide-react-native';
-import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useCallback, useState, useSyncExternalStore } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import { breakpoint, useTheme } from '@/core/theme';
@@ -23,6 +24,7 @@ import { useLogout, useSession } from '@/features/auth/application/use-auth';
 import {
   SESSION_ROLE_LABELS,
   appNavItemsForRole,
+  courseSlugInPath,
   firstGivenName,
   givenNameInitial,
   resolveAppLocation,
@@ -31,6 +33,7 @@ import {
   type AppSectionId,
 } from '@/features/auth/domain/app-location';
 import type { User } from '@/features/auth/domain/entities';
+import { catalogKeys, type Course } from '@/features/catalog';
 
 const SECTION_ICONS: Partial<Record<AppSectionId, LucideIcon>> = {
   catalog: BookOpen,
@@ -51,10 +54,11 @@ export function AccountBar() {
   const pathname = usePathname();
   const { width } = useWindowDimensions();
   const { user, isAuthenticated, isLoading } = useSession();
+  const courseTitle = useLoadedCourseTitle(courseSlugInPath(pathname));
 
   if (isLoading || !isAuthenticated || !user) return null;
 
-  const location = resolveAppLocation(pathname);
+  const location = resolveAppLocation(pathname, { courseTitle });
   const navItems = appNavItemsForRole(user.role);
   const isWide = width >= breakpoint.compact;
 
@@ -87,6 +91,25 @@ export function AccountBar() {
       <SessionMenu key={pathname} user={user} />
     </View>
   );
+}
+
+/**
+ * The title of a course this session has already loaded, or undefined.
+ *
+ * It only listens to the cache the course page fills. The bar sits above every
+ * screen, and a request of its own just to name the place would be paid on
+ * each of them; until the title is there, the trail shows the readable slug.
+ */
+function useLoadedCourseTitle(slug: string | undefined): string | undefined {
+  const queryClient = useQueryClient();
+  const subscribe = useCallback(
+    (onChange: () => void) => queryClient.getQueryCache().subscribe(onChange),
+    [queryClient],
+  );
+  const read = () =>
+    slug ? queryClient.getQueryData<Course>(catalogKeys.detail(slug))?.title : undefined;
+
+  return useSyncExternalStore(subscribe, read, read);
 }
 
 function SessionMenu({ user }: { user: User }) {
