@@ -22,7 +22,7 @@ Out of scope: the landing hero and the lesson reader layout (already designed), 
 ## Tasks
 - [x] T1. Shared surface primitives in `core/ui` and upgraded empty/loading/error states. Route: delegated.
 - [x] T2. Student screens: my courses, delivery history, certificates, forum list and thread, plans, verify, lab layout, forgot/reset password. Route: delegated.
-- [ ] T3. Consistency fixes L1–L8. Route: delegated.
+- [x] T3. Consistency fixes L1–L8. Route: delegated.
 
 ## Consistency fixes
 - L1. My courses shows the course in progress twice (hero and again as the first card below).
@@ -49,5 +49,26 @@ Forecast: about 1,200 authored lines. Feature-branch chain; one work-unit commit
   - Reset password gains the same show/hide toggle as sign-in and sign-up.
   - `ErrorState` is not framed; the result screen is untouched and the lab takes its 1080 frame.
 
+- T3: RED then GREEN observed for every fix with pure logic or a query.
+  - L1 (`8b0fb1b`): `enrolmentsBesides` in enrollment `domain/entities.ts`; RED `enrolmentsBesides is not a function` (3 tests), GREEN.
+  - L2 (`56baa54`): `resolveAppLocation(path, { courseTitle })`, `/evaluations` branch, `courseSlugInPath`; RED 3 + 2 tests, GREEN 20/20. The bar reads `catalogKeys.detail(slug)` from the query cache and makes no request. Only `/catalog/{slug}` itself loads the course detail; the lesson and forum routes do not, so there the title appears when the course page was visited earlier in the session (cache kept about 5 minutes after leaving it) and the slug otherwise.
+  - L3 (`93e03f8`): `levelsLabel` filters `LEVELS`; `priceLine` returns null when the name already is the price; RED 3 tests, GREEN.
+  - L4 (`566e191`): `featuredCoursesHeading` in a new landing `domain/entities.ts`; RED (module missing), GREEN 3/3. The landing lists at most three, so with four published it now reads "Los tres primeros cursos".
+  - L5 (`51a5a59`): negative margin removed, row with a gap; no pure logic, unobserved in a browser.
+  - L6 (`933e0ab`): `auditFooter` and `AUDIT_VISIBLE_ROWS`; RED 3 tests, GREEN.
+  - L7 (`472c8de`): RED `assert 1 == 0` on `lessons_completed` for a row with `completed_at` NULL; GREEN, `pytest -q tests/integration/test_instructor_api.py` 58 passed; `ruff check` on the repository file clean; `mypy app/features/instructor` no issues.
+  - L8 (`089ad2b`): `register-screen.tsx` imports `FULL_NAME_MAX_LENGTH`.
+  - Final run: `npx tsc --noEmit -p .` clean; `npx eslint` (core/ui, enrollment, lab, certificates, forum, landing, auth, admin, billing, app) no issues; `npx vitest run` on the five changed domain test files 53 passed.
+  - Pre-existing, not touched: `ruff` E501 on `tests/integration/test_instructor_api.py:39` (the `TABLES` string).
+
+## Left as found
+- The roster's "last activity" still reads `completed_at` only, while insights also counts `last_viewed_at` and submissions.
+- A revoked certificate is "Revocado" on the screens and "Anulado" in `STATUS_LABELS` (certificates domain), which no screen uses.
+- `statusLabel` for a submission is defined twice in the lab feature (`evaluations-screen.tsx`, `attempt-history.tsx`).
+- The quota bar on plans fills with what was used while its sentence states what is left.
+- Instructor and admin still carry their private `ui.tsx`; the migration to `core/ui/surface.tsx` is a separate task.
+- `ModerateControl` keeps its own small field and button.
+- The landing's closing block names "Prompting para docentes" as the first course in fixed copy.
+
 ## Next step
-T3.
+Look at the student screens in a browser at phone and desktop widths (nothing here was observed rendered), then decide on the pull request slices: the branch is past the 400-line budget.
