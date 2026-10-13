@@ -7,6 +7,7 @@ import type {
   PasswordChange,
   PasswordResetConfirm,
   PasswordResetRequest,
+  ProfileUpdate,
   Registration,
   User,
 } from '@/features/auth/domain/entities';
@@ -111,6 +112,24 @@ export function useLogout(repository: AuthRepository = authRepository) {
 export function useChangePassword(repository: AuthRepository = authRepository) {
   return useMutation({
     mutationFn: (input: PasswordChange) => repository.changePassword(input),
+  });
+}
+
+/**
+ * Correct your own name.
+ *
+ * The answer is the updated user, so it goes straight into the session cache:
+ * the header menu reads the same entry and shows the new name without asking
+ * the server again.
+ */
+export function useUpdateProfile(repository: AuthRepository = authRepository) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: ProfileUpdate) => repository.updateProfile(input),
+    onSuccess: (user) => {
+      queryClient.setQueryData(authKeys.session, user);
+    },
   });
 }
 

@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { DEFAULT_DESTINATION, isEmailFieldRejected, safeDestination } from './entities';
+import {
+  DEFAULT_DESTINATION,
+  FULL_NAME_MAX_LENGTH,
+  cleanFullName,
+  isEmailFieldRejected,
+  isFullNameChange,
+  safeDestination,
+} from './entities';
 
 describe('safeDestination', () => {
   it('keeps an internal path so the person lands where they were going', () => {
@@ -61,5 +68,36 @@ describe('isEmailFieldRejected', () => {
     expect(isEmailFieldRejected([{ loc: ['body', 'password'] }])).toBe(false);
     expect(isEmailFieldRejected(undefined)).toBe(false);
     expect(isEmailFieldRejected([null, {}])).toBe(false);
+  });
+});
+
+describe('cleanFullName', () => {
+  it('trims the name the way the API stores it', () => {
+    expect(cleanFullName('  Ana Pérez  ')).toBe('Ana Pérez');
+  });
+
+  it('refuses an empty or blank name', () => {
+    expect(cleanFullName('')).toBeNull();
+    expect(cleanFullName('   ')).toBeNull();
+  });
+
+  it('accepts a name at the limit and refuses one past it', () => {
+    expect(cleanFullName('a'.repeat(FULL_NAME_MAX_LENGTH))).toHaveLength(FULL_NAME_MAX_LENGTH);
+    expect(cleanFullName('a'.repeat(FULL_NAME_MAX_LENGTH + 1))).toBeNull();
+  });
+});
+
+describe('isFullNameChange', () => {
+  it('is true for a valid name that differs from the current one', () => {
+    expect(isFullNameChange('Ana María Pérez', 'Ana Pérez')).toBe(true);
+  });
+
+  it('is false when only the surrounding spaces differ', () => {
+    expect(isFullNameChange('  Ana Pérez ', 'Ana Pérez')).toBe(false);
+  });
+
+  it('is false for a name the API would refuse', () => {
+    expect(isFullNameChange('   ', 'Ana Pérez')).toBe(false);
+    expect(isFullNameChange('a'.repeat(FULL_NAME_MAX_LENGTH + 1), 'Ana Pérez')).toBe(false);
   });
 });

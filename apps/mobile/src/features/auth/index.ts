@@ -22,4 +22,4 @@ export { RegisterScreen } from './presentation/register-screen';
 export { GuestOnly } from './presentation/guest-only';
 export { RequireAuth } from './presentation/require-auth';
 export { AccountScreen } from './presentation/account-screen';
-export { useChangePassword } from './application/use-auth';
+export { useChangePassword, useUpdateProfile } from './application/use-auth';

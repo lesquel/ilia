@@ -3,6 +3,7 @@ import type {
   PasswordChange,
   PasswordResetConfirm,
   PasswordResetRequest,
+  ProfileUpdate,
   Registration,
   Session,
   User,
@@ -23,6 +24,7 @@ export interface AuthRepository {
   requestPasswordReset(input: PasswordResetRequest): Promise<void>;
   confirmPasswordReset(input: PasswordResetConfirm): Promise<Session>;
   currentUser(): Promise<User>;
+  updateProfile(input: ProfileUpdate): Promise<User>;
 }
 
 /**
