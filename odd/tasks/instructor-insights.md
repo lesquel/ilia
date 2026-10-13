@@ -24,7 +24,7 @@ Out of scope: exporting data, per-student drill-down beyond the existing roster,
 
 ## Tasks
 - [x] T1. Backend: `GET /api/v1/instructor/courses/{course_id}/insights`. Route: delegated.
-- [ ] T2. Frontend: insights on the roster screen (stat tiles, completion-by-lesson chart, enrolments over time, recent forum threads). Route: delegated.
+- [x] T2. Frontend: insights on the roster screen (stat tiles, completion-by-lesson chart, enrolments over time, recent forum threads). Route: delegated.
 - [ ] T3. Frontend: polish the instructor courses list and the course editor. Route: delegated.
 
 ## Acceptance
@@ -47,6 +47,11 @@ Forecast: about 900 authored lines (backend ~250, insights UI ~350, polish ~300)
   - `ruff check app/features/instructor` + both test files: one E501 at `tests/integration/test_instructor_api.py:39`, present on the base branch. `ruff format --check`: clean (the pre-existing unformatted audit-log block in `sql_repository.py` was formatted along the way). `mypy app/features/instructor`: no issues. Live `curl` without a session: 401.
   - Size: 706 added lines, 300 of them tests; over the heuristic because the endpoint spans five layers plus its domain function and both test levels.
   - Decisions: counting is done in the domain from per-learner records so "finished" is `compute_progress(...).is_finished`; a pass by the local stub does not count (same as the syllabus); people who submitted without enrolling are excluded; days are UTC days.
+- T2 — commit `a4d24d9`. RED: `npx vitest run src/features/instructor/domain/entities.test.ts` → 14 failed (helpers undefined), 6 passed; GREEN: 20 passed. `npx tsc --noEmit -p .`: no errors. `npx eslint src/features/instructor src/features/forum src/app/instructor`: no findings.
+  - Not observed: the layout in a browser. Nothing here was rendered; contrast and wrapping rest on theme tokens and on the checks above.
+  - Left out: the enrolled count on the courses-list cards — `GET /instructor/courses` does not return it, and a call per card was ruled out.
+  - Decisions: the enrolments chart shows the latest 14 days that have enrolments and says so when it cuts; with one day it is a sentence; day labels are read from the ISO text so the device timezone cannot shift them; the roster moved from `FlatList` to rows inside a card (no virtualisation).
+  - Size: 968 added lines, about 150 of them tests; the screen is one file with five small components and its styles.
 
 ## Next step
-T2.
+T3.
