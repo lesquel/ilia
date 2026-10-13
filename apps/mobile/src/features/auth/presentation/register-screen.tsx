@@ -17,11 +17,14 @@ import { ApiError } from '@/core/errors/api-error';
 import { breakpoint, useTheme } from '@/core/theme';
 import { AuthShell } from '@/features/auth/presentation/auth-shell';
 import { useRegister } from '@/features/auth/application/use-auth';
-import { isEmailFieldRejected, safeDestination } from '@/features/auth/domain/entities';
+import {
+  FULL_NAME_MAX_LENGTH,
+  isEmailFieldRejected,
+  safeDestination,
+} from '@/features/auth/domain/entities';
 
 /** Mirrors `RegisterRequest` on the API. Kept in sync deliberately, not guessed. */
 const MIN_PASSWORD = 8;
-const MAX_NAME = 120;
 
 function messageFor(error: unknown): string {
   if (!(error instanceof ApiError)) {
@@ -67,7 +70,7 @@ export function RegisterScreen() {
   // to type the same mistake twice.
   const [revealed, setRevealed] = useState(false);
 
-  const nameOk = fullName.trim().length > 0 && fullName.trim().length <= MAX_NAME;
+  const nameOk = fullName.trim().length > 0 && fullName.trim().length <= FULL_NAME_MAX_LENGTH;
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   const passwordOk = password.length >= MIN_PASSWORD;
   const canSubmit = nameOk && emailOk && passwordOk && !register.isPending;
@@ -114,7 +117,7 @@ export function RegisterScreen() {
             onChangeText={setFullName}
             placeholder="Ana Pérez"
             placeholderTextColor={theme.colors.neutral[500]}
-            maxLength={MAX_NAME}
+            maxLength={FULL_NAME_MAX_LENGTH}
             autoComplete="name"
             accessibilityLabel="Nombre y apellido"
           />
