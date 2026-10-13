@@ -381,7 +381,9 @@ class SqlAlchemyRosterReader:
         completed = (
             select(
                 LessonProgressModel.enrollment_id.label("enrollment_id"),
-                func.count(LessonProgressModel.id).label("done"),
+                # `count(column)` skips NULLs: a row without `completed_at` is a
+                # saved playback position, and insights does not count it either.
+                func.count(LessonProgressModel.completed_at).label("done"),
                 func.max(LessonProgressModel.completed_at).label("last_activity"),
             )
             .group_by(LessonProgressModel.enrollment_id)

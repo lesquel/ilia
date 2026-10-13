@@ -413,6 +413,43 @@ class TestRoster:
         assert roster[0]["lessons_completed"] == 1
         assert roster[0]["percentage"] == 100
 
+    def test_a_lesson_only_opened_is_not_counted_as_completed(
+        self, client: TestClient, instructor: str
+    ) -> None:
+        # A progress row without `completed_at` is a saved playback position.
+        # Insights already reads it that way; the roster has to agree with it.
+        course = TestPublishing.build_complete_course(client, instructor)
+        client.post(f"{API}/courses/{course['id']}/publish", headers=auth(instructor))
+        student = register(client, "ana@colegio.edu", "Ana Pérez")
+        client.post(
+            "/api/v1/enrollments", json={"course_slug": DRAFT["slug"]}, headers=auth(student)
+        )
+        detail = client.get(f"/api/v1/catalog/courses/{DRAFT['slug']}").json()
+        lesson_id = detail["modules"][0]["lessons"][0]["id"]
+        sql(
+            [
+                f"""
+                INSERT INTO learning.lesson_progress
+                    (id, enrollment_id, course_id, lesson_id, position_seconds,
+                     last_viewed_at, completed_at)
+                SELECT '{uuid4()}', enrollment.id, enrollment.course_id, '{lesson_id}', 42,
+                       now(), NULL
+                FROM learning.enrollment AS enrollment
+                JOIN auth.app_user AS learner ON learner.id = enrollment.user_id
+                WHERE learner.email = 'ana@colegio.edu'
+                """
+            ]
+        )
+
+        roster = client.get(f"{API}/courses/{course['id']}/roster", headers=auth(instructor)).json()
+        insights = client.get(
+            f"{API}/courses/{course['id']}/insights", headers=auth(instructor)
+        ).json()
+
+        assert roster[0]["lessons_completed"] == 0
+        assert roster[0]["percentage"] == 0
+        assert insights["lessons"][0]["completed"] == 0
+
     def test_another_instructor_cannot_read_the_roster(
         self, client: TestClient, instructor: str
     ) -> None:
