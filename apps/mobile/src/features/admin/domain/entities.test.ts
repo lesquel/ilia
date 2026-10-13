@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  AUDIT_VISIBLE_ROWS,
+  auditFooter,
   certificationFunnel,
   cohortListAppearance,
   funnelSentence,
@@ -118,5 +120,22 @@ describe('roleChangeQuestion', () => {
     expect(
       roleChangeQuestion({ fullName: '  ', email: 'ana@example.com', role: 'admin' }, 'student'),
     ).toBe('¿Cambiar a ana@example.com de Administrador a Estudiante?');
+  });
+});
+
+describe('auditFooter', () => {
+  it('reports the rows on screen, not the rows that were loaded', () => {
+    expect(auditFooter(AUDIT_VISIBLE_ROWS, 137)).toBe(
+      `Mostrando las ${AUDIT_VISIBLE_ROWS} más recientes de 137.`,
+    );
+  });
+
+  it('agrees in number when a single row is on screen', () => {
+    expect(auditFooter(1, 3)).toBe('Mostrando la más reciente de 3.');
+  });
+
+  it('says nothing when every recorded action is on screen', () => {
+    expect(auditFooter(5, 5)).toBeNull();
+    expect(auditFooter(0, 0)).toBeNull();
   });
 });

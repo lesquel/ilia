@@ -1,9 +1,7 @@
-import { Link, useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -18,6 +16,7 @@ import { ApiError } from '@/core/errors/api-error';
 import { breakpoint, useTheme } from '@/core/theme';
 import { MascotGuide } from '@/core/ui/mascot-guide';
 import { ErrorState, LoadingState } from '@/core/ui/state-view';
+import { Card, OutlineLink, PrimaryButton, SubCard } from '@/core/ui/surface';
 import { useEntitlements } from '@/features/billing';
 import { useDraft } from '@/features/lab/application/use-draft';
 import { useActivity, useSubmitPrompt } from '@/features/lab/application/use-lab';
@@ -134,17 +133,7 @@ export function LabScreen() {
         </Text>
 
         <View style={[styles.folio, isWide ? styles.folioWide : undefined]}>
-          <View
-            style={[
-              styles.paper,
-              {
-                backgroundColor: theme.colors.surface,
-                borderColor: theme.colors.divider,
-                borderRadius: theme.radius.lg,
-                ...theme.shadow.md,
-              },
-            ]}
-          >
+          <Card style={[styles.paper, isWide ? styles.paperWide : undefined]}>
             <View style={styles.paperHint}>
               <Text style={[styles.hintText, { color: theme.colors.neutral[600] }]}>
                 {draftHint(status, restored) || 'Tu pedido'}
@@ -172,67 +161,60 @@ export function LabScreen() {
                   : undefined,
               ]}
             />
-          </View>
+          </Card>
 
           {marginNotes.length > 0 ? (
-            <View
-              style={[
-                styles.marginSlip,
-                {
-                  backgroundColor: theme.colors.surface,
-                  borderColor: theme.colors.divider,
-                  borderRadius: theme.radius.md,
-                  ...theme.shadow.sm,
-                },
-                isWide ? styles.marginSlipWide : undefined,
-              ]}
-              accessibilityRole="list"
-              accessibilityLabel="Lía mira esto"
-            >
+            <Card style={[styles.marginSlip, isWide ? styles.marginSlipWide : undefined]}>
               <Text style={[styles.marginTitle, { color: theme.colors.accentRamp[700] }]}>
                 Lía mira esto
               </Text>
-              {marginNotes.map((note) => {
-                const isMissing = hasStartedWriting && !note.isPresent;
-                return (
-                  <View
-                    key={note.requirement}
-                    style={styles.marginRow}
-                    accessibilityRole="text"
-                    accessibilityLabel={`${note.label}. ${note.requirement}${
-                      note.isPresent ? '. Ya está.' : isMissing ? '. Todavía no.' : ''
-                    }`}
-                  >
+              <View
+                style={styles.marginList}
+                accessibilityRole="list"
+                accessibilityLabel="Lía mira esto"
+              >
+                {marginNotes.map((note) => {
+                  const isMissing = hasStartedWriting && !note.isPresent;
+                  return (
                     <View
-                      style={[
-                        styles.marginMark,
-                        {
-                          backgroundColor: note.isPresent
-                            ? theme.colors.accent
-                            : isMissing
-                              ? theme.colors.accentRamp[100]
-                              : theme.colors.surface,
-                          borderColor: note.isPresent || isMissing
-                            ? theme.colors.accent
-                            : theme.colors.neutral[400],
-                        },
-                      ]}
-                    />
-                    <Text
-                      style={[
-                        styles.marginLabel,
-                        {
-                          color: isMissing ? theme.colors.accentRamp[700] : theme.colors.text,
-                          fontWeight: note.isPresent || isMissing ? '600' : '400',
-                        },
-                      ]}
+                      key={note.requirement}
+                      style={styles.marginRow}
+                      accessibilityRole="text"
+                      accessibilityLabel={`${note.label}. ${note.requirement}${
+                        note.isPresent ? '. Ya está.' : isMissing ? '. Todavía no.' : ''
+                      }`}
                     >
-                      {note.label}
-                    </Text>
-                  </View>
-                );
-              })}
-            </View>
+                      <View
+                        style={[
+                          styles.marginMark,
+                          {
+                            backgroundColor: note.isPresent
+                              ? theme.colors.accent
+                              : isMissing
+                                ? theme.colors.accentRamp[100]
+                                : theme.colors.surface,
+                            borderColor: note.isPresent || isMissing
+                              ? theme.colors.accent
+                              : theme.colors.neutral[400],
+                          },
+                        ]}
+                      />
+                      <Text
+                        style={[
+                          styles.marginLabel,
+                          {
+                            color: isMissing ? theme.colors.accentRamp[700] : theme.colors.text,
+                            fontWeight: note.isPresent || isMissing ? '600' : '400',
+                          },
+                        ]}
+                      >
+                        {note.label}
+                      </Text>
+                    </View>
+                  );
+                })}
+              </View>
+            </Card>
           ) : null}
         </View>
 
@@ -252,27 +234,16 @@ export function LabScreen() {
         ) : null}
 
         {outOfQuota && !outOfAttempts ? (
-          <View
-            style={[
-              styles.quotaGate,
-              {
-                borderColor: theme.colors.divider,
-                borderRadius: theme.radius.md,
-                backgroundColor: theme.colors.surface,
-              },
-            ]}
+          <SubCard
+            title="Se te acabaron las lecturas de este mes."
+            style={[styles.quotaGate, { backgroundColor: theme.colors.surface }]}
           >
-            <Text style={[styles.error, { color: theme.colors.text }]}>
-              Se te acabaron las lecturas de este mes.
-            </Text>
-            <Text style={[styles.metaText, { color: theme.colors.neutral[600] }]}>
+            <Text style={[styles.gateText, { color: theme.colors.neutral[600] }]}>
               El cupo se renueva el día 1. Lo que escribas ahora se guarda como borrador y te
               espera.
             </Text>
-            <Link href="/plans" style={[styles.planLink, { color: theme.colors.accent }]}>
-              Ver planes
-            </Link>
-          </View>
+            <OutlineLink href="/plans" label="Ver planes" />
+          </SubCard>
         ) : null}
 
         <View style={styles.foot}>
@@ -285,25 +256,12 @@ export function LabScreen() {
               : ''}
             La lectura tarda unos segundos. Puedes salir.
           </Text>
-          <Pressable
-            accessibilityRole="button"
-            disabled={!ready}
+          <PrimaryButton
+            label="Entregar la hoja"
             onPress={send}
-            style={({ pressed }) => [
-              styles.button,
-              {
-                backgroundColor: theme.colors.text,
-                borderRadius: theme.radius.md,
-                opacity: !ready ? 0.45 : pressed ? 0.85 : 1,
-              },
-            ]}
-          >
-            {submit.isPending ? (
-              <ActivityIndicator color="#f2f2f3" />
-            ) : (
-              <Text style={styles.buttonLabel}>Entregar la hoja</Text>
-            )}
-          </Pressable>
+            disabled={!ready}
+            busy={submit.isPending}
+          />
         </View>
 
         <AttemptHistory activityId={id} />
@@ -318,7 +276,8 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20.4,
-    maxWidth: 980,
+    // The same frame as the result screen this one leads to.
+    maxWidth: 1080,
     width: '100%',
     alignSelf: 'center',
     paddingBottom: 48,
@@ -369,18 +328,23 @@ const styles = StyleSheet.create({
     gap: 14,
     marginBottom: 16,
   },
+  // Two real columns: the checklist used to be pulled back over the sheet
+  // with a negative margin and covered its right edge.
   folioWide: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 0,
+    gap: 16,
   },
   paper: {
-    flex: 1,
-    borderWidth: 1,
+    gap: 0,
     paddingHorizontal: 22,
     paddingTop: 16,
     paddingBottom: 18,
     minHeight: 280,
+  },
+  paperWide: {
+    flex: 1,
+    minWidth: 0,
   },
   paperHint: {
     flexDirection: 'row',
@@ -399,15 +363,15 @@ const styles = StyleSheet.create({
     borderWidth: 0,
   },
   marginSlip: {
-    borderWidth: 1,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     gap: 8,
   },
   marginSlipWide: {
-    width: 210,
-    marginLeft: -8,
-    marginTop: 28,
+    width: 260,
+  },
+  marginList: {
+    gap: 8,
   },
   marginTitle: {
     fontSize: 12,
@@ -425,6 +389,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   marginLabel: {
+    flexShrink: 1,
     fontSize: 14,
   },
   foot: {
@@ -445,28 +410,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 8,
   },
-  button: {
-    paddingVertical: 13.6,
-    paddingHorizontal: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 48,
-    minWidth: 180,
-  },
-  buttonLabel: {
-    color: '#f2f2f3',
-    fontSize: 15,
-    fontWeight: '600',
-  },
   quotaGate: {
-    borderWidth: 1,
-    padding: 13.6,
-    gap: 6,
     marginBottom: 12,
   },
-  planLink: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginTop: 4,
+  gateText: {
+    fontSize: 13,
+    lineHeight: 19,
   },
 });

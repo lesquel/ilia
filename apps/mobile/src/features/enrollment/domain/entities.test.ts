@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { callToAction, type CourseProgress } from "./entities";
+import type { CourseSummary } from "@/features/catalog/domain/entities";
+
+import {
+  callToAction,
+  enrolmentsBesides,
+  type CourseProgress,
+  type EnrolledCourse,
+} from "./entities";
 
 function progress(overrides: Partial<CourseProgress> = {}): CourseProgress {
   return {
@@ -16,6 +23,34 @@ function progress(overrides: Partial<CourseProgress> = {}): CourseProgress {
     ...overrides,
   };
 }
+
+function enrolled(id: string): EnrolledCourse {
+  return {
+    course: { id } as CourseSummary,
+    enrolledAt: null,
+    progress: progress(),
+  };
+}
+
+describe("enrolmentsBesides", () => {
+  it("leaves out the course the continue block already shows", () => {
+    const [first, second, third] = [enrolled("a"), enrolled("b"), enrolled("c")];
+
+    expect(enrolmentsBesides([first, second, third], second)).toEqual([first, third]);
+  });
+
+  it("lists nothing below when the featured course is the only enrolment", () => {
+    const only = enrolled("a");
+
+    expect(enrolmentsBesides([only], only)).toEqual([]);
+  });
+
+  it("keeps every enrolment when no course is featured", () => {
+    const rows = [enrolled("a"), enrolled("b")];
+
+    expect(enrolmentsBesides(rows, undefined)).toEqual(rows);
+  });
+});
 
 describe("callToAction", () => {
   it("invites to enroll without progress", () => {

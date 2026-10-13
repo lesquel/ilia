@@ -3,7 +3,12 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '@/core/theme';
 import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
 import { useAuditLog } from '@/features/admin/application/use-admin';
-import { ACTION_LABELS, type AuditEntry } from '@/features/admin/domain/entities';
+import {
+  ACTION_LABELS,
+  AUDIT_VISIBLE_ROWS,
+  auditFooter,
+  type AuditEntry,
+} from '@/features/admin/domain/entities';
 import {
   Card,
   HeaderCell,
@@ -16,6 +21,8 @@ import {
 export function AuditPanel() {
   const theme = useTheme();
   const { entries, total, isLoading, error, refetch } = useAuditLog();
+  const visible = entries.slice(0, AUDIT_VISIBLE_ROWS);
+  const footer = auditFooter(visible.length, total);
 
   return (
     <Card
@@ -35,16 +42,14 @@ export function AuditPanel() {
             <HeaderCell label="Detalle" style={styles.detailCell} />
             <HeaderCell label="Cuándo" style={styles.whenCell} />
           </ListHeader>
-          {entries.slice(0, 20).map((entry) => (
+          {visible.map((entry) => (
             <AuditRow key={entry.id} entry={entry} />
           ))}
         </View>
       ) : null}
 
-      {entries.length > 0 && total > entries.length ? (
-        <Text style={[styles.meta, { color: theme.colors.neutral[800] }]}>
-          Mostrando las {entries.length} más recientes de {total}.
-        </Text>
+      {footer ? (
+        <Text style={[styles.meta, { color: theme.colors.neutral[800] }]}>{footer}</Text>
       ) : null}
     </Card>
   );

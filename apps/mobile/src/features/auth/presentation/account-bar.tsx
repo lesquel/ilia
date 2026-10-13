@@ -23,6 +23,7 @@ import { useLogout, useSession } from '@/features/auth/application/use-auth';
 import {
   SESSION_ROLE_LABELS,
   appNavItemsForRole,
+  courseSlugInPath,
   firstGivenName,
   givenNameInitial,
   resolveAppLocation,
@@ -31,6 +32,7 @@ import {
   type AppSectionId,
 } from '@/features/auth/domain/app-location';
 import type { User } from '@/features/auth/domain/entities';
+import { useCourse } from '@/features/catalog';
 
 const SECTION_ICONS: Partial<Record<AppSectionId, LucideIcon>> = {
   catalog: BookOpen,
@@ -51,10 +53,11 @@ export function AccountBar() {
   const pathname = usePathname();
   const { width } = useWindowDimensions();
   const { user, isAuthenticated, isLoading } = useSession();
+  const courseTitle = useCourseTitle(courseSlugInPath(pathname));
 
   if (isLoading || !isAuthenticated || !user) return null;
 
-  const location = resolveAppLocation(pathname);
+  const location = resolveAppLocation(pathname, { courseTitle });
   const navItems = appNavItemsForRole(user.role);
   const isWide = width >= breakpoint.compact;
 
@@ -87,6 +90,17 @@ export function AccountBar() {
       <SessionMenu key={pathname} user={user} />
     </View>
   );
+}
+
+/**
+ * The title of the course the path is inside, or undefined while it loads.
+ *
+ * Same query, same key and same five-minute freshness as the course page, so
+ * arriving from there costs nothing. Landing straight on a lesson or the forum
+ * pays one request, once; until it answers, the trail shows the readable slug.
+ */
+function useCourseTitle(slug: string | undefined): string | undefined {
+  return useCourse(slug ?? '').course?.title;
 }
 
 function SessionMenu({ user }: { user: User }) {

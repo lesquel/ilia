@@ -5,6 +5,7 @@ export {
   formatPrice,
   formatQuota,
   levelsLabel,
+  priceLine,
   quotaIsLow,
 } from './domain/entities';
 export type { Entitlements, Plan } from './domain/entities';
