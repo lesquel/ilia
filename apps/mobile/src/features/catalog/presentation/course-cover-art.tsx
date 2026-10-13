@@ -20,6 +20,9 @@ export function CourseCoverArt({
   const scene = coverSceneForCourseSlug(courseSlug);
 
   return (
+    // Every cover is the same desk at the same height, so a row of cards lines
+    // up. A course without its own scene still gets paper on it: an empty
+    // tabletop reads as a broken image.
     <View style={[styles.cover, { backgroundColor: theme.colors.accentRamp[100] }]}>
       <View
         style={[
@@ -33,6 +36,7 @@ export function CourseCoverArt({
       >
         <View style={[styles.tableEdge, { backgroundColor: theme.colors.accent }]} />
       </View>
+      {scene ? null : <BareSheets />}
       {scene ? (
         <View style={styles.desk} accessibilityElementsHidden>
           <CraftStage craft={scene.craft} />
@@ -45,6 +49,48 @@ export function CourseCoverArt({
         </View>
       ) : null}
       {overlay ? <View style={styles.overlay}>{overlay}</View> : null}
+    </View>
+  );
+}
+
+/**
+ * Paper on the desk and nobody at it: the same sheets the scenes use, without
+ * claiming a craft the course was never given.
+ */
+function BareSheets() {
+  const theme = useTheme();
+
+  return (
+    <View style={styles.bareSheets} accessibilityElementsHidden>
+      <View
+        style={[
+          styles.bareSheet,
+          styles.bareSheetBack,
+          {
+            backgroundColor: theme.colors.accentRamp[200],
+            borderColor: theme.colors.accentRamp[200],
+          },
+        ]}
+      />
+      <View
+        style={[
+          styles.bareSheet,
+          styles.bareSheetFront,
+          {
+            backgroundColor: theme.colors.surface,
+            borderColor: theme.colors.accentRamp[200],
+          },
+        ]}
+      >
+        <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
+        <View style={[styles.inkLine, { backgroundColor: theme.colors.accentRamp[200] }]} />
+        <View
+          style={[styles.inkLine, { backgroundColor: theme.colors.accentRamp[200], width: '82%' }]}
+        />
+        <View
+          style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300], width: '64%' }]}
+        />
+      </View>
     </View>
   );
 }
@@ -192,6 +238,33 @@ const styles = StyleSheet.create({
     minHeight: 268,
     overflow: 'hidden',
     position: 'relative',
+  },
+  bareSheets: {
+    position: 'absolute',
+    right: 44,
+    bottom: 52,
+    width: 150,
+    height: 162,
+  },
+  bareSheet: {
+    position: 'absolute',
+    width: 128,
+    height: 150,
+    borderWidth: 1,
+    borderRadius: 8,
+  },
+  bareSheetBack: {
+    left: 0,
+    top: 6,
+    transform: [{ rotate: '-9deg' }],
+  },
+  bareSheetFront: {
+    left: 18,
+    top: 0,
+    paddingHorizontal: 12,
+    paddingVertical: 14,
+    gap: 8,
+    transform: [{ rotate: '4deg' }],
   },
   tabletop: {
     position: 'absolute',

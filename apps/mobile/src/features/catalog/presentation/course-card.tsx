@@ -19,9 +19,16 @@ const PATH_STEP: Record<Level, string> = {
   expert: '3',
 };
 
-function cardLift() {
+function cardLift(raised: boolean) {
   if (Platform.OS === 'web') {
-    return { boxShadow: '0 10px 28px rgba(17, 17, 17, 0.06)' };
+    return {
+      boxShadow: raised
+        ? '0 18px 40px rgba(27, 112, 254, 0.16)'
+        : '0 10px 28px rgba(17, 17, 17, 0.06)',
+      transform: [{ translateY: raised ? -3 : 0 }],
+      transitionProperty: 'box-shadow, transform, border-color',
+      transitionDuration: '160ms',
+    };
   }
 
   return {
@@ -47,7 +54,7 @@ export function CourseCard({ course }: { course: CourseSummary }) {
         accessibilityLabel={`${course.title}, nivel ${LEVEL_LABELS[course.level]}`}
         style={styles.pressable}
       >
-        {({ pressed }) => (
+        {({ pressed, hovered }: { pressed: boolean; hovered?: boolean }) => (
           // Every visual style lives on this inner View, never on the Pressable.
           // `asChild` makes expo-router render the Pressable *as* the anchor on
           // web, and the anchor drops the Pressable's own style — which silently
@@ -57,11 +64,11 @@ export function CourseCard({ course }: { course: CourseSummary }) {
               styles.card,
               {
                 backgroundColor: theme.colors.surface,
-                borderColor: theme.colors.divider,
+                borderColor: hovered ? theme.colors.accentRamp[300] : theme.colors.divider,
                 borderRadius: theme.radius.lg,
                 opacity: pressed ? 0.92 : 1,
                 overflow: 'hidden',
-                ...cardLift(),
+                ...cardLift(Boolean(hovered)),
               },
             ]}
           >
@@ -115,15 +122,19 @@ export function CourseCard({ course }: { course: CourseSummary }) {
                 </View>
               </View>
 
-              <Text style={[styles.institute, { color: theme.colors.neutral[600] }]}>
-                Instituto {INSTITUTE_SHORT_NAME}
-              </Text>
-
-              <View style={styles.footer}>
-                <Text style={[styles.footerLabel, { color: theme.colors.accent }]}>
-                  Ver el curso
+              <View style={[styles.footer, { borderTopColor: theme.colors.divider }]}>
+                <Text
+                  style={[styles.institute, { color: theme.colors.neutral[600] }]}
+                  numberOfLines={1}
+                >
+                  Instituto {INSTITUTE_SHORT_NAME}
                 </Text>
-                <Icon glyph={ArrowRight} size={16} color={theme.colors.accent} />
+                <View style={styles.footerAction}>
+                  <Text style={[styles.footerLabel, { color: theme.colors.accent }]}>
+                    Ver el curso
+                  </Text>
+                  <Icon glyph={ArrowRight} size={16} color={theme.colors.accent} />
+                </View>
               </View>
             </View>
           </View>
@@ -186,6 +197,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 12,
     marginTop: 4,
+    marginBottom: 12,
   },
   metaItem: {
     flexDirection: 'row',
@@ -196,14 +208,22 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   institute: {
+    flexShrink: 1,
     fontSize: 13,
   },
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    justifyContent: 'space-between',
+    gap: 12,
     marginTop: 'auto',
-    paddingTop: 6,
+    paddingTop: 14,
+    borderTopWidth: 1,
+  },
+  footerAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   footerLabel: {
     fontSize: 14,

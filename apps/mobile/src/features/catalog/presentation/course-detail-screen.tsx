@@ -1,4 +1,12 @@
 import { Link, useLocalSearchParams, type Href } from 'expo-router';
+import {
+  ArrowLeft,
+  BookOpen,
+  Clock,
+  Layers,
+  UserRound,
+  type LucideIcon,
+} from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import {
   Platform,
@@ -13,6 +21,7 @@ import {
 
 import { INSTITUTE_SHORT_NAME } from '@/core/brand';
 import { breakpoint, useTheme } from '@/core/theme';
+import { Icon } from '@/core/ui/icon';
 import { MascotGuide } from '@/core/ui/mascot-guide';
 import { ErrorState, LoadingState } from '@/core/ui/state-view';
 import { useCourse } from '@/features/catalog/application/use-catalog';
@@ -108,12 +117,26 @@ export function CourseDetailScreen({
       ? `Sigue: ${followTitle}.`
       : 'Para que el lunes tengas la hoja, no otra tarde armándola.';
   const mascotLine = isEnrolled && followTitle ? `Sigue: ${followTitle}.` : 'Cuando quieras, empezamos.';
+  const activityCount = course.modules.reduce((total, module) => total + module.activities.length, 0);
 
   return (
     <ScrollView
       style={{ backgroundColor: theme.colors.bg }}
       contentContainerStyle={styles.content}
     >
+      {/* Native already has the stack's back button; the browser has no way
+          back to the catalog short of the address bar. */}
+      {Platform.OS === 'web' ? (
+        <Link href="/catalog" asChild>
+          <Pressable accessibilityRole="link" style={styles.backLink}>
+            <Icon glyph={ArrowLeft} size={16} color={theme.colors.neutral[600]} />
+            <Text style={[styles.backLabel, { color: theme.colors.neutral[600] }]}>
+              Explorar cursos
+            </Text>
+          </Pressable>
+        </Link>
+      ) : null}
+
       <View style={[styles.split, isWide ? styles.splitWide : undefined]}>
         <View
           style={[
@@ -123,19 +146,36 @@ export function CourseDetailScreen({
               borderColor: theme.colors.divider,
               borderRadius: theme.radius.lg,
             },
+            Platform.OS === 'web'
+              ? ({ boxShadow: '0 10px 28px rgba(17, 17, 17, 0.06)' } as unknown as ViewStyle)
+              : undefined,
             isWide ? styles.cardWide : undefined,
             isWide && Platform.OS === 'web'
               ? ({ position: 'sticky', top: 16 } as unknown as ViewStyle)
               : undefined,
           ]}
         >
-          <View style={styles.kickerRow}>
-            <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
-            <Text style={[styles.kicker, { color: theme.colors.accent }]}>
-              Instituto {INSTITUTE_SHORT_NAME}
-            </Text>
+          <View
+            style={[
+              styles.stage,
+              { backgroundColor: theme.colors.accentRamp[100], borderRadius: theme.radius.md },
+            ]}
+          >
+            <View style={styles.kickerRow}>
+              <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
+              <Text style={[styles.kicker, { color: theme.colors.accent }]}>
+                Instituto {INSTITUTE_SHORT_NAME}
+              </Text>
+            </View>
+            <View style={styles.stageMascot}>
+              <MascotGuide
+                line={mascotLine}
+                lineKey={`course-card-${course.slug}`}
+                holdMood="write"
+                size={148}
+              />
+            </View>
           </View>
-          <MascotGuide line={mascotLine} lineKey={`course-card-${course.slug}`} holdMood="write" size={148} />
           <View
             style={[
               styles.badge,
@@ -146,18 +186,22 @@ export function CourseDetailScreen({
           </View>
           <Text style={[styles.title, { color: theme.colors.text }]}>{course.title}</Text>
           <Text style={[styles.lede, { color: theme.colors.neutral[700] }]}>{lede}</Text>
-          <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>
-            {course.lessonCount} {course.lessonCount === 1 ? 'lección' : 'lecciones'} ·{' '}
-            {formatDuration(course.durationSeconds)}
-            {course.modules.length > 0
-              ? ` · ${course.modules.length} ${course.modules.length === 1 ? 'capítulo' : 'capítulos'}`
-              : ''}
-          </Text>
-          {course.instructorName.trim() ? (
-            <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>
-              Docente: {course.instructorName}
-            </Text>
-          ) : null}
+          <View style={styles.facts}>
+            <Fact
+              glyph={BookOpen}
+              label={`${course.lessonCount} ${course.lessonCount === 1 ? 'lección' : 'lecciones'}`}
+            />
+            <Fact glyph={Clock} label={formatDuration(course.durationSeconds)} />
+            {course.modules.length > 0 ? (
+              <Fact
+                glyph={Layers}
+                label={`${course.modules.length} ${course.modules.length === 1 ? 'capítulo' : 'capítulos'}`}
+              />
+            ) : null}
+            {course.instructorName.trim() ? (
+              <Fact glyph={UserRound} label={`Docente: ${course.instructorName}`} />
+            ) : null}
+          </View>
           {!isEnrolled ? (
             enrollmentSlot
           ) : followHref ? (
@@ -183,6 +227,17 @@ export function CourseDetailScreen({
         </View>
 
         <View style={styles.timeline}>
+          <View style={styles.timelineHead}>
+            <Text style={[styles.timelineTitle, { color: theme.colors.text }]}>Temario</Text>
+            {course.modules.length > 0 ? (
+              <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>
+                {course.lessonCount} {course.lessonCount === 1 ? 'lección' : 'lecciones'}
+                {activityCount > 0
+                  ? ` · ${activityCount} ${activityCount === 1 ? 'práctica' : 'prácticas'}`
+                  : ''}
+              </Text>
+            ) : null}
+          </View>
           {course.modules.length === 0 ? (
             <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>
               El temario de este curso todavía se está armando.
@@ -210,6 +265,17 @@ export function CourseDetailScreen({
   );
 }
 
+function Fact({ glyph, label }: { glyph: LucideIcon; label: string }) {
+  const theme = useTheme();
+
+  return (
+    <View style={styles.fact}>
+      <Icon glyph={glyph} size={14} color={theme.colors.neutral[600]} />
+      <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>{label}</Text>
+    </View>
+  );
+}
+
 function SyllabusStation({
   module,
   status,
@@ -231,14 +297,18 @@ function SyllabusStation({
     status === 'now' && isEnrolled
       ? currentItemIdInModule(module, completedLessonIds, passedActivityIds)
       : undefined;
+  const isHere = status === 'now' && isEnrolled;
+  const rowCount = module.lessons.length + module.activities.length;
 
   return (
     <View
       style={[
         styles.station,
-        status === 'now' && isEnrolled
-          ? { backgroundColor: theme.colors.accentRamp[100], borderRadius: theme.radius.md, padding: 12 }
-          : undefined,
+        {
+          backgroundColor: isHere ? theme.colors.accentRamp[100] : theme.colors.surface,
+          borderColor: isHere ? theme.colors.accentRamp[200] : theme.colors.divider,
+          borderRadius: theme.radius.md,
+        },
         status === 'done' ? { opacity: 0.55 } : undefined,
       ]}
     >
@@ -292,6 +362,7 @@ function SyllabusStation({
             trailing={formatDuration(lesson.durationSeconds)}
             isDone={isDone}
             isCurrent={isCurrent}
+            isLast={lessonIndex === rowCount - 1}
             accessibilityLabel={`${lesson.title}, ${isDone ? 'completada' : 'pendiente'}`}
             onPress={onLessonPress ? () => onLessonPress(lesson.id) : undefined}
           />
@@ -308,6 +379,8 @@ function SyllabusStation({
             trailing={isPassed ? 'Hecha' : 'práctica'}
             isDone={isPassed}
             isCurrent={isCurrent}
+            isLast={module.lessons.length + activityIndex === rowCount - 1}
+            isPractice
             accessibilityLabel={`Actividad: ${activity.title}, ${isPassed ? 'aprobada' : 'pendiente'}`}
           />
         );
@@ -336,6 +409,8 @@ function SyllabusRow({
   trailing,
   isDone,
   isCurrent,
+  isLast,
+  isPractice = false,
   accessibilityLabel,
   onPress,
 }: {
@@ -344,6 +419,8 @@ function SyllabusRow({
   trailing: string;
   isDone: boolean;
   isCurrent: boolean;
+  isLast: boolean;
+  isPractice?: boolean;
   accessibilityLabel: string;
   onPress?: () => void;
 }) {
@@ -352,7 +429,7 @@ function SyllabusRow({
     <View
       style={[
         styles.row,
-        { borderBottomColor: isCurrent ? 'transparent' : theme.colors.divider },
+        { borderBottomColor: isCurrent || isLast ? 'transparent' : theme.colors.divider },
         isCurrent
           ? {
               backgroundColor: theme.colors.surface,
@@ -392,14 +469,24 @@ function SyllabusRow({
       >
         {title}
       </Text>
-      <Text
-        style={[
-          styles.rowTrailing,
-          { color: isCurrent ? theme.colors.accent : theme.colors.neutral[500] },
-        ]}
-      >
-        {isCurrent ? 'Aquí' : isDone ? 'Hecha' : trailing}
-      </Text>
+      {isPractice && !isCurrent && !isDone ? (
+        // The practice is what the course is for; it should not read like a
+        // duration.
+        <View style={[styles.practiceTag, { backgroundColor: theme.colors.accentRamp[100] }]}>
+          <Text style={[styles.practiceLabel, { color: theme.colors.accentRamp[700] }]}>
+            {trailing}
+          </Text>
+        </View>
+      ) : (
+        <Text
+          style={[
+            styles.rowTrailing,
+            { color: isCurrent ? theme.colors.accent : theme.colors.neutral[500] },
+          ]}
+        >
+          {isCurrent ? 'Aquí' : isDone ? 'Hecha' : trailing}
+        </Text>
+      )}
     </View>
   );
 
@@ -429,6 +516,18 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
   },
+  backLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 6,
+    paddingVertical: 6,
+    marginBottom: 10,
+  },
+  backLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
   split: {
     gap: 28,
   },
@@ -446,7 +545,27 @@ const styles = StyleSheet.create({
     width: 320,
     flexShrink: 0,
   },
+  stage: {
+    paddingTop: 14,
+    paddingHorizontal: 14,
+    marginBottom: 6,
+    overflow: 'hidden',
+  },
+  stageMascot: {
+    alignItems: 'center',
+    paddingTop: 6,
+    paddingBottom: 10,
+  },
   kickerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  facts: {
+    gap: 8,
+    marginTop: 4,
+  },
+  fact: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
@@ -498,6 +617,19 @@ const styles = StyleSheet.create({
     minWidth: 0,
     paddingTop: 4,
   },
+  timelineHead: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 16,
+  },
+  timelineTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    letterSpacing: -0.4,
+  },
   rail: {
     position: 'relative',
     paddingLeft: 28,
@@ -505,18 +637,23 @@ const styles = StyleSheet.create({
   spine: {
     position: 'absolute',
     left: 5,
-    top: 10,
-    bottom: 10,
+    top: 26,
+    bottom: 26,
     width: 2,
   },
   station: {
     position: 'relative',
-    marginBottom: 28,
+    marginBottom: 16,
+    borderWidth: 1,
+    paddingTop: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 6,
   },
   node: {
     position: 'absolute',
-    left: -28,
-    top: 4,
+    // One pixel further out than the rail's padding: the station's own border.
+    left: -29,
+    top: 20,
     width: 12,
     height: 12,
     borderWidth: 2,
@@ -546,8 +683,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    paddingVertical: 9,
+    paddingVertical: 12,
     borderBottomWidth: 1,
+  },
+  practiceTag: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  practiceLabel: {
+    fontSize: 11,
+    fontWeight: '700',
   },
   rowMark: {
     width: 10,
