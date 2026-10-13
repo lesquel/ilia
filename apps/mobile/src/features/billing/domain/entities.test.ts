@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { canEnrolIn, quotaIsLow, type Entitlements, type Plan } from './entities';
+import {
+  canEnrolIn,
+  levelsLabel,
+  priceLine,
+  quotaIsLow,
+  type Entitlements,
+  type Plan,
+} from './entities';
 
 const FREE_PLAN: Plan = {
   id: 'p1',
@@ -50,5 +57,30 @@ describe('quotaIsLow', () => {
   it('never warns when there is no limit to run out of', () => {
     expect(quotaIsLow(entitlements({ evaluationsRemaining: null }))).toBe(false);
     expect(quotaIsLow(null)).toBe(false);
+  });
+});
+
+describe('levelsLabel', () => {
+  it('lists the levels in learning order, whatever order the plan stores them in', () => {
+    expect(levelsLabel(['expert', 'beginner', 'intermediate'])).toBe(
+      'Básico, Intermedio, Experto',
+    );
+  });
+});
+
+describe('priceLine', () => {
+  it('does not repeat a price the plan name already says', () => {
+    expect(priceLine({ ...FREE_PLAN, name: 'Gratis', priceCents: 0 })).toBeNull();
+    expect(priceLine({ ...FREE_PLAN, name: ' gratis ', priceCents: 0 })).toBeNull();
+  });
+
+  it('states the price when the name does not', () => {
+    expect(priceLine({ ...FREE_PLAN, name: 'Gratuito', priceCents: 0 })).toBe('Gratis');
+    expect(priceLine({ ...FREE_PLAN, name: 'Completo', priceCents: 990 })).toBe(
+      'USD 9.90 / mes',
+    );
+    expect(priceLine({ ...FREE_PLAN, name: 'Completo', priceCents: null })).toBe(
+      'Precio a definir',
+    );
   });
 });
