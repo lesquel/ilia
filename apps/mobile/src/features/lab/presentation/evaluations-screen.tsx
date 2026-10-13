@@ -1,8 +1,10 @@
-import { Link } from 'expo-router';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { BookOpen, CalendarDays, ClipboardList } from 'lucide-react-native';
+import type { ReactNode } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
 import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
+import { Card, Fact, OutlineLink, ScreenHeader, Tag, useIsWide } from '@/core/ui/surface';
 import { useSession } from '@/features/auth';
 import { useGlobalSubmissionHistory } from '@/features/lab/application/use-global-submissions';
 import type { SubmissionHistoryItem } from '@/features/lab/domain/submission-history';
@@ -32,171 +34,142 @@ function submissionDate(value: string | null): string {
 }
 
 export function EvaluationsScreen() {
-  const theme = useTheme();
   const { isAuthenticated, isLoading: isCheckingSession } = useSession();
   const { items, isLoading, error, refetch } = useGlobalSubmissionHistory(isAuthenticated);
 
   if (isCheckingSession) {
     return (
-      <View style={[styles.screen, { backgroundColor: theme.colors.bg }]}>
+      <Screen>
         <LoadingState />
-      </View>
+      </Screen>
     );
   }
 
   if (!isAuthenticated) {
     return (
-      <View style={[styles.screen, { backgroundColor: theme.colors.bg }]}>
+      <Screen>
         <EmptyState
+          glyph={ClipboardList}
           title="Inicia sesión para ver tus entregas"
           hint="Aquí aparecen los intentos de las actividades de tus cursos."
         />
-      </View>
+      </Screen>
     );
   }
 
   if (error) {
     return (
-      <View style={[styles.screen, { backgroundColor: theme.colors.bg }]}>
+      <Screen>
         <ErrorState error={error} onRetry={() => void refetch()} />
-      </View>
+      </Screen>
     );
   }
 
   return (
-    <FlatList
-      style={{ backgroundColor: theme.colors.bg }}
-      contentContainerStyle={styles.content}
-      data={items}
-      keyExtractor={(row) => row.submission.id}
-      renderItem={({ item }) => <HistoryRow item={item} />}
-      ListHeaderComponent={
-        <View style={styles.header}>
-          <Text style={[styles.title, { color: theme.colors.text }]}>Historial de entregas</Text>
-          <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
-            Historial de entregas en tus cursos inscritos.
-          </Text>
-        </View>
-      }
-      ListEmptyComponent={
-        isLoading ? (
-          <LoadingState label="Cargando entregas…" />
-        ) : (
-          <EmptyState
-            title="Todavía no tienes entregas"
-            hint="Cuando envíes un prompt en una actividad, lo verás aquí."
-          />
-        )
-      }
-    />
+    <Screen>
+      <ScreenHeader
+        back={{ label: 'Mis cursos', href: '/my-courses' }}
+        title="Historial de entregas"
+        subtitle="Historial de entregas en tus cursos inscritos."
+      />
+
+      {isLoading ? (
+        <LoadingState label="Cargando entregas…" />
+      ) : items.length === 0 ? (
+        <EmptyState
+          glyph={ClipboardList}
+          title="Todavía no tienes entregas"
+          hint="Cuando envíes un prompt en una actividad, lo verás aquí."
+          action={{ label: 'Ir a mis cursos', href: '/my-courses' }}
+        />
+      ) : (
+        <Card style={styles.list}>
+          {items.map((item, index) => (
+            <HistoryRow key={item.submission.id} item={item} isFirst={index === 0} />
+          ))}
+        </Card>
+      )}
+    </Screen>
   );
 }
 
-function HistoryRow({ item }: { item: SubmissionHistoryItem }) {
+function Screen({ children }: { children: ReactNode }) {
   const theme = useTheme();
-  const scored = item.submission.status === 'scored';
+
+  return (
+    <ScrollView style={{ backgroundColor: theme.colors.bg }} contentContainerStyle={styles.content}>
+      {children}
+    </ScrollView>
+  );
+}
+
+function HistoryRow({ item, isFirst }: { item: SubmissionHistoryItem; isFirst: boolean }) {
+  const theme = useTheme();
+  const isWide = useIsWide();
+  const { status } = item.submission;
+  const scored = status === 'scored';
 
   return (
     <View
       style={[
         styles.row,
-        {
-          backgroundColor: theme.colors.surface,
-          borderColor: theme.colors.divider,
-          borderRadius: theme.radius.md,
-        },
+        isWide ? styles.rowWide : undefined,
+        isFirst ? undefined : { borderTopWidth: 1, borderTopColor: theme.colors.divider },
       ]}
     >
-      <Text style={[styles.courseTag, { color: theme.colors.neutral[600] }]}>{item.courseTitle}</Text>
-      <Text style={[styles.activityTitle, { color: theme.colors.text }]}>{item.activityTitle}</Text>
-
-      <View style={styles.rowHead}>
-        <Text style={[styles.attempt, { color: theme.colors.text }]}>
-          Intento {item.submission.attempt}
+      <View style={styles.what}>
+        <Text style={[styles.activityTitle, { color: theme.colors.text }]}>
+          {item.activityTitle}
         </Text>
-        <Text style={[styles.status, { color: theme.colors.neutral[600] }]}>
-          {submissionDate(item.submission.createdAt)} · {statusLabel(item.submission.status)}
+        <View style={styles.facts}>
+          <Fact glyph={BookOpen} label={item.courseTitle} />
+          <Fact glyph={CalendarDays} label={submissionDate(item.submission.createdAt)} />
+        </View>
+        <Text style={[styles.prompt, { color: theme.colors.neutral[800] }]} numberOfLines={2}>
+          {item.submission.prompt}
         </Text>
       </View>
 
-      <Text style={[styles.prompt, { color: theme.colors.neutral[700] }]} numberOfLines={2}>
-        {item.submission.prompt}
-      </Text>
-
-      {scored ? (
-        <Link href={`/lab/submissions/${item.submission.id}`} asChild>
-          <Pressable accessibilityRole="link" accessibilityLabel="Ver devolución de este intento">
-            {({ pressed }) => (
-              <Text
-                style={[
-                  styles.link,
-                  { color: theme.colors.accent, opacity: pressed ? 0.7 : 1 },
-                ]}
-              >
-                Ver devolución
-              </Text>
-            )}
-          </Pressable>
-        </Link>
-      ) : null}
+      <View style={[styles.result, isWide ? styles.resultWide : undefined]}>
+        <Text style={[styles.attempt, { color: theme.colors.neutral[800] }]}>
+          Intento {item.submission.attempt}
+        </Text>
+        {/* Filled once it has been read, hollow while it waits or after it
+            failed, so the state does not rest on the tint alone. */}
+        <Tag
+          label={statusLabel(status)}
+          tone={status === 'failed' ? 'neutral' : 'accent'}
+          filled={scored}
+        />
+        {scored ? (
+          <OutlineLink
+            href={`/lab/submissions/${item.submission.id}`}
+            label="Ver devolución"
+            accessibilityLabel="Ver devolución de este intento"
+          />
+        ) : null}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    paddingTop: 27.2,
-  },
   content: {
     padding: 20.4,
-    maxWidth: 900,
+    maxWidth: 960,
     width: '100%',
     alignSelf: 'center',
-    gap: 12,
+    gap: 20.4,
   },
-  header: {
-    gap: 6.8,
-    marginBottom: 6.8,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '600',
-  },
-  subtitle: {
-    fontSize: 15,
-  },
-  row: {
-    borderWidth: 1,
-    padding: 16,
-    gap: 6,
-  },
-  courseTag: {
-    fontSize: 12,
-  },
-  activityTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-  },
-  rowHead: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'baseline',
-  },
-  attempt: {
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  status: {
-    fontSize: 12,
-  },
-  prompt: {
-    fontSize: 13,
-    lineHeight: 19,
-  },
-  link: {
-    fontSize: 13,
-    fontWeight: '600',
-    marginTop: 4,
-  },
+  // The rows bring their own vertical padding, so the card adds none between.
+  list: { gap: 0, paddingVertical: 6.8 },
+  row: { gap: 10.2, paddingVertical: 13.6 },
+  rowWide: { flexDirection: 'row', alignItems: 'center', gap: 20.4 },
+  what: { flex: 1, minWidth: 0, gap: 6.8 },
+  activityTitle: { fontSize: 16, fontWeight: '600' },
+  facts: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 13.6, rowGap: 3.4 },
+  prompt: { fontSize: 13, lineHeight: 19 },
+  result: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10.2 },
+  resultWide: { justifyContent: 'flex-end' },
+  attempt: { fontSize: 13, fontWeight: '700' },
 });
