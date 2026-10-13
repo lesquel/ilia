@@ -8,6 +8,7 @@ import { MascotGuide } from '@/core/ui/mascot-guide';
 import { breakpoint, useTheme } from '@/core/theme';
 import { useSession } from '@/features/auth';
 import { CourseCard, sortCoursesAlongLearningPath, useCourses } from '@/features/catalog';
+import { featuredCoursesHeading } from '@/features/landing/domain/entities';
 import { LandingHeroStage } from '@/features/landing/presentation/landing-hero-stage';
 
 const FEATURED_COURSE_COUNT = 3;
@@ -34,7 +35,7 @@ export function LandingScreen() {
   const theme = useTheme();
   const { width } = useWindowDimensions();
   const { isAuthenticated, isLoading: isSessionLoading } = useSession();
-  const { courses, isLoading, error, refetch } = useCourses();
+  const { courses, isLoading, error, hasMore, refetch } = useCourses();
 
   const isWide = width >= breakpoint.compact;
   const courseColumns = width >= breakpoint.medium ? 3 : width >= breakpoint.compact ? 2 : 1;
@@ -42,6 +43,7 @@ export function LandingScreen() {
     0,
     FEATURED_COURSE_COUNT,
   );
+  const catalogHasMore = courses.length > featuredCourses.length || Boolean(hasMore);
   const showGuestActions = !isSessionLoading && !isAuthenticated;
 
   return (
@@ -128,7 +130,9 @@ export function LandingScreen() {
       <View style={styles.page}>
         <View style={styles.section}>
           <View style={styles.sectionHeading}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Los tres cursos</Text>
+            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+              {featuredCoursesHeading(featuredCourses.length, catalogHasMore)}
+            </Text>
             <TextLink href="/catalog" label="Ver catálogo →" />
           </View>
 
