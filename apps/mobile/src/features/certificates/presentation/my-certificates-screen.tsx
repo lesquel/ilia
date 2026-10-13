@@ -1,79 +1,99 @@
-import { Link } from 'expo-router';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import type { Href } from 'expo-router';
+import { Award, CalendarDays, ExternalLink, ShieldCheck, UserRound } from 'lucide-react-native';
+import type { ReactNode } from 'react';
+import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
-import { useTheme } from '@/core/theme';
+import { breakpoint, useTheme } from '@/core/theme';
 import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
+import { Card, Fact, OutlineLink, ScreenHeader, SubCard, Tag } from '@/core/ui/surface';
 import { useSession } from '@/features/auth';
 import { useMyCertificates } from '@/features/certificates/application/use-certificates';
 import { CERTIFICATE_PROOF } from '@/features/certificates/domain/copy';
 import { formatIssueDate, type Certificate } from '@/features/certificates/domain/entities';
 
+const CONTENT_MAX_WIDTH = 960;
+const CONTENT_PADDING = 20.4;
+const GRID_GAP = 13.6;
+
 export function MyCertificatesScreen() {
-  const theme = useTheme();
+  const { width } = useWindowDimensions();
   const { isAuthenticated, isLoading: isCheckingSession } = useSession();
   const { certificates, isLoading, error, refetch } = useMyCertificates();
 
   if (isCheckingSession) {
     return (
-      <View style={[styles.screen, { backgroundColor: theme.colors.bg }]}>
+      <Screen>
         <LoadingState />
-      </View>
+      </Screen>
     );
   }
 
   if (!isAuthenticated) {
     return (
-      <View style={[styles.screen, { backgroundColor: theme.colors.bg }]}>
-        <EmptyState
-          title="Inicia sesión para ver tus certificados"
-          hint="Tus certificados quedan guardados en tu cuenta."
-        />
+      <Screen>
         {/* Carrying the destination, so signing in returns here rather than
             dropping the person on the catalogue. */}
-        <Link
-          href="/login?next=/certificates"
-          style={[styles.link, { color: theme.colors.accent }]}
-        >
-          Iniciar sesión
-        </Link>
-      </View>
+        <EmptyState
+          glyph={Award}
+          title="Inicia sesión para ver tus certificados"
+          hint="Tus certificados quedan guardados en tu cuenta."
+          action={{ label: 'Iniciar sesión', href: '/login?next=/certificates' as Href }}
+        />
+      </Screen>
     );
   }
 
   if (error) {
     return (
-      <View style={[styles.screen, { backgroundColor: theme.colors.bg }]}>
+      <Screen>
         <ErrorState error={error} onRetry={() => void refetch()} />
-      </View>
+      </Screen>
     );
   }
 
+  // Two across when there is room; a lone certificate keeps one column's width
+  // instead of stretching over the page.
+  const columns = width >= breakpoint.compact ? 2 : 1;
+  const contentWidth = Math.min(width, CONTENT_MAX_WIDTH) - CONTENT_PADDING * 2;
+  const cardWidth = (contentWidth - GRID_GAP * (columns - 1)) / columns;
+
   return (
-    <FlatList
-      style={{ backgroundColor: theme.colors.bg }}
-      contentContainerStyle={styles.content}
-      data={certificates}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => <CertificateCard certificate={item} />}
-      ListHeaderComponent={
-        <View style={styles.header}>
-          <Text style={[styles.title, { color: theme.colors.text }]}>Certificados</Text>
-          <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
-            {CERTIFICATE_PROOF}
-          </Text>
+    <Screen>
+      <ScreenHeader
+        title="Certificados"
+        subtitle={CERTIFICATE_PROOF}
+        actions={<OutlineLink href="/verify" label="Verificar un certificado" glyph={ShieldCheck} />}
+      />
+
+      {isLoading ? (
+        <LoadingState label="Cargando tus certificados…" />
+      ) : certificates.length === 0 ? (
+        <EmptyState
+          glyph={Award}
+          title="Todavía no tienes certificados"
+          hint="Completa las lecciones y aprueba las actividades de un curso para obtener el tuyo."
+          action={{ label: 'Explorar cursos', href: '/catalog' }}
+        />
+      ) : (
+        <View style={columns > 1 ? styles.grid : styles.stack}>
+          {certificates.map((certificate) => (
+            <View key={certificate.id} style={columns > 1 ? { width: cardWidth } : undefined}>
+              <CertificateCard certificate={certificate} />
+            </View>
+          ))}
         </View>
-      }
-      ListEmptyComponent={
-        isLoading ? (
-          <LoadingState label="Cargando tus certificados…" />
-        ) : (
-          <EmptyState
-            title="Todavía no tienes certificados"
-            hint="Completa las lecciones y aprueba las actividades de un curso para obtener el tuyo."
-          />
-        )
-      }
-    />
+      )}
+    </Screen>
+  );
+}
+
+function Screen({ children }: { children: ReactNode }) {
+  const theme = useTheme();
+
+  return (
+    <ScrollView style={{ backgroundColor: theme.colors.bg }} contentContainerStyle={styles.content}>
+      {children}
+    </ScrollView>
   );
 }
 
@@ -82,78 +102,59 @@ function CertificateCard({ certificate }: { certificate: Certificate }) {
   const valid = certificate.status === 'valid';
 
   return (
-    <View
-      style={[
-        styles.card,
-        {
-          backgroundColor: valid ? theme.colors.accentRamp[100] : theme.colors.neutral[100],
-          borderColor: theme.colors.divider,
-          borderRadius: theme.radius.lg,
-        },
-      ]}
-    >
-      <Text
-        style={[
-          styles.status,
-          { color: valid ? theme.colors.accentRamp[800] : theme.colors.neutral[700] },
-        ]}
-      >
-        {valid ? 'Válido' : 'Revocado'}
-      </Text>
+    <Card style={styles.card}>
+      <Tag label={valid ? 'Válido' : 'Revocado'} tone={valid ? 'accent' : 'neutral'} filled={valid} />
 
-      <Text style={[styles.course, { color: theme.colors.text }]}>{certificate.courseTitle}</Text>
-      <Text style={[styles.holder, { color: theme.colors.neutral[700] }]}>
-        {certificate.holderName}
-      </Text>
+      <View style={styles.head}>
+        <Text style={[styles.course, { color: theme.colors.text }]}>{certificate.courseTitle}</Text>
+        <View style={styles.facts}>
+          <Fact glyph={UserRound} label={certificate.holderName} />
+          {certificate.issuedAt ? (
+            <Fact
+              glyph={CalendarDays}
+              label={`Emitido el ${formatIssueDate(certificate.issuedAt)}`}
+            />
+          ) : null}
+        </View>
+      </View>
 
-      {certificate.issuedAt ? (
-        <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>
-          Emitido el {formatIssueDate(certificate.issuedAt)}
+      {/* The code is the certificate: it gets the frame and the largest type. */}
+      <SubCard style={{ backgroundColor: theme.colors.neutral[100] }}>
+        <Text style={[styles.codeLabel, { color: theme.colors.neutral[800] }]}>
+          Código de verificación
         </Text>
-      ) : null}
-
-      <Text style={[styles.codeLabel, { color: theme.colors.neutral[600] }]}>
-        Código de verificación
-      </Text>
-      <Text selectable style={[styles.code, { color: theme.colors.text }]}>
-        {certificate.code}
-      </Text>
+        <Text selectable style={[styles.code, { color: theme.colors.text }]}>
+          {certificate.code}
+        </Text>
+      </SubCard>
 
       {/* A real link, so the holder can send it to whoever needs to check. */}
-      <Link
-        href={`/verify/${certificate.code}`}
-        style={[styles.link, { color: theme.colors.accent }]}
-      >
-        Ver la página de verificación →
-      </Link>
-    </View>
+      <View style={styles.actions}>
+        <OutlineLink
+          href={`/verify/${certificate.code}`}
+          label="Ver la página de verificación"
+          glyph={ExternalLink}
+        />
+      </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, paddingTop: 27.2 },
   content: {
-    padding: 20.4,
-    maxWidth: 720,
+    padding: CONTENT_PADDING,
+    maxWidth: CONTENT_MAX_WIDTH,
     width: '100%',
     alignSelf: 'center',
-    gap: 13.6,
+    gap: 20.4,
   },
-  header: { gap: 6.8, marginBottom: 6.8 },
-  title: { fontSize: 32, fontWeight: '600' },
-  subtitle: { fontSize: 15, lineHeight: 22 },
-  card: { borderWidth: 1, padding: 20.4, gap: 3.4 },
-  status: {
-    fontSize: 11,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 3.4,
-  },
-  course: { fontSize: 20, fontWeight: '600' },
-  holder: { fontSize: 15 },
-  meta: { fontSize: 13, marginBottom: 6.8 },
-  codeLabel: { fontSize: 11, textTransform: 'uppercase', letterSpacing: 1 },
-  code: { fontSize: 22, fontWeight: '600', letterSpacing: 2, marginBottom: 6.8 },
-  link: { fontSize: 14, fontWeight: '600' },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'stretch', gap: GRID_GAP },
+  stack: { gap: GRID_GAP },
+  card: { flexGrow: 1 },
+  head: { gap: 6.8 },
+  course: { fontSize: 20, fontWeight: '700', lineHeight: 26, letterSpacing: -0.2 },
+  facts: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 13.6, rowGap: 3.4 },
+  codeLabel: { fontSize: 12, fontWeight: '700', letterSpacing: 0.4, textTransform: 'uppercase' },
+  code: { fontSize: 24, fontWeight: '700', letterSpacing: 2 },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10.2 },
 });
