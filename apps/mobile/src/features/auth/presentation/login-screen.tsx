@@ -177,6 +177,16 @@ export function LoginScreen() {
               Crear cuenta
             </Link>
           </Text>
+
+          <Text style={[styles.legal, { color: theme.colors.neutral[600] }]}>
+            <Link href="/terms" style={{ color: theme.colors.neutral[600] }}>
+              Términos
+            </Link>
+            {' · '}
+            <Link href="/privacy" style={{ color: theme.colors.neutral[600] }}>
+              Privacidad
+            </Link>
+          </Text>
         </View>
       </ScrollView>
       </AuthShell>
@@ -254,5 +264,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     marginTop: 20.4,
+  },
+  legal: {
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 13.6,
   },
 });
