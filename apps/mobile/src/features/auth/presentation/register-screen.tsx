@@ -19,12 +19,13 @@ import { AuthShell } from '@/features/auth/presentation/auth-shell';
 import { useRegister } from '@/features/auth/application/use-auth';
 import {
   FULL_NAME_MAX_LENGTH,
+  REGISTRATION_PASSWORD_MAX_LENGTH,
+  REGISTRATION_PASSWORD_MIN_LENGTH,
+  isValidRegistrationName,
   isEmailFieldRejected,
+  registrationPasswordRules,
   safeDestination,
 } from '@/features/auth/domain/entities';
-
-/** Mirrors `RegisterRequest` on the API. Kept in sync deliberately, not guessed. */
-const MIN_PASSWORD = 8;
 
 function messageFor(error: unknown): string {
   if (!(error instanceof ApiError)) {
@@ -37,9 +38,9 @@ function messageFor(error: unknown): string {
     case 'schema_error':
       return isEmailFieldRejected(error.detail)
         ? 'Ese correo no es válido. Usa un correo real.'
-        : 'No pudimos crear tu cuenta. Vuelve a intentarlo.';
+        : 'Revisa el nombre y la contraseña según los requisitos indicados.';
     case 'validation_error':
-      return 'Revisa los datos: el correo tiene que ser válido y la contraseña de al menos 8 caracteres.';
+      return 'Revisa los datos: completa el nombre, usa un correo válido y cumple los requisitos de contraseña.';
     case 'network_error':
       return 'No pudimos conectarnos. Revisa tu conexión e inténtalo de nuevo.';
     case 'unavailable':
@@ -64,15 +65,28 @@ export function RegisterScreen() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [nameTouched, setNameTouched] = useState(false);
   // A reveal toggle instead of a "repeat your password" field. There is no
   // password-reset flow yet, so a typo here locks the account for good —
   // letting someone read what they typed catches that better than asking them
   // to type the same mistake twice.
   const [revealed, setRevealed] = useState(false);
 
-  const nameOk = fullName.trim().length > 0 && fullName.trim().length <= FULL_NAME_MAX_LENGTH;
+  const nameOk = isValidRegistrationName(fullName);
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-  const passwordOk = password.length >= MIN_PASSWORD;
+  const passwordRules = registrationPasswordRules(password);
+  const passwordLength = Array.from(password).length;
+  const passwordRuleCount = Object.values(passwordRules).filter(Boolean).length;
+  const passwordOk = passwordRuleCount === 5 && passwordLength <= REGISTRATION_PASSWORD_MAX_LENGTH;
+  const passwordStrength = passwordLength === 0
+    ? ''
+    : passwordRuleCount <= 2
+      ? 'Débil'
+      : passwordRuleCount <= 4
+        ? 'Media'
+        : passwordLength >= 12
+          ? 'Fuerte'
+          : 'Buena';
   const canSubmit = nameOk && emailOk && passwordOk && !register.isPending;
 
   const submit = () => {
@@ -115,12 +129,19 @@ export function RegisterScreen() {
             style={inputStyle}
             value={fullName}
             onChangeText={setFullName}
+            onBlur={() => setNameTouched(true)}
             placeholder="Ana Pérez"
             placeholderTextColor={theme.colors.neutral[500]}
             maxLength={FULL_NAME_MAX_LENGTH}
             autoComplete="name"
             accessibilityLabel="Nombre y apellido"
+            accessibilityHint="Entre 2 y 120 caracteres: letras, espacios, guiones o apóstrofes."
           />
+          {nameTouched && !nameOk ? (
+            <Text style={[styles.fieldError, { color: theme.colors.accentRamp[700] }]}>
+              Completa el nombre con al menos 2 caracteres. Usa letras, espacios, guiones o apóstrofes.
+            </Text>
+          ) : null}
 
           <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>Correo</Text>
           <TextInput
@@ -148,33 +169,61 @@ export function RegisterScreen() {
             style={inputStyle}
             value={password}
             onChangeText={setPassword}
-            placeholder="Al menos 8 caracteres"
+            placeholder="Entre 8 y 128 caracteres"
             placeholderTextColor={theme.colors.neutral[500]}
             secureTextEntry={!revealed}
+            maxLength={REGISTRATION_PASSWORD_MAX_LENGTH}
             autoCapitalize="none"
             autoComplete="new-password"
             onSubmitEditing={submit}
             returnKeyType="go"
             accessibilityLabel="Contraseña"
+            accessibilityHint="Entre 8 y 128 caracteres, con mayúscula, minúscula, número y carácter especial."
           />
 
-          {/* The rule stated up front, not as a server error after a round-trip.
-              Only once they have started typing — nobody wants to be told they
-              are wrong before writing anything. */}
-          <Text
-            style={[
-              styles.hint,
-              {
-                color:
-                  password.length > 0 && !passwordOk
-                    ? theme.colors.accentRamp[700]
-                    : theme.colors.neutral[600],
-              },
-            ]}
-          >
-            Mínimo {MIN_PASSWORD} caracteres. Una frase larga es más segura y más fácil de recordar
-            que símbolos raros.
-          </Text>
+          <View style={styles.passwordFeedback} accessibilityLabel="Requisitos de contraseña">
+            <View style={styles.meterHeader}>
+              <Text style={[styles.hint, { color: theme.colors.neutral[600] }]}>Seguridad</Text>
+              <Text style={[styles.meterLabel, { color: theme.colors.neutral[700] }]}>
+                {passwordStrength || `Mínimo ${REGISTRATION_PASSWORD_MIN_LENGTH} caracteres`}
+              </Text>
+            </View>
+            <View
+              style={[styles.meterTrack, { backgroundColor: theme.colors.neutral[200] }]}
+              accessibilityRole="progressbar"
+              accessibilityValue={{ min: 0, max: 5, now: passwordRuleCount }}
+              accessibilityLabel={`Fortaleza de contraseña: ${passwordStrength || 'sin evaluar'}`}
+            >
+              <View
+                style={[
+                  styles.meterFill,
+                  {
+                    width: `${passwordRuleCount * 20}%`,
+                    backgroundColor: passwordOk ? theme.colors.accent : theme.colors.accentRamp[400],
+                  },
+                ]}
+              />
+            </View>
+            <View style={styles.ruleList}>
+              {([
+                ['longEnough', `Al menos ${REGISTRATION_PASSWORD_MIN_LENGTH} caracteres`],
+                ['hasUppercase', 'Una letra mayúscula'],
+                ['hasLowercase', 'Una letra minúscula'],
+                ['hasNumber', 'Un número'],
+                ['hasSpecial', 'Un carácter especial'],
+              ] as const).map(([key, label]) => (
+                <Text
+                  key={key}
+                  style={[
+                    styles.rule,
+                    { color: passwordRules[key] ? theme.colors.accentRamp[700] : theme.colors.neutral[600] },
+                  ]}
+                >
+                  {passwordRules[key] ? '✓' : '○'} {label}
+                </Text>
+              ))}
+            </View>
+          </View>
 
           {register.isError ? (
             <Text
@@ -241,7 +290,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 20.4,
   },
-  hint: { fontSize: 12, marginTop: -13.6, marginBottom: 20.4, lineHeight: 18 },
+  hint: { fontSize: 12, lineHeight: 18 },
+  fieldError: { fontSize: 12, marginTop: -13.6, marginBottom: 13.6, lineHeight: 18 },
+  passwordFeedback: { marginTop: -13.6, marginBottom: 20.4, gap: 6.8 },
+  meterHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  meterLabel: { fontSize: 12, fontWeight: '600' },
+  meterTrack: { height: 6, borderRadius: 3, overflow: 'hidden' },
+  meterFill: { height: '100%', borderRadius: 3 },
+  ruleList: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 13.6, rowGap: 3.4 },
+  rule: { fontSize: 12, lineHeight: 18 },
   error: { fontSize: 14, marginBottom: 13.6 },
   button: {
     paddingVertical: 13.6,

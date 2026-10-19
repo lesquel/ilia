@@ -16,7 +16,7 @@ NATIVE = {"X-Client-Platform": "native"}
 ACCOUNT = {
     "email": "docente@colegio.edu",
     "full_name": "Ana Pérez",
-    "password": "una-clave-larga",
+    "password": "Una-clave-larga1!",
 }
 
 
@@ -296,7 +296,7 @@ class TestChangePassword:
     def test_a_session_is_required(self, client: TestClient) -> None:
         response = client.post(
             "/api/v1/auth/password",
-            json={"current_password": "una-clave-larga", "new_password": "otra-clave-larga"},
+            json={"current_password": ACCOUNT["password"], "new_password": "otra-clave-larga"},
             headers=NATIVE,
         )
 
@@ -320,7 +320,7 @@ class TestChangePassword:
 
         response = client.post(
             "/api/v1/auth/password",
-            json={"current_password": "una-clave-larga", "new_password": "corta"},
+            json={"current_password": ACCOUNT["password"], "new_password": "corta"},
             headers=self.bearer(token),
         )
 
@@ -333,7 +333,7 @@ class TestChangePassword:
 
         response = client.post(
             "/api/v1/auth/password",
-            json={"current_password": "una-clave-larga", "new_password": "una-clave-larga"},
+            json={"current_password": ACCOUNT["password"], "new_password": ACCOUNT["password"]},
             headers=self.bearer(token),
         )
 
@@ -345,7 +345,7 @@ class TestChangePassword:
 
         changed = client.post(
             "/api/v1/auth/password",
-            json={"current_password": "una-clave-larga", "new_password": "una-clave-nueva"},
+            json={"current_password": ACCOUNT["password"], "new_password": "una-clave-nueva"},
             headers=self.bearer(token),
         )
         assert changed.status_code == 204
@@ -362,7 +362,7 @@ class TestChangePassword:
         assert (
             client.post(
                 "/api/v1/auth/login",
-                json={**login, "password": "una-clave-larga"},
+                json={**login, "password": ACCOUNT["password"]},
                 headers=NATIVE,
             ).status_code
             == 401
@@ -382,7 +382,7 @@ class TestChangePassword:
         # A second session, which is the one doing the change.
         second = client.post(
             "/api/v1/auth/login",
-            json={"email": ACCOUNT["email"], "password": "una-clave-larga"},
+            json={"email": ACCOUNT["email"], "password": ACCOUNT["password"]},
             headers=NATIVE,
         ).json()
 
@@ -398,7 +398,7 @@ class TestChangePassword:
 
         client.post(
             "/api/v1/auth/password",
-            json={"current_password": "una-clave-larga", "new_password": "una-clave-nueva"},
+            json={"current_password": ACCOUNT["password"], "new_password": "una-clave-nueva"},
             headers=self.bearer(second["access_token"]),
         )
 
@@ -415,7 +415,7 @@ class TestChangePassword:
         session = register(client, WEB)
         changed = client.post(
             "/api/v1/auth/password",
-            json={"current_password": "una-clave-larga", "new_password": "una-clave-nueva"},
+            json={"current_password": ACCOUNT["password"], "new_password": "una-clave-nueva"},
             headers=WEB,
         )
 
@@ -466,7 +466,7 @@ class TestPasswordReset:
 
         instr_login = client.post(
             "/api/v1/auth/login",
-            json={"email": "instr@ilia.edu", "password": "una-clave-larga"},
+            json={"email": "instr@ilia.edu", "password": ACCOUNT["password"]},
             headers=NATIVE,
         )
         instr_token = instr_login.json()["access_token"]

@@ -2,7 +2,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useMemo } from 'react';
-import { SafeAreaView } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import { createQueryClient } from '@/core/api/query-client';
 import { ErrorBoundary } from '@/core/ui/error-boundary';
@@ -20,21 +20,23 @@ export default function RootLayout() {
   return (
     // Outside the providers on purpose: if the theme or the query client is
     // what broke, a boundary inside them cannot render anything either.
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-      <StatusBar style="dark" />
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
-        {/* Above the Stack, so it survives navigation. Signing out is the only
-            action that must be reachable from every screen. */}
-        <AccountBar />
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: colors.bg },
-          }}
-        />
-      </SafeAreaView>
-      </QueryClientProvider>
-    </ErrorBoundary>
+    <SafeAreaProvider>
+      <ErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <StatusBar style="dark" />
+          <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
+            {/* Above the Stack, so it survives navigation. Signing out is the only
+                action that must be reachable from every screen. */}
+            <AccountBar />
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: colors.bg },
+              }}
+            />
+          </SafeAreaView>
+        </QueryClientProvider>
+      </ErrorBoundary>
+    </SafeAreaProvider>
   );
 }

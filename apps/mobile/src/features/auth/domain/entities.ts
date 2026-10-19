@@ -49,6 +49,38 @@ export interface ProfileUpdate {
 
 /** The API's limit for a name, and the width of the column behind it. */
 export const FULL_NAME_MAX_LENGTH = 120;
+export const REGISTRATION_NAME_MIN_LENGTH = 2;
+
+/** Registration names support accented letters, spaces, apostrophes and hyphens. */
+export function isValidRegistrationName(input: string): boolean {
+  const name = input.trim();
+  return (
+    name.length >= REGISTRATION_NAME_MIN_LENGTH &&
+    name.length <= FULL_NAME_MAX_LENGTH &&
+    /^[\p{L}]+(?:[ '\u2019-][\p{L}]+)*$/u.test(name)
+  );
+}
+
+export const REGISTRATION_PASSWORD_MIN_LENGTH = 8;
+export const REGISTRATION_PASSWORD_MAX_LENGTH = 128;
+
+export interface RegistrationPasswordRules {
+  longEnough: boolean;
+  hasUppercase: boolean;
+  hasLowercase: boolean;
+  hasNumber: boolean;
+  hasSpecial: boolean;
+}
+
+export function registrationPasswordRules(password: string): RegistrationPasswordRules {
+  return {
+    longEnough: Array.from(password).length >= REGISTRATION_PASSWORD_MIN_LENGTH,
+    hasUppercase: /\p{Lu}/u.test(password),
+    hasLowercase: /\p{Ll}/u.test(password),
+    hasNumber: /\p{Nd}/u.test(password),
+    hasSpecial: /[^\p{L}\p{N}\s]/u.test(password),
+  };
+}
 
 /**
  * The name the API would store, or `null` when it would refuse it.

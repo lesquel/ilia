@@ -1,7 +1,8 @@
+import re
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from app.features.auth.application.use_cases import Session
 from app.features.auth.domain.entities import FULL_NAME_MAX_LENGTH, User
@@ -9,10 +10,30 @@ from app.features.auth.domain.entities import FULL_NAME_MAX_LENGTH, User
 
 class RegisterRequest(BaseModel):
     email: EmailStr
-    full_name: str = Field(min_length=1, max_length=FULL_NAME_MAX_LENGTH)
-    # 8 is a floor, not a policy. Length beats composition rules, which mostly
-    # teach people to write "Password1!" and reuse it everywhere.
+    full_name: str = Field(min_length=2, max_length=FULL_NAME_MAX_LENGTH)
     password: str = Field(min_length=8, max_length=128)
+
+    @field_validator("full_name")
+    @classmethod
+    def validate_registration_name(cls, value: str) -> str:
+        name = value.strip()
+        parts = re.split(r"[ '\u2019-]", name)
+        if len(name) < 2 or not all(part and part.isalpha() for part in parts):
+            raise ValueError("Use letters, spaces, apostrophes or hyphens in the name")
+        return name
+
+    @field_validator("password")
+    @classmethod
+    def validate_registration_password(cls, value: str) -> str:
+        if not any(char.isupper() for char in value):
+            raise ValueError("Password must include an uppercase letter")
+        if not any(char.islower() for char in value):
+            raise ValueError("Password must include a lowercase letter")
+        if not any(char.isdecimal() for char in value):
+            raise ValueError("Password must include a number")
+        if not any(not char.isalnum() and not char.isspace() for char in value):
+            raise ValueError("Password must include a special character")
+        return value
 
 
 class UpdateProfileRequest(BaseModel):
