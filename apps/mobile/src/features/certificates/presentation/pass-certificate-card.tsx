@@ -52,11 +52,11 @@ export function PassCertificateCard({
     >
       <View style={styles.kickerRow}>
         <View style={[styles.signal, { backgroundColor: theme.colors.accent }]} />
-        <Text style={[styles.kicker, { color: theme.colors.accent }]}>
+        <Text style={[styles.kicker, { color: theme.colors.accentAlt }]}>
           Instituto {INSTITUTE_SHORT_NAME}
         </Text>
       </View>
-      <Text style={[styles.title, { color: theme.colors.text }]}>
+      <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">
         {existing || eligibility?.met ? `Pasaste ${courseTitle}` : 'La práctica ya cuenta'}
       </Text>
       {user ? (
@@ -71,7 +71,7 @@ export function PassCertificateCard({
           <Text selectable style={[styles.code, { color: theme.colors.text }]}>
             {existing.code}
           </Text>
-          <Link href="/certificates" style={[styles.link, { color: theme.colors.accent }]}>
+          <Link href="/certificates" style={[styles.link, { color: theme.colors.accentAlt }]}>
             Ver tus certificados
           </Link>
         </>
@@ -88,7 +88,7 @@ export function PassCertificateCard({
           <Text style={[styles.missing, { color: theme.colors.neutral[700] }]}>
             {PLAN_BLOCKS_CERTIFICATE}
           </Text>
-          <Link href="/plans" style={[styles.link, { color: theme.colors.accent }]}>
+          <Link href="/plans" style={[styles.link, { color: theme.colors.accentAlt }]}>
             Ver planes
           </Link>
         </>
@@ -115,7 +115,7 @@ export function PassCertificateCard({
             ]}
           >
             {issue.isPending ? (
-              <ActivityIndicator color="#f2f2f3" />
+              <ActivityIndicator color="#ffffff" />
             ) : (
               <Text style={styles.buttonLabel}>Emitir el certificado</Text>
             )}
@@ -144,5 +144,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minHeight: 48,
   },
-  buttonLabel: { color: '#f2f2f3', fontSize: 15, fontWeight: '600' },
+  buttonLabel: { color: '#ffffff', fontSize: 15, fontWeight: '600' },
 });

@@ -43,7 +43,7 @@ export function LessonScreen() {
   return (
     <View style={[styles.screen, { backgroundColor: theme.colors.bg }]}>
       <View style={styles.chrome}>
-        <Link href={`/catalog/${courseSlug}`} style={[styles.back, { color: theme.colors.accent }]}>
+        <Link href={`/catalog/${courseSlug}`} style={[styles.back, { color: theme.colors.accentAlt }]}>
           ← Curso
         </Link>
         <Text style={[styles.chromeTitle, { color: theme.colors.text }]} numberOfLines={1}>

@@ -83,7 +83,7 @@ export function LessonStudio({
           onPress={() => setReadAllAtOnce(false)}
           style={({ pressed }) => [styles.textLink, { opacity: pressed ? 0.7 : 1 }]}
         >
-          <Text style={[styles.textLinkLabel, { color: theme.colors.accent }]}>
+          <Text style={[styles.textLinkLabel, { color: theme.colors.accentAlt }]}>
             Volver a la lección
           </Text>
         </Pressable>
@@ -217,8 +217,8 @@ export function LessonStudio({
               backgroundColor:
                 primary.kind === 'complete' && isCompleted
                   ? 'transparent'
-                  : theme.colors.accent,
-              borderColor: theme.colors.accent,
+                  : theme.colors.accentButton,
+              borderColor: theme.colors.accentButton,
               borderRadius: theme.radius.md,
               opacity:
                 primary.disabled || isCompletePending ? 0.5 : pressed ? 0.85 : 1,
@@ -256,7 +256,7 @@ export function LessonStudio({
               styles.nextLesson,
               isWide ? undefined : styles.nextLessonCompact,
               {
-                backgroundColor: theme.colors.accent,
+                backgroundColor: theme.colors.accentButton,
                 borderRadius: theme.radius.md,
                 opacity: pressed ? 0.85 : 1,
               },

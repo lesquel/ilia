@@ -73,7 +73,7 @@ export function AccountScreen() {
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
     >
-      <Text style={[styles.title, { color: theme.colors.text }]}>Tu cuenta</Text>
+      <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">Tu cuenta</Text>
 
       {user ? <ProfileCard user={user} /> : null}
       <PasswordCard />
@@ -114,7 +114,7 @@ function ProfileCard({ user }: { user: User }) {
         <View
           style={[
             styles.avatar,
-            { backgroundColor: theme.colors.accent, borderRadius: theme.radius.md },
+            { backgroundColor: theme.colors.accentButton, borderRadius: theme.radius.md },
           ]}
         >
           <Text style={styles.avatarInitial}>{givenNameInitial(user.fullName)}</Text>
@@ -188,7 +188,7 @@ function ProfileCard({ user }: { user: User }) {
       ) : null}
 
       {update.isSuccess ? (
-        <Text style={[styles.ok, { color: theme.colors.accent }]} accessibilityRole="alert">
+        <Text style={[styles.ok, { color: theme.colors.accentAlt }]} accessibilityRole="alert">
           Listo. Guardamos tu nombre.
         </Text>
       ) : null}
@@ -200,14 +200,14 @@ function ProfileCard({ user }: { user: User }) {
         style={({ pressed }) => [
           styles.button,
           {
-            backgroundColor: theme.colors.accent,
+            backgroundColor: theme.colors.accentButton,
             borderRadius: theme.radius.md,
             opacity: !ready ? 0.5 : pressed ? 0.85 : 1,
           },
         ]}
       >
         {update.isPending ? (
-          <ActivityIndicator color="#f2f2f3" />
+          <ActivityIndicator color="#ffffff" />
         ) : (
           <Text style={styles.buttonLabel}>Guardar cambios</Text>
         )}
@@ -243,7 +243,7 @@ function PasswordCard() {
 
   return (
     <Card>
-      <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Cambiar contraseña</Text>
+      <Text style={[styles.sectionTitle, { color: theme.colors.text }]} accessibilityRole="header">Cambiar contraseña</Text>
       {/* Said plainly, because it is the reason someone is on this screen: they
           think another person knows their password. */}
       <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>
@@ -264,7 +264,7 @@ function PasswordCard() {
       <View style={styles.labelRow}>
         <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>Contraseña nueva</Text>
         <Pressable accessibilityRole="button" onPress={() => setRevealed((on) => !on)}>
-          <Text style={[styles.toggle, { color: theme.colors.accent }]}>
+          <Text style={[styles.toggle, { color: theme.colors.accentAlt }]}>
             {revealed ? 'Ocultar' : 'Mostrar'}
           </Text>
         </Pressable>
@@ -305,7 +305,7 @@ function PasswordCard() {
       ) : null}
 
       {change.isSuccess ? (
-        <Text style={[styles.ok, { color: theme.colors.accent }]} accessibilityRole="alert">
+        <Text style={[styles.ok, { color: theme.colors.accentAlt }]} accessibilityRole="alert">
           Listo. Tu contraseña cambió y las demás sesiones se cerraron.
         </Text>
       ) : null}
@@ -317,14 +317,14 @@ function PasswordCard() {
         style={({ pressed }) => [
           styles.button,
           {
-            backgroundColor: theme.colors.accent,
+            backgroundColor: theme.colors.accentButton,
             borderRadius: theme.radius.md,
             opacity: !ready ? 0.5 : pressed ? 0.85 : 1,
           },
         ]}
       >
         {change.isPending ? (
-          <ActivityIndicator color="#f2f2f3" />
+          <ActivityIndicator color="#ffffff" />
         ) : (
           <Text style={styles.buttonLabel}>Cambiar contraseña</Text>
         )}
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
   card: { borderWidth: 1, padding: 20.4, gap: 3.4 },
   identity: { flexDirection: 'row', alignItems: 'center', gap: 13.6 },
   avatar: { width: 64, height: 64, alignItems: 'center', justifyContent: 'center' },
-  avatarInitial: { color: '#f2f2f3', fontSize: 28, fontWeight: '600' },
+  avatarInitial: { color: '#ffffff', fontSize: 28, fontWeight: '600' },
   identityText: { flex: 1, minWidth: 0, gap: 3.4, alignItems: 'flex-start' },
   name: { fontSize: 20, fontWeight: '600', lineHeight: 26 },
   email: { fontSize: 14, lineHeight: 20 },
@@ -420,5 +420,5 @@ const styles = StyleSheet.create({
     minHeight: 48,
     marginTop: 13.6,
   },
-  buttonLabel: { color: '#f2f2f3', fontSize: 16, fontWeight: '600' },
+  buttonLabel: { color: '#ffffff', fontSize: 16, fontWeight: '600' },
 });

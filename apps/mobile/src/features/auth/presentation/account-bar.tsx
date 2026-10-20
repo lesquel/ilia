@@ -178,7 +178,7 @@ function SessionMenu({ user }: { user: User }) {
             ) : (
               <>
                 <Icon glyph={LogOut} color={theme.colors.accent} />
-                <Text style={[styles.menuRowLabel, { color: theme.colors.accent }]}>Cerrar sesión</Text>
+                <Text style={[styles.menuRowLabel, { color: theme.colors.accentAlt }]}>Cerrar sesión</Text>
               </>
             )}
           </View>

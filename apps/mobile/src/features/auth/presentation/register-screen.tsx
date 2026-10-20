@@ -119,7 +119,7 @@ export function RegisterScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.card}>
-          <Text style={[styles.title, { color: theme.colors.text }]}>Crear cuenta</Text>
+          <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">Crear cuenta</Text>
           <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
             Empieza a aprender inteligencia artificial haciendo
           </Text>
@@ -160,7 +160,7 @@ export function RegisterScreen() {
           <View style={styles.labelRow}>
             <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>Contraseña</Text>
             <Pressable accessibilityRole="button" onPress={() => setRevealed((on) => !on)}>
-              <Text style={[styles.toggle, { color: theme.colors.accent }]}>
+              <Text style={[styles.toggle, { color: theme.colors.accentAlt }]}>
                 {revealed ? 'Ocultar' : 'Mostrar'}
               </Text>
             </Pressable>
@@ -241,14 +241,14 @@ export function RegisterScreen() {
             style={({ pressed }) => [
               styles.button,
               {
-                backgroundColor: theme.colors.accent,
+                backgroundColor: theme.colors.accentButton,
                 borderRadius: theme.radius.md,
                 opacity: !canSubmit ? 0.5 : pressed ? 0.85 : 1,
               },
             ]}
           >
             {register.isPending ? (
-              <ActivityIndicator color="#f2f2f3" />
+              <ActivityIndicator color="#ffffff" />
             ) : (
               <Text style={styles.buttonLabel}>Crear cuenta</Text>
             )}
@@ -258,12 +258,12 @@ export function RegisterScreen() {
             ¿Ya tienes cuenta?{' '}
             <Link
               href={next ? `/login?next=${encodeURIComponent(next)}` : '/login'}
-              style={{ color: theme.colors.accent }}
+              style={{ color: theme.colors.accentAlt }}
             >
               Iniciar sesión
             </Link>
             {' · '}
-            <Link href="/forgot-password" style={{ color: theme.colors.accent }}>
+            <Link href="/forgot-password" style={{ color: theme.colors.accentAlt }}>
               Olvidé mi contraseña
             </Link>
           </Text>
@@ -306,6 +306,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minHeight: 48,
   },
-  buttonLabel: { color: '#f2f2f3', fontSize: 16, fontWeight: '600' },
+  buttonLabel: { color: '#ffffff', fontSize: 16, fontWeight: '600' },
   footer: { fontSize: 14, textAlign: 'center', marginTop: 20.4 },
 });

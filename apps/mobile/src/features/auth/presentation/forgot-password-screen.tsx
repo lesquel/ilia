@@ -71,7 +71,7 @@ export function ForgotPasswordScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.card}>
-            <Text style={[styles.title, { color: theme.colors.text }]}>Olvidé mi contraseña</Text>
+            <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">Olvidé mi contraseña</Text>
 
             {submitted ? (
               <>
@@ -85,7 +85,7 @@ export function ForgotPasswordScreen() {
                   style={({ pressed }) => [
                     styles.button,
                     {
-                      backgroundColor: theme.colors.accent,
+                      backgroundColor: theme.colors.accentButton,
                       borderRadius: theme.radius.md,
                       opacity: pressed ? 0.85 : 1,
                     },
@@ -131,14 +131,14 @@ export function ForgotPasswordScreen() {
                   style={({ pressed }) => [
                     styles.button,
                     {
-                      backgroundColor: theme.colors.accent,
+                      backgroundColor: theme.colors.accentButton,
                       borderRadius: theme.radius.md,
                       opacity: !canSubmit ? 0.5 : pressed ? 0.85 : 1,
                     },
                   ]}
                 >
                   {requestReset.isPending ? (
-                    <ActivityIndicator color="#f2f2f3" />
+                    <ActivityIndicator color="#ffffff" />
                   ) : (
                     <Text style={styles.buttonLabel}>Enviar solicitud</Text>
                   )}
@@ -147,7 +147,7 @@ export function ForgotPasswordScreen() {
             )}
 
             <Text style={[styles.footer, { color: theme.colors.neutral[600] }]}>
-              <Link href="/login" style={{ color: theme.colors.accent }}>
+              <Link href="/login" style={{ color: theme.colors.accentAlt }}>
                 Volver a iniciar sesión
               </Link>
             </Text>
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     minHeight: 48,
   },
   buttonLabel: {
-    color: '#f2f2f3',
+    color: '#ffffff',
     fontSize: 16,
     fontWeight: '600',
   },

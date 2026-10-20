@@ -68,8 +68,8 @@ export function RosterScreen({ commentsSlot }: RosterScreenProps) {
             <Text style={[styles.backLabel, { color: muted }]}>Volver al curso</Text>
           </Pressable>
         </Link>
-        <Text style={[styles.kicker, { color: theme.colors.accent }]}>Estadísticas e inscritos</Text>
-        <Text style={[styles.title, { color: theme.colors.text }]} numberOfLines={3}>
+        <Text style={[styles.kicker, { color: theme.colors.accentAlt }]}>Estadísticas e inscritos</Text>
+        <Text style={[styles.title, { color: theme.colors.text }]} numberOfLines={3} accessibilityRole="header">
           {course?.title ?? 'Tu curso'}
         </Text>
         <Text style={[styles.subtitle, { color: muted }]}>

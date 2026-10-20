@@ -92,7 +92,7 @@ export function RecentThreadsPanel({
       {slug ? (
         <Link href={`/catalog/${slug}/forum`} asChild>
           <Pressable accessibilityRole="link" style={styles.forumLink}>
-            <Text style={[styles.forumLabel, { color: theme.colors.accent }]}>
+            <Text style={[styles.forumLabel, { color: theme.colors.accentAlt }]}>
               Ir al foro del curso
             </Text>
             <Icon glyph={ArrowRight} size={16} color={theme.colors.accent} />

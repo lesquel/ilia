@@ -20,14 +20,14 @@ export default function NotFound() {
       <Stack.Screen options={{ title: 'Página no encontrada' }} />
       <View style={[styles.screen, { backgroundColor: theme.colors.bg }]}>
         <BrandMark variant="monogram" height={48} />
-        <Text style={[styles.title, { color: theme.colors.text }]}>
+        <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">
           No encontramos esta página
         </Text>
         <Text style={[styles.body, { color: theme.colors.neutral[600] }]}>
           El enlace puede estar viejo o mal escrito.
         </Text>
 
-        <Link href="/catalog" style={[styles.link, { color: theme.colors.accent }]}>
+        <Link href="/catalog" style={[styles.link, { color: theme.colors.accentAlt }]}>
           Ir al catálogo →
         </Link>
         <Link href="/" style={[styles.link, { color: theme.colors.neutral[600] }]}>

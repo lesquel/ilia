@@ -112,7 +112,7 @@ function TeachingBoard({
     >
       <View style={styles.boardHead}>
         <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
-        <Text style={[styles.boardKicker, { color: theme.colors.accent }]}>{kicker}</Text>
+        <Text style={[styles.boardKicker, { color: theme.colors.accentAlt }]}>{kicker}</Text>
       </View>
       {children}
     </View>
@@ -149,7 +149,7 @@ function PedidoLamina({ compact }: { compact: boolean }) {
           },
         ]}
       >
-        <Text style={[styles.leadIn, { color: theme.colors.accent }]}>
+        <Text style={[styles.leadIn, { color: theme.colors.accentAlt }]}>
           El mismo tema, escrito como lo pegarías tú.
         </Text>
         <Text
@@ -198,7 +198,7 @@ function SheetLamina({ compact }: { compact: boolean }) {
           },
         ]}
       >
-        <Text style={[styles.leadIn, { color: theme.colors.accent }]}>
+        <Text style={[styles.leadIn, { color: theme.colors.accentAlt }]}>
           Tú te quedas con esto.
         </Text>
         <Text

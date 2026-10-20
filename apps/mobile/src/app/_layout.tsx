@@ -1,20 +1,21 @@
 import { QueryClientProvider } from '@tanstack/react-query';
-import { Stack } from 'expo-router';
+import { Link, Stack, type Href } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useMemo } from 'react';
+import { Platform, Pressable, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import { createQueryClient } from '@/core/api/query-client';
 import { ErrorBoundary } from '@/core/ui/error-boundary';
 import { palette } from '@/core/theme';
 import { AccountBar, installAuthTokenProvider } from '@/features/auth';
+import '@/core/ui/global-web-styles';
 
 // Composition root. Runs once, before the first render, not on every mount.
 installAuthTokenProvider();
 
 export default function RootLayout() {
   const colors = palette.light;
-
   const queryClient = useMemo(() => createQueryClient(), []);
 
   return (
@@ -25,15 +26,39 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <StatusBar style="dark" />
           <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
+            {Platform.OS === 'web' ? (
+              <Link href={'#main-content' as Href} asChild>
+                <Pressable
+                  accessibilityRole="link"
+                  accessibilityLabel="Saltar al contenido principal"
+                  style={{
+                    position: 'absolute',
+                    left: 12,
+                    top: 12,
+                    zIndex: 100,
+                    paddingHorizontal: 14,
+                    paddingVertical: 10,
+                    backgroundColor: colors.text,
+                    borderRadius: 8,
+                  }}
+                >
+                  <Text style={{ color: '#ffffff', fontSize: 14, fontWeight: '600' }}>
+                    Saltar al contenido
+                  </Text>
+                </Pressable>
+              </Link>
+            ) : null}
             {/* Above the Stack, so it survives navigation. Signing out is the only
                 action that must be reachable from every screen. */}
             <AccountBar />
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                contentStyle: { backgroundColor: colors.bg },
-              }}
-            />
+            <View role="main" nativeID="main-content" tabIndex={-1} style={{ flex: 1 }}>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  contentStyle: { backgroundColor: colors.bg },
+                }}
+              />
+            </View>
           </SafeAreaView>
         </QueryClientProvider>
       </ErrorBoundary>

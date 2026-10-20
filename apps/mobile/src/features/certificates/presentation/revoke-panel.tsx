@@ -83,7 +83,7 @@ export function RevokePanel() {
   return (
     <View style={styles.block}>
       <View style={styles.head}>
-        <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Certificados</Text>
+        <Text style={[styles.sectionTitle, { color: theme.colors.text }]} accessibilityRole="header">Certificados</Text>
         <Text style={[styles.hint, { color: theme.colors.neutral[600] }]}>
           Buscá por código de verificación para revisar o anular un certificado. La anulación queda
           auditada y el certificado deja de validar.
@@ -116,7 +116,7 @@ export function RevokePanel() {
             styles.button,
             styles.searchButton,
             {
-              backgroundColor: theme.colors.accent,
+              backgroundColor: theme.colors.accentButton,
               borderColor: theme.colors.accent,
               borderRadius: theme.radius.md,
               opacity: !code.trim() ? 0.4 : pressed ? 0.7 : 1,
@@ -124,7 +124,7 @@ export function RevokePanel() {
           ]}
         >
           {lookup.isPending ? (
-            <ActivityIndicator size="small" color="#f2f2f3" />
+            <ActivityIndicator size="small" color="#ffffff" />
           ) : (
             <Text style={[styles.buttonLabel, styles.onAccent]}>Buscar</Text>
           )}
@@ -274,5 +274,5 @@ const styles = StyleSheet.create({
   },
   searchButton: { alignSelf: 'center' },
   buttonLabel: { fontSize: 14, fontWeight: '600' },
-  onAccent: { color: '#f2f2f3' },
+  onAccent: { color: '#ffffff' },
 });

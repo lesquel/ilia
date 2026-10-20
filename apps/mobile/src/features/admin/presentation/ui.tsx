@@ -215,7 +215,7 @@ export function PrimaryButton({
       style={({ pressed }) => [
         styles.button,
         {
-          backgroundColor: theme.colors.accent,
+          backgroundColor: theme.colors.accentButton,
           borderColor: theme.colors.accent,
           borderRadius: theme.radius.md,
           opacity: disabled ? 0.4 : pressed ? 0.7 : 1,
@@ -223,11 +223,11 @@ export function PrimaryButton({
       ]}
     >
       {busy ? (
-        <ActivityIndicator size="small" color="#f2f2f3" />
+        <ActivityIndicator size="small" color="#ffffff" />
       ) : (
         <>
-          {glyph ? <Icon glyph={glyph} size={16} color="#f2f2f3" /> : null}
-          <Text style={[styles.buttonLabel, { color: '#f2f2f3' }]}>{label}</Text>
+          {glyph ? <Icon glyph={glyph} size={16} color="#ffffff" /> : null}
+          <Text style={[styles.buttonLabel, { color: '#ffffff' }]}>{label}</Text>
         </>
       )}
     </Pressable>

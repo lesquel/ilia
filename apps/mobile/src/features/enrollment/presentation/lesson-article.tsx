@@ -436,7 +436,7 @@ function ExerciseSheet({ table }: { table: LessonTable }) {
               { borderBottomColor: theme.colors.divider, backgroundColor: theme.colors.surface },
             ]}
           >
-            <Text style={[styles.sheetNumber, { color: theme.colors.accent }]}>{exerciseNumber}.</Text>
+            <Text style={[styles.sheetNumber, { color: theme.colors.accentAlt }]}>{exerciseNumber}.</Text>
             <View style={styles.sheetCopy}>
               <Text style={[styles.sheetPrompt, { color: theme.colors.text }]}>{prompt}</Text>
               {answer ? (
