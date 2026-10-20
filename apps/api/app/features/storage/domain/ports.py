@@ -44,3 +44,12 @@ class ObjectStorage(Protocol):
         travelling through the API holds a worker for minutes and buys nothing.
         """
         ...
+
+    async def read_bytes(self, reference: str, *, max_bytes: int) -> bytes:
+        """Read an object with a strict byte ceiling for server-side validation."""
+        ...
+
+    async def delete(self, reference: str) -> None:
+        """Delete an object by its server-owned opaque reference."""
+        ...
+
