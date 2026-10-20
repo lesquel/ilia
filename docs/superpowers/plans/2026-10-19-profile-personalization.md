@@ -83,7 +83,7 @@
 - Test: `apps/api/tests/features/forum/`
 
 **Interfaces:**
-- Thread and post response DTOs gain `author_id`, `author_avatar_key`, and nullable `author_avatar_url`.
+- Thread and post response DTOs gain `author_avatar_key` and nullable `author_avatar_url`; user IDs remain server-side because no profile link is in scope.
 - Forum list/detail handlers batch-load current authors and mint avatar read URLs only after existing enrollment/moderator access use cases succeed.
 
 - [ ] Add tests for updated identity on old threads/replies, missing profile fallback, no email/reference exposure, and outsider denial before storage reads; observe expected failures.

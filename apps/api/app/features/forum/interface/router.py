@@ -6,7 +6,9 @@ from uuid import UUID
 from fastapi import APIRouter, Request, status
 from pydantic import BaseModel, Field
 
-from app.features.auth.interface.dependencies import CurrentUser
+from app.features.auth.application.avatar_use_cases import avatar_read_url
+from app.features.auth.domain.entities import User
+from app.features.auth.interface.dependencies import CurrentUser, UsersDep
 from app.features.billing.application.use_cases import require_posting
 from app.features.billing.interface.dependencies import EntitlementsDep
 from app.features.catalog.interface.router import CoursesDep
@@ -34,6 +36,8 @@ class ThreadSummaryResponse(BaseModel):
     id: UUID
     title: str
     author_name: str
+    author_avatar_key: str | None = None
+    author_avatar_url: str | None = None
     reply_count: int
     created_at: datetime | None
     last_activity_at: datetime | None
@@ -44,12 +48,19 @@ class ThreadSummaryResponse(BaseModel):
 
     @classmethod
     def from_entity(
-        cls, thread: ForumThread, *, can_moderate: bool = False
+        cls,
+        thread: ForumThread,
+        *,
+        can_moderate: bool = False,
+        author: User | None = None,
+        avatar_url: str | None = None,
     ) -> "ThreadSummaryResponse":
         return cls(
             id=thread.id,
             title=thread.title,
-            author_name=thread.author_name,
+            author_name=author.full_name if author else thread.author_name,
+            author_avatar_key=author.avatar_key if author else None,
+            author_avatar_url=avatar_url,
             reply_count=thread.reply_count,
             created_at=thread.created_at,
             last_activity_at=thread.last_activity_at,
@@ -61,15 +72,21 @@ class ThreadSummaryResponse(BaseModel):
 class PostResponse(BaseModel):
     id: UUID
     author_name: str
+    author_avatar_key: str | None = None
+    author_avatar_url: str | None = None
     body: str
     created_at: datetime | None
     is_hidden: bool
 
     @classmethod
-    def from_entity(cls, post: ForumPost) -> "PostResponse":
+    def from_entity(
+        cls, post: ForumPost, *, author: User | None = None, avatar_url: str | None = None
+    ) -> "PostResponse":
         return cls(
             id=post.id,
-            author_name=post.author_name,
+            author_name=author.full_name if author else post.author_name,
+            author_avatar_key=author.avatar_key if author else None,
+            author_avatar_url=avatar_url,
             # The moderated placeholder, never the original text.
             body=post.visible_body,
             created_at=post.created_at,
@@ -103,6 +120,8 @@ async def list_threads(
     courses: CoursesDep,
     enrollments: EnrollmentsDep,
     threads: ThreadsDep,
+    users: UsersDep,
+    request: Request,
     module_id: UUID | None = None,
 ) -> list[ThreadSummaryResponse]:
     """Course threads, most recently active first.
@@ -118,7 +137,22 @@ async def list_threads(
     # evaluated once rather than per row.
     moderator = bool(found and await may_moderate(courses, user=user, course_id=found[0].course_id))
 
-    return [ThreadSummaryResponse.from_entity(item, can_moderate=moderator) for item in found]
+    authors = await users.get_by_ids({item.author_id for item in found})
+    by_id = {author.id: author for author in authors}
+    storage = request.app.state.storage
+    return [
+        ThreadSummaryResponse.from_entity(
+            item,
+            can_moderate=moderator,
+            author=by_id.get(item.author_id),
+            avatar_url=(
+                avatar_read_url(by_id[item.author_id], storage)
+                if item.author_id in by_id
+                else None
+            ),
+        )
+        for item in found
+    ]
 
 
 @router.post(
@@ -150,9 +184,12 @@ async def open_thread(
         body=payload.body,
         module_id=payload.module_id,
     )
+    author_avatar_url = avatar_read_url(user, request.app.state.storage)
 
     return ThreadDetailResponse(
-        **ThreadSummaryResponse.from_entity(thread).model_dump(),
+        **ThreadSummaryResponse.from_entity(
+            thread, author=user, avatar_url=author_avatar_url
+        ).model_dump(),
         body=thread.visible_body,
         posts=[],
     )
@@ -167,17 +204,39 @@ async def read_thread(
     enrollments: EnrollmentsDep,
     threads: ThreadsDep,
     posts: PostsDep,
+    users: UsersDep,
+    request: Request,
 ) -> ThreadDetailResponse:
     result = await ReadThread(
         courses=courses, enrollments=enrollments, threads=threads, posts=posts
     ).execute(user=user, slug=slug, thread_id=thread_id)
 
     moderator = await may_moderate(courses, user=user, course_id=result.thread.course_id)
+    author_ids = {result.thread.author_id, *(item.author_id for item in result.posts)}
+    authors = {item.id: item for item in await users.get_by_ids(author_ids)}
+    storage = request.app.state.storage
+    thread_author = authors.get(result.thread.author_id)
 
     return ThreadDetailResponse(
-        **ThreadSummaryResponse.from_entity(result.thread, can_moderate=moderator).model_dump(),
+        **ThreadSummaryResponse.from_entity(
+            result.thread,
+            can_moderate=moderator,
+            author=thread_author,
+            avatar_url=avatar_read_url(thread_author, storage) if thread_author else None,
+        ).model_dump(),
         body=result.thread.visible_body,
-        posts=[PostResponse.from_entity(item) for item in result.posts],
+        posts=[
+            PostResponse.from_entity(
+                item,
+                author=authors.get(item.author_id),
+                avatar_url=(
+                    avatar_read_url(authors[item.author_id], storage)
+                    if item.author_id in authors
+                    else None
+                ),
+            )
+            for item in result.posts
+        ],
     )
 
 
@@ -209,7 +268,9 @@ async def reply(
         clock=request.app.state.auth["clock"],
     ).execute(user=user, slug=slug, thread_id=thread_id, body=payload.body)
 
-    return PostResponse.from_entity(post)
+    return PostResponse.from_entity(
+        post, author=user, avatar_url=avatar_read_url(user, request.app.state.storage)
+    )
 
 
 @router.post("/threads/{thread_id}/hide", response_model=ThreadSummaryResponse)
@@ -220,6 +281,8 @@ async def hide_thread(
     courses: CoursesDep,
     threads: ThreadsDep,
     posts: PostsDep,
+    users: UsersDep,
+    request: Request,
 ) -> ThreadSummaryResponse:
     """Moderate a thread.
 
@@ -231,7 +294,12 @@ async def hide_thread(
         user=user, thread_id=thread_id, reason=payload.reason
     )
 
-    return ThreadSummaryResponse.from_entity(thread)
+    author = await users.get_by_id(thread.author_id)
+    return ThreadSummaryResponse.from_entity(
+        thread,
+        author=author,
+        avatar_url=(avatar_read_url(author, request.app.state.storage) if author else None),
+    )
 
 
 @router.post("/posts/{post_id}/hide", response_model=PostResponse)
@@ -242,9 +310,16 @@ async def hide_post(
     courses: CoursesDep,
     threads: ThreadsDep,
     posts: PostsDep,
+    users: UsersDep,
+    request: Request,
 ) -> PostResponse:
     post = await ModerateMessage(courses=courses, threads=threads, posts=posts).hide_post(
         user=user, post_id=post_id, reason=payload.reason
     )
 
-    return PostResponse.from_entity(post)
+    author = await users.get_by_id(post.author_id)
+    return PostResponse.from_entity(
+        post,
+        author=author,
+        avatar_url=(avatar_read_url(author, request.app.state.storage) if author else None),
+    )
