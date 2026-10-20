@@ -10,6 +10,23 @@ export const ROLES = ['student', 'instructor', 'admin'] as const;
 
 export type Role = (typeof ROLES)[number];
 
+export const PROFILE_AVATAR_CHOICES = [
+  { key: 'colibri', label: 'Colibrí' },
+  { key: 'estrella', label: 'Estrella' },
+  { key: 'montana', label: 'Montaña' },
+  { key: 'sol', label: 'Sol' },
+  { key: 'orquidea', label: 'Orquídea' },
+  { key: 'colibri-azul', label: 'Colibrí azul' },
+  { key: 'colibri-verde', label: 'Colibrí verde' },
+  { key: 'colibri-coral', label: 'Colibrí coral' },
+] as const;
+
+export type ProfileAvatarKey = (typeof PROFILE_AVATAR_CHOICES)[number]['key'];
+
+export function isProfileAvatarKey(value: unknown): value is ProfileAvatarKey {
+  return PROFILE_AVATAR_CHOICES.some((choice) => choice.key === value);
+}
+
 const RANK: Record<Role, number> = {
   student: 0,
   instructor: 1,
@@ -32,6 +49,8 @@ export interface User {
   email: string;
   fullName: string;
   role: Role;
+  avatarKey: ProfileAvatarKey | null;
+  avatarUrl: string | null;
 }
 
 export interface Credentials {

@@ -4,6 +4,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 
 import { useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
+import { ProfileAvatar } from '@/core/ui/profile-avatar';
 import { useThreads } from '@/features/forum/application/use-forum';
 import { replyLabel, timeAgo } from '@/features/forum/domain/entities';
 
@@ -71,10 +72,13 @@ export function RecentThreadsPanel({
                       >
                         {thread.isHidden ? '[Discusión retirada por moderación]' : thread.title}
                       </Text>
-                      <Text style={[styles.meta, { color: muted }]} numberOfLines={1}>
-                        {thread.authorName} · {replyLabel(thread.replyCount)} · última actividad{' '}
-                        {timeAgo(thread.lastActivityAt ?? thread.createdAt)}
-                      </Text>
+                      <View style={styles.metaRow}>
+                        <ProfileAvatar name={thread.authorName} avatarKey={thread.authorAvatarKey} avatarUrl={thread.authorAvatarUrl} size={20} />
+                        <Text style={[styles.meta, styles.authorMeta, { color: muted }]} numberOfLines={1}>
+                          {thread.authorName} · {replyLabel(thread.replyCount)} · última actividad{' '}
+                          {timeAgo(thread.lastActivityAt ?? thread.createdAt)}
+                        </Text>
+                      </View>
                     </View>
                   </View>
                 )}
@@ -115,6 +119,8 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
   },
   rowText: { flex: 1, minWidth: 0, gap: 3.4 },
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  authorMeta: { flex: 1 },
   rowTitle: { fontSize: 15, fontWeight: '600', lineHeight: 21 },
   meta: { fontSize: 13 },
   more: { paddingTop: 3.4 },

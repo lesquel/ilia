@@ -16,18 +16,20 @@ import {
 import { ApiError } from '@/core/errors/api-error';
 import { useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
+import { ProfileAvatar } from '@/core/ui/profile-avatar';
 import {
   useChangePassword,
   useSession,
   useUpdateProfile,
 } from '@/features/auth/application/use-auth';
-import { SESSION_ROLE_LABELS, givenNameInitial } from '@/features/auth/domain/app-location';
+import { SESSION_ROLE_LABELS } from '@/features/auth/domain/app-location';
 import {
   FULL_NAME_MAX_LENGTH,
   cleanFullName,
   isFullNameChange,
   type User,
 } from '@/features/auth/domain/entities';
+import { AvatarPicker } from '@/features/auth/presentation/avatar-picker';
 
 const MIN_PASSWORD = 8;
 
@@ -111,14 +113,7 @@ function ProfileCard({ user }: { user: User }) {
   return (
     <Card>
       <View style={styles.identity}>
-        <View
-          style={[
-            styles.avatar,
-            { backgroundColor: theme.colors.accentButton, borderRadius: theme.radius.md },
-          ]}
-        >
-          <Text style={styles.avatarInitial}>{givenNameInitial(user.fullName)}</Text>
-        </View>
+        <ProfileAvatar name={user.fullName} avatarKey={user.avatarKey} avatarUrl={user.avatarUrl} size={64} />
         <View style={styles.identityText}>
           <Text style={[styles.name, { color: theme.colors.text }]} numberOfLines={2}>
             {user.fullName}
@@ -138,6 +133,8 @@ function ProfileCard({ user }: { user: User }) {
           </View>
         </View>
       </View>
+
+      <AvatarPicker user={user} />
 
       <View style={[styles.rule, { backgroundColor: theme.colors.divider }]} />
 
@@ -389,8 +386,6 @@ const styles = StyleSheet.create({
   title: { fontSize: 30, fontWeight: '600' },
   card: { borderWidth: 1, padding: 20.4, gap: 3.4 },
   identity: { flexDirection: 'row', alignItems: 'center', gap: 13.6 },
-  avatar: { width: 64, height: 64, alignItems: 'center', justifyContent: 'center' },
-  avatarInitial: { color: '#ffffff', fontSize: 28, fontWeight: '600' },
   identityText: { flex: 1, minWidth: 0, gap: 3.4, alignItems: 'flex-start' },
   name: { fontSize: 20, fontWeight: '600', lineHeight: 26 },
   email: { fontSize: 14, lineHeight: 20 },

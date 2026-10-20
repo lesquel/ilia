@@ -1,52 +1,6 @@
 import { HttpClient, httpClient } from '@/core/api/http-client';
 import type { Post, ThreadDetail, ThreadSummary } from '@/features/forum/domain/entities';
-
-interface ThreadSummaryDto {
-  can_moderate?: boolean;
-  id: string;
-  title: string;
-  author_name: string;
-  reply_count: number;
-  created_at: string | null;
-  last_activity_at: string | null;
-  is_hidden: boolean;
-}
-
-interface PostDto {
-  id: string;
-  author_name: string;
-  body: string;
-  created_at: string | null;
-  is_hidden: boolean;
-}
-
-interface ThreadDetailDto extends ThreadSummaryDto {
-  body: string;
-  posts: PostDto[];
-}
-
-function toSummary(dto: ThreadSummaryDto): ThreadSummary {
-  return {
-    id: dto.id,
-    title: dto.title,
-    authorName: dto.author_name,
-    replyCount: dto.reply_count,
-    createdAt: dto.created_at,
-    lastActivityAt: dto.last_activity_at,
-    isHidden: dto.is_hidden,
-    canModerate: dto.can_moderate ?? false,
-  };
-}
-
-function toPost(dto: PostDto): Post {
-  return {
-    id: dto.id,
-    authorName: dto.author_name,
-    body: dto.body,
-    createdAt: dto.created_at,
-    isHidden: dto.is_hidden,
-  };
-}
+import { type PostDto, type ThreadDetailDto, type ThreadSummaryDto, toPost, toSummary } from './forum-dto';
 
 export interface ForumRepository {
   threads(slug: string): Promise<ThreadSummary[]>;

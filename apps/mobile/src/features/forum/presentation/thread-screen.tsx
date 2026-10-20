@@ -1,10 +1,11 @@
 import { useLocalSearchParams, type Href } from 'expo-router';
-import { Clock, Lock, MessageSquare, UserRound } from 'lucide-react-native';
+import { Clock, Lock, MessageSquare } from 'lucide-react-native';
 import { useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
+import { ProfileAvatar } from '@/core/ui/profile-avatar';
 import { ErrorState, LoadingState } from '@/core/ui/state-view';
 import {
   Card,
@@ -66,7 +67,10 @@ export function ThreadScreen() {
 
       <Card>
         <View style={styles.facts}>
-          <Fact glyph={UserRound} label={thread.authorName} />
+          <View style={styles.author}>
+            <ProfileAvatar name={thread.authorName} avatarKey={thread.authorAvatarKey} avatarUrl={thread.authorAvatarUrl} size={28} />
+            <Text style={[styles.authorName, { color: theme.colors.text }]}>{thread.authorName}</Text>
+          </View>
           <Fact glyph={Clock} label={timeAgo(thread.createdAt)} />
           <Fact glyph={MessageSquare} label={replyLabel(thread.replyCount)} />
         </View>
@@ -83,7 +87,10 @@ export function ThreadScreen() {
           {thread.posts.map((post) => (
             <Card key={post.id} style={styles.post}>
               <View style={styles.facts}>
-                <Text style={[styles.author, { color: theme.colors.text }]}>{post.authorName}</Text>
+                <View style={styles.author}>
+                  <ProfileAvatar name={post.authorName} avatarKey={post.authorAvatarKey} avatarUrl={post.authorAvatarUrl} size={28} />
+                  <Text style={[styles.authorName, { color: theme.colors.text }]}>{post.authorName}</Text>
+                </View>
                 <Fact glyph={Clock} label={timeAgo(post.createdAt)} />
               </View>
               {/* A moderated reply is replaced, not removed: the shape of the
@@ -182,7 +189,8 @@ const styles = StyleSheet.create({
   body: { fontSize: 15, lineHeight: 23 },
   replies: { gap: 10.2 },
   post: { gap: 6.8 },
-  author: { fontSize: 14, fontWeight: '700' },
+  author: { flexDirection: 'row', alignItems: 'center', gap: 7 },
+  authorName: { fontSize: 14, fontWeight: '700' },
   planNote: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10.2 },
   planNoteText: { flexGrow: 1, flexShrink: 1, flexBasis: 220, fontSize: 14, lineHeight: 21 },
   textarea: { minHeight: 110, lineHeight: 22 },

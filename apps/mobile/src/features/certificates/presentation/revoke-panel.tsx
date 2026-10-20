@@ -244,7 +244,12 @@ const styles = StyleSheet.create({
   searchRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6.8 },
   searchField: { flexGrow: 1, flexShrink: 1, minWidth: 160, maxWidth: 560, justifyContent: 'center' },
   // A tap on the magnifier still lands on the field under it.
-  searchGlyph: { position: 'absolute', left: 13.6, zIndex: 1, pointerEvents: 'none' },
+  searchGlyph: {
+    position: 'absolute',
+    left: 13.6,
+    zIndex: 1,
+    pointerEvents: 'none',
+  },
   // Room for the magnifier, which sits over the field's own padding.
   searchInput: { paddingLeft: 13.6 + 18 + 10.2 },
   input: {

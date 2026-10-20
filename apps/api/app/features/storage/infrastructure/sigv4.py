@@ -60,7 +60,7 @@ def presign(
     now: datetime,
     ttl: timedelta,
     service: str = "s3",
-    extra_query: dict[str, str] | None = None,
+    signed_headers: dict[str, str] | None = None,
     scheme: str = "https",
 ) -> str:
     """A URL valid for `ttl`, and only for `method` on `path`."""
@@ -68,15 +68,24 @@ def presign(
     date = now.strftime("%Y%m%d")
     scope = f"{date}/{region}/{service}/aws4_request"
 
+    canonical_headers = {"host": host.strip()}
+    canonical_headers.update(
+        {
+            name.strip().lower(): " ".join(value.strip().split())
+            for name, value in (signed_headers or {}).items()
+        }
+    )
+    signed_header_names = ";".join(sorted(canonical_headers))
+    canonical_header_block = "".join(
+        f"{name}:{canonical_headers[name]}\n" for name in sorted(canonical_headers)
+    )
+
     query = {
         "X-Amz-Algorithm": ALGORITHM,
         "X-Amz-Credential": f"{access_key}/{scope}",
         "X-Amz-Date": stamp,
         "X-Amz-Expires": str(int(ttl.total_seconds())),
-        # Only the host is signed. Signing more would mean the browser has to
-        # reproduce headers it does not control.
-        "X-Amz-SignedHeaders": "host",
-        **(extra_query or {}),
+        "X-Amz-SignedHeaders": signed_header_names,
     }
 
     # Sorted by key, then by value: the server rebuilds this string from the
@@ -92,8 +101,8 @@ def presign(
             method,
             canonical_path,
             canonical_query,
-            f"host:{host}\n",
-            "host",
+            canonical_header_block,
+            signed_header_names,
             UNSIGNED_PAYLOAD,
         ]
     )

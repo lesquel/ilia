@@ -154,7 +154,7 @@ export function LessonStudio({
             />
           </FadingStage>
         </ScrollView>
-        <View style={styles.presenter} pointerEvents="none">
+        <View style={[styles.presenter, { pointerEvents: 'none' }]}>
           <MascotGuide
             line={mascotLineFor(currentScene, labPhase, sceneIndex)}
             lineKey={lineKey}

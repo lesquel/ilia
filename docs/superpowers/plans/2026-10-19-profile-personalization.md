@@ -108,10 +108,10 @@
 - `ProfileAvatar` renders a photo, approved illustration, or existing initials fallback with stable dimensions and accessible naming.
 - Account UI supports upload from browser file input and Expo Image Picker on native, plus a keyboard-operable illustrated avatar grid.
 
-- [ ] Add domain/API mapper and avatar selector tests for key allowlist, selection state, initial fallback, failed loading, and owner-only profile mutation; observe expected failures.
-- [ ] Install the Expo-compatible picker via `npx expo install expo-image-picker` and implement repository/query mutations with session cache refresh.
-- [ ] Build shared `ProfileAvatar` and the accessible account editor, including replacing/removing, announcements, visible labels, errors/success and 44px controls.
-- [ ] Run targeted mobile tests, `npm run typecheck`, lint, and a production web export.
+- [x] Add domain/API mapper and avatar selector tests for key allowlist and file constraints; the repository's Vitest suite is domain-only, so component rendering checks remain a manual gap.
+- [x] Install the Expo-compatible picker via `npx expo install expo-image-picker` and implement repository/query mutations with session cache refresh.
+- [x] Build shared `ProfileAvatar` and the accessible account editor, including replacing/removing, announcements, visible labels, errors/success and 44px controls.
+- [ ] Run targeted mobile tests, `npm run typecheck`, lint, and a production web export. Tests, lint and typecheck pass; server/no-SSG Expo export produced route manifest only. Static export was stopped after over 1.2 GiB resident memory and prolonged static rendering.
 
 ### Task 5: Show current profiles in the app and verify end to end
 
@@ -123,7 +123,7 @@
 - Modify: `apps/mobile/src/features/forum/presentation/thread-screen.tsx`
 - Test: `apps/mobile/src/features/forum/`
 
-- [ ] Add tests for DTO mapping and rendering current names/avatars on thread rows, thread authors, and replies; observe expected failures.
-- [ ] Replace initials-only account/forum identity rendering with shared `ProfileAvatar`; keep text names visible and use initials when URLs expire or images fail.
-- [ ] Run the full API and mobile suites plus formatting/lint/type/build checks; perform web layout/accessibility checks at mobile and laptop widths and native picker smoke checks where a device runtime is available.
-- [ ] Review the complete branch diff and update the plan checklist with verified evidence.
+- [x] Add API and mobile DTO mapping tests for current names/avatars; component rendering tests are unavailable in the existing domain-only Vitest setup.
+- [x] Replace initials-only account/forum identity rendering with shared `ProfileAvatar`; keep text names visible and use initials when URLs expire or images fail.
+- [ ] Run the full API and mobile suites plus formatting/lint/type/build checks; mobile tests/lint/typecheck pass and focused API tests pass. Full API suite has 44 unrelated existing failures (stale password fixtures); interactive layout/device checks were not available in this run.
+- [x] Review the complete branch diff and update the plan checklist with verified evidence. Fresh review confirmed avatar decoding/dimension limits and the SigV4 signed Content-Type fix; no remaining critical/important issues. The review did not include a live S3 provider or visual device session.

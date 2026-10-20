@@ -46,7 +46,14 @@ class S3CompatibleStorage:
     def provider(self) -> str:
         return self._provider
 
-    def _signed(self, method: str, reference: str, ttl: timedelta, **query: str) -> SignedUrl:
+    def _signed(
+        self,
+        method: str,
+        reference: str,
+        ttl: timedelta,
+        *,
+        signed_headers: dict[str, str] | None = None,
+    ) -> SignedUrl:
         url = presign(
             method=method,
             host=self._host,
@@ -57,7 +64,7 @@ class S3CompatibleStorage:
             now=datetime.now(UTC),
             ttl=ttl,
             scheme=self._scheme,
-            extra_query=query or None,
+            signed_headers=signed_headers,
         )
         return SignedUrl(url=url, expires_in_seconds=int(ttl.total_seconds()))
 
@@ -65,9 +72,11 @@ class S3CompatibleStorage:
         return self._signed("GET", reference, ttl)
 
     def write_url(self, reference: str, *, content_type: str, ttl: timedelta) -> SignedUrl:
-        # The content type is signed, so a URL issued for a video cannot be used
-        # to upload an HTML page that would then be served from our domain.
-        return self._signed("PUT", reference, ttl, **{"Content-Type": content_type})
+        # Bind Content-Type as a SigV4 header. Putting it into the query string
+        # would not constrain the object metadata sent by an upload client.
+        return self._signed(
+            "PUT", reference, ttl, signed_headers={"content-type": content_type}
+        )
 
     async def read_bytes(self, reference: str, *, max_bytes: int) -> bytes:
         """Read no more than max_bytes + 1, so oversized objects are rejected."""

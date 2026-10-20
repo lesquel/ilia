@@ -1,11 +1,12 @@
 import { Link, useLocalSearchParams, type Href } from 'expo-router';
-import { Clock, Lock, MessageSquare, MessagesSquare, Plus, UserRound } from 'lucide-react-native';
+import { Clock, Lock, MessageSquare, MessagesSquare, Plus } from 'lucide-react-native';
 import { useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { ApiError } from '@/core/errors/api-error';
 import { useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
+import { ProfileAvatar } from '@/core/ui/profile-avatar';
 import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
 import {
   Card,
@@ -240,7 +241,12 @@ function ThreadLink({ thread, slug }: { thread: ThreadSummary; slug: string }) {
               {thread.isHidden ? '[Discusión retirada por moderación]' : thread.title}
             </Text>
             <View style={styles.facts}>
-              <Fact glyph={UserRound} label={thread.authorName} />
+              <View style={styles.author}>
+                <ProfileAvatar name={thread.authorName} avatarKey={thread.authorAvatarKey} avatarUrl={thread.authorAvatarUrl} size={24} />
+                <Text style={[styles.authorName, { color: theme.colors.neutral[700] }]} numberOfLines={1}>
+                  {thread.authorName}
+                </Text>
+              </View>
               <Fact glyph={MessageSquare} label={replyLabel(thread.replyCount)} />
               <Fact glyph={Clock} label={`última actividad ${timeAgo(thread.lastActivityAt)}`} />
             </View>
@@ -276,5 +282,7 @@ const styles = StyleSheet.create({
   row: { gap: 6.8, paddingVertical: 13.6 },
   rowLink: { gap: 6.8 },
   rowTitle: { fontSize: 17, fontWeight: '600', lineHeight: 23 },
-  facts: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 13.6, rowGap: 3.4 },
+  facts: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', columnGap: 13.6, rowGap: 3.4 },
+  author: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  authorName: { fontSize: 13, lineHeight: 20 },
 });

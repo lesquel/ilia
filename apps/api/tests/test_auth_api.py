@@ -5,7 +5,10 @@ cases must hand a browser an httpOnly cookie and a native app a bearer token,
 and must never hand a browser something the page can read.
 """
 
+from io import BytesIO
+
 from fastapi.testclient import TestClient
+from PIL import Image
 
 from app.features.auth.domain.entities import FULL_NAME_MAX_LENGTH, Email, Role
 from app.features.auth.infrastructure.memory_repository import InMemoryUserRepository
@@ -36,6 +39,15 @@ def set_role(client: TestClient, email: str, role: Role) -> None:
 
 
 class TestRegistration:
+    def test_password_policy_errors_return_safe_json(self, client: TestClient) -> None:
+        weak_password = "una-clave-larga1!"
+
+        response = register(client, NATIVE, password=weak_password)
+
+        assert response.status_code == 422
+        assert response.json()["error"]["code"] == "schema_error"
+        assert weak_password not in response.text
+
     def test_creates_the_account(self, client: TestClient) -> None:
         response = register(client, WEB)
 
@@ -284,11 +296,17 @@ class TestUpdateProfile:
         assert response.json()["email"] == ACCOUNT["email"]
 
 
+def _valid_png() -> bytes:
+    output = BytesIO()
+    Image.new("RGB", (1, 1), "white").save(output, format="PNG")
+    return output.getvalue()
+
+
 class FakeAvatarStorage:
     provider = "s3"
 
-    def __init__(self, data: bytes = b"\x89PNG\r\n\x1a\npicture") -> None:
-        self.data = data
+    def __init__(self, data: bytes | None = None) -> None:
+        self.data = _valid_png() if data is None else data
         self.deleted: list[str] = []
 
     def read_url(self, reference: str, *, ttl):  # type: ignore[no-untyped-def]

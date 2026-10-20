@@ -1,8 +1,8 @@
-import { QueryClientProvider } from '@tanstack/react-query';
+import { focusManager, QueryClientProvider } from '@tanstack/react-query';
 import { Link, Stack, type Href } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useMemo } from 'react';
-import { Platform, Pressable, Text, View } from 'react-native';
+import { useEffect, useMemo } from 'react';
+import { AppState, Platform, Pressable, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import { createQueryClient } from '@/core/api/query-client';
@@ -17,6 +17,15 @@ installAuthTokenProvider();
 export default function RootLayout() {
   const colors = palette.light;
   const queryClient = useMemo(() => createQueryClient(), []);
+
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+    focusManager.setFocused(AppState.currentState === 'active');
+    const subscription = AppState.addEventListener('change', (state) => {
+      focusManager.setFocused(state === 'active');
+    });
+    return () => subscription.remove();
+  }, []);
 
   return (
     // Outside the providers on purpose: if the theme or the query client is
