@@ -65,3 +65,31 @@ class InvalidFullNameError(ValidationError):
 
     def __init__(self) -> None:
         super().__init__("The name cannot be empty or too long")
+
+
+class InvalidAvatarKeyError(ValidationError):
+    code = "invalid_avatar_key"
+
+    def __init__(self) -> None:
+        super().__init__("Choose an avatar from the available illustrations")
+
+
+class InvalidAvatarReferenceError(ValidationError):
+    code = "invalid_avatar_reference"
+
+    def __init__(self) -> None:
+        super().__init__("The uploaded image does not belong to this profile")
+
+
+class InvalidAvatarImageError(ValidationError):
+    code = "unsupported_avatar_image"
+
+    def __init__(self) -> None:
+        super().__init__("Choose a JPEG, PNG or WebP image no larger than 5 MiB")
+
+
+class AvatarImageTooLargeError(ValidationError):
+    code = "avatar_image_too_large"
+
+    def __init__(self) -> None:
+        super().__init__("The image must be no larger than 5 MiB")

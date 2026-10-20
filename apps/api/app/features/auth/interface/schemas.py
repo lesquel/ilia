@@ -1,5 +1,6 @@
 import re
 from datetime import datetime
+from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
@@ -41,6 +42,24 @@ class UpdateProfileRequest(BaseModel):
     full_name: str = Field(min_length=1, max_length=FULL_NAME_MAX_LENGTH)
 
 
+class AvatarUploadRequest(BaseModel):
+    content_type: Literal["image/jpeg", "image/png", "image/webp"]
+
+
+class AvatarReferenceRequest(BaseModel):
+    reference: str = Field(min_length=1, max_length=512)
+
+
+class AvatarSelectionRequest(BaseModel):
+    avatar_key: str = Field(min_length=1, max_length=40)
+
+
+class AvatarUploadResponse(BaseModel):
+    upload_url: str
+    reference: str
+    expires_in: int
+
+
 class ChangePasswordRequest(BaseModel):
     current_password: str
     # The same floor as registration, deliberately repeated rather than shared:
@@ -76,14 +95,18 @@ class UserResponse(BaseModel):
     email: str
     full_name: str
     role: str
+    avatar_key: str | None = None
+    avatar_url: str | None = None
 
     @classmethod
-    def from_entity(cls, user: User) -> "UserResponse":
+    def from_entity(cls, user: User, *, avatar_url: str | None = None) -> "UserResponse":
         return cls(
             id=user.id,
             email=str(user.email),
             full_name=user.full_name,
             role=user.role.value,
+            avatar_key=user.avatar_key,
+            avatar_url=avatar_url,
         )
 
 
@@ -101,14 +124,16 @@ class SessionResponse(BaseModel):
     expires_in: int | None = None
 
     @classmethod
-    def for_native(cls, session: Session) -> "SessionResponse":
+    def for_native(
+        cls, session: Session, *, avatar_url: str | None = None
+    ) -> "SessionResponse":
         return cls(
-            user=UserResponse.from_entity(session.user),
+            user=UserResponse.from_entity(session.user, avatar_url=avatar_url),
             access_token=session.tokens.access_token,
             refresh_token=session.tokens.refresh_token,
             expires_in=session.tokens.access_expires_in,
         )
 
     @classmethod
-    def for_web(cls, session: Session) -> "SessionResponse":
-        return cls(user=UserResponse.from_entity(session.user))
+    def for_web(cls, session: Session, *, avatar_url: str | None = None) -> "SessionResponse":
+        return cls(user=UserResponse.from_entity(session.user, avatar_url=avatar_url))

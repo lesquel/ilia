@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 
 from app.features.auth.domain.entities import FULL_NAME_MAX_LENGTH, Email, Role
 from app.features.auth.infrastructure.memory_repository import InMemoryUserRepository
+from app.features.storage.domain.ports import SignedUrl
 
 WEB = {"X-Client-Platform": "web"}
 NATIVE = {"X-Client-Platform": "native"}
@@ -281,6 +282,160 @@ class TestUpdateProfile:
 
         assert response.status_code == 200
         assert response.json()["email"] == ACCOUNT["email"]
+
+
+class FakeAvatarStorage:
+    provider = "s3"
+
+    def __init__(self, data: bytes = b"\x89PNG\r\n\x1a\npicture") -> None:
+        self.data = data
+        self.deleted: list[str] = []
+
+    def read_url(self, reference: str, *, ttl):  # type: ignore[no-untyped-def]
+        return SignedUrl(f"https://storage.example/{reference}", int(ttl.total_seconds()))
+
+    def write_url(self, reference: str, *, content_type: str, ttl):  # type: ignore[no-untyped-def]
+        return SignedUrl("https://storage.example/upload", int(ttl.total_seconds()))
+
+    async def read_bytes(self, reference: str, *, max_bytes: int) -> bytes:
+        return self.data
+
+    async def delete(self, reference: str) -> None:
+        self.deleted.append(reference)
+
+
+class TestProfileAvatar:
+    def test_avatar_routes_require_a_session(self, client: TestClient) -> None:
+        response = client.put(
+            "/api/v1/auth/me/avatar", json={"avatar_key": "colibri"}, headers=WEB
+        )
+
+        assert response.status_code == 401
+
+    def test_selecting_an_illustration_updates_the_profile_without_a_storage_ref(
+        self, client: TestClient
+    ) -> None:
+        register(client, WEB)
+
+        selected = client.put(
+            "/api/v1/auth/me/avatar", json={"avatar_key": "colibri"}, headers=WEB
+        )
+
+        assert selected.status_code == 200
+        assert selected.json()["avatar_key"] == "colibri"
+        assert selected.json()["avatar_url"] is None
+        assert "avatar_ref" not in selected.json()
+
+    def test_an_unknown_illustration_is_rejected(self, client: TestClient) -> None:
+        register(client, WEB)
+
+        response = client.put(
+            "/api/v1/auth/me/avatar", json={"avatar_key": "untrusted.svg"}, headers=WEB
+        )
+
+        assert response.status_code == 422
+
+    def test_photo_upload_is_scoped_confirmed_and_never_returns_the_ref(
+        self, client: TestClient
+    ) -> None:
+        client.app.state.storage = FakeAvatarStorage()
+        register(client, WEB)
+
+        prepared = client.post(
+            "/api/v1/auth/me/avatar-upload",
+            json={"content_type": "image/png"},
+            headers=WEB,
+        )
+        assert prepared.status_code == 200
+        upload = prepared.json()
+        assert upload["reference"].startswith("avatars/")
+        assert upload["upload_url"] == "https://storage.example/upload"
+
+        confirmed = client.post(
+            "/api/v1/auth/me/avatar",
+            json={"reference": upload["reference"]},
+            headers=WEB,
+        )
+
+        assert confirmed.status_code == 200
+        assert confirmed.json()["avatar_url"].startswith("https://storage.example/avatars/")
+        assert "avatar_ref" not in confirmed.json()
+
+    def test_a_photo_reference_for_another_account_is_rejected(self, client: TestClient) -> None:
+        client.app.state.storage = FakeAvatarStorage()
+        register(client, WEB)
+
+        response = client.post(
+            "/api/v1/auth/me/avatar",
+            json={"reference": "avatars/someone-else/photo"},
+            headers=WEB,
+        )
+
+        assert response.status_code == 422
+
+    def test_invalid_uploaded_content_does_not_replace_the_profile(
+        self, client: TestClient
+    ) -> None:
+        client.app.state.storage = FakeAvatarStorage(data=b"<svg/onload=alert(1)>")
+        register(client, WEB)
+        upload = client.post(
+            "/api/v1/auth/me/avatar-upload",
+            json={"content_type": "image/png"},
+            headers=WEB,
+        ).json()
+
+        response = client.post(
+            "/api/v1/auth/me/avatar",
+            json={"reference": upload["reference"]},
+            headers=WEB,
+        )
+
+        assert response.status_code == 422
+        assert client.get("/api/v1/auth/me", headers=WEB).json()["avatar_key"] is None
+
+    def test_removing_avatar_deletes_the_old_photo(self, client: TestClient) -> None:
+        storage = FakeAvatarStorage()
+        client.app.state.storage = storage
+        register(client, WEB)
+        upload = client.post(
+            "/api/v1/auth/me/avatar-upload",
+            json={"content_type": "image/png"},
+            headers=WEB,
+        ).json()
+        client.post(
+            "/api/v1/auth/me/avatar", json={"reference": upload["reference"]}, headers=WEB
+        )
+
+        removed = client.delete("/api/v1/auth/me/avatar", headers=WEB)
+
+        assert removed.status_code == 200
+        assert removed.json()["avatar_url"] is None
+        assert storage.deleted == [upload["reference"]]
+
+    def test_failed_replacement_keeps_the_previous_photo(self, client: TestClient) -> None:
+        storage = FakeAvatarStorage(data=b"not an image")
+        client.app.state.storage = storage
+        register(client, WEB)
+        user = next(iter(client.app.state.auth["users"]._by_id.values()))
+        previous = f"avatars/{user.id}/{'a' * 32}"
+        user.avatar_ref = previous
+        upload = client.post(
+            "/api/v1/auth/me/avatar-upload",
+            json={"content_type": "image/png"},
+            headers=WEB,
+        ).json()
+
+        failed = client.post(
+            "/api/v1/auth/me/avatar",
+            json={"reference": upload["reference"]},
+            headers=WEB,
+        )
+
+        assert failed.status_code == 422
+        profile = client.get("/api/v1/auth/me", headers=WEB).json()
+        assert profile["avatar_url"].endswith(previous)
+        assert previous not in storage.deleted
+        assert upload["reference"] in storage.deleted
 
 
 class TestChangePassword:
