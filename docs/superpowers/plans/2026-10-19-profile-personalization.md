@@ -83,7 +83,7 @@
 - Test: `apps/api/tests/features/forum/`
 
 **Interfaces:**
-- Thread and post response DTOs gain `author_avatar_key` and nullable `author_avatar_url`; user IDs remain server-side because no profile link is in scope.
+- Thread and post response DTOs gain `author_avatar_key` and nullable `author_avatar_url`. Extension approved 2026-10-23: expose only the opaque `author_id` required for an authenticated contextual profile link; never expose email or storage references.
 - Forum list/detail handlers batch-load current authors and mint avatar read URLs only after existing enrollment/moderator access use cases succeed.
 
 - [ ] Add tests for updated identity on old threads/replies, missing profile fallback, no email/reference exposure, and outsider denial before storage reads; observe expected failures.

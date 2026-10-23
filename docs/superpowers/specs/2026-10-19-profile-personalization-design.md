@@ -26,13 +26,17 @@ Permitir que cada docente se reconozca en ILIA y en las conversaciones de sus cu
 - La foto o ilustración debe aparecer junto a las publicaciones del foro.
 - El nombre del perfil ya se puede cambiar en la pantalla de cuenta.
 
+## Extensión aprobada el 23-oct-2026
+
+Desde la autoría en un foro se puede abrir un perfil interno autenticado con identidad mínima y actividad reciente. El servidor filtra actividad por módulos que la persona lectora puede consultar; no se añaden directorio, búsqueda, biografía, enlaces compartibles ni perfiles públicos. Para este enlace contextual, el foro expone `author_id` como UUID opaco; no expone correo ni referencias privadas de almacenamiento.
+
 ## Decisiones de implementación
 
 - Guardar `avatar_key` (una clave de una lista allowlist de ilustraciones versionadas) y `avatar_ref` (referencia opaca de almacenamiento) en `auth.app_user`. Son mutuamente excluyentes. No almacenar URLs firmadas en base de datos ni en caché persistente.
 - Al elegir avatar ilustrado, guardar su clave; al subir foto, limpiar la clave. Al quitar cualquiera, limpiar ambas y volver a las iniciales. El usuario puede cambiar de modalidad cuantas veces quiera.
 - Añadir un flujo de carga directa al almacenamiento ya abstraído por `ObjectStorage`: API autoriza únicamente la clave `avatars/{user_id}/...`, valida contenido real de imagen y tamaño máximo de 5 MiB, entrega URL de escritura de vida corta y solo registra la referencia tras confirmación. Permitir JPEG, PNG y WebP; rechazar SVG y formatos no reconocidos para evitar contenido activo. La presentación usa recorte cuadrado centrado, sin modificar el archivo original.
 - Las referencias no son URLs. Crear URLs firmadas de lectura breves (máximo 2 minutos) únicamente en respuestas de `/auth/me` para el propietario y respuestas del foro después de las comprobaciones de acceso existentes. En el foro, pueden verlas estudiantes inscritos en el curso y docentes/admins autorizados por las reglas actuales de acceso y moderación. El foro no devuelve correo ni identificadores internos innecesarios.
-- Añadir `author_id` a las respuestas JSON de foro y resolver la identidad visible actual mediante el usuario asociado, tanto en el listado de discusiones como en detalle y respuestas. Con ello los cambios de nombre/avatar aparecen también en publicaciones anteriores. Las cuentas se desactivan, no se borran, de modo que su identidad continúa disponible. En el entorno de memoria se mantiene compatibilidad con los repositorios actuales y se representa el perfil ausente con iniciales.
+- Añadir `author_id` opaco a las respuestas JSON de foro para habilitar el enlace contextual al perfil; resolver la identidad visible actual mediante el usuario asociado, tanto en el listado de discusiones como en detalle y respuestas. Con ello los cambios de nombre/avatar aparecen también en publicaciones anteriores. Las cuentas se desactivan, no se borran, de modo que su identidad continúa disponible. En el entorno de memoria se mantiene compatibilidad con los repositorios actuales y se representa el perfil ausente con iniciales.
 - Reutilizar una pieza visual de avatar para cuenta, barra y foro, con `expo-image`, tamaño reservado para evitar saltos, texto alternativo con el nombre y iniciales cuando no hay imagen. La selección de foto funciona en web y nativo; el selector ilustrado no requiere subida ni permisos de galería.
 - El almacenamiento no configurado debe mostrar un error entendible sin romper el selector ilustrado ni el resto de la cuenta. La selección de ilustración y el cambio de nombre no dependen del proveedor LLM.
 

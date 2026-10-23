@@ -4,7 +4,7 @@
 | | |
 |---|---|
 | **Versión** | 0.2 — alineado al código en `main` |
-| **Fecha** | 7 de septiembre de 2026 *(v0.1)* · actualizado 21 de septiembre de 2026 |
+| **Fecha** | 7 de septiembre de 2026 *(v0.1)* · actualizado 23 de octubre de 2026 |
 | **Documento padre** | PRD ILIA v0.2 |
 | **Estado** | Stack y sesión web implementados; despliegue productivo y SEO siguen abiertos |
 
@@ -163,6 +163,8 @@ Reglas de dependencia (esto es lo que hace que sea Clean y no solo carpetas):
 Del mockup salen 16 pantallas del rol estudiante, que se toman como base:
 
 `landing`, `login`, `registro`, `catálogo`, `detalle de curso`, `dashboard`, `mis cursos`, `lección`, `actividad`, `preguntas`, `foro`, `evaluaciones`, `laboratorio IA`, `resultado`, `certificados`, `perfil`.
+
+**Extensión aprobada el 23-oct-2026 (fuera de las 16 pantallas originales):** Comunidad como índice de foros disponibles y perfil contextual de participante desde la autoría. Los espacios se separan por cohorte y se organizan por módulo; una inscripción sin cohorte accede al foro general del módulo. El perfil requiere sesión autenticada y muestra identidad mínima y actividad reciente solo de espacios consultables por quien mira. No incorpora directorio, búsqueda, enlaces compartibles ni imágenes adjuntas a hilos.
 
 **Buena noticia con la decisión multiplataforma:** el mockup ya está maquetado como web (rejilla con sidebar de 232px y barra inferior bajo cierto breakpoint), así que **sirve casi directamente como referencia de la versión web**. Ya trae incluso el comportamiento responsive pensado.
 
@@ -331,7 +333,7 @@ Entidades principales (atributos indicativos, no exhaustivos):
 | `evaluation` | submission, puntaje total, estado, timestamp |
 | `evaluation_score` | evaluation + dimensión, puntaje, justificación |
 | `score_override` | evaluation, instructor, puntaje nuevo, motivo — **auditoría** |
-| `forum_thread` / `forum_post` | ámbito (curso o módulo), autor, contenido |
+| `forum_thread` / `forum_post` | hilo ligado obligatoriamente a curso y módulo, con cohorte opcional (`null` = general para inscripciones sin cohorte); autor y contenido textual. Las respuestas heredan el ámbito del hilo. |
 | `certificate` | usuario + curso, código de verificación, estado, URL |
 | `plan` / `subscription` | freemium |
 | `llm_usage` | usuario, submission, tokens entrada/salida, costo estimado |
@@ -370,7 +372,9 @@ Endpoints principales, agrupados por feature:
 - Listar mis entregas de una actividad.
 
 **Foro**
-- Listar hilos, crear hilo, responder.
+- Listar hilos por curso, módulo obligatorio y cohorte opcional; crear hilo dentro de ese espacio y responder. Estudiantes solo leen/escriben el ámbito de cohorte de su inscripción; instructores/admin ven los ámbitos con matrículas del curso.
+- Comunidad (`GET /forum/community`): cursos publicados disponibles según inscripción/rol, módulos y ámbitos de cohorte accesibles.
+- Perfil contextual (`GET /forum/community/members/{member_id}`): identidad y actividad reciente solo en espacios módulo/cohorte accesibles en común; no es un perfil público ni un directorio.
 
 **Certificados**
 - Listar mis certificados, comprobar elegibilidad, emitir (según plan).
