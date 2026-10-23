@@ -6,6 +6,7 @@ describe('forum author profile mapping', () => {
   it('maps an illustrated avatar on a thread summary', () => {
     const summary = toSummary({
       id: 'thread-1',
+      author_id: 'member-1',
       title: 'Una pregunta',
       author_name: 'Ana Pérez',
       author_avatar_key: 'colibri',
@@ -23,6 +24,7 @@ describe('forum author profile mapping', () => {
   it('maps a signed photo URL on a reply', () => {
     const post = toPost({
       id: 'post-1',
+      author_id: 'member-2',
       author_name: 'Lucía',
       author_avatar_key: null,
       author_avatar_url: 'https://storage.example/signed-photo',

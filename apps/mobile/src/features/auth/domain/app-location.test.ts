@@ -120,11 +120,12 @@ describe('courseSlugInPath', () => {
 });
 
 describe('appNavItemsForRole', () => {
-  it('keeps a student on the three learning places', () => {
+  it('shows learning places and community to a student', () => {
     expect(appNavItemsForRole('student').map((item) => item.href)).toEqual([
       '/catalog',
       '/my-courses',
       '/certificates',
+      '/community',
     ]);
   });
 
@@ -137,6 +138,7 @@ describe('appNavItemsForRole', () => {
       '/catalog',
       '/my-courses',
       '/certificates',
+      '/community',
       '/instructor',
       '/admin',
     ]);

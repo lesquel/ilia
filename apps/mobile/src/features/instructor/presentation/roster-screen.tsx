@@ -30,16 +30,8 @@ import { Card } from '@/features/instructor/presentation/ui';
 const MAX_DAY_COLUMNS = 14;
 const COLUMN_PLOT_HEIGHT = 96;
 
-export interface RosterScreenProps {
-  /**
-   * The course's forum, composed by the route: this feature does not import
-   * the forum's.
-   */
-  commentsSlot?: ReactNode;
-}
-
 /** How a course is going and who is in it (PRD I-04). */
-export function RosterScreen({ commentsSlot }: RosterScreenProps) {
+export function RosterScreen() {
   const theme = useTheme();
   const { courseId } = useLocalSearchParams<{ courseId: string }>();
   const id = courseId ?? '';
@@ -108,8 +100,6 @@ export function RosterScreen({ commentsSlot }: RosterScreenProps) {
           )}
         </>
       )}
-
-      {commentsSlot ? <Card title="Comentarios del curso">{commentsSlot}</Card> : null}
 
       <Card title="Inscritos" hint="Quién se anotó, de qué charla vino y hasta dónde llegó.">
         {rosterLoading ? (

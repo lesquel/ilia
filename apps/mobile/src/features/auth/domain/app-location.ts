@@ -12,6 +12,7 @@ export type AppSectionId =
   | 'catalog'
   | 'my-courses'
   | 'certificates'
+  | 'community'
   | 'account'
   | 'instructor'
   | 'admin'
@@ -34,7 +35,7 @@ export type AppLocation = {
 export type AppNavItem = {
   sectionId: AppSectionId;
   label: string;
-  href: '/catalog' | '/my-courses' | '/certificates' | '/instructor' | '/admin';
+  href: '/catalog' | '/my-courses' | '/certificates' | '/community' | '/instructor' | '/admin';
 };
 
 export const SESSION_ROLE_LABELS: Record<Role, string> = {
@@ -60,6 +61,7 @@ export function appNavItemsForRole(role: Role): AppNavItem[] {
     { sectionId: 'catalog', label: 'Catálogo', href: '/catalog' },
     { sectionId: 'my-courses', label: 'Mis cursos', href: '/my-courses' },
     { sectionId: 'certificates', label: 'Certificados', href: '/certificates' },
+    { sectionId: 'community', label: 'Comunidad', href: '/community' },
   ];
 
   if (canActAs(role, 'instructor')) {
@@ -130,6 +132,12 @@ export function resolveAppLocation(pathname: string, names: AppLocationNames = {
     return locationOf('certificates', 'Certificados', [
       { label: 'Certificados', href: '/certificates' },
     ]);
+  }
+
+  if (root === 'community') {
+    const crumbs: AppLocationCrumb[] = [{ label: 'Comunidad', href: '/community' }];
+    if (second === 'members' && third) crumbs.push({ label: 'Perfil', href: path });
+    return locationOf('community', 'Comunidad', crumbs);
   }
 
   if (root === 'account') {

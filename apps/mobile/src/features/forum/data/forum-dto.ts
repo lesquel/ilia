@@ -7,6 +7,7 @@ export interface ThreadSummaryDto {
   id: string;
   title: string;
   author_name: string;
+  author_id: string;
   author_avatar_key?: string | null;
   author_avatar_url?: string | null;
   reply_count: number;
@@ -18,6 +19,7 @@ export interface ThreadSummaryDto {
 export interface PostDto {
   id: string;
   author_name: string;
+  author_id: string;
   author_avatar_key?: string | null;
   author_avatar_url?: string | null;
   body: string;
@@ -39,6 +41,7 @@ export function toSummary(dto: ThreadSummaryDto): ThreadSummary {
     id: dto.id,
     title: dto.title,
     authorName: dto.author_name,
+    authorId: dto.author_id,
     authorAvatarKey: avatarKey(dto.author_avatar_key),
     authorAvatarUrl: dto.author_avatar_url ?? null,
     replyCount: dto.reply_count,
@@ -53,6 +56,7 @@ export function toPost(dto: PostDto): Post {
   return {
     id: dto.id,
     authorName: dto.author_name,
+    authorId: dto.author_id,
     authorAvatarKey: avatarKey(dto.author_avatar_key),
     authorAvatarUrl: dto.author_avatar_url ?? null,
     body: dto.body,

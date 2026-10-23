@@ -9,6 +9,7 @@ export interface ThreadSummary {
   id: string;
   title: string;
   authorName: string;
+  authorId: string;
   authorAvatarKey: ProfileAvatarKey | null;
   authorAvatarUrl: string | null;
   replyCount: number;
@@ -26,6 +27,7 @@ export interface ThreadSummary {
 export interface Post {
   id: string;
   authorName: string;
+  authorId: string;
   authorAvatarKey: ProfileAvatarKey | null;
   authorAvatarUrl: string | null;
   body: string;

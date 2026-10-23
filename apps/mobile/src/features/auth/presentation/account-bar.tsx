@@ -2,6 +2,7 @@ import { Link, usePathname, type Href } from 'expo-router';
 import {
   Award,
   BookOpen,
+  UsersRound,
   ChevronDown,
   ChevronRight,
   GraduationCap,
@@ -37,6 +38,7 @@ const SECTION_ICONS: Partial<Record<AppSectionId, LucideIcon>> = {
   catalog: BookOpen,
   'my-courses': GraduationCap,
   certificates: Award,
+  community: UsersRound,
   instructor: Presentation,
   admin: Shield,
 };
