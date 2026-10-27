@@ -34,6 +34,7 @@ from app.features.evaluation.infrastructure.models import (
 )
 
 CANONICAL_SLUGS = (
+    "introduccion-ia-docentes",
     "prompting-para-docentes",
     "notebooklm-en-el-aula",
     "evaluacion-asistida-por-ia",
@@ -98,7 +99,8 @@ def _sync_modules(course: CourseModel, modules_data: list) -> None:
         else:
             module.title = module_title
         lessons_by_position = {lesson.position: lesson for lesson in module.lessons}
-        for lesson_position, (lesson_title, kind, duration, body) in enumerate(lessons, start=1):
+        for lesson_position, lesson_data in enumerate(lessons, start=1):
+            lesson_title, kind, duration, body = lesson_data[:4]
             lesson = lessons_by_position.get(lesson_position)
             if lesson is None:
                 module.lessons.append(
@@ -109,6 +111,7 @@ def _sync_modules(course: CourseModel, modules_data: list) -> None:
                         position=lesson_position,
                         duration_seconds=duration,
                         body=body,
+                        resource_ref=lesson_data[4] if len(lesson_data) > 4 else None,
                     )
                 )
             else:
@@ -116,6 +119,8 @@ def _sync_modules(course: CourseModel, modules_data: list) -> None:
                 lesson.kind = kind
                 lesson.duration_seconds = duration
                 lesson.body = body
+                if len(lesson_data) > 4:
+                    lesson.resource_ref = lesson_data[4]
 
 
 def _require_canonical_catalog() -> None:
@@ -232,7 +237,7 @@ async def publish_catalog(database: Database, instructor: AuthUser) -> int:
     """Idempotently publish TEACHER_COURSES and their labs."""
     _require_canonical_catalog()
 
-    published_at = datetime.now(UTC) - timedelta(days=len(CATALOG_COURSES))
+    published_at = datetime.now(UTC) - timedelta(days=max(len(CATALOG_COURSES) - 1, 0))
 
     async with database.session() as session:
         for index, course_data in enumerate(CATALOG_COURSES):
@@ -258,8 +263,8 @@ async def publish_catalog(database: Database, instructor: AuthUser) -> int:
                 level=str(course_data["level"]),
                 status="published",
                 instructor_id=instructor.id,
-                created_at=published_at + timedelta(days=index),
-                published_at=published_at + timedelta(days=index),
+                created_at=published_at + timedelta(days=len(CATALOG_COURSES) - 1 - index),
+                published_at=published_at + timedelta(days=len(CATALOG_COURSES) - 1 - index),
             )
 
             course.modules = [
@@ -270,15 +275,14 @@ async def publish_catalog(database: Database, instructor: AuthUser) -> int:
                     lessons=[
                         LessonModel(
                             id=uuid4(),
-                            title=lesson_title,
-                            kind=kind,
+                            title=lesson_data[0],
+                            kind=lesson_data[1],
                             position=lesson_position,
-                            duration_seconds=duration,
-                            body=body,
+                            duration_seconds=lesson_data[2],
+                            body=lesson_data[3],
+                            resource_ref=lesson_data[4] if len(lesson_data) > 4 else None,
                         )
-                        for lesson_position, (lesson_title, kind, duration, body) in enumerate(
-                            lessons, start=1
-                        )
+                        for lesson_position, lesson_data in enumerate(lessons, start=1)
                     ],
                 )
                 for module_position, (module_title, lessons) in enumerate(

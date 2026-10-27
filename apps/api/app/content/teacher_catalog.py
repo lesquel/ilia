@@ -5,15 +5,36 @@ El texto se puede estudiar sin vídeo. Los guiones para grabar viven en
 cambia de tipo en el panel de instructor; este cuerpo queda como lectura.
 """
 
+import json
 from typing import Any
 
 # (title, kind, duration_seconds, body)
-Lesson = tuple[str, str, int, str]
+Lesson = tuple[str, str, int, str] | tuple[str, str, int, str, str]
 Module = tuple[str, list[Lesson]]
 
 
 def _minutes(n: int) -> int:
     return n * 60
+
+
+def _quiz_body(questions: list[tuple[str, list[str], int, str]]) -> str:
+    """Compact, versionable payload consumed by the interactive lesson quiz."""
+    return json.dumps(
+        {
+            "version": 1,
+            "passPercent": 75,
+            "questions": [
+                {
+                    "question": question,
+                    "options": options[index % len(options) :] + options[: index % len(options)],
+                    "answer": (answer - index) % len(options),
+                    "explanation": explanation,
+                }
+                for index, (question, options, answer, explanation) in enumerate(questions)
+            ],
+        },
+        ensure_ascii=False,
+    )
 
 
 PROMPTING_LESSONS_M1: list[Lesson] = [
@@ -823,6 +844,76 @@ EVAL_LESSONS_M2 = _attach_examples(EVAL_LESSONS_M2)
 
 TEACHER_COURSES: list[dict[str, Any]] = [
     {
+        "slug": "introduccion-ia-docentes",
+        "title": "IA para preparar tu próxima clase",
+        "summary": "Un comienzo práctico: buenos pedidos, revisión del borrador y cuidado de los datos",
+        "description": (
+            "Una ruta corta para probar inteligencia artificial generativa con una tarea real de tu aula. "
+            "Vas a ver qué puede proponer, cómo darle el contexto que necesita, cómo revisar lo que devuelve "
+            "y qué información de estudiantes no debes compartir. Cada módulo termina con una comprobación; "
+            "al final escribirás el pedido para una clase tuya."
+        ),
+        "level": "beginner",
+        "modules": [
+            (
+                "Qué puede hacer la IA en el aula",
+                [
+                    ("Un primer borrador para séptimo", "video", 128, "El video muestra una clase de lectura sobre el cuidado del huerto: un párrafo, cinco preguntas respondibles desde el texto y una clave final. La docente revisa que cada respuesta tenga evidencia en el párrafo y ajusta lo que no encaje con su grupo.", "cursos/introduccion-ia-docentes/ia-generativa-para-docentes.mp4"),
+                    ("El modelo propone; tú conoces el curso", "text", _minutes(4), "Piensa en una tarea que ya tengas que preparar. Un modelo generativo puede proponer preguntas, ejemplos o una primera versión de una guía. No estuvo en tu aula y no sabe qué trabajaron tus estudiantes; si falta un dato, puede completarlo por su cuenta.\n\nPor eso conviene empezar con algo pequeño y concreto: un párrafo, una explicación breve o unas preguntas para revisar. Lee el resultado con el temario al lado. Si algo no aparece en tu material o no sirve para el grupo, cámbialo antes de llevarlo al aula."),
+                    ("Un ejemplo que sí se puede comprobar", "text", _minutes(4), "En séptimo, el curso leyó un párrafo sobre cómo se organiza el cuidado de un huerto escolar. Un pedido útil puede solicitar cinco preguntas cuyas respuestas estén en ese párrafo y una clave al final.\n\nLa docente prueba cada respuesta: ¿puede señalar la frase que la sostiene? La primera versión es un borrador. Si una pregunta exige inventar o saber algo que el texto no cuenta, se corrige."),
+                    ("Comprueba lo que entendiste", "quiz", _minutes(3), _quiz_body([
+                        ("¿Qué conoce el modelo sobre el grupo de séptimo?", ["Todo lo que estudiaron esta semana", "Solo lo que la docente le cuenta o adjunta", "La lista de notas automáticamente"], 1, "El modelo no estuvo en el aula; necesita contexto y material."),
+                        ("¿Para qué sirve el primer resultado?", ["Como borrador que la docente revisa", "Como decisión final sobre el aprendizaje", "Como reemplazo del temario"], 0, "La docente lee, ajusta y decide qué usar."),
+                        ("¿Cómo comprobamos una respuesta de lectura?", ["Porque suena convincente", "Buscando evidencia en el texto", "Preguntándole a otro modelo"], 1, "La respuesta debe poder sostenerse con el párrafo."),
+                        ("Si una pregunta pide inventar un dato que el texto no contiene, ¿qué conviene hacer?", ["Dejarla para que parezca más difícil", "Corregirla o pedir otra versión", "Agregar el nombre de un estudiante"], 1, "Se cambia la pregunta para que mida lo trabajado."),
+                    ])),
+                ],
+            ),
+            (
+                "Escribir un pedido con contexto",
+                [
+                    ("De una frase a un pedido claro", "video", 69, "La docente compara «hazme una lectura con preguntas» con una solicitud que explica grado, tema, qué ya vio el curso, qué deben hacer y el formato. El cambio no es una fórmula: son decisiones del aula que el modelo ya no tiene que adivinar.", "cursos/introduccion-ia-docentes/modulo-2-pedido-claro.mp4"),
+                    ("Cuéntale lo que solo tú sabes", "text", _minutes(4), "Un pedido claro cuenta quién prepara el material, para quién es, qué ha visto el curso, qué debe poder hacer y cómo quieres recibirlo. Escríbelo como se lo dirías a un colega que va a cubrirte la hora.\n\nPor ejemplo: «Eres docente de lengua de séptimo. El curso ya leyó un cuento. Prepara un párrafo con una idea y cinco preguntas que se respondan con ese texto. Pon la clave al final y no inventes el autor». Cada dato le quita al modelo una decisión que no conoce."),
+                    ("Pide una salida que puedas usar", "text", _minutes(4), "El formato también forma parte de la tarea. Si vas a proyectar la actividad, pide las respuestas en una clave aparte. Si tienes 45 minutos, dilo y pide bloques cuya suma alcance ese tiempo.\n\nCuando el borrador no encaja, solicita un cambio a la vez: «Acorta los enunciados porque los leeremos en voz alta». Así puedes comprobar si el cambio resolvió el problema sin alterar lo que ya estaba bien."),
+                    ("Comprueba cómo se construye", "quiz", _minutes(3), _quiz_body([
+                        ("¿Qué contexto ayuda a preparar material para una clase?", ["Grado, lo que ya trabajaron y la tarea", "Solo el nombre de la herramienta", "Una frase como «hazlo bonito»"], 0, "El modelo necesita saber a qué aula va dirigido el material."),
+                        ("¿Para qué sirve pedir una clave de respuestas al final?", ["Para ocultar también las preguntas", "Para que la clave quede separada al proyectar", "Para que el modelo ponga notas"], 1, "El formato evita mostrar respuestas antes de tiempo."),
+                        ("El borrador quedó demasiado largo. ¿Qué revisión es más clara?", ["«Hazlo mejor»", "«Acorta los enunciados para leerlos en voz alta»", "Volver a pedirlo sin indicar cambios"], 1, "Un ajuste concreto permite revisar el resultado."),
+                        ("¿Quién decide qué material llega al aula?", ["El modelo", "La docente después de revisar", "La clave de respuestas"], 1, "La herramienta propone; la docente conoce al grupo y decide."),
+                    ])),
+                ],
+            ),
+            (
+                "Revisar y proteger",
+                [
+                    ("Antes de copiar o compartir", "video", 76, "En pantalla, la docente revisa una guía: busca afirmaciones que no estén en la fuente, comprueba el nivel, verifica las respuestas y retira nombres y calificaciones. La salida vuelve al aula solo después de pasar por su criterio.", "cursos/introduccion-ia-docentes/modulo-3-revision-privacidad.mp4"),
+                    ("Revisa las respuestas con la fuente", "text", _minutes(4), "Antes de imprimir una guía, busca datos que no diste, respuestas sin apoyo en el texto y ejemplos que no correspondan a tu curso. Si la herramienta cita una fuente que no compartiste, abre el documento y comprueba la cita.\n\nPídele que diga «no está en el material» cuando no encuentre una respuesta. Esa instrucción ayuda a detectar huecos; no sustituye tu lectura."),
+                    ("Deja los datos personales fuera", "text", _minutes(4), "Para preparar una actividad necesitas el contenido de clase, no el expediente del estudiante. No pegues nombres, calificaciones, diagnósticos, fotos ni capturas de conversaciones familiares.\n\nSi necesitas revisar una respuesta escrita, quita primero los datos que permitan identificar a quien la escribió. Usa herramientas autorizadas por tu institución y revisa sus condiciones antes de cargar archivos."),
+                    ("Comprueba la revisión", "quiz", _minutes(3), _quiz_body([
+                        ("¿Qué debes hacer con una afirmación que no encuentras en la fuente?", ["Comprobarla y corregirla o retirarla", "Dejarla si está bien redactada", "Añadir una cita inventada"], 0, "La redacción convincente no prueba que sea cierta."),
+                        ("¿Qué datos no debes pegar en una herramienta sin autorización?", ["El tema de la clase", "Nombres y calificaciones de estudiantes", "El formato de una guía"], 1, "Los datos personales se protegen y se dejan fuera."),
+                        ("¿Qué significa pedir «no está en el material»?", ["Que el modelo verifique cada fuente automáticamente", "Que indique cuando el documento no contiene una respuesta", "Que ya no hace falta leer la salida"], 1, "Es una señal útil de ausencia, no una revisión completa."),
+                        ("¿Cuándo llega un borrador al aula?", ["Después de que la docente lo revisa y ajusta", "Apenas termina de generarse", "Cuando tiene muchas páginas"], 0, "La decisión final y el cuidado pedagógico son de la docente."),
+                    ])),
+                ],
+            ),
+            (
+                "Probarlo con tu próxima clase",
+                [
+                    ("Un pedido para tu aula", "video", 72, "Una docente escribe un pedido completo para su próxima clase, pega el material sin datos personales y pide una salida concreta. Luego revisa una respuesta, señala la fuente y ajusta el borrador. La pantalla termina con el pedido listo para que cada docente lo adapte.", "cursos/introduccion-ia-docentes/modulo-4-prueba-en-tu-clase.mp4"),
+                    ("Empieza con una tarea pequeña", "text", _minutes(4), "Elige una clase que ya tengas en tu planificación. Empieza por una sola salida que puedas revisar: cinco preguntas de un texto, una explicación más sencilla o una secuencia de 45 minutos.\n\nIncluye el grado, lo que ya trabajaron, qué quieres que hagan y el formato. Adjunta solo el material necesario, sin datos identificables. Después mira cada parte con la planificación abierta y decide qué vas a corregir."),
+                    ("Deja por escrito tus límites", "text", _minutes(4), "Una buena petición dice también qué no debe ocurrir: no inventar autores, no salir de las fuentes adjuntas, no incluir información personal y no calificar sin evidencia.\n\nNo hace falta memorizar nombres técnicos. Lee el pedido en voz alta: si un colega podría preparar la actividad con esos datos, el modelo tiene mejores condiciones para ayudarte. El resultado todavía necesita tu revisión."),
+                    ("Comprueba el plan", "quiz", _minutes(3), _quiz_body([
+                        ("¿Con qué conviene empezar para probar la herramienta?", ["Una tarea concreta y pequeña", "Todo el plan anual en una sola solicitud", "Una lista de expedientes"], 0, "Una tarea pequeña facilita comprobar el resultado."),
+                        ("¿Qué debe incluir el pedido para una clase real?", ["El contexto, la tarea y el formato", "Solo el nombre del modelo", "Solo una frase como «sorpréndeme»"], 0, "El contexto y la salida esperada hacen el pedido revisable."),
+                        ("¿Qué haces después de recibir la propuesta?", ["La envías directamente a los estudiantes", "La comparas con tu planificación y la ajustas", "La usas para decidir las notas"], 1, "El juicio docente sigue presente después de generar."),
+                        ("¿Qué producto pide el examen final del curso?", ["Una definición memorizada de IA", "Un pedido escrito para una clase propia", "Una calificación automática"], 1, "El trabajo final aplica lo aprendido a la próxima clase."),
+                    ])),
+                ],
+            ),
+        ],
+    },
+    {
         "slug": "prompting-para-docentes",
         "title": "Prompting para docentes",
         "summary": "Por qué un pedido vago no sirve y cómo se escribe uno que sí",
@@ -875,6 +966,27 @@ TEACHER_COURSES: list[dict[str, Any]] = [
 
 
 TEACHER_ACTIVITIES: list[dict[str, Any]] = [
+    {
+        "course_slug": "introduccion-ia-docentes",
+        "title": "Examen final: el pedido de tu próxima clase",
+        "statement": (
+            "Escribe el pedido que le darías a un modelo para preparar una actividad de TU próxima clase. "
+            "Empieza con un rol como «Eres docente de [materia] de [grado]». Elige la materia y el grado. "
+            "Cuéntale qué trabajó ya el curso, qué quieres que puedan hacer "
+            "y cómo quieres recibir el material. Si vas a usar un texto o documento, dile que trabaje solo "
+            "con ese material y que indique cuando no encuentre una respuesta.\n\n"
+            "Pide una salida concreta que puedas revisar: por ejemplo, un párrafo breve y cinco preguntas "
+            "que se respondan desde el texto, con una clave al final. Di también qué no debe inventar. "
+            "No incluyas nombres, calificaciones ni datos que identifiquen a tus estudiantes. Antes de "
+            "entregarlo, léelo como si se lo explicaras a un colega que va a preparar la clase contigo."
+        ),
+        "checks": {
+            "requires_role": True,
+            "requires_format": True,
+            "required_terms": [["grado", "séptimo", "septimo", "curso", "año"]],
+            "min_length": 35,
+        },
+    },
     {
         "course_slug": "prompting-para-docentes",
         "title": "El pedido de tu próxima clase",
