@@ -6,8 +6,10 @@ import { ErrorState, LoadingState } from '@/core/ui/state-view';
 import {
   useCompleteLesson,
   useLesson,
+  useRecordLessonPosition,
 } from '@/features/enrollment/application/use-enrollment';
 import { LessonStudio } from '@/features/enrollment/presentation/lesson-studio';
+import { LessonQuiz } from '@/features/enrollment/presentation/lesson-quiz';
 import {
   LessonPlayer,
   LessonPlayerUnavailable,
@@ -21,6 +23,7 @@ export function LessonScreen() {
   const courseSlug = slug ?? '';
   const { lesson, isLoading, error, refetch } = useLesson(courseSlug, lessonId ?? '');
   const complete = useCompleteLesson(courseSlug);
+  const recordPosition = useRecordLessonPosition(courseSlug);
 
   if (isLoading) {
     return (
@@ -56,13 +59,27 @@ export function LessonScreen() {
 
       {lesson.mediaUrl ? (
         <View style={styles.media}>
-          <LessonPlayer url={lesson.mediaUrl} />
+          <LessonPlayer
+            url={lesson.mediaUrl}
+            resumePositionSeconds={lesson.resumePositionSeconds}
+            onPositionChange={(positionSeconds) =>
+              recordPosition.mutate({ lessonId: lesson.lessonId, positionSeconds })
+            }
+          />
         </View>
       ) : lesson.resourceRef ? (
         <LessonPlayerUnavailable />
       ) : null}
 
-      {lesson.body ? (
+      {lesson.body && lesson.kind === 'quiz' ? (
+        <LessonQuiz
+          body={lesson.body}
+          onMarkComplete={() => complete.mutate(lesson.lessonId)}
+          isCompleted={lesson.isCompleted}
+          isCompletePending={complete.isPending}
+          completeFailed={complete.isError}
+        />
+      ) : lesson.body ? (
         <LessonStudio
           body={lesson.body}
           onMarkComplete={() => complete.mutate(lesson.lessonId)}

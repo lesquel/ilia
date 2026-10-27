@@ -162,6 +162,7 @@ export function LessonStudio({
             doneMood={mascotDoneMood(currentScene, labPhase)}
             holdMood={labPhase === 'processing' ? 'think' : undefined}
             size={isWide ? 168 : 120}
+            animated
           />
         </View>
       </View>

@@ -1,5 +1,14 @@
 import { Image, type ImageSource } from 'expo-image';
+import { useEffect } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { facingStillForMood, type MascotMood } from './mascot-facing-still';
 
@@ -28,6 +37,7 @@ export function MascotGuide({
   speakingMood = 'talk',
   holdMood,
   size = 132,
+  animated = false,
 }: {
   line: string;
   lineKey: string;
@@ -35,23 +45,47 @@ export function MascotGuide({
   doneMood?: MascotMood;
   holdMood?: MascotMood;
   size?: number;
+  animated?: boolean;
   onFinishedSpeaking?: (finishedKey: string) => void;
 }) {
   const visibleMood = holdMood ?? speakingMood;
+  const reduceMotion = useReducedMotion();
+  const bob = useSharedValue(0);
+
+  useEffect(() => {
+    if (!animated || reduceMotion) {
+      bob.value = 0;
+      return;
+    }
+    bob.value = withRepeat(
+      withTiming(-3, { duration: 1450, easing: Easing.inOut(Easing.sin) }),
+      -1,
+      true,
+    );
+    return () => {
+      bob.value = 0;
+    };
+  }, [animated, bob, reduceMotion]);
+
+  const floatStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: bob.value }],
+  }));
 
   return (
-    <Pressable
-      accessibilityRole="image"
-      accessibilityLabel={`${MASCOT_NAME}. ${line}`}
-      style={styles.sticker}
-    >
-      <Image
-        source={stillForMascotMood(visibleMood)}
-        style={{ width: size * POSE_ASPECT_RATIO, height: size }}
-        contentFit="contain"
-        accessibilityIgnoresInvertColors
-      />
-    </Pressable>
+    <Animated.View style={animated ? floatStyle : undefined}>
+      <Pressable
+        accessibilityRole="image"
+        accessibilityLabel={`${MASCOT_NAME}. ${line}`}
+        style={styles.sticker}
+      >
+        <Image
+          source={stillForMascotMood(visibleMood)}
+          style={{ width: size * POSE_ASPECT_RATIO, height: size }}
+          contentFit="contain"
+          accessibilityIgnoresInvertColors
+        />
+      </Pressable>
+    </Animated.View>
   );
 }
 

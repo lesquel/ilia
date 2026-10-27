@@ -87,6 +87,8 @@ export interface LessonView {
    * client that can ask for someone else's lesson.
    */
   mediaUrl: string | null;
+  /** Last saved playback time, returned by the API in seconds. */
+  resumePositionSeconds: number;
   isCompleted: boolean;
   position: number;
   totalLessons: number;

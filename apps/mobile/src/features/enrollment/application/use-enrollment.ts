@@ -125,3 +125,13 @@ export function useCompleteLesson(
     },
   });
 }
+
+export function useRecordLessonPosition(
+  slug: string,
+  repository: EnrollmentRepository = enrollmentRepository,
+) {
+  return useMutation({
+    mutationFn: ({ lessonId, positionSeconds }: { lessonId: string; positionSeconds: number }) =>
+      repository.recordLessonPosition(slug, lessonId, positionSeconds),
+  });
+}
