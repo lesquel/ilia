@@ -1,0 +1,39 @@
+[Script Info]
+Title: ILIA · Un primer pedido útil para tu clase
+ScriptType: v4.00+
+PlayResX: 1280
+PlayResY: 720
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,21,&H001B1B17,&H000000FF,&H20FBFAF7,&H20FBFAF7,1,0,3,1,0,2,150,150,60,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:04.63,Default,,0,0,0,,Profe, piensa en la clase de mañana que ya tienes que preparar.
+Dialogue: 0,0:00:04.91,0:00:07.24,Default,,0,0,0,,Ya leyeron un cuento.
+Dialogue: 0,0:00:07.52,0:00:12.72,Default,,0,0,0,,Ahora, en séptimo, quieres distinguir el tema de la idea principal.
+Dialogue: 0,0:00:13.00,0:00:17.49,Default,,0,0,0,,Una inteligencia artificial puede ayudarte con un primer borrador.
+Dialogue: 0,0:00:17.77,0:00:21.85,Default,,0,0,0,,Pero no sabe qué trabajó tu curso ni qué quieres que aprenda.
+Dialogue: 0,0:00:22.13,0:00:29.43,Default,,0,0,0,,Escribes «hazme una lectura con preguntas» y la herramienta adivina el curso, el objetivo y el formato.
+Dialogue: 0,0:00:29.71,0:00:31.70,Default,,0,0,0,,Y puede fallar.
+Dialogue: 0,0:00:31.98,0:00:35.24,Default,,0,0,0,,Probemos: un párrafo sobre el huerto.
+Dialogue: 0,0:00:35.52,0:00:40.54,Default,,0,0,0,,El curso se organiza por turnos y registra los cambios de las plantas.
+Dialogue: 0,0:00:40.82,0:00:45.60,Default,,0,0,0,,Pide cinco preguntas con respuestas en el texto y una clave al final.
+Dialogue: 0,0:00:45.88,0:00:49.26,Default,,0,0,0,,La primera pregunta: «¿Cuál es el tema?».
+Dialogue: 0,0:00:49.54,0:00:54.22,Default,,0,0,0,,El curso encuentra de qué habla el párrafo: del cuidado del huerto.
+Dialogue: 0,0:00:54.50,0:00:58.32,Default,,0,0,0,,La siguiente: «¿Qué idea principal expresa?».
+Dialogue: 0,0:00:58.60,0:01:03.47,Default,,0,0,0,,Aquí toca explicar cómo los turnos y los registros ayudan a cuidarlo.
+Dialogue: 0,0:01:03.75,0:01:05.91,Default,,0,0,0,,¿Y las otras tres?
+Dialogue: 0,0:01:06.19,0:01:10.17,Default,,0,0,0,,Buscan qué observa el grupo, qué anota y qué acuerda.
+Dialogue: 0,0:01:10.45,0:01:12.88,Default,,0,0,0,,Todo está en el texto.
+Dialogue: 0,0:01:13.16,0:01:19.18,Default,,0,0,0,,Así, quien duda puede volver al párrafo, buscar una pista y comprobar su respuesta.
+Dialogue: 0,0:01:19.46,0:01:26.44,Default,,0,0,0,,Antes de usar el borrador, revisa si tiene sentido para tu curso y si las respuestas se sostienen con el texto.
+Dialogue: 0,0:01:26.72,0:01:32.20,Default,,0,0,0,,Si una pregunta obliga a inventar, cámbiala o pide una versión más clara.
+Dialogue: 0,0:01:32.48,0:01:34.83,Default,,0,0,0,,Tú conoces a tu grupo.
+Dialogue: 0,0:01:35.11,0:01:41.01,Default,,0,0,0,,No compartas nombres, calificaciones ni datos que identifiquen a tus estudiantes.
+Dialogue: 0,0:01:41.29,0:01:47.12,Default,,0,0,0,,En séptimo, esta actividad practica distinguir el tema de las ideas principales.
+Dialogue: 0,0:01:47.40,0:01:51.51,Default,,0,0,0,,La destreza es ele ele tres punto tres punto tres.
+Dialogue: 0,0:01:51.79,0:01:56.85,Default,,0,0,0,,Para empezar, cuenta qué ya trabajaron y cómo quieres recibir la actividad.
+Dialogue: 0,0:01:57.13,0:01:59.58,Default,,0,0,0,,Léela y ajústala.
+Dialogue: 0,0:01:59.86,0:02:07.73,Default,,0,0,0,,Y ahí está la idea: la inteligencia artificial te deja un borrador; el criterio de lo que llega al aula sigue siendo tuyo.

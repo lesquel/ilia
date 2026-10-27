@@ -1,0 +1,67 @@
+[
+  {
+    "offset": 0.0,
+    "duration": 4.704,
+    "text": "Profe, probemos con algo que ya tienes que preparar para mañana."
+  },
+  {
+    "offset": 5.004,
+    "duration": 7.224,
+    "text": "Si escribes «hazme una lectura con preguntas», el modelo no sabe qué grado tienes ni qué texto leyeron."
+  },
+  {
+    "offset": 12.528,
+    "duration": 6.048,
+    "text": "Puede completar esos espacios con una idea que suena bien, pero que no corresponde a tu curso."
+  },
+  {
+    "offset": 18.876,
+    "duration": 2.616,
+    "text": "Dile lo que ya trabajaron."
+  },
+  {
+    "offset": 21.792,
+    "duration": 6.408,
+    "text": "Por ejemplo: el grupo leyó un cuento y ahora necesita explicar una idea a partir del texto."
+  },
+  {
+    "offset": 28.500000000000004,
+    "duration": 6.432,
+    "text": "Después concreta la tarea: prepara un párrafo breve y cinco preguntas que se respondan en él."
+  },
+  {
+    "offset": 35.232,
+    "duration": 7.392,
+    "text": "Pide también el formato: deja la clave al final, para que puedas mostrar la actividad sin adelantar las respuestas."
+  },
+  {
+    "offset": 42.924,
+    "duration": 4.296,
+    "text": "Si el primer borrador sale largo, no lo empieces de nuevo."
+  },
+  {
+    "offset": 47.519999999999996,
+    "duration": 5.472,
+    "text": "Pide un cambio concreto: acorta los enunciados para leerlos en voz alta."
+  },
+  {
+    "offset": 53.291999999999994,
+    "duration": 3.096,
+    "text": "Cada dato viene de tu planificación."
+  },
+  {
+    "offset": 56.68799999999999,
+    "duration": 5.04,
+    "text": "No es una fórmula; es contexto que el modelo no tiene por sí solo."
+  },
+  {
+    "offset": 62.027999999999984,
+    "duration": 3.432,
+    "text": "Lee el resultado y compáralo con tu clase."
+  },
+  {
+    "offset": 65.75999999999998,
+    "duration": 3.216,
+    "text": "Tú decides si ya sirve para el lunes."
+  }
+]

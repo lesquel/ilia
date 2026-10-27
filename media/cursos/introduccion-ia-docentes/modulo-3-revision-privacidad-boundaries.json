@@ -1,0 +1,77 @@
+[
+  {
+    "offset": 0.0,
+    "duration": 6.888,
+    "text": "Profe, antes de imprimir una actividad que preparaste con IA, revísala con el material de clase abierto."
+  },
+  {
+    "offset": 7.188,
+    "duration": 4.776,
+    "text": "Primero, busca datos y afirmaciones que no estén en el texto."
+  },
+  {
+    "offset": 12.264,
+    "duration": 4.776,
+    "text": "Si no puedes encontrar de dónde salen, corrígelos o quítalos."
+  },
+  {
+    "offset": 17.34,
+    "duration": 2.952,
+    "text": "Después comprueba cada respuesta."
+  },
+  {
+    "offset": 20.592000000000002,
+    "duration": 6.216,
+    "text": "Una respuesta convincente no basta: debe apoyarse en una frase o una idea de la fuente."
+  },
+  {
+    "offset": 27.108000000000004,
+    "duration": 2.928,
+    "text": "Mira también el nivel y el tiempo."
+  },
+  {
+    "offset": 30.336000000000006,
+    "duration": 3.288,
+    "text": "¿Tu grupo puede leer estas instrucciones?"
+  },
+  {
+    "offset": 33.924,
+    "duration": 2.664,
+    "text": "¿La actividad cabe en tu hora?"
+  },
+  {
+    "offset": 36.888,
+    "duration": 6.6,
+    "text": "Cuando el material no da una respuesta, puedes pedirle al modelo que lo diga en vez de completar el hueco."
+  },
+  {
+    "offset": 43.788,
+    "duration": 4.416,
+    "text": "Luego verifica que realmente haya respetado la indicación."
+  },
+  {
+    "offset": 48.50399999999999,
+    "duration": 3.072,
+    "text": "Y deja los datos personales fuera."
+  },
+  {
+    "offset": 51.87599999999999,
+    "duration": 7.008,
+    "text": "No pegues nombres, calificaciones, diagnósticos, fotos ni conversaciones de familias."
+  },
+  {
+    "offset": 59.18399999999999,
+    "duration": 8.424,
+    "text": "Para revisar un trabajo, retira antes cualquier dato que identifique al estudiante y usa solo herramientas autorizadas por tu institución."
+  },
+  {
+    "offset": 67.90799999999999,
+    "duration": 3.024,
+    "text": "El modelo redacta una propuesta."
+  },
+  {
+    "offset": 71.23199999999999,
+    "duration": 4.368,
+    "text": "La revisión que evita llevar un error al aula sigue siendo tuya."
+  }
+]
