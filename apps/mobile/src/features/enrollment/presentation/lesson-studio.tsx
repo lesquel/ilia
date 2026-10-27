@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   ActivityIndicator,
   Animated,
+  Easing,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -14,6 +15,7 @@ import { Check, ChevronLeft, ChevronRight, Play, Send } from 'lucide-react-nativ
 import { breakpoint, useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
 import { MascotGuide, type MascotMood } from '@/core/ui/mascot-guide';
+import { useReducedMotion } from 'react-native-reanimated';
 import { examplePlainText, parseLessonBody } from '@/features/enrollment/domain/lesson-body';
 import {
   ideaScenePlainText,
@@ -28,6 +30,7 @@ import {
   PromptChat,
 } from '@/features/enrollment/presentation/lesson-article';
 import { IdeaSceneArt } from '@/features/enrollment/presentation/idea-scene-art';
+import { labMascotMotion, pageEntryOffset, type PageDirection } from '@/features/enrollment/domain/lesson-motion';
 
 type LabPhase = 'idle' | 'composing' | 'processing' | 'revealed';
 
@@ -60,13 +63,26 @@ export function LessonStudio({
   const scenes = useMemo(() => scenesFromLesson(parseLessonBody(body)), [body]);
 
   const [sceneIndex, setSceneIndex] = useState(0);
+  const [pageDirection, setPageDirection] = useState<PageDirection>('forward');
   const [labPhaseByScene, setLabPhaseByScene] = useState<Record<number, LabPhase>>({});
   const [readAllAtOnce, setReadAllAtOnce] = useState(false);
+  const [celebrationKey, setCelebrationKey] = useState<string | null>(null);
+  const [celebratedLineKey, setCelebratedLineKey] = useState<string | null>(null);
+  const wasCompleted = useRef(isCompleted);
 
   const currentScene = scenes[sceneIndex];
   const labPhase = labPhaseByScene[sceneIndex] ?? 'idle';
   const isLastScene = sceneIndex >= scenes.length - 1;
   const lineKey = `${sceneIndex}-${labPhase}`;
+
+  useEffect(() => {
+    if (!wasCompleted.current && isCompleted) {
+      const nextCelebrationKey = `complete-${lineKey}`;
+      setCelebratedLineKey(lineKey);
+      setCelebrationKey(nextCelebrationKey);
+    }
+    wasCompleted.current = isCompleted;
+  }, [isCompleted, lineKey]);
 
   if (scenes.length === 0 || !currentScene) {
     return null;
@@ -101,11 +117,13 @@ export function LessonStudio({
 
   const goToPrevious = () => {
     if (sceneIndex === 0) return;
+    setPageDirection('backward');
     setSceneIndex((current) => current - 1);
   };
 
   const goToNext = () => {
     if (isLastScene) return;
+    setPageDirection('forward');
     setSceneIndex((current) => current + 1);
   };
 
@@ -145,7 +163,7 @@ export function LessonStudio({
           ]}
           showsVerticalScrollIndicator={false}
         >
-          <FadingStage visible stageKey={lineKey}>
+          <FadingStage visible stageKey={lineKey} direction={pageDirection}>
             <SceneStage
               scene={currentScene}
               labPhase={labPhase}
@@ -158,11 +176,22 @@ export function LessonStudio({
           <MascotGuide
             line={mascotLineFor(currentScene, labPhase, sceneIndex)}
             lineKey={lineKey}
-            speakingMood={mascotSpeakingMood(currentScene, labPhase)}
+            speakingMood={celebrationKey === `complete-${lineKey}` ? 'happy' : mascotSpeakingMood(currentScene, labPhase)}
             doneMood={mascotDoneMood(currentScene, labPhase)}
             holdMood={labPhase === 'processing' ? 'think' : undefined}
             size={isWide ? 168 : 120}
-            animated
+            motion={
+              celebrationKey === `complete-${lineKey}`
+                ? 'celebrate'
+                : celebratedLineKey === lineKey
+                  ? 'none'
+                  : currentScene.type === 'lab' && labPhase !== 'idle'
+                    ? labMascotMotion(labPhase)
+                    : pageDirection === 'forward'
+                      ? 'page-forward'
+                      : 'page-back'
+            }
+            motionKey={celebrationKey ?? `page-${sceneIndex}-${pageDirection}`}
           />
         </View>
       </View>
@@ -319,29 +348,55 @@ function mascotDoneMood(scene: LessonScene, labPhase: LabPhase): MascotMood {
 function FadingStage({
   visible,
   stageKey,
+  direction,
   children,
 }: {
   visible: boolean;
   stageKey: string;
+  direction: PageDirection;
   children: ReactNode;
 }) {
   const [opacity] = useState(() => new Animated.Value(0));
+  const [translateX] = useState(() => new Animated.Value(0));
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
-    opacity.setValue(0);
+    opacity.stopAnimation();
+    translateX.stopAnimation();
     if (!visible) return;
-    Animated.timing(opacity, {
-      toValue: 1,
-      duration: 420,
-      useNativeDriver: true,
-    }).start();
-  }, [visible, stageKey, opacity]);
+
+    if (reduceMotion) {
+      opacity.setValue(1);
+      translateX.setValue(0);
+      return;
+    }
+
+    opacity.setValue(0);
+    translateX.setValue(pageEntryOffset(direction));
+    const transition = Animated.parallel([
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 300,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(translateX, {
+        toValue: 0,
+        duration: 340,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]);
+    transition.start();
+
+    return () => transition.stop();
+  }, [visible, stageKey, direction, opacity, translateX, reduceMotion]);
 
   if (!visible) {
     return <View style={styles.stageWait} />;
   }
 
-  return <Animated.View style={{ opacity, flex: 1 }}>{children}</Animated.View>;
+  return <Animated.View style={{ opacity, flex: 1, transform: [{ translateX }] }}>{children}</Animated.View>;
 }
 
 function mascotLineFor(scene: LessonScene, labPhase: LabPhase, sceneIndex: number): string {
