@@ -82,6 +82,25 @@ PostgreSQL 17 con SQLAlchemy 2 (async, `asyncpg`) y Alembic. La URL sale de
 ILIA_DATABASE_URL=postgresql+asyncpg://ilia:ilia@localhost:5432/ilia
 ```
 
+### Probar el catálogo en SQLite
+
+Para revisar el curso y el flujo de catálogo sin configurar PostgreSQL, usa la
+base SQLite local. El comando crea o actualiza `apps/api/ilia-local.sqlite3`,
+carga el catálogo canónico y sirve la API en `http://localhost:8000`. No usa
+Alembic y no modifica ninguna base PostgreSQL.
+
+```powershell
+uv run python -m scripts.run_sqlite --seed-only   # solo preparar la base
+uv run python -m scripts.run_sqlite               # preparar y servir la API
+```
+
+La ruta de la base se puede cambiar con `ILIA_LOCAL_SQLITE_PATH`. Para ver el
+catálogo desde la app web, inicia Expo aparte desde `apps/mobile` con
+`$env:EXPO_PUBLIC_API_URL="http://localhost:8000"; npm run web -- --port 8081`.
+El almacenamiento de videos usa `apps/api/media/`, con las claves que registra
+el catálogo. SQLite es solo para desarrollo local; las migraciones y los
+despliegues siguen en PostgreSQL.
+
 > **Al agregar una columna `NOT NULL` poné siempre `server_default`.** Sin él,
 > `ALTER TABLE ... ADD COLUMN ... NOT NULL` falla contra una tabla que ya tiene
 > filas — y eso pasa durante el despliegue, sobre datos reales. Nos pasó con

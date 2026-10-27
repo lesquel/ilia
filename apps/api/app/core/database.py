@@ -45,11 +45,22 @@ class Database:
         if settings.database_url is None:
             raise ValueError("ILIA_DATABASE_URL is required to build a Database")
 
+        database_options: dict[str, object] = {}
+        if settings.database_url.startswith("sqlite+"):
+            # PostgreSQL keeps each feature in its own schema. A local SQLite
+            # file has no schemas, so map the same metadata into one namespace.
+            database_options["execution_options"] = {
+                "schema_translate_map": {schema.value: None for schema in DbSchema}
+            }
+
         self._engine: AsyncEngine = create_async_engine(
             settings.database_url,
             echo=settings.debug and not settings.is_production,
             pool_pre_ping=True,
+            **database_options,
         )
+        if settings.database_url.startswith("sqlite+"):
+            event.listen(self._engine.sync_engine, "connect", _enable_sqlite_foreign_keys)
         self._session_factory = async_sessionmaker(
             self._engine,
             expire_on_commit=False,
@@ -78,3 +89,9 @@ class Database:
 
     async def dispose(self) -> None:
         await self._engine.dispose()
+
+
+def _enable_sqlite_foreign_keys(connection, _record) -> None:  # type: ignore[no-untyped-def]
+    cursor = connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()

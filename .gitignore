@@ -57,6 +57,7 @@ apps/mobile/.web-build/
 # Local media for the development storage adapter. Real deployments use a
 # bucket; these are throwaway files someone dropped in to try the player.
 apps/api/media/
+apps/api/ilia-local.sqlite3*
 
 # Playwright's scratch output from browser verification runs.
 .playwright-mcp/
