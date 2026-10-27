@@ -56,7 +56,7 @@ export function ContinueHero({ enrolled }: { enrolled: EnrolledCourse }) {
           <Tag label="Curso en progreso" tone="accent" filled />
           <Tag label={LEVEL_LABELS[course.level]} />
         </View>
-        <Text style={[styles.title, { color: theme.colors.text }]}>{course.title}</Text>
+        <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">{course.title}</Text>
         {target.contextLine ? (
           <Text style={[styles.context, { color: theme.colors.neutral[600] }]} numberOfLines={2}>
             {target.contextLine}

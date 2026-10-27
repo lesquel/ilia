@@ -80,7 +80,7 @@ export function LandingScreen() {
           <View style={styles.heroCopy}>
             <View style={styles.kickerRow}>
               <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
-              <Text style={[styles.kicker, { color: theme.colors.accent }]}>
+              <Text style={[styles.kicker, { color: theme.colors.accentAlt }]}>
                 {INSTITUTE_FULL_NAME}
               </Text>
             </View>
@@ -93,6 +93,7 @@ export function LandingScreen() {
                   lineHeight: isWide ? 56 : 38,
                 },
               ]}
+              accessibilityRole="header"
             >
               Prepara tu material con más oficio. Tus alumnos reciben una
               mejor clase.
@@ -130,7 +131,11 @@ export function LandingScreen() {
       <View style={styles.page}>
         <View style={styles.section}>
           <View style={styles.sectionHeading}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+            <Text
+              style={[styles.sectionTitle, { color: theme.colors.text }]}
+              accessibilityRole="header"
+              {...({ 'aria-level': 2 } as { 'aria-level': number })}
+            >
               {featuredCoursesHeading(featuredCourses.length, catalogHasMore)}
             </Text>
             <TextLink href="/catalog" label="Ver catálogo →" />
@@ -178,7 +183,11 @@ export function LandingScreen() {
       <View style={styles.page}>
         <View style={[styles.close, isWide ? styles.closeWide : undefined]}>
           <View style={styles.closeCopy}>
-            <Text style={[styles.closeTitle, { color: theme.colors.text }]}>
+            <Text
+              style={[styles.closeTitle, { color: theme.colors.text }]}
+              accessibilityRole="header"
+              {...({ 'aria-level': 2 } as { 'aria-level': number })}
+            >
               Empieza por el primer curso.
             </Text>
             <Text style={[styles.lede, { color: theme.colors.neutral[600] }]}>
@@ -195,7 +204,7 @@ export function LandingScreen() {
               {INSTITUTE_FULL_NAME}
             </Text>
           </View>
-          <View style={styles.closeBird} pointerEvents="none">
+          <View style={[styles.closeBird, { pointerEvents: 'none' }]}>
             <MascotGuide
               line="Cuando quieras, empezamos."
               lineKey="landing-close"

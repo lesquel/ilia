@@ -1,7 +1,9 @@
+import re
 from datetime import datetime
+from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from app.features.auth.application.use_cases import Session
 from app.features.auth.domain.entities import FULL_NAME_MAX_LENGTH, User
@@ -9,15 +11,53 @@ from app.features.auth.domain.entities import FULL_NAME_MAX_LENGTH, User
 
 class RegisterRequest(BaseModel):
     email: EmailStr
-    full_name: str = Field(min_length=1, max_length=FULL_NAME_MAX_LENGTH)
-    # 8 is a floor, not a policy. Length beats composition rules, which mostly
-    # teach people to write "Password1!" and reuse it everywhere.
+    full_name: str = Field(min_length=2, max_length=FULL_NAME_MAX_LENGTH)
     password: str = Field(min_length=8, max_length=128)
+
+    @field_validator("full_name")
+    @classmethod
+    def validate_registration_name(cls, value: str) -> str:
+        name = value.strip()
+        parts = re.split(r"[ '\u2019-]", name)
+        if len(name) < 2 or not all(part and part.isalpha() for part in parts):
+            raise ValueError("Use letters, spaces, apostrophes or hyphens in the name")
+        return name
+
+    @field_validator("password")
+    @classmethod
+    def validate_registration_password(cls, value: str) -> str:
+        if not any(char.isupper() for char in value):
+            raise ValueError("Password must include an uppercase letter")
+        if not any(char.islower() for char in value):
+            raise ValueError("Password must include a lowercase letter")
+        if not any(char.isdecimal() for char in value):
+            raise ValueError("Password must include a number")
+        if not any(not char.isalnum() and not char.isspace() for char in value):
+            raise ValueError("Password must include a special character")
+        return value
 
 
 class UpdateProfileRequest(BaseModel):
     # The name and nothing else. An `email` sent here is ignored, not applied.
     full_name: str = Field(min_length=1, max_length=FULL_NAME_MAX_LENGTH)
+
+
+class AvatarUploadRequest(BaseModel):
+    content_type: Literal["image/jpeg", "image/png", "image/webp"]
+
+
+class AvatarReferenceRequest(BaseModel):
+    reference: str = Field(min_length=1, max_length=512)
+
+
+class AvatarSelectionRequest(BaseModel):
+    avatar_key: str = Field(min_length=1, max_length=40)
+
+
+class AvatarUploadResponse(BaseModel):
+    upload_url: str
+    reference: str
+    expires_in: int
 
 
 class ChangePasswordRequest(BaseModel):
@@ -55,14 +95,18 @@ class UserResponse(BaseModel):
     email: str
     full_name: str
     role: str
+    avatar_key: str | None = None
+    avatar_url: str | None = None
 
     @classmethod
-    def from_entity(cls, user: User) -> "UserResponse":
+    def from_entity(cls, user: User, *, avatar_url: str | None = None) -> "UserResponse":
         return cls(
             id=user.id,
             email=str(user.email),
             full_name=user.full_name,
             role=user.role.value,
+            avatar_key=user.avatar_key,
+            avatar_url=avatar_url,
         )
 
 
@@ -80,14 +124,16 @@ class SessionResponse(BaseModel):
     expires_in: int | None = None
 
     @classmethod
-    def for_native(cls, session: Session) -> "SessionResponse":
+    def for_native(
+        cls, session: Session, *, avatar_url: str | None = None
+    ) -> "SessionResponse":
         return cls(
-            user=UserResponse.from_entity(session.user),
+            user=UserResponse.from_entity(session.user, avatar_url=avatar_url),
             access_token=session.tokens.access_token,
             refresh_token=session.tokens.refresh_token,
             expires_in=session.tokens.access_expires_in,
         )
 
     @classmethod
-    def for_web(cls, session: Session) -> "SessionResponse":
-        return cls(user=UserResponse.from_entity(session.user))
+    def for_web(cls, session: Session, *, avatar_url: str | None = None) -> "SessionResponse":
+        return cls(user=UserResponse.from_entity(session.user, avatar_url=avatar_url))

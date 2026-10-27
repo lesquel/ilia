@@ -29,17 +29,20 @@ import { Icon } from '@/core/ui/icon';
 const RESTING_SHADOW = '0 10px 28px rgba(17, 17, 17, 0.06)';
 const RAISED_SHADOW = '0 18px 40px rgba(27, 112, 254, 0.16)';
 /** Ink on the accent: the same off-white wherever a filled button is drawn. */
-const ON_ACCENT = '#f2f2f3';
+const ON_ACCENT = '#ffffff';
 
 /** The web-only lift a card that is a link takes under the pointer. */
 export function cardLift(raised: boolean): ViewStyle {
   if (Platform.OS !== 'web') return {};
+  const reduceMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
 
   return {
     boxShadow: raised ? RAISED_SHADOW : RESTING_SHADOW,
-    transform: [{ translateY: raised ? -3 : 0 }],
+    transform: [{ translateY: raised && !reduceMotion ? -3 : 0 }],
     transitionProperty: 'box-shadow, transform, border-color',
-    transitionDuration: '160ms',
+    transitionDuration: reduceMotion ? '0ms' : '160ms',
   } as unknown as ViewStyle;
 }
 
@@ -163,7 +166,7 @@ export function ScreenHeader({
       <View style={[styles.screenHeaderRow, isWide ? styles.screenHeaderRowWide : undefined]}>
         <View style={styles.screenHeaderCopy}>
           {kicker ? (
-            <Text style={[styles.kicker, { color: theme.colors.accent }]}>{kicker}</Text>
+            <Text style={[styles.kicker, { color: theme.colors.accentAlt }]}>{kicker}</Text>
           ) : null}
           <Text
             accessibilityRole="header"
@@ -288,7 +291,7 @@ function PrimaryFace({ label, glyph, pressed, dimmed = false, busy = false, stre
         styles.button,
         stretch ? styles.buttonStretch : undefined,
         {
-          backgroundColor: theme.colors.accent,
+          backgroundColor: theme.colors.accentButton,
           borderColor: theme.colors.accent,
           borderRadius: theme.radius.md,
           opacity: dimmed ? 0.4 : pressed ? 0.7 : 1,

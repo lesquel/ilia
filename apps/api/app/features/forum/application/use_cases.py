@@ -15,6 +15,7 @@ from app.features.forum.domain.entities import (
 )
 from app.features.forum.domain.errors import (
     ForumAccessDeniedError,
+    ForumModuleNotFoundError,
     InvalidMessageError,
     NotAModeratorError,
     ThreadNotFoundError,
@@ -36,11 +37,12 @@ async def _published_course(courses: CourseRepository, slug: str) -> Course:
 
 
 class ForumAccess:
-    """Who may read and write in a course's forum.
+    """Who may read and write in a course/module/cohort forum.
 
     Enrollment is the gate today. The PRD's freemium table (§11) splits it
     further — free tier reads, paid tier participates — but the plan system does
-    not exist yet, so that split is deliberately not faked here.
+    not exist yet, so that split is deliberately not faked here. Cohort
+    membership keeps participants' conversations within their in-person group.
     """
 
     def __init__(self, *, courses: CourseRepository, enrollments: EnrollmentRepository) -> None:
@@ -61,6 +63,23 @@ class ForumAccess:
 
         return course
 
+    async def validate_cohort_forum(
+        self, *, user: User, course: Course, cohort_id: UUID | None
+    ) -> None:
+        """Keep participant discussions inside their enrollment cohort."""
+        if not user.has_at_least(Role.INSTRUCTOR):
+            enrollment = await self._enrollments.get(user_id=user.id, course_id=course.id)
+            if enrollment is None or enrollment.cohort_id != cohort_id:
+                raise ForumAccessDeniedError()
+            return
+
+        enrollments = await self._enrollments.list_for_course(course.id)
+        available_cohorts = {item.cohort_id for item in enrollments}
+        if not available_cohorts:
+            available_cohorts = {None}
+        if cohort_id not in available_cohorts:
+            raise ForumAccessDeniedError()
+
 
 class ListThreads:
     def __init__(
@@ -74,10 +93,22 @@ class ListThreads:
         self._threads = threads
 
     async def execute(
-        self, *, user: User, slug: str, module_id: UUID | None = None
+        self,
+        *,
+        user: User,
+        slug: str,
+        module_id: UUID,
+        cohort_id: UUID | None,
     ) -> list[ForumThread]:
         course = await self._access.course_for(user=user, slug=slug)
-        return await self._threads.list_for_course(course_id=course.id, module_id=module_id)
+        await self._access.validate_cohort_forum(
+            user=user, course=course, cohort_id=cohort_id
+        )
+        if module_id not in {module.id for module in course.modules}:
+            raise ForumModuleNotFoundError()
+        return await self._threads.list_for_module(
+            course_id=course.id, module_id=module_id, cohort_id=cohort_id
+        )
 
 
 class OpenThread:
@@ -100,13 +131,20 @@ class OpenThread:
         slug: str,
         title: str,
         body: str,
-        module_id: UUID | None = None,
+        module_id: UUID,
+        cohort_id: UUID | None,
     ) -> ForumThread:
         course = await self._access.course_for(user=user, slug=slug)
+        await self._access.validate_cohort_forum(
+            user=user, course=course, cohort_id=cohort_id
+        )
+        if module_id not in {module.id for module in course.modules}:
+            raise ForumModuleNotFoundError()
 
         try:
             thread = ForumThread.open(
                 course_id=course.id,
+                cohort_id=cohort_id,
                 module_id=module_id,
                 author_id=user.id,
                 author_name=user.full_name,
@@ -134,14 +172,24 @@ class ReadThread:
         self._threads = threads
         self._posts = posts
 
-    async def execute(self, *, user: User, slug: str, thread_id: UUID) -> ThreadWithPosts:
+    async def execute(
+        self,
+        *,
+        user: User,
+        slug: str,
+        thread_id: UUID,
+        cohort_id: UUID | None,
+    ) -> ThreadWithPosts:
         course = await self._access.course_for(user=user, slug=slug)
 
         thread = await self._threads.get(thread_id)
         # The thread must belong to *this* course. Without the check, any thread
         # id would be readable through any course the caller happens to be in.
-        if thread is None or thread.course_id != course.id:
+        if thread is None or thread.course_id != course.id or thread.cohort_id != cohort_id:
             raise ThreadNotFoundError()
+        await self._access.validate_cohort_forum(
+            user=user, course=course, cohort_id=cohort_id
+        )
 
         return ThreadWithPosts(thread=thread, posts=await self._posts.list_for_thread(thread_id))
 
@@ -161,12 +209,23 @@ class ReplyToThread:
         self._posts = posts
         self._clock = clock
 
-    async def execute(self, *, user: User, slug: str, thread_id: UUID, body: str) -> ForumPost:
+    async def execute(
+        self,
+        *,
+        user: User,
+        slug: str,
+        thread_id: UUID,
+        cohort_id: UUID | None,
+        body: str,
+    ) -> ForumPost:
         course = await self._access.course_for(user=user, slug=slug)
 
         thread = await self._threads.get(thread_id)
-        if thread is None or thread.course_id != course.id:
+        if thread is None or thread.course_id != course.id or thread.cohort_id != cohort_id:
             raise ThreadNotFoundError()
+        await self._access.validate_cohort_forum(
+            user=user, course=course, cohort_id=cohort_id
+        )
 
         now = self._clock.now()
 

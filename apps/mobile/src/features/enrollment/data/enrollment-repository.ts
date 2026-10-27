@@ -72,6 +72,7 @@ interface LessonViewDto {
   resource_ref: string | null;
   media_url: string | null;
   is_completed: boolean;
+  resume_position_seconds: number;
   position: number;
   total_lessons: number;
   previous: NextLessonDto | null;
@@ -98,6 +99,7 @@ export interface EnrollmentRepository {
   myCourses(): Promise<EnrolledCourse[]>;
   progressFor(slug: string): Promise<CourseProgress>;
   completeLesson(slug: string, lessonId: string): Promise<CourseProgress>;
+  recordLessonPosition(slug: string, lessonId: string, positionSeconds: number): Promise<void>;
   lesson(slug: string, lessonId: string): Promise<LessonView>;
 }
 
@@ -152,6 +154,17 @@ export class HttpEnrollmentRepository implements EnrollmentRepository {
     );
   }
 
+  async recordLessonPosition(
+    slug: string,
+    lessonId: string,
+    positionSeconds: number,
+  ): Promise<void> {
+    await this.http.patch(
+      `/enrollments/me/${encodeURIComponent(slug)}/lessons/${encodeURIComponent(lessonId)}/position`,
+      { position_seconds: Math.max(0, Math.floor(positionSeconds)) },
+    );
+  }
+
   async lesson(slug: string, lessonId: string): Promise<LessonView> {
     const dto = await this.http.get<LessonViewDto>(
       `/enrollments/me/${encodeURIComponent(slug)}/lessons/${encodeURIComponent(lessonId)}`,
@@ -166,6 +179,7 @@ export class HttpEnrollmentRepository implements EnrollmentRepository {
       body: dto.body,
       resourceRef: dto.resource_ref,
       mediaUrl: dto.media_url,
+      resumePositionSeconds: dto.resume_position_seconds ?? 0,
       isCompleted: dto.is_completed,
       position: dto.position,
       totalLessons: dto.total_lessons,

@@ -27,6 +27,8 @@ def _to_entity(row: UserModel) -> User:
         is_active=row.is_active,
         created_at=row.created_at,
         token_generation=row.token_generation,
+        avatar_key=row.avatar_key,
+        avatar_ref=row.avatar_ref,
     )
 
 
@@ -38,6 +40,15 @@ class SqlAlchemyUserRepository:
         async with self._db.session() as session:
             row = await session.get(UserModel, user_id)
             return _to_entity(row) if row else None
+
+    async def get_by_ids(self, user_ids: set[UUID]) -> list[User]:
+        if not user_ids:
+            return []
+        async with self._db.session() as session:
+            rows = (
+                await session.execute(select(UserModel).where(UserModel.id.in_(user_ids)))
+            ).scalars().all()
+            return [_to_entity(row) for row in rows]
 
     async def get_by_email(self, email: Email) -> User | None:
         async with self._db.session() as session:
@@ -58,6 +69,8 @@ class SqlAlchemyUserRepository:
                         is_active=user.is_active,
                         created_at=user.created_at,
                         token_generation=user.token_generation,
+                        avatar_key=user.avatar_key,
+                        avatar_ref=user.avatar_ref,
                     )
                 )
         except IntegrityError as exc:
@@ -77,5 +90,7 @@ class SqlAlchemyUserRepository:
                     role=user.role.value,
                     is_active=user.is_active,
                     token_generation=user.token_generation,
+                    avatar_key=user.avatar_key,
+                    avatar_ref=user.avatar_ref,
                 )
             )

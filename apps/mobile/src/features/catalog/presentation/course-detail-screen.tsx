@@ -163,7 +163,7 @@ export function CourseDetailScreen({
           >
             <View style={styles.kickerRow}>
               <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
-              <Text style={[styles.kicker, { color: theme.colors.accent }]}>
+              <Text style={[styles.kicker, { color: theme.colors.accentAlt }]}>
                 Instituto {INSTITUTE_SHORT_NAME}
               </Text>
             </View>
@@ -184,7 +184,7 @@ export function CourseDetailScreen({
           >
             <Text style={[styles.badgeText, { color: theme.colors.accentRamp[800] }]}>{badgeLabel}</Text>
           </View>
-          <Text style={[styles.title, { color: theme.colors.text }]}>{course.title}</Text>
+          <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">{course.title}</Text>
           <Text style={[styles.lede, { color: theme.colors.neutral[700] }]}>{lede}</Text>
           <View style={styles.facts}>
             <Fact
@@ -212,7 +212,7 @@ export function CourseDetailScreen({
                     style={[
                       styles.followButton,
                       {
-                        backgroundColor: theme.colors.accent,
+                        backgroundColor: theme.colors.accentButton,
                         borderRadius: theme.radius.md,
                         opacity: pressed ? 0.85 : 1,
                       },
@@ -335,7 +335,7 @@ function SyllabusStation({
             style={[
               styles.here,
               {
-                backgroundColor: status === 'now' ? theme.colors.accent : theme.colors.neutral[200],
+                backgroundColor: status === 'now' ? theme.colors.accentButton : theme.colors.neutral[200],
               },
             ]}
           >
@@ -452,7 +452,7 @@ function SyllabusRow({
       <Text
         style={[
           styles.rowIndex,
-          { color: isCurrent ? theme.colors.accent : theme.colors.neutral[500] },
+          { color: isCurrent ? theme.colors.accentAlt : theme.colors.neutral[500] },
         ]}
       >
         {indexLabel}
@@ -481,7 +481,7 @@ function SyllabusRow({
         <Text
           style={[
             styles.rowTrailing,
-            { color: isCurrent ? theme.colors.accent : theme.colors.neutral[500] },
+            { color: isCurrent ? theme.colors.accentAlt : theme.colors.neutral[500] },
           ]}
         >
           {isCurrent ? 'Aquí' : isDone ? 'Hecha' : trailing}

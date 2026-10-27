@@ -2,6 +2,7 @@ import { Link, usePathname, type Href } from 'expo-router';
 import {
   Award,
   BookOpen,
+  UsersRound,
   ChevronDown,
   ChevronRight,
   GraduationCap,
@@ -18,14 +19,13 @@ import { breakpoint, useTheme } from '@/core/theme';
 import { BrandMark } from '@/core/ui/brand-mark';
 import { DropdownMenu } from '@/core/ui/dropdown-menu';
 import { Icon } from '@/core/ui/icon';
-import { InitialsAvatar } from '@/core/ui/initials-avatar';
+import { ProfileAvatar } from '@/core/ui/profile-avatar';
 import { useLogout, useSession } from '@/features/auth/application/use-auth';
 import {
   SESSION_ROLE_LABELS,
   appNavItemsForRole,
   courseSlugInPath,
   firstGivenName,
-  givenNameInitial,
   resolveAppLocation,
   type AppLocationCrumb,
   type AppNavItem,
@@ -38,6 +38,7 @@ const SECTION_ICONS: Partial<Record<AppSectionId, LucideIcon>> = {
   catalog: BookOpen,
   'my-courses': GraduationCap,
   certificates: Award,
+  community: UsersRound,
   instructor: Presentation,
   admin: Shield,
 };
@@ -132,14 +133,14 @@ function SessionMenu({ user }: { user: User }) {
               },
             ]}
           >
-            <InitialsAvatar initial={givenNameInitial(user.fullName)} size={26} />
+            <ProfileAvatar name={user.fullName} avatarKey={user.avatarKey} avatarUrl={user.avatarUrl} size={26} />
             <Text style={[styles.sessionName, { color: theme.colors.text }]}>{givenName}</Text>
             <Icon glyph={ChevronDown} size={14} color={theme.colors.neutral[500]} />
           </Pressable>
         }
       >
         <View style={styles.menuIdentity}>
-          <InitialsAvatar initial={givenNameInitial(user.fullName)} size={36} />
+          <ProfileAvatar name={user.fullName} avatarKey={user.avatarKey} avatarUrl={user.avatarUrl} size={36} />
           <View style={styles.menuIdentityCopy}>
             <Text style={[styles.menuFullName, { color: theme.colors.text }]}>{user.fullName}</Text>
             <Text style={[styles.menuMeta, { color: theme.colors.neutral[600] }]}>
@@ -178,7 +179,7 @@ function SessionMenu({ user }: { user: User }) {
             ) : (
               <>
                 <Icon glyph={LogOut} color={theme.colors.accent} />
-                <Text style={[styles.menuRowLabel, { color: theme.colors.accent }]}>Cerrar sesión</Text>
+                <Text style={[styles.menuRowLabel, { color: theme.colors.accentAlt }]}>Cerrar sesión</Text>
               </>
             )}
           </View>

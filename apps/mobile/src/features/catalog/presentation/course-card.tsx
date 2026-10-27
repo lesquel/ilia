@@ -21,13 +21,17 @@ const PATH_STEP: Record<Level, string> = {
 
 function cardLift(raised: boolean) {
   if (Platform.OS === 'web') {
+    const reduceMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
+
     return {
       boxShadow: raised
         ? '0 18px 40px rgba(27, 112, 254, 0.16)'
         : '0 10px 28px rgba(17, 17, 17, 0.06)',
-      transform: [{ translateY: raised ? -3 : 0 }],
+      transform: [{ translateY: raised && !reduceMotion ? -3 : 0 }],
       transitionProperty: 'box-shadow, transform, border-color',
-      transitionDuration: '160ms',
+      transitionDuration: reduceMotion ? '0ms' : '160ms',
     };
   }
 
@@ -76,7 +80,7 @@ export function CourseCard({ course }: { course: CourseSummary }) {
               courseSlug={course.slug}
               overlay={
                 <View style={styles.coverCopy}>
-                  <Text style={[styles.pathNumber, { color: theme.colors.accent }]}>
+                  <Text style={[styles.pathNumber, { color: theme.colors.accentAlt }]}>
                     {PATH_STEP[course.level]}
                   </Text>
                   <Text style={[styles.levelLabel, { color: theme.colors.accentRamp[700] }]}>
@@ -89,13 +93,13 @@ export function CourseCard({ course }: { course: CourseSummary }) {
             <View style={styles.body}>
               <View style={styles.startHintSlot}>
                 {isStartHere ? (
-                  <Text style={[styles.startHint, { color: theme.colors.accent }]}>
+                  <Text style={[styles.startHint, { color: theme.colors.accentAlt }]}>
                     Empieza aquí
                   </Text>
                 ) : null}
               </View>
 
-              <Text style={[styles.title, { color: theme.colors.text }]} numberOfLines={2}>
+              <Text style={[styles.title, { color: theme.colors.text }]} numberOfLines={2} accessibilityRole="header">
                 {course.title}
               </Text>
 
@@ -130,7 +134,7 @@ export function CourseCard({ course }: { course: CourseSummary }) {
                   Instituto {INSTITUTE_SHORT_NAME}
                 </Text>
                 <View style={styles.footerAction}>
-                  <Text style={[styles.footerLabel, { color: theme.colors.accent }]}>
+                  <Text style={[styles.footerLabel, { color: theme.colors.accentAlt }]}>
                     Ver el curso
                   </Text>
                   <Icon glyph={ArrowRight} size={16} color={theme.colors.accent} />

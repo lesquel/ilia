@@ -25,6 +25,9 @@ class InMemoryUserRepository:
     async def get_by_id(self, user_id: UUID) -> User | None:
         return self._by_id.get(user_id)
 
+    async def get_by_ids(self, user_ids: set[UUID]) -> list[User]:
+        return [user for user_id, user in self._by_id.items() if user_id in user_ids]
+
     async def get_by_email(self, email: Email) -> User | None:
         for user in self._by_id.values():
             if user.email == email:

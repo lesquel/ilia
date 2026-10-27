@@ -53,7 +53,7 @@ export function CatalogScreen() {
 
   const header = (
     <View style={styles.header}>
-      <Text style={[styles.title, { color: theme.colors.text }]}>Explorar cursos</Text>
+      <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">Explorar cursos</Text>
       <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
         Aprende haciendo. Cada módulo termina en una actividad, no en un cuestionario.
       </Text>
@@ -169,10 +169,11 @@ function LevelChip({
       onPress={onPress}
       accessibilityRole="button"
       accessibilityState={{ selected: active }}
+      aria-pressed={active}
       style={({ pressed }) => [
         styles.chip,
         {
-          backgroundColor: active ? theme.colors.accent : 'transparent',
+          backgroundColor: active ? theme.colors.accentButton : 'transparent',
           borderColor: active ? theme.colors.accent : theme.colors.divider,
           borderRadius: theme.radius.sm,
           opacity: pressed ? 0.8 : 1,
@@ -180,7 +181,7 @@ function LevelChip({
       ]}
     >
       <Text
-        style={[styles.chipText, { color: active ? '#f2f2f3' : theme.colors.neutral[700] }]}
+        style={[styles.chipText, { color: active ? '#ffffff' : theme.colors.neutral[700] }]}
       >
         {label}
       </Text>

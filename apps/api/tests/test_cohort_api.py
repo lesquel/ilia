@@ -36,7 +36,7 @@ def make_client(settings: Settings) -> TestClient:
 def register(client: TestClient, email: str = "ana@colegio.edu") -> dict[str, object]:
     return client.post(
         "/api/v1/auth/register",
-        json={"email": email, "full_name": "Ana Pérez", "password": "una-clave-larga"},
+        json={"email": email, "full_name": "Ana Pérez", "password": "Una-clave-larga1!"},
         headers=NATIVE,
     ).json()
 

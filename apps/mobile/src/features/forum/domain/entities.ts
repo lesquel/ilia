@@ -1,5 +1,7 @@
 /** Forum domain. Plain TypeScript, shared by all platforms. */
 
+import type { ProfileAvatarKey } from '@/features/auth/domain/entities';
+
 export const MAX_TITLE_CHARS = 160;
 export const MAX_BODY_CHARS = 5000;
 
@@ -7,6 +9,9 @@ export interface ThreadSummary {
   id: string;
   title: string;
   authorName: string;
+  authorId: string;
+  authorAvatarKey: ProfileAvatarKey | null;
+  authorAvatarUrl: string | null;
   replyCount: number;
   createdAt: string | null;
   lastActivityAt: string | null;
@@ -22,6 +27,9 @@ export interface ThreadSummary {
 export interface Post {
   id: string;
   authorName: string;
+  authorId: string;
+  authorAvatarKey: ProfileAvatarKey | null;
+  authorAvatarUrl: string | null;
   body: string;
   createdAt: string | null;
   isHidden: boolean;

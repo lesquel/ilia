@@ -24,7 +24,7 @@ Si no puedes llenar la [ficha](#ficha-de-curso), no abras el folio.
 | [lengua-literatura.md](./lengua-literatura.md) | 131 destrezas LL.* + géneros + EFL digital |
 | [cn-cs-ecuador.md](./cn-cs-ecuador.md) | Catálogo completo: 49+48 Elemental, 56+106 Media, 65+121 Superior, BGU Bio/Física/Química/Historia/Ciudadanía/Filosofía |
 | [metricas-aprendizaje.md](./metricas-aprendizaje.md) | SEST 2021–25 (incl. 2024-25 EGB), PISA-D, ERCE 2019, descriptores |
-| [ruta-docentes.md](./ruta-docentes.md) | Los tres cursos ILIA actuales y los guiones |
+| [ruta-docentes.md](./ruta-docentes.md) | La ruta ILIA de formación docente y sus guiones |
 
 ## Escalera (Reglamento LOEI, Decreto 675 / 2023, arts. 128–133)
 

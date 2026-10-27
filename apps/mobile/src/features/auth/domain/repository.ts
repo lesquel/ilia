@@ -4,6 +4,7 @@ import type {
   PasswordResetConfirm,
   PasswordResetRequest,
   ProfileUpdate,
+  ProfileAvatarKey,
   Registration,
   Session,
   User,
@@ -25,6 +26,9 @@ export interface AuthRepository {
   confirmPasswordReset(input: PasswordResetConfirm): Promise<Session>;
   currentUser(): Promise<User>;
   updateProfile(input: ProfileUpdate): Promise<User>;
+  uploadAvatar(file: Blob, contentType: string): Promise<User>;
+  chooseAvatar(key: ProfileAvatarKey): Promise<User>;
+  removeAvatar(): Promise<User>;
 }
 
 /**

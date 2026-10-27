@@ -10,6 +10,23 @@ export const ROLES = ['student', 'instructor', 'admin'] as const;
 
 export type Role = (typeof ROLES)[number];
 
+export const PROFILE_AVATAR_CHOICES = [
+  { key: 'colibri', label: 'Colibrí' },
+  { key: 'estrella', label: 'Estrella' },
+  { key: 'montana', label: 'Montaña' },
+  { key: 'sol', label: 'Sol' },
+  { key: 'orquidea', label: 'Orquídea' },
+  { key: 'colibri-azul', label: 'Colibrí azul' },
+  { key: 'colibri-verde', label: 'Colibrí verde' },
+  { key: 'colibri-coral', label: 'Colibrí coral' },
+] as const;
+
+export type ProfileAvatarKey = (typeof PROFILE_AVATAR_CHOICES)[number]['key'];
+
+export function isProfileAvatarKey(value: unknown): value is ProfileAvatarKey {
+  return PROFILE_AVATAR_CHOICES.some((choice) => choice.key === value);
+}
+
 const RANK: Record<Role, number> = {
   student: 0,
   instructor: 1,
@@ -32,6 +49,8 @@ export interface User {
   email: string;
   fullName: string;
   role: Role;
+  avatarKey: ProfileAvatarKey | null;
+  avatarUrl: string | null;
 }
 
 export interface Credentials {
@@ -49,6 +68,38 @@ export interface ProfileUpdate {
 
 /** The API's limit for a name, and the width of the column behind it. */
 export const FULL_NAME_MAX_LENGTH = 120;
+export const REGISTRATION_NAME_MIN_LENGTH = 2;
+
+/** Registration names support accented letters, spaces, apostrophes and hyphens. */
+export function isValidRegistrationName(input: string): boolean {
+  const name = input.trim();
+  return (
+    name.length >= REGISTRATION_NAME_MIN_LENGTH &&
+    name.length <= FULL_NAME_MAX_LENGTH &&
+    /^[\p{L}]+(?:[ '\u2019-][\p{L}]+)*$/u.test(name)
+  );
+}
+
+export const REGISTRATION_PASSWORD_MIN_LENGTH = 8;
+export const REGISTRATION_PASSWORD_MAX_LENGTH = 128;
+
+export interface RegistrationPasswordRules {
+  longEnough: boolean;
+  hasUppercase: boolean;
+  hasLowercase: boolean;
+  hasNumber: boolean;
+  hasSpecial: boolean;
+}
+
+export function registrationPasswordRules(password: string): RegistrationPasswordRules {
+  return {
+    longEnough: Array.from(password).length >= REGISTRATION_PASSWORD_MIN_LENGTH,
+    hasUppercase: /\p{Lu}/u.test(password),
+    hasLowercase: /\p{Ll}/u.test(password),
+    hasNumber: /\p{Nd}/u.test(password),
+    hasSpecial: /[^\p{L}\p{N}\s]/u.test(password),
+  };
+}
 
 /**
  * The name the API would store, or `null` when it would refuse it.

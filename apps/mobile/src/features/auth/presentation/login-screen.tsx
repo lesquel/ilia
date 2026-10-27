@@ -88,7 +88,7 @@ export function LoginScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.card}>
-          <Text style={[styles.title, { color: theme.colors.text }]}>Iniciar sesión</Text>
+          <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">Iniciar sesión</Text>
           <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
             Entra para continuar con tus cursos
           </Text>
@@ -114,7 +114,7 @@ export function LoginScreen() {
               accessibilityLabel={revealed ? 'Ocultar contraseña' : 'Mostrar contraseña'}
               onPress={() => setRevealed((on) => !on)}
             >
-              <Text style={[styles.toggle, { color: theme.colors.accent }]}>
+              <Text style={[styles.toggle, { color: theme.colors.accentAlt }]}>
                 {revealed ? 'Ocultar' : 'Mostrar'}
               </Text>
             </Pressable>
@@ -134,7 +134,7 @@ export function LoginScreen() {
 
           <Link
             href="/forgot-password"
-            style={[styles.forgotLink, { color: theme.colors.accent }]}
+            style={[styles.forgotLink, { color: theme.colors.accentAlt }]}
           >
             Olvidé mi contraseña
           </Link>
@@ -155,14 +155,14 @@ export function LoginScreen() {
             style={({ pressed }) => [
               styles.button,
               {
-                backgroundColor: theme.colors.accent,
+                backgroundColor: theme.colors.accentButton,
                 borderRadius: theme.radius.md,
                 opacity: !canSubmit ? 0.5 : pressed ? 0.85 : 1,
               },
             ]}
           >
             {login.isPending ? (
-              <ActivityIndicator color="#f2f2f3" />
+              <ActivityIndicator color="#ffffff" />
             ) : (
               <Text style={styles.buttonLabel}>Entrar</Text>
             )}
@@ -172,7 +172,7 @@ export function LoginScreen() {
             ¿Todavía no tienes cuenta?{' '}
             <Link
               href={next ? `/register?next=${encodeURIComponent(next)}` : '/register'}
-              style={{ color: theme.colors.accent }}
+              style={{ color: theme.colors.accentAlt }}
             >
               Crear cuenta
             </Link>
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     minHeight: 48,
   },
   buttonLabel: {
-    color: '#f2f2f3',
+    color: '#ffffff',
     fontSize: 16,
     fontWeight: '600',
   },

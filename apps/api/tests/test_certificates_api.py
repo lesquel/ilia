@@ -51,7 +51,7 @@ def client(app) -> TestClient:  # type: ignore[no-untyped-def]
 def register(client: TestClient, email: str = "ana@colegio.edu") -> str:
     response = client.post(
         "/api/v1/auth/register",
-        json={"email": email, "full_name": "Ana Pérez", "password": "una-clave-larga"},
+        json={"email": email, "full_name": "Ana Pérez", "password": "Una-clave-larga1!"},
         headers=NATIVE,
     )
     return response.json()["access_token"]  # type: ignore[no-any-return]

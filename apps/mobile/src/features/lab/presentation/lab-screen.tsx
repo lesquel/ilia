@@ -8,7 +8,6 @@ import {
   TextInput,
   View,
   useWindowDimensions,
-  type TextStyle,
 } from 'react-native';
 
 import { INSTITUTE_SHORT_NAME } from '@/core/brand';
@@ -108,14 +107,14 @@ export function LabScreen() {
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.kickerRow}>
           <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
-          <Text style={[styles.kicker, { color: theme.colors.accent }]}>
+          <Text style={[styles.kicker, { color: theme.colors.accentAlt }]}>
             Taller · Instituto {INSTITUTE_SHORT_NAME}
           </Text>
         </View>
 
         <View style={styles.headingRow}>
           <View style={styles.headingCopy}>
-            <Text style={[styles.title, { color: theme.colors.text }]}>{activity.title}</Text>
+            <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">{activity.title}</Text>
             <Text style={[styles.lede, { color: theme.colors.neutral[700] }]}>
               Escribes el pedido. Sale una hoja. El lunes fotocopias lo que sirve.
             </Text>
@@ -156,9 +155,6 @@ export function LabScreen() {
               style={[
                 styles.editor,
                 { color: theme.colors.text },
-                Platform.OS === 'web'
-                  ? ({ outlineStyle: 'none' } as unknown as TextStyle)
-                  : undefined,
               ]}
             />
           </Card>

@@ -148,7 +148,7 @@ function Verdict({
   children: ReactNode;
 }) {
   const theme = useTheme();
-  const ink = valid ? theme.colors.accent : theme.colors.neutral[800];
+  const ink = valid ? theme.colors.accentAlt : theme.colors.neutral[800];
 
   return (
     <Card style={valid ? { borderColor: theme.colors.accent } : undefined}>

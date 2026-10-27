@@ -1,8 +1,10 @@
-"""The three courses the first charla publishes.
+"""The canonical teacher courses the first charla publishes.
 
 These slugs are the public URLs teachers will share. If they drift, the seed
 loads something else and GET /catalog looks empty or wrong.
 """
+
+import json
 
 from app.content.teacher_catalog import (
     LESSON_EXAMPLES,
@@ -11,6 +13,7 @@ from app.content.teacher_catalog import (
 )
 
 CANONICAL_SLUGS = (
+    "introduccion-ia-docentes",
     "prompting-para-docentes",
     "notebooklm-en-el-aula",
     "evaluacion-asistida-por-ia",
@@ -40,7 +43,7 @@ def _prompting_lab() -> dict:
     )
 
 
-def test_teacher_courses_publish_the_three_canonical_slugs() -> None:
+def test_teacher_courses_publish_the_canonical_slugs() -> None:
     assert [course["slug"] for course in TEACHER_COURSES] == list(CANONICAL_SLUGS)
 
 
@@ -99,3 +102,26 @@ def test_prompting_worked_sheet_distinguishes_theme_from_main_ideas() -> None:
     )
     assert "tema" in pedido.lower()
     assert "ideas principales" in pedido.lower()
+
+
+def test_intro_quiz_answer_key_stays_with_its_option_after_shuffling() -> None:
+    course = next(
+        course for course in TEACHER_COURSES if course["slug"] == "introduccion-ia-docentes"
+    )
+    expected_answers = {
+        "¿Qué conoce el modelo sobre el grupo de séptimo?": (
+            "Solo lo que la docente le cuenta o adjunta"
+        ),
+        "¿Para qué sirve el primer resultado?": "Como borrador que la docente revisa",
+        "¿Cómo comprobamos una respuesta de lectura?": "Buscando evidencia en el texto",
+        "Si una pregunta pide inventar un dato que el texto no contiene, ¿qué conviene hacer?": (
+            "Corregirla o pedir otra versión"
+        ),
+    }
+
+    for _module_title, lessons in course["modules"]:
+        quiz = json.loads(next(lesson[3] for lesson in lessons if lesson[1] == "quiz"))
+        for question in quiz["questions"]:
+            if question["question"] in expected_answers:
+                answer = question["options"][question["answer"]]
+                assert answer == expected_answers[question["question"]]

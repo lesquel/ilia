@@ -89,7 +89,7 @@ export function CourseEditorScreen() {
       <Card>
         <StatusTag status={course.status} />
         <View style={styles.headText}>
-          <Text style={[styles.title, { color: theme.colors.text }]}>{course.title}</Text>
+          <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">{course.title}</Text>
           <Text selectable style={[styles.meta, { color: muted }]}>
             /catalog/{course.slug}
           </Text>
@@ -117,14 +117,14 @@ export function CourseEditorScreen() {
               style={({ pressed }) => [
                 styles.button,
                 {
-                  backgroundColor: theme.colors.accent,
+                  backgroundColor: theme.colors.accentButton,
                   borderRadius: theme.radius.md,
                   opacity: !canPublish(course) ? 0.5 : pressed ? 0.85 : 1,
                 },
               ]}
             >
               {publish.isPending ? (
-                <ActivityIndicator color="#f2f2f3" />
+                <ActivityIndicator color="#ffffff" />
               ) : (
                 <Text style={styles.buttonLabel}>Publicar</Text>
               )}
@@ -168,7 +168,7 @@ export function CourseEditorScreen() {
       ) : null}
 
       <View style={styles.sectionHead}>
-        <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Temario</Text>
+        <Text style={[styles.sectionTitle, { color: theme.colors.text }]} accessibilityRole="header">Temario</Text>
         {modules.length > 0 ? (
           <Text style={[styles.meta, { color: muted }]}>
             {modules.length} {modules.length === 1 ? 'módulo' : 'módulos'}
@@ -307,7 +307,7 @@ export function CourseEditorScreen() {
                     style={({ pressed }) => [
                       styles.button,
                       {
-                        backgroundColor: theme.colors.accent,
+                        backgroundColor: theme.colors.accentButton,
                         borderRadius: theme.radius.md,
                         opacity: !lessonTitle.trim() ? 0.5 : pressed ? 0.85 : 1,
                       },
@@ -423,5 +423,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minHeight: 44,
   },
-  buttonLabel: { color: '#f2f2f3', fontSize: 15, fontWeight: '600' },
+  buttonLabel: { color: '#ffffff', fontSize: 15, fontWeight: '600' },
 });

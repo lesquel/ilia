@@ -69,9 +69,22 @@ def register_error_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(RequestValidationError)
     async def _schema(_: Request, exc: RequestValidationError) -> JSONResponse:
+        # Pydantic's raw error entries contain submitted `input` values and may
+        # include exception objects in `ctx`; either can leak passwords or
+        # make JSONResponse fail. Clients need only the field path and code.
+        detail = [
+            {
+                "loc": [
+                    part if isinstance(part, (str, int)) else str(part)
+                    for part in item.get("loc", ())
+                ],
+                "type": str(item.get("type", "value_error")),
+            }
+            for item in exc.errors()
+        ]
         return JSONResponse(
             status_code=422,
-            content=_envelope("schema_error", "Request body is invalid", exc.errors()),
+            content=_envelope("schema_error", "Request body is invalid", detail),
         )
 
     @app.exception_handler(StarletteHTTPException)

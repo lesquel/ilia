@@ -123,6 +123,10 @@ export class HttpClient {
   put<T>(path: string, body?: unknown, options?: Omit<RequestOptions, 'method'>): Promise<T> {
     return this.request<T>(path, { ...options, method: 'PUT', body });
   }
+
+  patch<T>(path: string, body?: unknown, options?: Omit<RequestOptions, 'method'>): Promise<T> {
+    return this.request<T>(path, { ...options, method: 'PATCH', body });
+  }
 }
 
 export const httpClient = new HttpClient();

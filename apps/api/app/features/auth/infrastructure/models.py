@@ -8,7 +8,18 @@ a column rename never reaches a use case.
 from datetime import date, datetime
 from uuid import UUID
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Index, Integer, String, Uuid, func
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    Date,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Uuid,
+    func,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -43,6 +54,10 @@ class UserModel(Base):
     __tablename__ = "app_user"
     __table_args__ = (
         Index("uq_app_user_email", "email", unique=True),
+        CheckConstraint(
+            "avatar_key IS NULL OR avatar_ref IS NULL",
+            name="ck_app_user_avatar_choice",
+        ),
         {"schema": DbSchema.AUTH.value},
     )
 
@@ -60,6 +75,8 @@ class UserModel(Base):
     token_generation: Mapped[int] = mapped_column(
         Integer, nullable=False, default=0, server_default="0"
     )
+    avatar_key: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    avatar_ref: Mapped[str | None] = mapped_column(String(512), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

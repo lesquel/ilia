@@ -93,7 +93,7 @@ function MondaySheetCard() {
         },
       ]}
     >
-      <Text style={[styles.contrastKicker, { color: theme.colors.accent }]}>
+      <Text style={[styles.contrastKicker, { color: theme.colors.accentAlt }]}>
         El mismo tema, escrito como lo pegarías tú.
       </Text>
       <View

@@ -1,8 +1,8 @@
-# Ruta docente: tres cursos que se pueden terminar
+# Ruta docente: cuatro cursos que se pueden terminar
 
 El docente sale de cada curso con **un artefacto de su propia clase**, no con un certificado de asistencia. Eso es lo que UNESCO llama pedagogía de IA y agencia humana: el modelo redacta, **tú decides** qué entra al aula.
 
-Los tres slugs ya existen en el catálogo. Esta ruta los completa. El seed carga el texto de las lecciones. Los videos los grabas tú con los guiones de abajo.
+El catálogo abre con `introduccion-ia-docentes`: cuatro módulos para probar un primer pedido y aprender a revisarlo. Después siguen los tres cursos de práctica especializada. El seed publica los textos y las comprobaciones; los videos se vinculan desde los archivos finales del curso.
 
 ## Para quién
 
@@ -12,6 +12,7 @@ Docentes de colegio (el primer segmento es Manta) que llegan cansados, en horari
 
 | Curso | Nivel | Dimensión UNESCO (2024) | El docente se lleva |
 |---|---|---|---|
+| IA para preparar tu próxima clase | Básico | Fundamentos + pedagogía (adquirir) | Un pedido revisable para una actividad de su próxima clase |
 | Prompting para docentes | Básico | Fundamentos + pedagogía (adquirir) | El prompt de **su** próxima clase |
 | NotebookLM en el aula | Intermedio | Aplicaciones + ética (profundizar) | Guía, preguntas y nota a familias **desde su material** |
 | Evaluación asistida por IA | Experto | Evaluación + agencia (crear) | Una rúbrica observable y un criterio para no dejar que el modelo certifique solo |

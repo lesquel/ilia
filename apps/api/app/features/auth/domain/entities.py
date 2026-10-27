@@ -12,6 +12,16 @@ from uuid import UUID, uuid4
 # One limit for the name wherever it is written. It is also the width of the
 # column, so a longer name could not be stored anyway.
 FULL_NAME_MAX_LENGTH = 120
+AVATAR_KEYS = (
+    "colibri",
+    "estrella",
+    "montana",
+    "sol",
+    "orquidea",
+    "colibri-azul",
+    "colibri-verde",
+    "colibri-coral",
+)
 
 
 def _clean_full_name(full_name: str) -> str:
@@ -88,6 +98,8 @@ class User:
     # re-reads the user — so ending other sessions costs one integer comparison
     # against a row it was reading anyway, and no denylist to keep.
     token_generation: int = 0
+    avatar_key: str | None = None
+    avatar_ref: str | None = None
 
     def change_password(self, password_hash: str) -> None:
         """Set a new password and end every other session.
@@ -106,6 +118,24 @@ class User:
         signed out of their phone for fixing a typo.
         """
         self.full_name = _clean_full_name(full_name)
+
+    def choose_avatar(self, key: str) -> None:
+        if key not in AVATAR_KEYS:
+            raise ValueError("unsupported_avatar_key")
+        self.avatar_key = key
+        self.avatar_ref = None
+
+    def set_avatar_reference(self, reference: str) -> None:
+        if not reference.startswith(f"avatars/{self.id}/"):
+            raise ValueError("foreign_avatar_reference")
+        self.avatar_key = None
+        self.avatar_ref = reference
+
+    def clear_avatar(self) -> str | None:
+        previous = self.avatar_ref
+        self.avatar_key = None
+        self.avatar_ref = None
+        return previous
 
     @classmethod
     def register(

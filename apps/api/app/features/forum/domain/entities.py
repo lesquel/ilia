@@ -1,11 +1,8 @@
 """Forum threads and replies (PRD E-07).
 
-**Scope note.** The PRD's open question 8 says the mockup suggests a per-module
-forum. It does not: the mockup screen is titled "Foro del curso" and its
-subtitle counts discussions for the whole course. The TRD (§7) allows either,
-so `module_id` is nullable — null means a course-wide thread, which is the
-default and what the mockup shows. Per-module threads work if the team decides
-they want them.
+New threads belong to a course module, as specified by the PRD and mockup.
+Every thread belongs to a module and optionally to an enrollment cohort; a
+missing cohort means the general module forum for enrollments without one.
 """
 
 from dataclasses import dataclass
@@ -68,13 +65,13 @@ class ForumPost:
 class ForumThread:
     id: UUID
     course_id: UUID
+    cohort_id: UUID | None
+    module_id: UUID
     author_id: UUID
     author_name: str
     title: str
     body: str
     created_at: datetime | None = None
-    # Null means the thread belongs to the course as a whole.
-    module_id: UUID | None = None
     reply_count: int = 0
     # Threads are listed by this, not by creation date: a forum sorted by age
     # buries the conversation people are actually having.
@@ -87,11 +84,12 @@ class ForumThread:
         cls,
         *,
         course_id: UUID,
+        cohort_id: UUID | None,
         author_id: UUID,
         author_name: str,
         title: str,
         body: str,
-        module_id: UUID | None = None,
+        module_id: UUID,
         created_at: datetime | None = None,
     ) -> "ForumThread":
         cleaned_title = title.strip()
@@ -103,6 +101,7 @@ class ForumThread:
         return cls(
             id=uuid4(),
             course_id=course_id,
+            cohort_id=cohort_id,
             module_id=module_id,
             author_id=author_id,
             author_name=author_name,

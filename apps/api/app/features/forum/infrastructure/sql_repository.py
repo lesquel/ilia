@@ -14,6 +14,7 @@ def _to_thread(row: ForumThreadModel) -> ForumThread:
     return ForumThread(
         id=row.id,
         course_id=row.course_id,
+        cohort_id=row.cohort_id,
         module_id=row.module_id,
         author_id=row.author_id,
         author_name=row.author_name,
@@ -50,6 +51,7 @@ class SqlAlchemyThreadRepository:
                 ForumThreadModel(
                     id=thread.id,
                     course_id=thread.course_id,
+                    cohort_id=thread.cohort_id,
                     module_id=thread.module_id,
                     author_id=thread.author_id,
                     author_name=thread.author_name,
@@ -76,19 +78,42 @@ class SqlAlchemyThreadRepository:
             row.is_hidden = thread.is_hidden
             row.hidden_reason = thread.hidden_reason
 
-    async def list_for_course(
-        self, *, course_id: UUID, module_id: UUID | None = None, limit: int = 50
+    async def list_for_module(
+        self,
+        *,
+        course_id: UUID,
+        module_id: UUID,
+        cohort_id: UUID | None,
+        limit: int = 50,
     ) -> list[ForumThread]:
-        statement = select(ForumThreadModel).where(ForumThreadModel.course_id == course_id)
-
-        if module_id is not None:
-            statement = statement.where(ForumThreadModel.module_id == module_id)
+        statement = select(ForumThreadModel).where(
+            ForumThreadModel.course_id == course_id,
+            ForumThreadModel.module_id == module_id,
+            ForumThreadModel.cohort_id == cohort_id
+            if cohort_id is not None
+            else ForumThreadModel.cohort_id.is_(None),
+        )
 
         statement = statement.order_by(ForumThreadModel.last_activity_at.desc()).limit(limit)
 
         async with self._db.session() as session:
             rows = (await session.execute(statement)).scalars().all()
 
+        return [_to_thread(row) for row in rows]
+
+    async def list_by_author(
+        self, author_id: UUID, *, course_ids: set[UUID], limit: int = 50
+    ) -> list[ForumThread]:
+        if not course_ids:
+            return []
+        async with self._db.session() as session:
+            rows = (await session.scalars(
+                select(ForumThreadModel).where(
+                    ForumThreadModel.author_id == author_id,
+                    ForumThreadModel.course_id.in_(course_ids),
+                )
+                .order_by(ForumThreadModel.created_at.desc()).limit(limit)
+            )).all()
         return [_to_thread(row) for row in rows]
 
 
@@ -131,3 +156,20 @@ class SqlAlchemyPostRepository:
                 .order_by(ForumPostModel.created_at)
             )
             return [_to_post(row) for row in result.scalars()]
+
+    async def list_by_author(
+        self, author_id: UUID, *, course_ids: set[UUID], limit: int = 50
+    ) -> list[ForumPost]:
+        if not course_ids:
+            return []
+        async with self._db.session() as session:
+            rows = (await session.scalars(
+                select(ForumPostModel).join(
+                    ForumThreadModel, ForumThreadModel.id == ForumPostModel.thread_id
+                ).where(
+                    ForumPostModel.author_id == author_id,
+                    ForumThreadModel.course_id.in_(course_ids),
+                )
+                .order_by(ForumPostModel.created_at.desc()).limit(limit)
+            )).all()
+        return [_to_post(row) for row in rows]

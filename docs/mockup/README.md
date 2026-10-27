@@ -35,6 +35,8 @@ todavía (TRD §4.3).
 | 15 | Certificados | Listado y descarga |
 | 16 | Perfil | Datos del usuario y ritmo de estudio |
 
+La extensión aprobada el 23-oct-2026 añade **Comunidad** (índice de foros por curso, cohorte y módulo) y **Perfil de participante** (identidad y actividad reciente contextual). No son pantallas del mockup original ni implican perfiles públicos, directorio o adjuntos de imagen en publicaciones. El mockup original define hilos por módulo; la extensión los separa por cohorte y usa foro general cuando la inscripción no tiene una.
+
 ## Design system
 
 Extraído del `:root` del mockup. Es la fuente de verdad para los tokens del

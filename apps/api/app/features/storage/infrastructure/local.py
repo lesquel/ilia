@@ -30,3 +30,10 @@ class LocalStorage:
         # pretended uploads worked would hide the one thing that has to be
         # tested against a real bucket before launch.
         raise NotImplementedError("Uploads need real object storage. Set ILIA_STORAGE_PROVIDER.")
+
+    async def read_bytes(self, reference: str, *, max_bytes: int) -> bytes:
+        raise NotImplementedError("Uploads need real object storage. Set ILIA_STORAGE_PROVIDER.")
+
+    async def delete(self, reference: str) -> None:
+        raise NotImplementedError("Uploads need real object storage. Set ILIA_STORAGE_PROVIDER.")
+

@@ -83,7 +83,7 @@ export function ResetPasswordScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.card}>
-            <Text style={[styles.title, { color: theme.colors.text }]}>
+            <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">
               Restablecer contraseña
             </Text>
             <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
@@ -111,7 +111,7 @@ export function ResetPasswordScreen() {
                 accessibilityLabel={revealed ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                 onPress={() => setRevealed((on) => !on)}
               >
-                <Text style={[styles.toggle, { color: theme.colors.accent }]}>
+                <Text style={[styles.toggle, { color: theme.colors.accentAlt }]}>
                   {revealed ? 'Ocultar' : 'Mostrar'}
                 </Text>
               </Pressable>
@@ -145,14 +145,14 @@ export function ResetPasswordScreen() {
               style={({ pressed }) => [
                 styles.button,
                 {
-                  backgroundColor: theme.colors.accent,
+                  backgroundColor: theme.colors.accentButton,
                   borderRadius: theme.radius.md,
                   opacity: !canSubmit ? 0.5 : pressed ? 0.85 : 1,
                 },
               ]}
             >
               {confirmReset.isPending ? (
-                <ActivityIndicator color="#f2f2f3" />
+                <ActivityIndicator color="#ffffff" />
               ) : (
                 <Text style={styles.buttonLabel}>Guardar contraseña</Text>
               )}
@@ -160,7 +160,7 @@ export function ResetPasswordScreen() {
 
             <Text style={[styles.footer, { color: theme.colors.neutral[600] }]}>
               ¿Aún no tienes código?{' '}
-              <Link href="/forgot-password" style={{ color: theme.colors.accent }}>
+              <Link href="/forgot-password" style={{ color: theme.colors.accentAlt }}>
                 Solicitar recuperación
               </Link>
             </Text>
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
     minHeight: 48,
   },
   buttonLabel: {
-    color: '#f2f2f3',
+    color: '#ffffff',
     fontSize: 16,
     fontWeight: '600',
   },

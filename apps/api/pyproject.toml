@@ -17,6 +17,8 @@ dependencies = [
     # The LLM adapters talk to providers over plain HTTPS rather than through
     # four official SDKs. See infrastructure/llm/base.py for why.
     "httpx>=0.27",
+    "pillow>=11.0",
+    "aiosqlite>=0.22.1",
 ]
 
 [dependency-groups]

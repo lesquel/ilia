@@ -20,13 +20,14 @@ from scripts.seed_catalog import (
 )
 
 EXPECTED_SLUGS = (
+    "introduccion-ia-docentes",
     "prompting-para-docentes",
     "notebooklm-en-el-aula",
     "evaluacion-asistida-por-ia",
 )
 
 
-def test_catalog_seed_path_publishes_the_three_canonical_slugs() -> None:
+def test_catalog_seed_path_publishes_the_canonical_slugs() -> None:
     assert CANONICAL_SLUGS == EXPECTED_SLUGS
     assert [course["slug"] for course in CATALOG_COURSES] == list(EXPECTED_SLUGS)
 

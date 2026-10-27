@@ -5,6 +5,8 @@ threads cannot be read across courses, and moderation is scoped to whoever
 actually owns the course.
 """
 
+from uuid import UUID
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -20,6 +22,7 @@ from app.features.forum.infrastructure.memory_repository import (
     InMemoryPostRepository,
     InMemoryThreadRepository,
 )
+from app.features.storage.domain.ports import SignedUrl
 from app.main import create_app
 from tests.test_catalog_use_cases import make_course
 
@@ -28,19 +31,27 @@ FORUM = "/api/v1/forum"
 ENROLLMENTS = "/api/v1/enrollments"
 
 THREAD = {"title": "¿Cómo hago para que no invente datos?", "body": "Probé varias cosas y nada."}
+FORUM_MODULE_ID = UUID("00000000-0000-4000-8000-000000000007")
+THREAD["module_id"] = str(FORUM_MODULE_ID)
+
+
+def forum_threads(slug: str) -> str:
+    return f"{FORUM}/{slug}/threads?module_id={FORUM_MODULE_ID}"
 
 
 @pytest.fixture
 def app(settings: Settings):  # type: ignore[no-untyped-def]
     application = create_app(settings)
-    application.state.catalog["courses"] = InMemoryCourseRepository(
-        [make_course("ia-basica", lessons=2), make_course("otro-curso", lessons=1)]
-    )
+    courses = [make_course("ia-basica", lessons=2), make_course("otro-curso", lessons=1)]
+    for course in courses:
+        course.modules[0].id = FORUM_MODULE_ID
+    application.state.catalog["courses"] = InMemoryCourseRepository(courses)
     application.state.enrollment["enrollments"] = InMemoryEnrollmentRepository()
     application.state.enrollment["progress"] = InMemoryProgressRepository()
     application.state.enrollment["cohorts"] = InMemoryCohortRepository()
-    application.state.forum["threads"] = InMemoryThreadRepository()
-    application.state.forum["posts"] = InMemoryPostRepository()
+    threads = InMemoryThreadRepository()
+    application.state.forum["threads"] = threads
+    application.state.forum["posts"] = InMemoryPostRepository(threads)
     return application
 
 
@@ -52,7 +63,7 @@ def client(app) -> TestClient:  # type: ignore[no-untyped-def]
 def register(client: TestClient, email: str = "ana@colegio.edu", name: str = "Ana Pérez") -> str:
     return client.post(
         "/api/v1/auth/register",
-        json={"email": email, "full_name": name, "password": "una-clave-larga"},
+        json={"email": email, "full_name": name, "password": "Una-clave-larga1!"},
         headers=NATIVE,
     ).json()["access_token"]
 
@@ -73,16 +84,36 @@ def promote(app, email: str, role: Role) -> None:  # type: ignore[no-untyped-def
             user.role = role
 
 
+class ForumAvatarStorage:
+    provider = "s3"
+
+    def __init__(self) -> None:
+        self.reads: list[str] = []
+
+    def read_url(self, reference: str, *, ttl):  # type: ignore[no-untyped-def]
+        self.reads.append(reference)
+        return SignedUrl(f"https://storage.example/{reference}", int(ttl.total_seconds()))
+
+    def write_url(self, reference: str, *, content_type: str, ttl):  # type: ignore[no-untyped-def]
+        return SignedUrl("https://storage.example/upload", int(ttl.total_seconds()))
+
+    async def read_bytes(self, reference: str, *, max_bytes: int) -> bytes:
+        return b"\x89PNG\r\n\x1a\npicture"
+
+    async def delete(self, reference: str) -> None:
+        return
+
+
 class TestAccess:
     def test_the_forum_needs_a_session(self, client: TestClient) -> None:
-        assert client.get(f"{FORUM}/ia-basica/threads").status_code == 401
+        assert client.get(forum_threads("ia-basica")).status_code == 401
 
     def test_someone_not_enrolled_is_refused(self, client: TestClient) -> None:
         # Permission, not "not found": the course exists and they can see it in
         # the catalog. Pretending otherwise is a lie they can disprove.
         token = register(client)
 
-        response = client.get(f"{FORUM}/ia-basica/threads", headers=auth(token))
+        response = client.get(forum_threads("ia-basica"), headers=auth(token))
 
         assert response.status_code == 403
         assert response.json()["error"]["code"] == "forum_access_denied"
@@ -90,7 +121,7 @@ class TestAccess:
     def test_an_enrolled_teacher_gets_in(self, client: TestClient) -> None:
         token = enrolled(client)
 
-        assert client.get(f"{FORUM}/ia-basica/threads", headers=auth(token)).status_code == 200
+        assert client.get(forum_threads("ia-basica"), headers=auth(token)).status_code == 200
 
     def test_an_instructor_does_not_have_to_enrol_to_moderate(
         self, client: TestClient, app
@@ -99,26 +130,97 @@ class TestAccess:
         token = register(client, "eduardo@manta.gob.ec", "Eduardo Calvache")
         promote(app, "eduardo@manta.gob.ec", Role.INSTRUCTOR)
 
-        assert client.get(f"{FORUM}/ia-basica/threads", headers=auth(token)).status_code == 200
+        assert client.get(forum_threads("ia-basica"), headers=auth(token)).status_code == 200
 
 
 class TestThreads:
     def test_opening_a_thread(self, client: TestClient) -> None:
         token = enrolled(client)
 
-        response = client.post(f"{FORUM}/ia-basica/threads", json=THREAD, headers=auth(token))
+        response = client.post(forum_threads("ia-basica"), json=THREAD, headers=auth(token))
 
         assert response.status_code == 201
         assert response.json()["title"] == THREAD["title"]
         assert response.json()["author_name"] == "Ana Pérez"
         assert response.json()["reply_count"] == 0
 
+    def test_old_threads_show_the_authors_current_name_and_avatar_without_email(
+        self, client: TestClient
+    ) -> None:
+        token = enrolled(client)
+        opened = client.post(forum_threads("ia-basica"), json=THREAD, headers=auth(token))
+        thread_id = opened.json()["id"]
+        user = next(iter(client.app.state.auth["users"]._by_id.values()))
+        user.avatar_key = "colibri"
+        reply_token = enrolled(client, email="responde@colegio.edu")
+        reply = client.post(
+            f"{FORUM}/ia-basica/threads/{thread_id}/replies",
+            json={"body": "Ya probé esa alternativa."},
+            headers=auth(reply_token),
+        )
+        assert reply.status_code == 201
+        reply_user = next(
+            item
+            for item in client.app.state.auth["users"]._by_id.values()
+            if str(item.email) == "responde@colegio.edu"
+        )
+        reply_user.avatar_key = "sol"
+        renamed = client.patch(
+            "/api/v1/auth/me", json={"full_name": "Ana Docente"}, headers=auth(token)
+        )
+        assert renamed.status_code == 200
+        client.patch(
+            "/api/v1/auth/me",
+            json={"full_name": "Lucía Colega"},
+            headers=auth(reply_token),
+        )
+
+        listing = client.get(forum_threads("ia-basica"), headers=auth(token)).json()[0]
+        detail = client.get(
+            f"{FORUM}/ia-basica/threads/{thread_id}", headers=auth(token)
+        ).json()
+
+        for author in (listing, detail):
+            assert author["author_name"] == "Ana Docente"
+            assert author["author_avatar_key"] == "colibri"
+            assert "email" not in author
+            assert "author_id" not in author
+        assert detail["posts"][0]["author_name"] == "Lucía Colega"
+        assert detail["posts"][0]["author_avatar_key"] == "sol"
+
+    def test_forum_access_is_checked_before_minting_avatar_urls(
+        self, client: TestClient
+    ) -> None:
+        member_token = enrolled(client)
+        author = next(iter(client.app.state.auth["users"]._by_id.values()))
+        author.avatar_ref = f"avatars/{author.id}/{'a' * 32}"
+        storage = ForumAvatarStorage()
+        client.app.state.storage = storage
+        client.post(forum_threads("ia-basica"), json=THREAD, headers=auth(member_token))
+        storage.reads.clear()
+        member_response = client.get(
+            forum_threads("ia-basica"), headers=auth(member_token)
+        )
+        assert member_response.status_code == 200
+        assert member_response.json()[0]["author_avatar_url"].startswith(
+            "https://storage.example/avatars/"
+        )
+        storage.reads.clear()
+        outsider = register(client, "otra@colegio.edu", "Otra Persona")
+
+        response = client.get(
+            forum_threads("ia-basica"), headers=auth(outsider)
+        )
+
+        assert response.status_code == 403
+        assert storage.reads == []
+
     def test_an_empty_body_is_rejected(self, client: TestClient) -> None:
         token = enrolled(client)
 
         response = client.post(
-            f"{FORUM}/ia-basica/threads",
-            json={"title": "Hola", "body": "   "},
+            forum_threads("ia-basica"),
+            json={"title": "Hola", "body": "   ", "module_id": str(FORUM_MODULE_ID)},
             headers=auth(token),
         )
 
@@ -128,13 +230,13 @@ class TestThreads:
         # A forum sorted by age buries the conversation people are having.
         token = enrolled(client)
         first = client.post(
-            f"{FORUM}/ia-basica/threads",
-            json={"title": "Primera", "body": "cuerpo"},
+            forum_threads("ia-basica"),
+            json={"title": "Primera", "body": "cuerpo", "module_id": str(FORUM_MODULE_ID)},
             headers=auth(token),
         ).json()
         client.post(
-            f"{FORUM}/ia-basica/threads",
-            json={"title": "Segunda", "body": "cuerpo"},
+            forum_threads("ia-basica"),
+            json={"title": "Segunda", "body": "cuerpo", "module_id": str(FORUM_MODULE_ID)},
             headers=auth(token),
         )
 
@@ -146,7 +248,7 @@ class TestThreads:
 
         titles = [
             item["title"]
-            for item in client.get(f"{FORUM}/ia-basica/threads", headers=auth(token)).json()
+            for item in client.get(forum_threads("ia-basica"), headers=auth(token)).json()
         ]
         assert titles[0] == "Primera"
 
@@ -154,7 +256,7 @@ class TestThreads:
 class TestReplies:
     def test_replying_bumps_the_thread(self, client: TestClient) -> None:
         token = enrolled(client)
-        thread = client.post(f"{FORUM}/ia-basica/threads", json=THREAD, headers=auth(token)).json()
+        thread = client.post(forum_threads("ia-basica"), json=THREAD, headers=auth(token)).json()
 
         client.post(
             f"{FORUM}/ia-basica/threads/{thread['id']}/replies",
@@ -168,7 +270,7 @@ class TestReplies:
 
     def test_replies_read_in_the_order_they_happened(self, client: TestClient) -> None:
         token = enrolled(client)
-        thread = client.post(f"{FORUM}/ia-basica/threads", json=THREAD, headers=auth(token)).json()
+        thread = client.post(forum_threads("ia-basica"), json=THREAD, headers=auth(token)).json()
 
         for text in ("primera", "segunda", "tercera"):
             client.post(
@@ -185,7 +287,7 @@ class TestReplies:
     def test_two_teachers_can_talk_to_each_other(self, client: TestClient) -> None:
         ana = enrolled(client, "ana@colegio.edu")
         luis = enrolled(client, "luis@colegio.edu")
-        thread = client.post(f"{FORUM}/ia-basica/threads", json=THREAD, headers=auth(ana)).json()
+        thread = client.post(forum_threads("ia-basica"), json=THREAD, headers=auth(ana)).json()
 
         client.post(
             f"{FORUM}/ia-basica/threads/{thread['id']}/replies",
@@ -205,7 +307,7 @@ class TestCourseIsolation:
         # the caller happens to be enrolled in.
         token = enrolled(client, "ana@colegio.edu", "ia-basica")
         client.post(ENROLLMENTS, json={"course_slug": "otro-curso"}, headers=auth(token))
-        thread = client.post(f"{FORUM}/ia-basica/threads", json=THREAD, headers=auth(token)).json()
+        thread = client.post(forum_threads("ia-basica"), json=THREAD, headers=auth(token)).json()
 
         response = client.get(f"{FORUM}/otro-curso/threads/{thread['id']}", headers=auth(token))
 
@@ -214,15 +316,15 @@ class TestCourseIsolation:
     def test_listing_one_course_does_not_show_anothers_threads(self, client: TestClient) -> None:
         token = enrolled(client, "ana@colegio.edu", "ia-basica")
         client.post(ENROLLMENTS, json={"course_slug": "otro-curso"}, headers=auth(token))
-        client.post(f"{FORUM}/ia-basica/threads", json=THREAD, headers=auth(token))
+        client.post(forum_threads("ia-basica"), json=THREAD, headers=auth(token))
 
-        assert client.get(f"{FORUM}/otro-curso/threads", headers=auth(token)).json() == []
+        assert client.get(forum_threads("otro-curso"), headers=auth(token)).json() == []
 
 
 class TestModeration:
     def test_a_student_cannot_moderate(self, client: TestClient) -> None:
         token = enrolled(client)
-        thread = client.post(f"{FORUM}/ia-basica/threads", json=THREAD, headers=auth(token)).json()
+        thread = client.post(forum_threads("ia-basica"), json=THREAD, headers=auth(token)).json()
 
         response = client.post(
             f"{FORUM}/threads/{thread['id']}/hide",
@@ -235,7 +337,7 @@ class TestModeration:
 
     def test_an_admin_can_hide_a_thread(self, client: TestClient, app) -> None:  # type: ignore[no-untyped-def]
         token = enrolled(client)
-        thread = client.post(f"{FORUM}/ia-basica/threads", json=THREAD, headers=auth(token)).json()
+        thread = client.post(forum_threads("ia-basica"), json=THREAD, headers=auth(token)).json()
         admin = register(client, "admin@ilia.app", "Admin")
         promote(app, "admin@ilia.app", Role.ADMIN)
 
@@ -250,7 +352,7 @@ class TestModeration:
 
     def test_hiding_needs_a_reason(self, client: TestClient, app) -> None:  # type: ignore[no-untyped-def]
         token = enrolled(client)
-        thread = client.post(f"{FORUM}/ia-basica/threads", json=THREAD, headers=auth(token)).json()
+        thread = client.post(forum_threads("ia-basica"), json=THREAD, headers=auth(token)).json()
         admin = register(client, "admin@ilia.app", "Admin")
         promote(app, "admin@ilia.app", Role.ADMIN)
 
@@ -264,7 +366,7 @@ class TestModeration:
         # The shape of the conversation survives, so nobody is left wondering
         # what the reply above them was answering.
         token = enrolled(client)
-        thread = client.post(f"{FORUM}/ia-basica/threads", json=THREAD, headers=auth(token)).json()
+        thread = client.post(forum_threads("ia-basica"), json=THREAD, headers=auth(token)).json()
         post = client.post(
             f"{FORUM}/ia-basica/threads/{thread['id']}/replies",
             json={"body": "Un mensaje con el nombre de un alumno"},
@@ -292,7 +394,7 @@ class TestModeration:
         # The course in this fixture has a random instructor id, so a different
         # instructor account does not own it.
         token = enrolled(client)
-        thread = client.post(f"{FORUM}/ia-basica/threads", json=THREAD, headers=auth(token)).json()
+        thread = client.post(forum_threads("ia-basica"), json=THREAD, headers=auth(token)).json()
         other = register(client, "otro@instituto.edu", "Otro Instructor")
         promote(app, "otro@instituto.edu", Role.INSTRUCTOR)
 
@@ -315,10 +417,10 @@ class TestModeration:
         control.
         """
         token = enrolled(client)
-        thread = client.post(f"{FORUM}/ia-basica/threads", json=THREAD, headers=auth(token)).json()
+        thread = client.post(forum_threads("ia-basica"), json=THREAD, headers=auth(token)).json()
 
         # An enrolled teacher: the flag says no, and hiding is refused.
-        listed = client.get(f"{FORUM}/ia-basica/threads", headers=auth(token)).json()
+        listed = client.get(forum_threads("ia-basica"), headers=auth(token)).json()
         assert listed[0]["can_moderate"] is False
         refused = client.post(
             f"{FORUM}/threads/{thread['id']}/hide",
@@ -330,7 +432,7 @@ class TestModeration:
         # An admin: the flag says yes, and hiding succeeds.
         admin = register(client, "admin@ministerio.gob", "Admin")
         promote(app, "admin@ministerio.gob", Role.ADMIN)
-        as_admin = client.get(f"{FORUM}/ia-basica/threads", headers=auth(admin)).json()
+        as_admin = client.get(forum_threads("ia-basica"), headers=auth(admin)).json()
         assert as_admin[0]["can_moderate"] is True
         allowed = client.post(
             f"{FORUM}/threads/{thread['id']}/hide",
@@ -341,7 +443,7 @@ class TestModeration:
 
     def test_the_flag_travels_on_the_thread_detail_too(self, client: TestClient, app) -> None:  # type: ignore[no-untyped-def]
         token = enrolled(client)
-        thread = client.post(f"{FORUM}/ia-basica/threads", json=THREAD, headers=auth(token)).json()
+        thread = client.post(forum_threads("ia-basica"), json=THREAD, headers=auth(token)).json()
 
         detail = client.get(f"{FORUM}/ia-basica/threads/{thread['id']}", headers=auth(token)).json()
         assert detail["can_moderate"] is False

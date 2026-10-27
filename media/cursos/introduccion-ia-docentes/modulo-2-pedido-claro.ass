@@ -1,0 +1,25 @@
+[Script Info]
+Title: ILIA · Un pedido con contexto
+ScriptType: v4.00+
+PlayResX: 1280
+PlayResY: 720
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,21,&H001B1B17,&H000000FF,&H20FBFAF7,&H20FBFAF7,1,0,3,1,0,2,150,150,60,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:04.70,Default,,0,0,0,,Profe, probemos con algo que ya tienes que preparar para mañana.
+Dialogue: 0,0:00:05.00,0:00:12.22,Default,,0,0,0,,Si escribes «hazme una lectura con preguntas», el modelo no sabe qué grado tienes ni qué texto leyeron.
+Dialogue: 0,0:00:12.52,0:00:18.57,Default,,0,0,0,,Puede completar esos espacios con una idea que suena bien, pero que no corresponde a tu curso.
+Dialogue: 0,0:00:18.87,0:00:21.49,Default,,0,0,0,,Dile lo que ya trabajaron.
+Dialogue: 0,0:00:21.79,0:00:28.20,Default,,0,0,0,,Por ejemplo: el grupo leyó un cuento y ahora necesita explicar una idea a partir del texto.
+Dialogue: 0,0:00:28.50,0:00:34.93,Default,,0,0,0,,Después concreta la tarea: prepara un párrafo breve y cinco preguntas que se respondan en él.
+Dialogue: 0,0:00:35.23,0:00:42.62,Default,,0,0,0,,Pide también el formato: deja la clave al final, para que puedas mostrar la actividad sin adelantar las respuestas.
+Dialogue: 0,0:00:42.92,0:00:47.21,Default,,0,0,0,,Si el primer borrador sale largo, no lo empieces de nuevo.
+Dialogue: 0,0:00:47.51,0:00:52.99,Default,,0,0,0,,Pide un cambio concreto: acorta los enunciados para leerlos en voz alta.
+Dialogue: 0,0:00:53.29,0:00:56.38,Default,,0,0,0,,Cada dato viene de tu planificación.
+Dialogue: 0,0:00:56.68,0:01:01.72,Default,,0,0,0,,No es una fórmula; es contexto que el modelo no tiene por sí solo.
+Dialogue: 0,0:01:02.02,0:01:05.45,Default,,0,0,0,,Lee el resultado y compáralo con tu clase.
+Dialogue: 0,0:01:05.75,0:01:08.97,Default,,0,0,0,,Tú decides si ya sirve para el lunes.

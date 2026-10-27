@@ -1,0 +1,16 @@
+:where(a, button, input, textarea, select, [role='button'], [role='link'], [role='tab'], [tabindex]):focus-visible {
+  outline: 3px solid #0e58d6 !important;
+  outline-offset: 3px !important;
+}
+
+:where(a, button, input, textarea, select, [role='button'], [role='link'], [role='tab'], [tabindex]):not(:focus-visible)[aria-label='Saltar al contenido principal'] {
+  left: -10000px !important;
+}
+
+:where(a, button, input, textarea, select, [role='button'], [role='link'], [role='tab'], [tabindex])[aria-label='Saltar al contenido principal']:focus-visible {
+  left: 12px !important;
+}
+
+[nativeid='main-content'] {
+  outline: none;
+}

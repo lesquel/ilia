@@ -42,7 +42,7 @@ function ErrorFallback({ onRetry }: { onRetry: () => void }) {
   // fallback.
   return (
     <View style={styles.screen}>
-      <Text style={styles.title}>Algo se rompió de nuestro lado</Text>
+      <Text style={styles.title} accessibilityRole="header">Algo se rompió de nuestro lado</Text>
       <Text style={styles.body}>
         No es algo que hayas hecho mal. Prueba de nuevo; si vuelve a pasar, escríbenos y cuéntanos
         qué estabas haciendo.
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 6.8,
   },
-  buttonLabel: { color: '#f2f2f3', fontSize: 16, fontWeight: '600' },
+  buttonLabel: { color: '#ffffff', fontSize: 16, fontWeight: '600' },
   secondary: { paddingVertical: 10.2, paddingHorizontal: 20.4, minHeight: 44, justifyContent: 'center' },
   secondaryLabel: { color: '#4a4d50', fontSize: 15, fontWeight: '600' },
 });
