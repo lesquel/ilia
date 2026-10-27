@@ -27,10 +27,15 @@ export function scenesFromLesson(blocks: LessonBlock[]): LessonScene[] {
   });
 }
 
+/** A question beat stays put until the teacher picks the option the lesson marks. */
+export function sceneWaitsForBestAnswer(scene: LessonScene): boolean {
+  return scene.type === 'narrate' && scene.block.type === 'question';
+}
+
 export function sceneKindLabel(scene: LessonScene): string {
   switch (scene.type) {
     case 'narrate':
-      return 'Idea';
+      return scene.block.type === 'question' ? 'Piénsalo' : 'Idea';
     case 'lab':
       return 'El pedido';
     case 'compare':

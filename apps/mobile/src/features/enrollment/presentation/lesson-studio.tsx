@@ -18,6 +18,7 @@ import { examplePlainText, parseLessonBody } from '@/features/enrollment/domain/
 import {
   ideaScenePlainText,
   sceneKindLabel,
+  sceneWaitsForBestAnswer,
   scenesFromLesson,
   shouldShowIdeaArt,
   type LessonScene,
@@ -62,6 +63,7 @@ export function LessonStudio({
   const [sceneIndex, setSceneIndex] = useState(0);
   const [labPhaseByScene, setLabPhaseByScene] = useState<Record<number, LabPhase>>({});
   const [readAllAtOnce, setReadAllAtOnce] = useState(false);
+  const [bestAnswerChosen, setBestAnswerChosen] = useState(false);
 
   const currentScene = scenes[sceneIndex];
   const labPhase = labPhaseByScene[sceneIndex] ?? 'idle';
@@ -101,11 +103,13 @@ export function LessonStudio({
 
   const goToPrevious = () => {
     if (sceneIndex === 0) return;
+    setBestAnswerChosen(false);
     setSceneIndex((current) => current - 1);
   };
 
   const goToNext = () => {
     if (isLastScene) return;
+    setBestAnswerChosen(false);
     setSceneIndex((current) => current + 1);
   };
 
@@ -113,7 +117,15 @@ export function LessonStudio({
     setLabPhaseByScene((current) => ({ ...current, [sceneIndex]: phase }));
   };
 
-  const primary = primaryAction(currentScene, labPhase, isLastScene, isCompleted);
+  const questionStillOpen =
+    sceneWaitsForBestAnswer(currentScene) && !bestAnswerChosen;
+  const primary = primaryAction(
+    currentScene,
+    labPhase,
+    isLastScene,
+    isCompleted,
+    questionStillOpen,
+  );
 
   return (
     <View style={styles.deck}>
@@ -147,10 +159,12 @@ export function LessonStudio({
         >
           <FadingStage visible stageKey={lineKey}>
             <SceneStage
+              key={sceneIndex}
               scene={currentScene}
               labPhase={labPhase}
               isWide={isWide}
               sceneIndex={sceneIndex}
+              onQuestionChoice={setBestAnswerChosen}
             />
           </FadingStage>
         </ScrollView>
@@ -361,6 +375,7 @@ function primaryAction(
   labPhase: LabPhase,
   isLastScene: boolean,
   isCompleted: boolean,
+  questionStillOpen: boolean,
 ): {
   kind: 'write' | 'send' | 'next' | 'complete';
   label: string;
@@ -381,10 +396,10 @@ function primaryAction(
       kind: 'complete',
       label: isCompleted ? 'Ya la terminaste' : 'Listo, la termino',
       icon: Check,
-      disabled: isCompleted,
+      disabled: isCompleted || questionStillOpen,
     };
   }
-  return { kind: 'next', label: 'Continuar', icon: ChevronRight, disabled: false };
+  return { kind: 'next', label: 'Continuar', icon: ChevronRight, disabled: questionStillOpen };
 }
 
 function SceneStage({
@@ -392,11 +407,13 @@ function SceneStage({
   labPhase,
   isWide,
   sceneIndex,
+  onQuestionChoice,
 }: {
   scene: LessonScene;
   labPhase: LabPhase;
   isWide: boolean;
   sceneIndex: number;
+  onQuestionChoice: (chosenOptionIsBest: boolean) => void;
 }) {
   if (scene.type === 'narrate') {
     const showIdeaArt = shouldShowIdeaArt(scene);
@@ -406,6 +423,7 @@ function SceneStage({
         isLead
         isWide={isWide}
         size="slide"
+        onQuestionChoice={onQuestionChoice}
       />
     );
 

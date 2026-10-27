@@ -1,7 +1,12 @@
+import { useFocusEffect } from 'expo-router';
 import { useVideoPlayer, VideoView } from 'expo-video';
+import { useCallback, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
+
+/** Same measure as the lesson column, so the picture sits in the middle. */
+const CENTERED_PLAYER_MAX_WIDTH = 760;
 
 /**
  * The lesson's media.
@@ -22,11 +27,35 @@ export function LessonPlayer({ url }: { url: string }) {
     instance.loop = false;
   });
 
+  const pausePlayback = useCallback(() => {
+    player.pause();
+  }, [player]);
+
+  // The stack keeps this screen mounted after «← Curso». Without this the
+  // picture is gone and the audio keeps going.
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        pausePlayback();
+      };
+    }, [pausePlayback]),
+  );
+
+  useEffect(() => {
+    return () => {
+      pausePlayback();
+    };
+  }, [pausePlayback]);
+
   return (
     <View
       style={[
         styles.frame,
-        { borderColor: theme.colors.divider, borderRadius: theme.radius.md },
+        {
+          borderColor: theme.colors.divider,
+          borderRadius: theme.radius.md,
+          backgroundColor: theme.colors.neutral[900],
+        },
       ]}
     >
       <VideoView
@@ -37,6 +66,7 @@ export function LessonPlayer({ url }: { url: string }) {
         nativeControls
         fullscreenOptions={{ enable: true }}
         contentFit="contain"
+        playsInline
       />
     </View>
   );
@@ -66,9 +96,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     overflow: 'hidden',
     // 16:9, so the frame reserves its space before the video loads and the
-    // text below does not jump once it does.
+    // text below does not jump once it does. Capped and centered: a full
+    // window width turns a short clip into the whole screen.
     aspectRatio: 16 / 9,
     width: '100%',
+    maxWidth: CENTERED_PLAYER_MAX_WIDTH,
+    alignSelf: 'center',
     marginVertical: 6.8,
   },
   video: { width: '100%', height: '100%' },

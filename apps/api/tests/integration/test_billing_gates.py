@@ -32,7 +32,7 @@ TABLES = (
     "learning.certificate, community.forum_post, community.forum_thread, "
     "assessment.evaluation_score, assessment.evaluation, assessment.model_output, "
     "billing.llm_usage, assessment.submission, assessment.activity, assessment.rubric_dimension, "
-    "assessment.rubric, catalog.lesson, catalog.course_module, catalog.course, auth.app_user, "
+    "assessment.rubric, catalog.lesson, catalog.course_module, catalog.course, identity.app_user, "
     "learning.cohort, billing.plan"
 )
 
@@ -104,7 +104,7 @@ def auth(token: str) -> dict[str, str]:
 
 
 def promote(email: str, role: Role) -> None:
-    sql([f"UPDATE auth.app_user SET role = '{role.value}' WHERE email = '{email}'"])
+    sql([f"UPDATE identity.app_user SET role = '{role.value}' WHERE email = '{email}'"])
 
 
 def subscribe(email: str, plan_code: str) -> None:
@@ -112,7 +112,7 @@ def subscribe(email: str, plan_code: str) -> None:
         [
             "INSERT INTO billing.subscription (id, user_id, plan_code, started_at) "
             f"SELECT gen_random_uuid(), id, '{plan_code}', now() "
-            f"FROM auth.app_user WHERE email = '{email}'"
+            f"FROM identity.app_user WHERE email = '{email}'"
         ]
     )
 

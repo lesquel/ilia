@@ -42,7 +42,7 @@ async def _reset() -> None:
     try:
         async with db.engine.begin() as connection:
             await connection.run_sync(Base.metadata.create_all)
-            await connection.execute(text("TRUNCATE audit.audit_log, auth.app_user CASCADE"))
+            await connection.execute(text("TRUNCATE audit.audit_log, identity.app_user CASCADE"))
     finally:
         await db.dispose()
 
@@ -53,7 +53,7 @@ async def _add_user(email: str, role: str = "student") -> None:
         async with db.engine.begin() as connection:
             await connection.execute(
                 text("""
-                    INSERT INTO auth.app_user (id, email, full_name, password_hash, role, is_active)
+                    INSERT INTO identity.app_user (id, email, full_name, password_hash, role, is_active)
                     VALUES (:id, :email, 'Persona', 'argon2::fake', :role, true)
                 """),
                 {"id": uuid4(), "email": email, "role": role},
@@ -69,7 +69,7 @@ async def _user(email: str) -> dict[str, str] | None:
             row = (
                 await connection.execute(
                     text(
-                        "SELECT role, full_name, password_hash FROM auth.app_user "
+                        "SELECT role, full_name, password_hash FROM identity.app_user "
                         "WHERE email = :email"
                     ),
                     {"email": email},

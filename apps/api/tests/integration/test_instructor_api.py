@@ -36,7 +36,7 @@ TABLES = (
     "community.forum_thread, assessment.evaluation_score, assessment.evaluation, "
     "assessment.model_output, billing.llm_usage, assessment.submission, assessment.activity, "
     "assessment.rubric_dimension, assessment.rubric, catalog.lesson, catalog.course_module, "
-    "catalog.course, auth.app_user, learning.cohort, billing.subscription, billing.plan, "
+    "catalog.course, identity.app_user, learning.cohort, billing.subscription, billing.plan, "
     "audit.audit_log"
 )
 
@@ -116,7 +116,7 @@ def promote(email: str, role: Role) -> None:
     There is no self-service path to instructor or admin, which is the point
     (PRD A-02): the role is granted, never claimed.
     """
-    sql([f"UPDATE auth.app_user SET role = '{role.value}' WHERE email = '{email}'"])
+    sql([f"UPDATE identity.app_user SET role = '{role.value}' WHERE email = '{email}'"])
 
 
 @pytest.fixture
@@ -436,7 +436,7 @@ class TestRoster:
                 SELECT '{uuid4()}', enrollment.id, enrollment.course_id, '{lesson_id}', 42,
                        now(), NULL
                 FROM learning.enrollment AS enrollment
-                JOIN auth.app_user AS learner ON learner.id = enrollment.user_id
+                JOIN identity.app_user AS learner ON learner.id = enrollment.user_id
                 WHERE learner.email = 'ana@colegio.edu'
                 """
             ]
@@ -509,7 +509,7 @@ class TestInsights:
                 INSERT INTO assessment.submission
                     (id, activity_id, user_id, prompt, attempt, status, recoveries)
                 SELECT '{submission_id}', '{activity_id}', id, 'x', 1, 'scored', 0
-                FROM auth.app_user WHERE email = '{email}'
+                FROM identity.app_user WHERE email = '{email}'
                 """,
                 f"""
                 INSERT INTO assessment.evaluation

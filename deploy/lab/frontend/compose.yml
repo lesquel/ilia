@@ -1,0 +1,22 @@
+# Laptop 2: web client (static export served by nginx). Run from this directory:
+#   docker compose --env-file ../lab.env up -d --build
+services:
+  web:
+    build:
+      context: ../../../apps/mobile
+      args:
+        # Baked into the bundle at build time. The app appends `/api/v1`
+        # itself (apps/mobile/src/core/config/env.ts), so this is the LB
+        # origin WITHOUT `/api`. Changing LB_IP means rebuilding this image.
+        EXPO_PUBLIC_API_URL: http://${LB_IP:?set LB_IP in lab.env}
+    image: ilia-web:lab
+    ports:
+      - '8080:80'
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+      - /var/run
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped

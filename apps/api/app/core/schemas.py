@@ -4,7 +4,7 @@ from enum import StrEnum
 
 
 class DbSchema(StrEnum):
-    AUTH = "auth"
+    AUTH = "identity"
     CATALOG = "catalog"
     LEARNING = "learning"
     ASSESSMENT = "assessment"

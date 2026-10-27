@@ -72,7 +72,7 @@ class PasswordResetTokenModel(Base):
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     user_id: Mapped[UUID] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("auth.app_user.id", ondelete="CASCADE"),
+        ForeignKey("identity.app_user.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )

@@ -56,7 +56,7 @@ export function LessonScreen() {
 
       {lesson.mediaUrl ? (
         <View style={styles.media}>
-          <LessonPlayer url={lesson.mediaUrl} />
+          <LessonPlayer key={lesson.lessonId} url={lesson.mediaUrl} />
         </View>
       ) : lesson.resourceRef ? (
         <LessonPlayerUnavailable />

@@ -45,10 +45,19 @@ class Database:
         if settings.database_url is None:
             raise ValueError("ILIA_DATABASE_URL is required to build a Database")
 
+        connect_args: dict[str, object] = {}
+        if settings.database_url.startswith("postgresql+asyncpg"):
+            # The Supabase transaction pooler is PgBouncer. asyncpg caches
+            # prepared statements unless this is zero, and PgBouncer then
+            # rejects the next query on that connection. A direct Postgres
+            # still answers with the cache turned off.
+            connect_args["statement_cache_size"] = 0
+
         self._engine: AsyncEngine = create_async_engine(
             settings.database_url,
             echo=settings.debug and not settings.is_production,
             pool_pre_ping=True,
+            connect_args=connect_args,
         )
         self._session_factory = async_sessionmaker(
             self._engine,

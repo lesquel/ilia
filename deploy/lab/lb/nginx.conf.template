@@ -1,0 +1,79 @@
+# Lab load balancer. The official nginx image renders this file with envsubst
+# at start (only variables present in the container environment are replaced,
+# so nginx's own $host, $remote_addr, ... are left alone).
+#
+# The web client builds URLs as `<EXPO_PUBLIC_API_URL>/api/v1/...` and the API
+# itself mounts its routes under `/api/v1`, so the proxy must NOT strip the
+# `/api/` prefix: `proxy_pass` has no URI part on purpose.
+
+upstream ilia_api {
+    # Round robin between the two replicas on the backend laptop. A replica is
+    # skipped for fail_timeout after max_fails errors, so one dead container
+    # does not turn into visible errors for every second request.
+    server ${BACKEND_IP}:8001 max_fails=2 fail_timeout=10s;
+    server ${BACKEND_IP}:8002 max_fails=2 fail_timeout=10s;
+}
+
+upstream ilia_web {
+    server ${FRONTEND_IP}:8080;
+}
+
+server {
+    listen 80;
+    server_name _;
+
+    client_max_body_size 4m;
+
+    # Which replica answered. Lets the group prove round robin with curl -i.
+    add_header X-Upstream-Addr $upstream_addr always;
+
+    # Answered by nginx itself: tells "the LB is up" apart from "the API is up".
+    location = /lb-health {
+        default_type text/plain;
+        return 200 "lb ok\n";
+    }
+
+    location /api/ {
+        proxy_pass http://ilia_api;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        # Retrying only on connection-level failures and 502/503/504. Not on
+        # 500: a request that reached the app may already have side effects.
+        proxy_next_upstream error timeout http_502 http_503 http_504;
+        proxy_next_upstream_tries 2;
+        proxy_connect_timeout 3s;
+        proxy_pass_header Set-Cookie;
+    }
+
+    # Unprefixed on purpose: the API answers /health and /health/ready there.
+    location /health {
+        proxy_pass http://ilia_api;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_next_upstream error timeout http_502 http_503 http_504;
+        proxy_connect_timeout 3s;
+    }
+
+    location /docs {
+        proxy_pass http://ilia_api;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+    }
+
+    location /openapi.json {
+        proxy_pass http://ilia_api;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+    }
+
+    location / {
+        proxy_pass http://ilia_web;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}

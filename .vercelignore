@@ -1,0 +1,14 @@
+**/.venv
+**/node_modules
+**/.env
+**/.env.*
+.env*
+**/__pycache__
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+apps/api/tests
+apps/mobile/dist
+.git
+**/Dockerfile
+**/docker-compose.yml

@@ -41,7 +41,7 @@ TABLES = (
     "community.forum_thread, assessment.evaluation_score, assessment.evaluation, "
     "assessment.model_output, billing.llm_usage, assessment.submission, assessment.activity, "
     "assessment.rubric_dimension, assessment.rubric, catalog.lesson, catalog.course_module, "
-    "catalog.course, auth.app_user, learning.cohort, billing.subscription, billing.plan"
+    "catalog.course, identity.app_user, learning.cohort, billing.subscription, billing.plan"
 )
 
 
@@ -118,7 +118,7 @@ async def _owner_exists() -> bool:
     try:
         async with db.session() as session:
             row = await session.execute(
-                text("SELECT 1 FROM auth.app_user WHERE email = :email"),
+                text("SELECT 1 FROM identity.app_user WHERE email = :email"),
                 {"email": CATALOG_OWNER_EMAIL},
             )
             return row.first() is not None

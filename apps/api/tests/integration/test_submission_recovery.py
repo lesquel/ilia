@@ -31,7 +31,7 @@ pytestmark = pytest.mark.skipif(
 NOW = datetime(2026, 9, 9, 12, 0, tzinfo=UTC)
 TABLES = (
     "assessment.submission, assessment.activity, assessment.rubric_dimension, assessment.rubric, "
-    "catalog.lesson, catalog.course_module, catalog.course, auth.app_user, learning.cohort"
+    "catalog.lesson, catalog.course_module, catalog.course, identity.app_user, learning.cohort"
 )
 
 
@@ -62,7 +62,7 @@ async def seed(database: Database, *, status: str, age_seconds: int, recoveries:
     async with database.engine.begin() as connection:
         await connection.execute(
             text("""
-                INSERT INTO auth.app_user (id, email, full_name, password_hash, role, is_active)
+                INSERT INTO identity.app_user (id, email, full_name, password_hash, role, is_active)
                 VALUES (:uid, :email, 'Docente', 'argon2::fake', 'student', true)
             """),
             {"uid": user_id, "email": f"{user_id}@colegio.edu"},
@@ -189,7 +189,7 @@ class TestAttemptFairness:
         async with database.engine.begin() as connection:
             await connection.execute(
                 text("""
-                    INSERT INTO auth.app_user (id, email, full_name, password_hash, role, is_active)
+                    INSERT INTO identity.app_user (id, email, full_name, password_hash, role, is_active)
                     VALUES (:uid, :email, 'Docente', 'argon2::fake', 'student', true)
                 """),
                 {"uid": user_id, "email": f"{user_id}@colegio.edu"},

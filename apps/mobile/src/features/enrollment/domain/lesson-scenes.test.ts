@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { parseLessonBody } from './lesson-body';
 import {
   sceneKindLabel,
+  sceneWaitsForBestAnswer,
   scenesFromLesson,
   shouldShowIdeaArt,
 } from './lesson-scenes';
@@ -24,6 +25,22 @@ describe('scenesFromLesson', () => {
     if (lab?.type !== 'lab') throw new Error('expected lab');
     expect(lab.prompt.title).toContain('hora');
     expect(lab.result.title.toLocaleLowerCase('es')).toContain('esperamos');
+  });
+});
+
+describe('sceneWaitsForBestAnswer', () => {
+  it('holds the lesson on a question and lets every other beat move on', () => {
+    const scenes = scenesFromLesson(
+      parseLessonBody(
+        'Una idea.\n\n' +
+          ':::pregunta ¿Qué sabe Gemini de tu curso?\n' +
+          '- [ ] Lo suficiente.\n  No.\n' +
+          '- [x] Casi nada.\n  Se lo escribes tú.\n' +
+          ':::\n',
+      ),
+    );
+
+    expect(scenes.map(sceneWaitsForBestAnswer)).toEqual([false, true]);
   });
 });
 

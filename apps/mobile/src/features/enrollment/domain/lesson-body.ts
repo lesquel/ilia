@@ -25,8 +25,15 @@ export type WorkedExample = {
   table: LessonTable | null;
 };
 
+export type QuestionOption = {
+  inlines: LessonInline[];
+  isBest: boolean;
+  feedback: LessonInline[];
+};
+
 export type LessonBlock =
   | { type: 'paragraph'; inlines: LessonInline[] }
+  | { type: 'question'; stem: LessonInline[]; options: QuestionOption[] }
   | { type: 'list'; ordered: boolean; heading: string | null; items: LessonInline[][] }
   | {
       type: 'contrast';
@@ -41,8 +48,15 @@ export type LessonBlock =
   | { type: 'examplePair'; weak: WorkedExample; strong: WorkedExample }
   | { type: 'promptResult'; prompt: WorkedExample; result: WorkedExample };
 
-const EXAMPLE_FENCE =
-  /:::ejemplo(?:[ \t]+([^\n]+))?[ \t]*\n([\s\S]*?)\n[ \t]*:::/g;
+const FENCE =
+  /:::(ejemplo|pregunta)(?:[ \t]+([^\n]+))?[ \t]*\n([\s\S]*?)\n[ \t]*:::/g;
+
+const OPTION_LINE = /^-\s*\[([ xX])\]\s+(.+)$/;
+
+type Segment =
+  | { kind: 'prose'; body: string }
+  | { kind: 'example'; title: string; body: string }
+  | { kind: 'question'; stem: string; body: string };
 
 export function examplePlainText(example: WorkedExample): string {
   const prose = example.inlines.map((part) => part.text).join('').trim();
@@ -75,6 +89,11 @@ export function parseLessonBody(body: string): LessonBlock[] {
       continue;
     }
 
+    if (segment.kind === 'question') {
+      blocks.push(parseQuestion(segment.stem, segment.body));
+      continue;
+    }
+
     const chunks = segment.body
       .split(/\n{2,}/)
       .map((chunk) => chunk.trim())
@@ -85,26 +104,27 @@ export function parseLessonBody(body: string): LessonBlock[] {
   return mergeAdjacentBlocks(blocks);
 }
 
-function splitProseAndExamples(
-  body: string,
-): ({ kind: 'prose'; body: string } | { kind: 'example'; title: string; body: string })[] {
-  const segments: (
-    { kind: 'prose'; body: string } | { kind: 'example'; title: string; body: string }
-  )[] = [];
+function splitProseAndExamples(body: string): Segment[] {
+  const segments: Segment[] = [];
   let cursor = 0;
-  EXAMPLE_FENCE.lastIndex = 0;
+  FENCE.lastIndex = 0;
 
-  for (const match of body.matchAll(EXAMPLE_FENCE)) {
+  for (const match of body.matchAll(FENCE)) {
     const matchStart = match.index ?? 0;
     const proseBefore = body.slice(cursor, matchStart).trim();
     if (proseBefore.length > 0) {
       segments.push({ kind: 'prose', body: proseBefore });
     }
-    segments.push({
-      kind: 'example',
-      title: (match[1] ?? 'Ejemplo').trim(),
-      body: match[2]?.trim() ?? '',
-    });
+    const fenceBody = match[3]?.trim() ?? '';
+    if (match[1] === 'pregunta') {
+      segments.push({ kind: 'question', stem: (match[2] ?? '').trim(), body: fenceBody });
+    } else {
+      segments.push({
+        kind: 'example',
+        title: (match[2] ?? 'Ejemplo').trim(),
+        body: fenceBody,
+      });
+    }
     cursor = matchStart + match[0].length;
   }
 
@@ -114,6 +134,48 @@ function splitProseAndExamples(
   }
 
   return segments;
+}
+
+/**
+ * A question the teacher answers in the scroll. It gives a reason, not a
+ * grade: the lab is what certifies.
+ */
+function parseQuestion(stem: string, body: string): LessonBlock {
+  const stemLines = stem.length > 0 ? [stem] : [];
+  const options: { text: string; isBest: boolean; feedbackLines: string[] }[] = [];
+
+  for (const rawLine of body.split('\n')) {
+    const line = rawLine.trim();
+    if (line.length === 0) continue;
+
+    const optionMatch = OPTION_LINE.exec(line);
+    if (optionMatch) {
+      options.push({
+        text: optionMatch[2] ?? '',
+        isBest: optionMatch[1]?.toLowerCase() === 'x',
+        feedbackLines: [],
+      });
+    } else if (options.length === 0) {
+      stemLines.push(line);
+    } else {
+      options[options.length - 1]?.feedbackLines.push(line);
+    }
+  }
+
+  const stemText = stemLines.join(' ');
+  if (options.length < 2) {
+    return { type: 'paragraph', inlines: parseInline(stemText) };
+  }
+
+  return {
+    type: 'question',
+    stem: parseInline(stemText),
+    options: options.map((option) => ({
+      inlines: parseInline(option.text),
+      isBest: option.isBest,
+      feedback: parseInline(option.feedbackLines.join(' ')),
+    })),
+  };
 }
 
 function parseWorkedExample(title: string, body: string): WorkedExample {

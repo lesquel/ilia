@@ -67,3 +67,8 @@ apps/api/media/
 # One-off audit snapshots and temporary document-generation scripts.
 /.audit-mobile-*/
 /tmp/
+.vercel
+.env*
+
+# Static web export baked for the Vercel deploy. Rebuilt with expo export.
+apps/api/web-dist/

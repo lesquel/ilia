@@ -12,6 +12,7 @@ from pathlib import Path
 import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.core.config import Settings, get_settings
@@ -158,7 +159,32 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(admin_router, prefix=settings.api_prefix)
     app.include_router(billing_router, prefix=settings.api_prefix)
 
+    _mount_exported_web(app)
+
     return app
+
+
+def _mount_exported_web(app: FastAPI) -> None:
+    """Serve the Expo web export from the API host when the build produced one.
+
+    The session cookie is host-only, so the pages and `/api/v1` have to be the
+    same origin. The directory is absent in local development and in tests.
+    """
+    export_dir = Path(__file__).resolve().parents[1] / "web-dist"
+    index_file = export_dir / "index.html"
+    if not index_file.is_file():
+        return
+
+    export_root = export_dir.resolve()
+
+    @app.api_route("/", methods=["GET", "HEAD"], include_in_schema=False)
+    @app.api_route("/{requested_path:path}", methods=["GET", "HEAD"], include_in_schema=False)
+    async def exported_web(requested_path: str = "") -> FileResponse:
+        candidate = (export_root / requested_path).resolve()
+        inside_export = candidate == export_root or export_root in candidate.parents
+        if candidate.is_file() and inside_export:
+            return FileResponse(candidate)
+        return FileResponse(index_file)
 
 
 app = create_app()
