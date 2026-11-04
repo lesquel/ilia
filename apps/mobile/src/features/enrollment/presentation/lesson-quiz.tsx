@@ -64,12 +64,14 @@ export function LessonQuiz({
   isCompleted = false,
   isCompletePending = false,
   completeFailed = false,
+  isModuleComplete = false,
 }: {
   body: string;
   onMarkComplete?: () => void;
   isCompleted?: boolean;
   isCompletePending?: boolean;
   completeFailed?: boolean;
+  isModuleComplete?: boolean;
 }) {
   const theme = useTheme();
   const { width } = useWindowDimensions();
@@ -77,6 +79,7 @@ export function LessonQuiz({
   const quiz = useMemo(() => parseQuiz(body), [body]);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [retryHints, setRetryHints] = useState<Record<number, string>>({});
 
   if (!quiz) return <Text style={styles.error}>No se pudo abrir esta comprobación.</Text>;
 
@@ -85,10 +88,21 @@ export function LessonQuiz({
     0,
   );
   const passed = submitted && (score / quiz.questions.length) * 100 >= quiz.passPercent;
-  const mascotReaction = submitted ? quizMascotReaction(passed) : null;
+  const mascotReaction = submitted
+    ? passed && isCompleted && isModuleComplete
+      ? { mood: 'proud' as const, motion: 'proud' as const }
+      : quizMascotReaction(passed)
+    : null;
   const canSubmit = Object.keys(answers).length === quiz.questions.length;
 
-  const reset = () => {
+  const retry = () => {
+    setRetryHints((current) => {
+      const next = { ...current };
+      quiz.questions.forEach((question, index) => {
+        if (answers[index] !== question.answer) next[index] = question.explanation;
+      });
+      return next;
+    });
     setAnswers({});
     setSubmitted(false);
   };
@@ -148,6 +162,10 @@ export function LessonQuiz({
                   {selected === question.answer ? 'Correcto. ' : 'Revisa esta idea. '}{question.explanation}
                 </Text>
               </FeedbackReveal>
+            ) : retryHints[questionIndex] ? (
+              <Text style={[styles.hint, { color: theme.colors.accentAlt }]}>
+                Pista para volver a intentarlo: {retryHints[questionIndex]}
+              </Text>
             ) : null}
           </View>
         );
@@ -178,7 +196,7 @@ export function LessonQuiz({
                   </Pressable>
                 )
               ) : (
-                <Pressable accessibilityRole="button" onPress={reset} style={({ pressed }) => [styles.retryButton, { borderColor: theme.colors.divider, borderRadius: theme.radius.md, opacity: pressed ? 0.7 : 1 }]}>
+                <Pressable accessibilityRole="button" onPress={retry} style={({ pressed }) => [styles.retryButton, { borderColor: theme.colors.divider, borderRadius: theme.radius.md, opacity: pressed ? 0.7 : 1 }]}>
                   <Icon glyph={RotateCcw} size={17} color={theme.colors.text} />
                   <Text style={[styles.retryLabel, { color: theme.colors.text }]}>Intentarlo otra vez</Text>
                 </Pressable>
@@ -271,6 +289,7 @@ const styles = StyleSheet.create({
   radioDot: { width: 10, height: 10, borderRadius: 99 },
   optionText: { flex: 1, fontSize: 15, lineHeight: 21 },
   feedback: { fontSize: 14, lineHeight: 21, paddingTop: 4 },
+  hint: { fontSize: 14, lineHeight: 21, paddingTop: 4, fontWeight: '600' },
   resultStage: { position: 'relative', width: '100%', paddingBottom: 22, overflow: 'visible' },
   result: { width: '100%', padding: 20, gap: 9 },
   resultWide: { paddingRight: 112, paddingBottom: 52 },

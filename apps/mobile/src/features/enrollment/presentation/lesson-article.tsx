@@ -1,4 +1,5 @@
 import {
+  ArrowRight,
   Check,
   Lightbulb,
   MessageSquare,
@@ -496,6 +497,7 @@ export function ExampleCard({
           </Text>
         </View>
       </View>
+      <ExampleVisualFlow kind={example.kind} isResult={isResult} />
       <View style={styles.exampleBody}>
         {example.inlines.length > 0 ? (
           <Text
@@ -521,6 +523,32 @@ export function ExampleCard({
             <ExampleTable table={example.table} />
           )
         ) : null}
+      </View>
+    </View>
+  );
+}
+
+function ExampleVisualFlow({ kind, isResult }: { kind: ExampleKind; isResult: boolean }) {
+  const theme = useTheme();
+  const labels: Record<ExampleKind, [string, string]> = {
+    prompt: ['Tu pedido', 'Primer borrador'],
+    output: ['La propuesta', 'Tu revisión'],
+    table: ['Consigna', 'Respuesta comprobable'],
+    artifact: ['Un ejemplo', 'Una decisión de aula'],
+  };
+  const [first, second] = labels[kind];
+  const iconColor = isResult ? theme.colors.accent : theme.colors.neutral[600];
+
+  return (
+    <View style={styles.exampleFlow} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      <View style={[styles.exampleFlowStep, { backgroundColor: theme.colors.neutral[100] }]}>
+        <Icon glyph={EXAMPLE_GLYPH[kind]} size={17} color={iconColor} />
+        <Text style={[styles.exampleFlowLabel, { color: theme.colors.neutral[700] }]} numberOfLines={1}>{first}</Text>
+      </View>
+      <Icon glyph={ArrowRight} size={16} color={theme.colors.neutral[500]} />
+      <View style={[styles.exampleFlowStep, { backgroundColor: theme.colors.accentRamp[100] }]}>
+        <Icon glyph={isResult ? Check : Sparkles} size={17} color={theme.colors.accent} />
+        <Text style={[styles.exampleFlowLabel, { color: theme.colors.neutral[700] }]} numberOfLines={1}>{second}</Text>
       </View>
     </View>
   );
@@ -1027,6 +1055,25 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     lineHeight: 22,
   },
+  exampleFlow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  exampleFlowStep: {
+    flex: 1,
+    minHeight: 40,
+    paddingHorizontal: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 7,
+    borderRadius: 8,
+  },
+  exampleFlowLabel: { flexShrink: 1, fontSize: 12, fontWeight: '600' },
   exampleBody: {
     paddingHorizontal: 16,
     paddingVertical: 14,

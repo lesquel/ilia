@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 import ffmpegPath from 'ffmpeg-static';
 import { spawnSync } from 'node:child_process';
-import { readFile, writeFile, rm, mkdir, rename } from 'node:fs/promises';
+import { copyFile, readFile, writeFile, rm, mkdir, rename } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -12,6 +12,7 @@ const mp4Path = path.join(root, 'ia-generativa-para-docentes.mp4');
 const mp3Path = path.join(root, 'narracion.mp3');
 const mp3TempPath = path.join(root, 'narracion-render.mp3');
 const vttPath = path.join(root, 'subtitulos.vtt');
+const videoCaptionsPath = path.join(root, 'ia-generativa-para-docentes.vtt');
 const assPath = path.join(root, 'subtitulos.ass');
 const tempDir = path.join(root, '.render');
 const boundaries = JSON.parse(await readFile(path.join(root, 'boundaries.json'), 'utf8'));
@@ -116,6 +117,8 @@ for (const [index, framePath] of frames.entries()) {
 }
 const audioIndex = frames.length;
 args.push('-i', audioPath);
+const subtitleIndex = frames.length + 1;
+args.push('-i', vttPath);
 const filters = frames.map((_, index) => `[${index}:v]settb=AVTB,setpts=PTS-STARTPTS,fps=30,scale=1280:720,setsar=1,format=yuv420p[v${index}]`);
 let current = 'v0';
 let offset = sceneDurations[0] - transition;
@@ -125,17 +128,18 @@ for (let index = 1; index < frames.length; index += 1) {
   current = next;
   if (index + 1 < frames.length) offset += sceneDurations[index] - transition;
 }
-const subtitleFilterPath = path.relative(process.cwd(), assPath).replaceAll('\\', '/');
-filters.push(`[${current}]subtitles=${subtitleFilterPath},format=yuv420p[outv]`);
+filters.push(`[${current}]format=yuv420p[outv]`);
 args.push(
-  '-filter_complex', filters.join(';'), '-map', '[outv]', '-map', `${audioIndex}:a:0`, '-shortest',
+  '-filter_complex', filters.join(';'), '-map', '[outv]', '-map', `${audioIndex}:a:0`, '-map', `${subtitleIndex}:s:0`, '-shortest',
   '-c:v', 'libx264', '-preset', 'fast', '-crf', '19',
-  '-c:a', 'aac', '-b:a', '160k', '-ar', '48000', '-af', 'loudnorm=I=-18:LRA=7:TP=-2', '-movflags', '+faststart',
+  '-c:a', 'aac', '-b:a', '160k', '-ar', '48000', '-af', 'loudnorm=I=-18:LRA=7:TP=-2',
+  '-c:s', 'mov_text', '-metadata:s:s:0', 'language=spa', '-disposition:s:0', '0', '-movflags', '+faststart',
   '-metadata', 'title=Un primer pedido útil para tu clase | ILIA',
   '-metadata', 'comment=Microlección para docentes · voz neural es-EC-Andrea', mp4Path,
 );
 const result = spawnSync(ffmpegPath, args, { stdio: 'inherit' });
 if (result.status !== 0) throw new Error('Falló el render final con FFmpeg.');
+await copyFile(vttPath, videoCaptionsPath);
 const voiceExport = spawnSync(ffmpegPath, [
   '-hide_banner', '-loglevel', 'error', '-y', '-i', audioPath,
   '-af', 'loudnorm=I=-18:LRA=7:TP=-2', '-c:a', 'libmp3lame', '-b:a', '160k', mp3TempPath,

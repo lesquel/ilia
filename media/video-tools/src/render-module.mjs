@@ -78,6 +78,8 @@ const args = ['-hide_banner', '-loglevel', 'error', '-y'];
 for (const [index, frame] of frames.entries()) args.push('-loop', '1', '-framerate', '30', '-t', (sceneDurations[index] + (index < frames.length - 1 ? transition : 0)).toFixed(4), '-i', frame);
 const audioIndex = frames.length;
 args.push('-i', audioPath);
+const subtitleIndex = frames.length + 1;
+args.push('-i', vttPath);
 const filters = frames.map((_, index) => `[${index}:v]settb=AVTB,setpts=PTS-STARTPTS,fps=30,scale=1280:720,setsar=1,format=yuv420p[v${index}]`);
 let current = 'v0';
 let offset = sceneDurations[0];
@@ -87,8 +89,8 @@ for (let index = 1; index < frames.length; index += 1) {
   current = next;
   if (index + 1 < frames.length) offset += sceneDurations[index];
 }
-filters.push(`[${current}]subtitles=${path.relative(process.cwd(), assPath).replaceAll('\\', '/')},format=yuv420p[outv]`);
-args.push('-filter_complex', filters.join(';'), '-map', '[outv]', '-map', `${audioIndex}:a:0`, '-shortest', '-c:v', 'libx264', '-preset', 'fast', '-crf', '19', '-c:a', 'aac', '-b:a', '160k', '-ar', '48000', '-af', 'loudnorm=I=-18:LRA=7:TP=-2', '-movflags', '+faststart', '-metadata', `title=${module.title} | ILIA`, '-metadata', 'comment=Microlección para docentes · voz neural es-EC-Andrea', mp4Path);
+filters.push(`[${current}]format=yuv420p[outv]`);
+args.push('-filter_complex', filters.join(';'), '-map', '[outv]', '-map', `${audioIndex}:a:0`, '-map', `${subtitleIndex}:s:0`, '-shortest', '-c:v', 'libx264', '-preset', 'fast', '-crf', '19', '-c:a', 'aac', '-b:a', '160k', '-ar', '48000', '-af', 'loudnorm=I=-18:LRA=7:TP=-2', '-c:s', 'mov_text', '-metadata:s:s:0', 'language=spa', '-disposition:s:0', '0', '-movflags', '+faststart', '-metadata', `title=${module.title} | ILIA`, '-metadata', 'comment=Microlección para docentes · voz neural es-EC-Andrea', mp4Path);
 const result = spawnSync(ffmpegPath, args, { stdio: 'inherit' });
 if (result.status !== 0) throw new Error('Falló el render final con FFmpeg.');
 await rm(tempDir, { recursive: true, force: true });

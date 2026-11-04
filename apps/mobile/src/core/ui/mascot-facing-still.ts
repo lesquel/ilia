@@ -9,7 +9,10 @@ export type MascotMood =
   | 'happy'
   | 'angry'
   | 'sad'
-  | 'celebrate';
+  | 'celebrate'
+  | 'curious'
+  | 'encourage'
+  | 'proud';
 
 export type MascotMotion =
   | 'none'
@@ -20,9 +23,23 @@ export type MascotMotion =
   | 'write'
   | 'think'
   | 'reveal'
-  | 'droop';
+  | 'droop'
+  | 'curious'
+  | 'point'
+  | 'proud';
 
-export type FacingStill = 'done' | 'think' | 'write' | 'show' | 'sad' | 'happy' | 'angry' | 'celebrate';
+export type FacingStill =
+  | 'done'
+  | 'think'
+  | 'write'
+  | 'show'
+  | 'sad'
+  | 'happy'
+  | 'angry'
+  | 'celebrate'
+  | 'curious'
+  | 'encourage'
+  | 'proud';
 
 /**
  * listen / talk / explain flip the wing to the other side. That reads as
@@ -34,6 +51,9 @@ export function facingStillForMood(mood: MascotMood): FacingStill {
   if (mood === 'happy') return 'happy';
   if (mood === 'angry') return 'angry';
   if (mood === 'celebrate') return 'celebrate';
+  if (mood === 'curious') return 'curious';
+  if (mood === 'encourage') return 'encourage';
+  if (mood === 'proud') return 'proud';
   if (mood === 'think' || mood === 'talk' || mood === 'explain') return 'think';
   if (mood === 'show') return 'show';
   return 'done';

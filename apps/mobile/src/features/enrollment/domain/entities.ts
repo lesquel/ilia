@@ -76,7 +76,10 @@ export function isLessonCompleted(progress: CourseProgress, lessonId: string): b
 export interface LessonView {
   lessonId: string;
   title: string;
+  moduleId: string;
   moduleTitle: string;
+  modulePosition: number;
+  moduleTotalLessons: number;
   kind: LessonKind;
   durationSeconds: number;
   body: string;
@@ -87,6 +90,7 @@ export interface LessonView {
    * client that can ask for someone else's lesson.
    */
   mediaUrl: string | null;
+  captionsUrl: string | null;
   /** Last saved playback time, returned by the API in seconds. */
   resumePositionSeconds: number;
   isCompleted: boolean;

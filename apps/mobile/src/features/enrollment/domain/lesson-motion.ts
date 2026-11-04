@@ -15,12 +15,12 @@ export function quizFeedbackDelay(questionIndex: number): number {
 }
 
 export function quizMascotReaction(passed: boolean): {
-  mood: Extract<MascotMood, 'celebrate' | 'sad'>;
-  motion: Extract<MascotMotion, 'celebrate' | 'droop'>;
+  mood: Extract<MascotMood, 'celebrate' | 'encourage'>;
+  motion: Extract<MascotMotion, 'celebrate' | 'reveal'>;
 } {
   return passed
     ? { mood: 'celebrate', motion: 'celebrate' }
-    : { mood: 'sad', motion: 'droop' };
+    : { mood: 'encourage', motion: 'reveal' };
 }
 
 export function pageEntryOffset(direction: PageDirection): number {

@@ -4,7 +4,7 @@
 
 - Dibujo original de línea a mano sobre fondo claro, con acentos azules de ILIA.
 - Una docente dibujada guía la idea; cada escena muestra una acción o un ejemplo concreto.
-- La voz lleva la explicación. En pantalla, subtítulos breves, pocos rótulos y ninguna lámina saturada.
+- La voz lleva la explicación. En pantalla, subtítulos breves seleccionables, pocos rótulos y ninguna lámina saturada.
 - Transiciones cortas y cambios de ilustración sincronizados con las frases.
 - Tono de sala de profesores y español latinoamericano cercano; sin avatar ni lectura plana.
 
@@ -25,7 +25,7 @@ Desde la raíz del repositorio:
 npm run produce --prefix media/video-tools
 ```
 
-El comando sintetiza la narración con la voz neural ecuatoriana `es-EC-AndreaNeural`, alinea subtítulos frase a frase y renderiza un MP4 H.264 de 1280 × 720. La voz requiere conexión a internet. El video, la narración MP3, los subtítulos VTT y la portada se guardan en `media/cursos/introduccion-ia-docentes/`.
+El comando sintetiza la narración con la voz neural ecuatoriana `es-EC-AndreaNeural`, alinea subtítulos frase a frase y renderiza un MP4 H.264 de 1280 × 720 con subtítulos seleccionables, no pegados a la imagen. En Expo nativo se activan desde los controles del video; en web se sincronizan como una capa accesible. La voz requiere conexión a internet. El video, la narración MP3, los subtítulos VTT y la portada se guardan en `media/cursos/introduccion-ia-docentes/`.
 
 ## Videos de los módulos del curso
 
@@ -36,4 +36,4 @@ npm run voice:module --prefix media/video-tools -- modulo-2-pedido-claro
 npm run render:module --prefix media/video-tools -- modulo-2-pedido-claro
 ```
 
-Repite con `modulo-3-revision-privacidad` y `modulo-4-prueba-en-tu-clase`. El seed enlaza los MP4 con esas claves relativas en almacenamiento (`cursos/introduccion-ia-docentes/<archivo>.mp4`). En desarrollo local, copia los MP4 a `apps/api/media/cursos/introduccion-ia-docentes/`; en un entorno con S3 o MinIO, sube los objetos con la misma clave antes de ejecutar el seed.
+Repite con `modulo-3-revision-privacidad` y `modulo-4-prueba-en-tu-clase`. El seed enlaza los MP4 con esas claves relativas en almacenamiento (`cursos/introduccion-ia-docentes/<archivo>.mp4`). Para que el reproductor pueda sincronizar los subtítulos, copia también cada VTT junto al MP4 y con el mismo nombre base. En desarrollo local, copia ambos tipos de archivo a `apps/api/media/cursos/introduccion-ia-docentes/`; en un entorno con S3 o MinIO, sube el MP4 y su VTT como objetos vecinos antes de ejecutar el seed. El video inicial usa `ia-generativa-para-docentes.vtt`, generado a partir de `subtitulos.vtt`.

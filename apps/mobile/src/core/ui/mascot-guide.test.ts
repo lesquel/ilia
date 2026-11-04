@@ -18,6 +18,9 @@ describe('facingStillForMood', () => {
     expect(facingStillForMood('angry')).toBe('angry');
     expect(facingStillForMood('sad')).toBe('sad');
     expect(facingStillForMood('celebrate')).toBe('celebrate');
+    expect(facingStillForMood('curious')).toBe('curious');
+    expect(facingStillForMood('encourage')).toBe('encourage');
+    expect(facingStillForMood('proud')).toBe('proud');
   });
 
 });

@@ -144,7 +144,7 @@ class TestThreads:
         assert response.json()["author_name"] == "Ana Pérez"
         assert response.json()["reply_count"] == 0
 
-    def test_old_threads_show_the_authors_current_name_and_avatar_without_email(
+    def test_old_threads_show_the_authors_current_profile_without_email(
         self, client: TestClient
     ) -> None:
         token = enrolled(client)
@@ -184,9 +184,11 @@ class TestThreads:
             assert author["author_name"] == "Ana Docente"
             assert author["author_avatar_key"] == "colibri"
             assert "email" not in author
-            assert "author_id" not in author
+            assert author["author_id"] == str(user.id)
         assert detail["posts"][0]["author_name"] == "Lucía Colega"
         assert detail["posts"][0]["author_avatar_key"] == "sol"
+        assert detail["posts"][0]["author_id"] == str(reply_user.id)
+        assert "email" not in detail["posts"][0]
 
     def test_forum_access_is_checked_before_minting_avatar_urls(
         self, client: TestClient

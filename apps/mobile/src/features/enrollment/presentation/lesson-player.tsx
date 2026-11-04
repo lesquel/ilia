@@ -1,11 +1,12 @@
 import { useEventListener } from 'expo';
 import { useFocusEffect } from 'expo-router';
-import { useVideoPlayer, VideoView } from 'expo-video';
-import { useCallback, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useVideoPlayer, VideoView, type SubtitleTrack } from 'expo-video';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
-import { pauseLessonVideo } from './video-playback';
+import { pauseLessonVideo, seekLessonVideo, selectLessonSubtitle } from './video-playback';
+import { cueAt, formatVideoTime, parseWebVtt, type WebVttCue } from './webvtt';
 
 /** Same measure as the lesson column, so the picture sits in the middle. */
 const CENTERED_PLAYER_MAX_WIDTH = 760;
@@ -22,22 +23,30 @@ const CENTERED_PLAYER_MAX_WIDTH = 760;
  */
 export function LessonPlayer({
   url,
+  captionsUrl,
   resumePositionSeconds = 0,
   onPositionChange,
 }: {
   url: string;
+  captionsUrl?: string | null;
   resumePositionSeconds?: number;
   onPositionChange?: (positionSeconds: number) => void;
 }) {
   const theme = useTheme();
   const restored = useRef(false);
   const lastSaved = useRef(resumePositionSeconds);
+  const [isReady, setIsReady] = useState(false);
+  const [showResumeChoice, setShowResumeChoice] = useState(resumePositionSeconds > 4);
+  const [cues, setCues] = useState<WebVttCue[]>([]);
+  const [caption, setCaption] = useState('');
+  const [captionsEnabled, setCaptionsEnabled] = useState(true);
+  const nativeSubtitleTrack = useRef<SubtitleTrack | null>(null);
 
   const player = useVideoPlayer(url, (instance) => {
     // Not autoplaying. A lesson that starts talking the moment the page opens
     // is a lesson a teacher watches in a staffroom by accident.
     instance.loop = false;
-    instance.timeUpdateEventInterval = 5;
+    instance.timeUpdateEventInterval = 0.5;
   });
 
   // The stack keeps this screen mounted after «← Curso». Without this the
@@ -53,9 +62,25 @@ export function LessonPlayer({
   }, [player]);
 
   useEffect(() => {
-    restored.current = false;
-    lastSaved.current = resumePositionSeconds;
-  }, [resumePositionSeconds, url]);
+    let active = true;
+    if (!captionsUrl) {
+      return () => { active = false; };
+    }
+
+    void fetch(captionsUrl)
+      .then((response) => {
+        if (!response.ok) throw new Error('Subtitles unavailable');
+        return response.text();
+      })
+      .then((source) => {
+        if (active) setCues(parseWebVtt(source));
+      })
+      .catch(() => {
+        if (active) setCues([]);
+      });
+
+    return () => { active = false; };
+  }, [captionsUrl]);
 
   const savePosition = (seconds: number, force = false) => {
     const position = Math.max(0, Math.floor(seconds));
@@ -66,17 +91,35 @@ export function LessonPlayer({
 
   // Expo Web does not emit `sourceLoad`; `statusChange` is its ready signal.
   // Seeking through expo-video's imperative media handle is an external effect.
-  // eslint-disable-next-line react-hooks/immutability
   useEventListener(player, 'statusChange', ({ status }) => {
     if (status !== 'readyToPlay') return;
+    setIsReady(true);
     if (restored.current) return;
     restored.current = true;
     if (resumePositionSeconds > 0 && player.duration > 0) {
-      // eslint-disable-next-line react-hooks/immutability
-      player.currentTime = Math.min(resumePositionSeconds, Math.max(0, player.duration - 1));
+      const hasPlaceToResume = resumePositionSeconds < player.duration - 5;
+      seekLessonVideo(player, hasPlaceToResume
+        ? Math.min(resumePositionSeconds, Math.max(0, player.duration - 1))
+        : 0);
+      setShowResumeChoice(hasPlaceToResume);
     }
   });
-  useEventListener(player, 'timeUpdate', ({ currentTime }) => savePosition(currentTime));
+  useEventListener(player, 'availableSubtitleTracksChange', ({ availableSubtitleTracks }) => {
+    if (Platform.OS === 'web') return;
+    const track = availableSubtitleTracks.find((item) => item.language.toLowerCase().startsWith('es'))
+      ?? availableSubtitleTracks[0]
+      ?? null;
+    nativeSubtitleTrack.current = track;
+    if (captionsEnabled) selectLessonSubtitle(player, track);
+  });
+  useEventListener(player, 'subtitleTrackChange', ({ subtitleTrack }) => {
+    if (Platform.OS !== 'web') setCaptionsEnabled(Boolean(subtitleTrack));
+  });
+  useEventListener(player, 'timeUpdate', ({ currentTime }) => {
+    savePosition(currentTime);
+    const nextCaption = captionsEnabled ? cueAt(cues, currentTime) : '';
+    setCaption((current) => current === nextCaption ? current : nextCaption);
+  });
   useEventListener(player, 'playingChange', ({ isPlaying }) => {
     if (!isPlaying) savePosition(player.currentTime, true);
   });
@@ -103,6 +146,57 @@ export function LessonPlayer({
         contentFit="contain"
         playsInline
       />
+      {captionsUrl ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={captionsEnabled ? 'Desactivar subtítulos' : 'Activar subtítulos'}
+          accessibilityState={{ checked: captionsEnabled }}
+          onPress={() => {
+            const nextEnabled = !captionsEnabled;
+            setCaptionsEnabled(nextEnabled);
+            if (Platform.OS !== 'web') {
+              selectLessonSubtitle(player, nextEnabled ? nativeSubtitleTrack.current : null);
+            }
+          }}
+          style={styles.captionToggle}
+        >
+          <Text style={styles.captionToggleLabel}>{captionsEnabled ? 'CC · Subtítulos' : 'CC · Desactivados'}</Text>
+        </Pressable>
+      ) : null}
+      {Platform.OS === 'web' && captionsEnabled && caption && !showResumeChoice ? (
+        <View pointerEvents="none" style={styles.captionBox} accessibilityLiveRegion="polite">
+          <Text style={styles.captionText}>{caption}</Text>
+        </View>
+      ) : null}
+      {isReady && showResumeChoice ? (
+        <View style={styles.resumeOverlay}>
+          <Text style={styles.resumeHeading}>Ya habías empezado este video</Text>
+          <Text style={styles.resumeCopy}>Te quedaste en {formatVideoTime(resumePositionSeconds)}.</Text>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => {
+              setShowResumeChoice(false);
+              player.play();
+            }}
+            style={({ pressed }) => [styles.resumePrimary, { opacity: pressed ? 0.8 : 1 }]}
+          >
+            <Text style={styles.resumePrimaryLabel}>Continuar desde {formatVideoTime(resumePositionSeconds)}</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => {
+              seekLessonVideo(player, 0);
+              lastSaved.current = 0;
+              onPositionChange?.(0);
+              setShowResumeChoice(false);
+              player.play();
+            }}
+            style={({ pressed }) => [styles.resumeSecondary, { opacity: pressed ? 0.75 : 1 }]}
+          >
+            <Text style={styles.resumeSecondaryLabel}>Volver al inicio</Text>
+          </Pressable>
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -128,6 +222,7 @@ export function LessonPlayerUnavailable() {
 
 const styles = StyleSheet.create({
   frame: {
+    position: 'relative',
     borderWidth: 1,
     overflow: 'hidden',
     // 16:9, so the frame reserves its space before the video loads and the
@@ -140,6 +235,57 @@ const styles = StyleSheet.create({
     marginVertical: 6.8,
   },
   video: { width: '100%', height: '100%' },
+  captionToggle: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    paddingHorizontal: 11,
+    paddingVertical: 7,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255,255,255,0.94)',
+  },
+  captionToggleLabel: { color: '#20242a', fontSize: 12, fontWeight: '700' },
+  captionBox: {
+    position: 'absolute',
+    left: 12,
+    right: 12,
+    bottom: 42,
+    alignItems: 'center',
+  },
+  captionText: {
+    maxWidth: '100%',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 8,
+    backgroundColor: 'rgba(20,23,29,0.84)',
+    color: '#ffffff',
+    fontSize: 15,
+    lineHeight: 21,
+    textAlign: 'center',
+  },
+  resumeOverlay: {
+    ...StyleSheet.absoluteFill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 18,
+    backgroundColor: 'rgba(20,23,29,0.82)',
+    gap: 10,
+  },
+  resumeHeading: { color: '#ffffff', fontSize: 18, fontWeight: '700', textAlign: 'center' },
+  resumeCopy: { color: '#ffffff', fontSize: 15, textAlign: 'center' },
+  resumePrimary: {
+    minHeight: 44,
+    maxWidth: 360,
+    width: '100%',
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    backgroundColor: '#1b70fe',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  resumePrimaryLabel: { color: '#ffffff', fontSize: 14, fontWeight: '700', textAlign: 'center' },
+  resumeSecondary: { paddingHorizontal: 14, paddingVertical: 8 },
+  resumeSecondaryLabel: { color: '#ffffff', fontSize: 14, fontWeight: '600' },
   placeholder: { alignItems: 'center', justifyContent: 'center', padding: 20.4 },
   placeholderText: { fontSize: 14, textAlign: 'center' },
 });

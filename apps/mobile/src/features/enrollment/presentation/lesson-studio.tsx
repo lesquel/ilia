@@ -49,6 +49,7 @@ export function LessonStudio({
   completeFailed = false,
   nextLessonTitle,
   onOpenNextLesson,
+  isModuleComplete = false,
 }: {
   body: string;
   onMarkComplete?: () => void;
@@ -57,6 +58,7 @@ export function LessonStudio({
   completeFailed?: boolean;
   nextLessonTitle?: string;
   onOpenNextLesson?: () => void;
+  isModuleComplete?: boolean;
 }) {
   const theme = useTheme();
   const { width } = useWindowDimensions();
@@ -190,17 +192,25 @@ export function LessonStudio({
           <MascotGuide
             line={mascotLineFor(currentScene, labPhase, sceneIndex)}
             lineKey={lineKey}
-            speakingMood={celebrationKey === `complete-${lineKey}` ? 'happy' : mascotSpeakingMood(currentScene, labPhase)}
+            speakingMood={
+              celebrationKey === `complete-${lineKey}`
+                ? isModuleComplete ? 'proud' : 'happy'
+                : mascotSpeakingMood(currentScene, labPhase, sceneIndex)
+            }
             doneMood={mascotDoneMood(currentScene, labPhase)}
             holdMood={labPhase === 'processing' ? 'think' : undefined}
             size={isWide ? 168 : 120}
             motion={
               celebrationKey === `complete-${lineKey}`
-                ? 'celebrate'
+                ? isModuleComplete ? 'proud' : 'celebrate'
                 : celebratedLineKey === lineKey
                   ? 'none'
                   : currentScene.type === 'lab' && labPhase !== 'idle'
                     ? labMascotMotion(labPhase)
+                    : currentScene.type === 'reveal' || currentScene.type === 'compare'
+                      ? 'point'
+                      : sceneIndex === 0
+                        ? 'curious'
                     : pageDirection === 'forward'
                       ? 'page-forward'
                       : 'page-back'
@@ -342,12 +352,13 @@ export function LessonStudio({
   );
 }
 
-function mascotSpeakingMood(scene: LessonScene, labPhase: LabPhase): MascotMood {
+function mascotSpeakingMood(scene: LessonScene, labPhase: LabPhase, sceneIndex: number): MascotMood {
   if (scene.type === 'lab' && labPhase === 'idle') return 'done';
   if (scene.type === 'lab' && labPhase === 'composing') return 'write';
   if (scene.type === 'lab' && labPhase === 'processing') return 'think';
   if (scene.type === 'lab' && labPhase === 'revealed') return 'show';
   if (scene.type === 'reveal' || scene.type === 'compare') return 'show';
+  if (sceneIndex === 0) return 'curious';
   return 'think';
 }
 

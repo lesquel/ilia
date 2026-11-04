@@ -28,6 +28,9 @@ const FACING_STILL: Record<ReturnType<typeof facingStillForMood>, ImageSource> =
   happy: require('../../../assets/mascot/lia-happy.png'),
   angry: require('../../../assets/mascot/lia-angry.png'),
   celebrate: require('../../../assets/mascot/lia-celebrate.png'),
+  curious: require('../../../assets/mascot/lia-curious.png'),
+  encourage: require('../../../assets/mascot/lia-encourage.png'),
+  proud: require('../../../assets/mascot/lia-proud.png'),
 };
 
 const POSE_ASPECT_RATIO = 0.78;
@@ -140,6 +143,38 @@ export function MascotGuide({
       y.value = withSequence(
         withTiming(-3, { duration: 170, easing: Easing.out(Easing.cubic) }),
         withSpring(0, { damping: 13, stiffness: 150 }),
+      );
+      return stopMotion;
+    }
+
+    if (motion === 'curious') {
+      rotation.value = withSequence(
+        withTiming(-5, { duration: 180, easing: Easing.out(Easing.cubic) }),
+        withSpring(-3, { damping: 14, stiffness: 145 }),
+      );
+      return stopMotion;
+    }
+
+    if (motion === 'point') {
+      x.value = withSequence(
+        withTiming(-5, { duration: 150, easing: Easing.out(Easing.cubic) }),
+        withSpring(0, { damping: 13, stiffness: 170 }),
+      );
+      rotation.value = withSequence(
+        withTiming(-4, { duration: 150, easing: Easing.out(Easing.cubic) }),
+        withSpring(0, { damping: 13, stiffness: 170 }),
+      );
+      return stopMotion;
+    }
+
+    if (motion === 'proud') {
+      scale.value = withSequence(
+        withSpring(1.035, { damping: 13, stiffness: 150 }),
+        withSpring(1, { damping: 14, stiffness: 150 }),
+      );
+      y.value = withSequence(
+        withTiming(-4, { duration: 170, easing: Easing.out(Easing.cubic) }),
+        withSpring(0, { damping: 14, stiffness: 150 }),
       );
       return stopMotion;
     }

@@ -8,7 +8,7 @@ describe('lesson motion', () => {
   });
 
   it('gives a brief playful reaction to a missed quiz', () => {
-    expect(quizMascotReaction(false)).toEqual({ mood: 'angry', motion: 'shake' });
+    expect(quizMascotReaction(false)).toEqual({ mood: 'encourage', motion: 'reveal' });
   });
 
   it('enters the next and previous page from opposite sides', () => {

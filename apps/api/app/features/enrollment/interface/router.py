@@ -6,6 +6,7 @@ A `user_id` parameter would let anyone enroll anybody.
 """
 
 from datetime import timedelta
+from pathlib import PurePosixPath
 from uuid import UUID
 
 from fastapi import APIRouter, Request, status
@@ -176,10 +177,17 @@ async def read_lesson(
     # the whole reason it is short-lived and issued per request rather than
     # stored on the lesson.
     media = None
+    captions = None
     if view.content.resource_ref:
         media = request.app.state.storage.read_url(
             view.content.resource_ref,
             ttl=timedelta(seconds=settings.storage_url_ttl_seconds),
         )
+        if slug == "introduccion-ia-docentes" and view.kind == "video":
+            captions_ref = str(PurePosixPath(view.content.resource_ref).with_suffix(".vtt"))
+            captions = request.app.state.storage.read_url(
+                captions_ref,
+                ttl=timedelta(seconds=settings.storage_url_ttl_seconds),
+            )
 
-    return LessonViewResponse.from_entity(view, media)
+    return LessonViewResponse.from_entity(view, media, captions)
