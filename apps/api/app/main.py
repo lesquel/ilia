@@ -134,7 +134,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         directory = Path(settings.storage_local_dir)
         try:
             directory.mkdir(parents=True, exist_ok=True)
-            app.mount("/media", StaticFiles(directory=directory), name="media")
+            # follow_symlink: the local SQLite runner links the repo's rendered
+            # course videos in here (scripts/run_sqlite.py). Development only.
+            app.mount(
+                "/media",
+                StaticFiles(directory=directory, follow_symlink=True),
+                name="media",
+            )
         except OSError:
             # A read-only filesystem, which is what a container should have.
             # Refusing to boot over a development-only convenience would take

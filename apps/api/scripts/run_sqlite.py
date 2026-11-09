@@ -33,11 +33,26 @@ API_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DATABASE_PATH = API_ROOT / "ilia-local.sqlite3"
 
 
+def link_course_media(media_path: Path) -> None:
+    """Serve the repo's rendered course videos, so seeded video lessons play locally.
+
+    The seed points lessons at `cursos/<course>/<file>.mp4`; those files live in
+    the repo's `media/cursos`, not in the API's local storage folder.
+    """
+    source = API_ROOT.parent.parent / "media" / "cursos"
+    target = media_path / "cursos"
+    if not source.is_dir() or target.exists() or target.is_symlink():
+        return
+    media_path.mkdir(parents=True, exist_ok=True)
+    target.symlink_to(source, target_is_directory=True)
+
+
 def local_settings() -> Settings:
     database_path = Path(os.environ.get("ILIA_LOCAL_SQLITE_PATH", DEFAULT_DATABASE_PATH))
     database_path.parent.mkdir(parents=True, exist_ok=True)
     database_url = URL.create("sqlite+aiosqlite", database=str(database_path))
     media_path = API_ROOT / "media"
+    link_course_media(media_path)
     return Settings(
         environment="local",
         debug=False,
