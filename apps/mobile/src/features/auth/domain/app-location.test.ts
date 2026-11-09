@@ -3,11 +3,31 @@ import { describe, expect, it } from 'vitest';
 import {
   appNavItemsForRole,
   courseSlugInPath,
+  documentTitle,
   firstGivenName,
   givenNameInitial,
   resolveAppLocation,
   titleFromSlug,
 } from './app-location';
+
+describe('documentTitle', () => {
+  it('names the lesson first and keeps the course next to it', () => {
+    expect(
+      documentTitle('/catalog/introduccion-ia-docentes/lessons/abc', {
+        courseTitle: 'IA para preparar tu próxima clase',
+      }),
+    ).toBe('Lección · IA para preparar tu próxima clase · ILIA');
+  });
+
+  it('names the guest pages that have no location trail', () => {
+    expect(documentTitle('/login?next=/catalog')).toBe('Iniciar sesión · ILIA');
+  });
+
+  it('keeps the brand alone on the home page', () => {
+    expect(documentTitle('/')).toBe('ILIA');
+    expect(documentTitle('/catalog')).toBe('Catálogo · ILIA');
+  });
+});
 
 describe('resolveAppLocation', () => {
   it('names the public catalogue as the place', () => {

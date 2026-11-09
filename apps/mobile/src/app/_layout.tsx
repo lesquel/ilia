@@ -8,7 +8,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { createQueryClient } from '@/core/api/query-client';
 import { ErrorBoundary } from '@/core/ui/error-boundary';
 import { palette } from '@/core/theme';
-import { AccountBar, installAuthTokenProvider } from '@/features/auth';
+import { AccountBar, DocumentTitle, installAuthTokenProvider } from '@/features/auth';
 import '@/core/ui/global-web-styles';
 
 // Composition root. Runs once, before the first render, not on every mount.
@@ -59,6 +59,7 @@ export default function RootLayout() {
             ) : null}
             {/* Above the Stack, so it survives navigation. Signing out is the only
                 action that must be reachable from every screen. */}
+            <DocumentTitle />
             <AccountBar />
             <View role="main" nativeID="main-content" tabIndex={-1} style={{ flex: 1 }}>
               <Stack

@@ -189,6 +189,33 @@ export function resolveAppLocation(pathname: string, names: AppLocationNames = {
   return locationOf('other', 'ILIA', [{ label: 'ILIA', href: path }]);
 }
 
+/** Pages a guest sees, where the location trail is not shown. */
+const GUEST_PAGE_TITLES: Record<string, string> = {
+  '/login': 'Iniciar sesión',
+  '/register': 'Crear cuenta',
+  '/forgot-password': 'Recuperar contraseña',
+  '/reset-password': 'Nueva contraseña',
+};
+
+/**
+ * The browser tab's name: the most specific place first, so a row of tabs
+ * still tells one lesson from another. The brand closes it.
+ */
+export function documentTitle(pathname: string, names: AppLocationNames = {}): string {
+  const path = normalizePath(pathname);
+  const guestTitle = GUEST_PAGE_TITLES[path];
+  if (guestTitle) return `${guestTitle} · ILIA`;
+
+  const { sectionId, crumbs } = resolveAppLocation(path, names);
+  if (sectionId === 'home' || sectionId === 'other') return 'ILIA';
+
+  const nearest = crumbs
+    .slice(-2)
+    .reverse()
+    .map((crumb) => crumb.label);
+  return [...nearest, 'ILIA'].join(' · ');
+}
+
 /** The slug of the course a path stands in, if it stands in one. */
 export function courseSlugInPath(pathname: string): string | undefined {
   const [root, slug] = normalizePath(pathname).split('/').filter(Boolean);
