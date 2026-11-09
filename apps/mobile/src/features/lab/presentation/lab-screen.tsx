@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -105,6 +105,15 @@ export function LabScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        {/* The lab URL carries no course, so the way back has to be explicit. */}
+        {activity.courseSlug ? (
+          <Link
+            href={`/catalog/${activity.courseSlug}`}
+            style={[styles.back, { color: theme.colors.accentAlt }]}
+          >
+            ← Curso
+          </Link>
+        ) : null}
         <View style={styles.kickerRow}>
           <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
           <Text style={[styles.kicker, { color: theme.colors.accentAlt }]}>
@@ -277,6 +286,11 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
     paddingBottom: 48,
+  },
+  back: {
+    fontSize: 14,
+    fontWeight: '600',
+    alignSelf: 'flex-start',
   },
   kickerRow: {
     flexDirection: 'row',
