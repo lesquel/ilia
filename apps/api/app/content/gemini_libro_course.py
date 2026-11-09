@@ -15,7 +15,7 @@ Lesson = tuple[str, str, int, str] | tuple[str, str, int, str, str]
 
 MEDIA_PREFIX = "cursos/curso-docentes/"
 
-SLUG = "gemini-con-tu-libro"
+SLUG = "ia-para-docentes"
 
 
 def _video(title: str, seconds: int, body: str, media_name: str) -> Lesson:
@@ -409,19 +409,19 @@ La próxima semana cambiamos el punto de partida: en vez de pedir una clase sobr
 """
 
 MODULE_2_LESSONS: list[Lesson] = [
-    _video("¿Cómo te fue?", 35, M2_COMO_TE_FUE, "2-1-como-te-fue"),
+    _video("¿Cómo te fue?", 32, M2_COMO_TE_FUE, "2-1-como-te-fue"),
     _text("Antes de empezar", 120, M2_ANTES),
-    _video("Pásale la página del libro", 80, M2_PASALE_LA_PAGINA, "2-3-pasale-la-pagina"),
+    _video("Pásale la página del libro", 73, M2_PASALE_LA_PAGINA, "2-3-pasale-la-pagina"),
     _video(
         "Por qué la página y no el nombre del libro",
         73,
         M2_LA_PAGINA_NO_EL_NOMBRE,
         "2-4-la-pagina-no-el-nombre",
     ),
-    _video("Que Gemini te pregunte primero", 76, M2_QUE_TE_PREGUNTE, "2-5-que-te-pregunte"),
+    _video("Que Gemini te pregunte primero", 70, M2_QUE_TE_PREGUNTE, "2-5-que-te-pregunte"),
     _text("Revisa tú", 180, M2_REVISA_TU),
-    _video("Revisar con el libro al lado", 63, M2_REVISAR_CON_EL_LIBRO, "2-7-revisar-con-el-libro"),
-    _video("Para el lunes", 19, M2_PARA_EL_LUNES, "2-9-para-el-lunes"),
+    _video("Revisar con el libro al lado", 57, M2_REVISAR_CON_EL_LIBRO, "2-7-revisar-con-el-libro"),
+    _video("Para el lunes", 17, M2_PARA_EL_LUNES, "2-9-para-el-lunes"),
 ]
 
 # ---------------------------------------------------------------------------
@@ -551,7 +551,7 @@ La próxima semana le pasamos a Gemini tu unidad entera, no una página, y vemos
 """
 
 MODULE_3_LESSONS: list[Lesson] = [
-    _video("¿Cómo te fue?", 33, M3_COMO_TE_FUE, "3-1-como-te-fue"),
+    _video("¿Cómo te fue?", 29, M3_COMO_TE_FUE, "3-1-como-te-fue"),
     _text("Antes de empezar", 120, M3_ANTES),
     _video(
         "Pedir desde el tema y desde la destreza", 74, M3_TEMA_O_DESTREZA, "3-3-tema-o-destreza"
@@ -569,8 +569,8 @@ MODULE_3_LESSONS: list[Lesson] = [
         "3-5-de-la-evidencia-a-la-clase",
     ),
     _text("Revisa tú", 180, M3_REVISA_TU),
-    _video("Revisar la clase", 54, M3_REVISAR_LA_CLASE, "3-7-revisar-la-clase"),
-    _video("Para el lunes", 20, M3_PARA_EL_LUNES, "3-9-para-el-lunes"),
+    _video("Revisar la clase", 49, M3_REVISAR_LA_CLASE, "3-7-revisar-la-clase"),
+    _video("Para el lunes", 18, M3_PARA_EL_LUNES, "3-9-para-el-lunes"),
 ]
 
 # ---------------------------------------------------------------------------
@@ -579,7 +579,7 @@ MODULE_3_LESSONS: list[Lesson] = [
 
 GEMINI_LIBRO_COURSE: dict[str, Any] = {
     "slug": SLUG,
-    "title": "Preparar tu clase con Gemini y tu libro",
+    "title": "IA para docentes",
     "summary": "Del pedido corto a una clase que termina con algo que puedes revisar",
     "description": (
         "Sigues a Andrés, docente de Lengua de 2.º de Bachillerato en un colegio fiscal de Manta, "

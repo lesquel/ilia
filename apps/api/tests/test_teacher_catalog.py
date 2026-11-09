@@ -14,14 +14,14 @@ from app.content.teacher_catalog import (
 
 CANONICAL_SLUGS = (
     "introduccion-ia-docentes",
-    "gemini-con-tu-libro",
+    "ia-para-docentes",
     "prompting-para-docentes",
     "notebooklm-en-el-aula",
     "evaluacion-asistida-por-ia",
 )
 
 PROMPTING_SLUG = "prompting-para-docentes"
-GEMINI_SLUG = "gemini-con-tu-libro"
+GEMINI_SLUG = "ia-para-docentes"
 
 
 def _prompting_course() -> dict:

@@ -21,7 +21,7 @@ from scripts.seed_catalog import (
 
 EXPECTED_SLUGS = (
     "introduccion-ia-docentes",
-    "gemini-con-tu-libro",
+    "ia-para-docentes",
     "prompting-para-docentes",
     "notebooklm-en-el-aula",
     "evaluacion-asistida-por-ia",
@@ -95,3 +95,39 @@ def test_catalog_seed_does_not_take_the_first_rubric_in_the_database() -> None:
     assert "select(RubricModel).limit(1)" not in source
     assert "CANONICAL_RUBRIC_ID" in source
     assert "CANONICAL_RUBRIC_NAME" in source
+
+
+def test_reseed_keeps_resource_ref_already_on_a_lesson() -> None:
+    from types import SimpleNamespace
+
+    from scripts.seed_catalog import _sync_modules
+
+    attached = SimpleNamespace(
+        position=1,
+        title="t",
+        kind="video",
+        duration_seconds=1,
+        body="b",
+        resource_ref="lessons/abc/uploaded.mp4",
+    )
+    empty = SimpleNamespace(
+        position=2, title="t", kind="video", duration_seconds=1, body="b", resource_ref=None
+    )
+    module = SimpleNamespace(position=1, title="m", lessons=[attached, empty])
+    course = SimpleNamespace(modules=[module])
+
+    _sync_modules(
+        course,  # type: ignore[arg-type]
+        [
+            (
+                "m",
+                [
+                    ("t", "video", 2, "b2", "cursos/x/a.mp4"),
+                    ("t", "video", 2, "b2", "cursos/x/b.mp4"),
+                ],
+            )
+        ],
+    )
+
+    assert attached.resource_ref == "lessons/abc/uploaded.mp4"
+    assert empty.resource_ref == "cursos/x/b.mp4"

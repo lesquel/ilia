@@ -35,7 +35,7 @@ from app.features.evaluation.infrastructure.models import (
 
 CANONICAL_SLUGS = (
     "introduccion-ia-docentes",
-    "gemini-con-tu-libro",
+    "ia-para-docentes",
     "prompting-para-docentes",
     "notebooklm-en-el-aula",
     "evaluacion-asistida-por-ia",
@@ -120,7 +120,8 @@ def _sync_modules(course: CourseModel, modules_data: list) -> None:
                 lesson.kind = kind
                 lesson.duration_seconds = duration
                 lesson.body = body
-                if len(lesson_data) > 4:
+                # A file attached from /instructor must survive a re-seed.
+                if len(lesson_data) > 4 and not lesson.resource_ref:
                     lesson.resource_ref = lesson_data[4]
 
 
