@@ -22,6 +22,7 @@ from app.main import create_app
 from scripts.seed_catalog import (
     CANONICAL_RUBRIC_NAME,
     CANONICAL_SLUGS,
+    CATALOG_ACTIVITIES,
     CATALOG_DIMENSIONS,
     CATALOG_OWNER_EMAIL,
     run,
@@ -157,5 +158,6 @@ def test_canonical_labs_ignore_a_preexisting_unrelated_rubric(client: TestClient
     asyncio.run(run(_settings()))
 
     activities = asyncio.run(_canonical_activity_rubrics())
-    assert len(activities) == len(CANONICAL_SLUGS)
+    # One lab per course, except the Gemini course: one per module plus a final exam.
+    assert len(activities) == len(CATALOG_ACTIVITIES)
     assert {name for _, name, _ in activities} == {CANONICAL_RUBRIC_NAME}

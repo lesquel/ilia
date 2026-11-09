@@ -94,7 +94,7 @@ def client() -> Iterator[TestClient]:
 def register(client: TestClient, email: str, name: str = "Ana Pérez") -> dict:  # type: ignore[type-arg]
     return client.post(
         "/api/v1/auth/register",
-        json={"email": email, "full_name": name, "password": "una-clave-larga"},
+        json={"email": email, "full_name": name, "password": "Una-clave-larga1"},
         headers=NATIVE,
     ).json()
 
@@ -252,7 +252,7 @@ class TestLevelGate:
         subscribe("ana@colegio.edu", "pro")
         token = client.post(
             "/api/v1/auth/login",
-            json={"email": "ana@colegio.edu", "password": "una-clave-larga"},
+            json={"email": "ana@colegio.edu", "password": "Una-clave-larga1"},
             headers=NATIVE,
         ).json()["access_token"]
 
@@ -304,7 +304,7 @@ class TestForumGate:
         subscribe("ana@colegio.edu", "pro")
         token = client.post(
             "/api/v1/auth/login",
-            json={"email": "ana@colegio.edu", "password": "una-clave-larga"},
+            json={"email": "ana@colegio.edu", "password": "Una-clave-larga1"},
             headers=NATIVE,
         ).json()["access_token"]
 
@@ -333,7 +333,7 @@ class TestForumGate:
         subscribe("ana@colegio.edu", "pro")
         author = client.post(
             "/api/v1/auth/login",
-            json={"email": "ana@colegio.edu", "password": "una-clave-larga"},
+            json={"email": "ana@colegio.edu", "password": "Una-clave-larga1"},
             headers=NATIVE,
         ).json()["access_token"]
         thread = client.post(
@@ -405,7 +405,7 @@ class TestCertificateGate:
         subscribe("ana@colegio.edu", "pro")
         token = client.post(
             "/api/v1/auth/login",
-            json={"email": "ana@colegio.edu", "password": "una-clave-larga"},
+            json={"email": "ana@colegio.edu", "password": "Una-clave-larga1"},
             headers=NATIVE,
         ).json()["access_token"]
 
