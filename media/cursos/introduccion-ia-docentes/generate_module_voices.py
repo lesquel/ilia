@@ -1,7 +1,9 @@
 import asyncio
 import json
+import os
 import pathlib
 import re
+import shutil
 import subprocess
 import sys
 
@@ -9,8 +11,24 @@ import edge_tts
 import numpy as np
 import soundfile as sf
 
-ROOT = pathlib.Path(__file__).resolve().parent
-FFMPEG = ROOT.parents[1] / "video-tools" / "node_modules" / "ffmpeg-static" / "ffmpeg.exe"
+SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
+# ILIA_COURSE_DIR points the pipeline at another course folder with the same layout.
+ROOT = pathlib.Path(os.environ.get("ILIA_COURSE_DIR", SCRIPT_DIR)).resolve()
+
+
+def find_ffmpeg() -> str:
+    """Bundled ffmpeg-static first (ffmpeg.exe on Windows, ffmpeg elsewhere), then PATH."""
+    bundled = SCRIPT_DIR.parents[1] / "video-tools" / "node_modules" / "ffmpeg-static"
+    for name in ("ffmpeg.exe", "ffmpeg"):
+        if (bundled / name).exists():
+            return str(bundled / name)
+    found = shutil.which("ffmpeg")
+    if not found:
+        raise SystemExit("FFmpeg not found: run npm install in media/video-tools or install ffmpeg.")
+    return found
+
+
+FFMPEG = find_ffmpeg()
 VOICE = "es-EC-AndreaNeural"
 RATE = "-8%"
 PITCH = "-1Hz"
