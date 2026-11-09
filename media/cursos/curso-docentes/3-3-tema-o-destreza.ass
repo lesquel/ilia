@@ -1,0 +1,27 @@
+[Script Info]
+Title: ILIA · Pedir desde el tema y desde la destreza
+ScriptType: v4.00+
+PlayResX: 1280
+PlayResY: 720
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,24,&H00171B1B,&H000000FF,&H10F7FAFB,&H10F7FAFB,1,0,3,10,0,2,140,140,52,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:07.04,Default,,0,0,0,,Primero, como lo pediría casi todo el mundo: hazme una clase sobre tipos de argumento para segundo de Bachillerato.
+Dialogue: 0,0:00:07.33,0:00:09.09,Default,,0,0,0,,Mira lo que vuelve.
+Dialogue: 0,0:00:09.40,0:00:12.48,Default,,0,0,0,,No es una clase, es una explicación para leer.
+Dialogue: 0,0:00:12.78,0:00:18.46,Default,,0,0,0,,No hay minutos, no dice qué hacen los estudiantes, y al final no hay nada que puedas revisar.
+Dialogue: 0,0:00:18.76,0:00:25.72,Default,,0,0,0,,Y otra vez piensa en España: Selectividad, y una cifra del CIS, que es un organismo español.
+Dialogue: 0,0:00:26.02,0:00:28.14,Default,,0,0,0,,Ahora, el segundo pedido.
+Dialogue: 0,0:00:28.44,0:00:32.00,Default,,0,0,0,,Empieza por tu curso y por lo que confunden.
+Dialogue: 0,0:00:32.30,0:00:38.34,Default,,0,0,0,,Después, la destreza, tal como está en tu planificación.
+Dialogue: 0,0:00:38.64,0:00:44.84,Default,,0,0,0,,Y en la última línea, todavía no le pides la clase: le pides qué haría un estudiante para demostrarlo.
+Dialogue: 0,0:00:45.14,0:00:52.21,Default,,0,0,0,,Devuelve tres opciones, de la más simple a la más completa, y cada una con el tiempo que te toma revisarla.
+Dialogue: 0,0:00:52.51,0:00:56.47,Default,,0,0,0,,Diez segundos, treinta, cuarenta y cinco por estudiante.
+Dialogue: 0,0:00:56.77,0:01:03.69,Default,,0,0,0,,Andrés se queda con la tercera, porque es la destreza completa y la puede leer en el recreo.
+Dialogue: 0,0:01:03.99,0:01:08.39,Default,,0,0,0,,Ojo: aquí también inventó un cuarenta por ciento.
+Dialogue: 0,0:01:08.69,0:01:10.53,Default,,0,0,0,,El primero te dio una clase.
+Dialogue: 0,0:01:10.83,0:01:13.87,Default,,0,0,0,,El segundo te hizo decidir qué quieres ver al final.

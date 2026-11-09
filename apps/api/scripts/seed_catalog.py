@@ -35,6 +35,7 @@ from app.features.evaluation.infrastructure.models import (
 
 CANONICAL_SLUGS = (
     "introduccion-ia-docentes",
+    "gemini-con-tu-libro",
     "prompting-para-docentes",
     "notebooklm-en-el-aula",
     "evaluacion-asistida-por-ia",
@@ -313,6 +314,32 @@ async def publish_catalog(database: Database, instructor: AuthUser) -> int:
                 existing_activity.statement = activity_data["statement"]
                 existing_activity.checks = activity_data["checks"]
                 existing_activity.rubric_id = shared_rubric.id
+                continue
+
+            module_position = activity_data.get("module_position")
+            if module_position is not None:
+                # A course with one lab per module: each lab lives in its own module and
+                # never renames a sibling.
+                target_module = (
+                    await session.execute(
+                        select(ModuleModel).where(
+                            ModuleModel.course_id == course_row.id,
+                            ModuleModel.position == module_position,
+                        )
+                    )
+                ).scalar_one()
+                session.add(
+                    ActivityModel(
+                        id=uuid4(),
+                        module_id=target_module.id,
+                        course_id=course_row.id,
+                        rubric_id=shared_rubric.id,
+                        title=activity_data["title"],
+                        statement=activity_data["statement"],
+                        max_attempts=3,
+                        checks=activity_data["checks"],
+                    )
+                )
                 continue
 
             previous = await session.execute(

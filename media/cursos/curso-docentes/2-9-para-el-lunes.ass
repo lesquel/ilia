@@ -1,0 +1,16 @@
+[Script Info]
+Title: ILIA · Para el lunes
+ScriptType: v4.00+
+PlayResX: 1280
+PlayResY: 720
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,24,&H00171B1B,&H000000FF,&H10F7FAFB,&H10F7FAFB,1,0,3,10,0,2,140,140,52,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:03.92,Default,,0,0,0,,Para el lunes, prepara una hoja con una página de tu libro.
+Dialogue: 0,0:00:04.21,0:00:08.82,Default,,0,0,0,,Pásasela a Gemini y revisa lo que devuelva con la página al lado.
+Dialogue: 0,0:00:09.12,0:00:12.32,Default,,0,0,0,,La próxima semana cambiamos el punto de partida.
+Dialogue: 0,0:00:12.62,0:00:18.14,Default,,0,0,0,,En vez de pedir una clase sobre un tema, la vas a pedir desde la destreza que tienes que trabajar.

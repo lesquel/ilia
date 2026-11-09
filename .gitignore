@@ -73,3 +73,6 @@ apps/api/ilia-local.sqlite3*
 
 # Static web export baked for the Vercel deploy. Rebuilt with expo export.
 apps/api/web-dist/
+
+# Narración regenerable: se versionan los mp4, no los wav.
+media/cursos/curso-docentes/*.wav

@@ -8,6 +8,8 @@ cambia de tipo en el panel de instructor; este cuerpo queda como lectura.
 import json
 from typing import Any
 
+from app.content.gemini_libro_course import GEMINI_LIBRO_ACTIVITIES, GEMINI_LIBRO_COURSE
+
 # (title, kind, duration_seconds, body)
 Lesson = tuple[str, str, int, str] | tuple[str, str, int, str, str]
 Module = tuple[str, list[Lesson]]
@@ -919,6 +921,7 @@ TEACHER_COURSES: list[dict[str, Any]] = [
             ),
         ],
     },
+    GEMINI_LIBRO_COURSE,
     {
         "slug": "prompting-para-docentes",
         "title": "Prompting para docentes",
@@ -993,6 +996,7 @@ TEACHER_ACTIVITIES: list[dict[str, Any]] = [
             "min_length": 35,
         },
     },
+    *GEMINI_LIBRO_ACTIVITIES,
     {
         "course_slug": "prompting-para-docentes",
         "title": "El pedido de tu próxima clase",

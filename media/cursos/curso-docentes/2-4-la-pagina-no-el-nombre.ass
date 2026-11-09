@@ -1,0 +1,25 @@
+[Script Info]
+Title: ILIA · Por qué la página y no el nombre del libro
+ScriptType: v4.00+
+PlayResX: 1280
+PlayResY: 720
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,24,&H00171B1B,&H000000FF,&H10F7FAFB,&H10F7FAFB,1,0,3,10,0,2,140,140,52,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:05.59,Default,,0,0,0,,Cuando le pides a Gemini tipos de argumento, te da la lista que más se repite en lo que leyó.
+Dialogue: 0,0:00:05.89,0:00:09.61,Default,,0,0,0,,Esa no es la lista de tu libro.
+Dialogue: 0,0:00:09.92,0:00:17.48,Default,,0,0,0,,En el módulo uno, a Andrés le salieron «utilidad práctica» y «hombre de paja».
+Dialogue: 0,0:00:17.78,0:00:22.66,Default,,0,0,0,,Suenan bien, pero sus chicos las buscan en el libro y no las encuentran.
+Dialogue: 0,0:00:22.96,0:00:35.96,Default,,0,0,0,,El libro de segundo de bachillerato enseña siete tipos: datos contables, citas o argumentos de autoridad, ejemplo, experiencia personal, analogía, verdades universales, y causa y consecuencia.
+Dialogue: 0,0:00:36.25,0:00:40.46,Default,,0,0,0,,El currículo trae otra lista, y Gemini tiene una tercera.
+Dialogue: 0,0:00:40.75,0:00:45.32,Default,,0,0,0,,Si le escribes el nombre del libro, adivina qué dice.
+Dialogue: 0,0:00:45.61,0:00:47.82,Default,,0,0,0,,Si le pasas la página, la lee.
+Dialogue: 0,0:00:48.11,0:00:49.59,Default,,0,0,0,,Ojo con dos cosas.
+Dialogue: 0,0:00:49.89,0:00:55.97,Default,,0,0,0,,Una foto torcida o con sombra se lee mal, así que toma la página entera y derecha.
+Dialogue: 0,0:00:56.27,0:01:01.15,Default,,0,0,0,,Y aunque tenga la página, a veces cambia un nombre o mete un tipo que no está.
+Dialogue: 0,0:01:01.45,0:01:04.45,Default,,0,0,0,,Por eso igual se revisa antes de imprimir.
+Dialogue: 0,0:01:04.75,0:01:12.23,Default,,0,0,0,,La regla que te llevas es esta: si en tu clase un concepto tiene un nombre, pásale la página donde aparece con ese nombre.

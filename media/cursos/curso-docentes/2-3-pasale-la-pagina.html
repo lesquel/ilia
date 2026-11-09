@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ILIA · Pásale la página del libro</title>
+<link rel="stylesheet" href="scene-kit.css">
+<style>
+  /* A light, ILIA-styled stand-in for the chat. The text inside is Gemini's real reply. */
+  .chat { width: 900px; background: #fff; border: 1.5px solid var(--line); border-radius: 18px; padding: 22px 26px; box-shadow: 0 14px 34px rgba(0,0,0,.06); }
+  .chat .who { font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
+  .composer { display: flex; align-items: flex-end; gap: 14px; }
+  .plus { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; font-size: 28px; color: var(--muted); flex: none; }
+  .plus.on { border-color: var(--blue); color: var(--blue); box-shadow: 0 0 0 6px var(--blue-soft); }
+  .thumb { width: 150px; height: 92px; border-radius: 10px; object-fit: cover; border: 1.5px solid var(--line); }
+  .line { font-size: 19px; line-height: 1.45; padding: 2px 8px; border-radius: 6px; }
+  .hl { background: var(--blue-soft); box-shadow: inset 4px 0 0 var(--blue); }
+  .ans p { font-size: 17px; line-height: 1.4; margin: 7px 0; }
+  .ans b { color: var(--ink); }
+  .red { color: var(--red); background: #fdecea; padding: 0 4px; border-radius: 4px; }
+  .gap { color: var(--blue); background: var(--blue-soft); padding: 0 4px; border-radius: 4px; font-weight: 700; }
+</style>
+</head>
+<body>
+<header><b>ILIA</b>Que use tu libro · Pásale la página del libro</header>
+
+<section data-scene="libro" style="flex-direction: column; gap: 18px;">
+  <img src="libro-p41-43.jpg" data-in="0.3" style="width: 900px; border-radius: 10px; box-shadow: 0 14px 34px rgba(0,0,0,.1);">
+  <div class="kicker" data-in="3.0">Una captura de las páginas, o una foto con el celular</div>
+</section>
+
+<section data-scene="subir">
+  <div class="chat">
+    <div class="who">Gemini</div>
+    <div class="composer">
+      <div class="plus on" data-in="0.3">+</div>
+      <img class="thumb" src="libro-p41-43.jpg" data-in="4.2">
+      <div class="line" style="color: var(--muted)" data-in="0.3">Pregunta a Gemini</div>
+    </div>
+    <div class="kicker" style="margin: 16px 0 0" data-in="1.2">«Subidas y herramientas»</div>
+  </div>
+</section>
+
+<section data-scene="pedido">
+  <div class="chat">
+    <div class="who">El pedido de Andrés</div>
+    <div class="line" data-in="0.2">Eres docente de Lengua de 2.º de Bachillerato en un colegio fiscal de Manta. Te adjunto las páginas del libro del Ministerio sobre tipos de argumento.</div>
+    <div class="line" data-in="0.2" data-hl="1.8">Usa solo los tipos de argumento que aparecen en esas páginas, con el mismo nombre que usa el libro.</div>
+    <div class="line" data-in="0.2">Escribe seis argumentos cortos, de dos o tres líneas, sobre si el colegio debería pedir uniforme todos los días. Cada uno de un tipo distinto.</div>
+    <div class="line" data-in="0.2">Debajo, una tabla para mí con el tipo de cada argumento y la frase de las páginas que lo justifica.</div>
+    <div class="line" data-in="0.2" data-hl="13.0">Tengo 40 minutos de clase. No inventes datos ni cifras: si un argumento necesita una cifra, déjala entre corchetes para que yo la ponga.</div>
+  </div>
+</section>
+
+<section data-scene="pro" style="gap: 36px;">
+  <div style="display: flex; flex-direction: column; gap: 14px; align-items: flex-start;">
+    <span class="chip" data-in="0.3">3.8 Flash</span>
+    <div class="bubble" style="font-size: 20px; max-width: 420px;" data-in="0.8">No puedo ayudarte porque solo soy un modelo de lenguaje y no lo entiendo.</div>
+  </div>
+  <div class="mark" style="color: var(--blue)" data-in="2.6">→</div>
+  <span class="chip blue" style="font-size: 26px;" data-in="3.0">3.1 Pro ✓</span>
+</section>
+
+<section data-scene="respuesta">
+  <div class="chat ans">
+    <div class="who">Gemini · respuesta real, sin editar</div>
+    <p data-in="0.3"><b>Datos contables:</b> Según una encuesta local, las familias gastan un [ ]% menos de su presupuesto anual en ropa escolar…</p>
+    <p data-in="1.0"><b>Citas, frases célebres. Argumentos de autoridad:</b> Como afirma la pedagogía moderna, "el uniforme escolar es una herramienta igualadora…"</p>
+    <p data-in="1.7"><b>El ejemplo como argumento:</b> Pensemos en lo ocurrido en el colegio de nuestra parroquia vecina…</p>
+    <p data-in="2.4"><b>La experiencia personal:</b> En mis años trabajando en este colegio fiscal…</p>
+    <p data-in="3.1"><b>Analogía:</b> Así como el Delfín de Manta usa su uniforme en la cancha…</p>
+    <p data-in="3.8"><b>Causa y consecuencia:</b> Si establecemos la obligación diaria del uniforme…</p>
+  </div>
+</section>
+
+<section data-scene="encuesta">
+  <div class="chat ans" style="width: 980px;">
+    <div class="who">Gemini · el primer argumento, completo</div>
+    <p style="font-size: 26px; line-height: 1.5;" data-in="0.2"><b>Datos contables:</b> <span class="red">Según una encuesta local</span>, las familias gastan un <span class="gap">[ ]%</span> menos de su presupuesto anual en ropa escolar cuando se exige uniforme todos los días. Mantener esta medida protege la economía de los hogares de Manta.</p>
+    <div class="kicker" style="color: var(--red); margin-top: 18px;" data-in="4.5">Esa encuesta no existe.</div>
+  </div>
+</section>
+
+<section data-scene="cierre">
+  <div class="rule" data-in="0.4">La lista ya es la de tu libro. Igual se revisa, con la página al lado.</div>
+</section>
+
+<div class="progress"><i></i></div>
+<script src="scene-kit.js"></script>
+<script>
+  // Highlight lines at their moment, on top of the shared renderAt.
+  const baseRender = window.renderAt;
+  window.renderAt = (t) => {
+    baseRender(t);
+    const beat = window.ILIA.beats.find((b) => b.scene === 'pedido');
+    if (!beat) return;
+    document.querySelectorAll('[data-hl]').forEach((el) => {
+      el.classList.toggle('hl', t - beat.at >= Number(el.dataset.hl));
+    });
+  };
+</script>
+</body>
+</html>

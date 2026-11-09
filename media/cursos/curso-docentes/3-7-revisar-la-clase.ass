@@ -1,0 +1,27 @@
+[Script Info]
+Title: ILIA · Revisar la clase
+ScriptType: v4.00+
+PlayResX: 1280
+PlayResY: 720
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,24,&H00171B1B,&H000000FF,&H10F7FAFB,&H10F7FAFB,1,0,3,10,0,2,140,140,52,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:03.83,Default,,0,0,0,,Tres preguntas para revisar una clase que te armó Gemini.
+Dialogue: 0,0:00:04.13,0:00:06.61,Default,,0,0,0,,Una: ¿suma cuarenta?
+Dialogue: 0,0:00:06.91,0:00:10.11,Default,,0,0,0,,Súmalo tú: cinco, diez, diez y quince.
+Dialogue: 0,0:00:10.41,0:00:11.93,Default,,0,0,0,,Esta vez sí.
+Dialogue: 0,0:00:12.24,0:00:14.64,Default,,0,0,0,,Dos: ¿cuánto rato solo escuchan?
+Dialogue: 0,0:00:14.94,0:00:18.22,Default,,0,0,0,,Del minuto cinco al quince, solo toman nota.
+Dialogue: 0,0:00:18.52,0:00:21.68,Default,,0,0,0,,Son diez minutos seguidos; eso se parte.
+Dialogue: 0,0:00:21.98,0:00:25.18,Default,,0,0,0,,Y mira el polígrafo: dice cuatro frases, y pone tres.
+Dialogue: 0,0:00:25.48,0:00:29.56,Default,,0,0,0,,Tres: ¿termina con la evidencia que elegiste, hecha en clase?
+Dialogue: 0,0:00:29.86,0:00:30.86,Default,,0,0,0,,Sí.
+Dialogue: 0,0:00:31.16,0:00:35.16,Default,,0,0,0,,En el mismo chat escribes lo que cambias.
+Dialogue: 0,0:00:35.46,0:00:42.50,Default,,0,0,0,,Gemini agregó una pausa en el minuto diez, completó la cuarta frase y dejó la cifra entre corchetes.
+Dialogue: 0,0:00:42.79,0:00:46.00,Default,,0,0,0,,Pero a una frase le puso dos tipos a la vez.
+Dialogue: 0,0:00:46.29,0:00:48.93,Default,,0,0,0,,Esa la decides tú.
+Dialogue: 0,0:00:49.23,0:00:53.23,Default,,0,0,0,,Revisada y corregida, ya la puedes llevar al aula.

@@ -1,0 +1,82 @@
+[
+  {
+    "offset": 0.0,
+    "duration": 2.4,
+    "text": "Abre tu libro en la página del tema."
+  },
+  {
+    "offset": 2.6999999999999997,
+    "duration": 5.76,
+    "text": "Andrés usa la de tipos de argumento, y le saca una captura; en el celular basta con una foto."
+  },
+  {
+    "offset": 8.76,
+    "duration": 6.84,
+    "text": "En Gemini, toca el más, que en la web se llama «Subidas y herramientas», y sube la imagen."
+  },
+  {
+    "offset": 15.9,
+    "duration": 4.84,
+    "text": "Mejor solo las páginas que necesitas, no el libro entero."
+  },
+  {
+    "offset": 21.040000000000003,
+    "duration": 1.36,
+    "text": "Ahora el pedido."
+  },
+  {
+    "offset": 22.700000000000003,
+    "duration": 6.56,
+    "text": "Fíjate en esta línea: usa solo los tipos que aparecen en esas páginas, con el mismo nombre del libro."
+  },
+  {
+    "offset": 29.560000000000002,
+    "duration": 4.16,
+    "text": "Sin ella, la página es apenas una sugerencia."
+  },
+  {
+    "offset": 34.019999999999996,
+    "duration": 5.68,
+    "text": "Y en esta otra: si un argumento necesita una cifra, déjala entre corchetes."
+  },
+  {
+    "offset": 39.99999999999999,
+    "duration": 1.64,
+    "text": "El dato lo pones tú."
+  },
+  {
+    "offset": 41.93999999999999,
+    "duration": 8.56,
+    "text": "Si Gemini te contesta que no puede ayudarte, cambia el modelo a Pro y vuelve a intentarlo; a Andrés le pasó."
+  },
+  {
+    "offset": 50.79999999999999,
+    "duration": 2.76,
+    "text": "Esto es lo que devolvió, tal cual."
+  },
+  {
+    "offset": 53.859999999999985,
+    "duration": 7.68,
+    "text": "Los nombres ahora son los del libro, y cada uno trae la frase de la página que lo justifica."
+  },
+  {
+    "offset": 61.83999999999998,
+    "duration": 3.92,
+    "text": "En el primero dejó el hueco para la cifra."
+  },
+  {
+    "offset": 66.05999999999997,
+    "duration": 4.2,
+    "text": "Pero mira lo que puso alrededor: «según una encuesta local»."
+  },
+  {
+    "offset": 70.55999999999997,
+    "duration": 2.44,
+    "text": "Esa encuesta no existe."
+  },
+  {
+    "offset": 73.29999999999997,
+    "duration": 6.0,
+    "text": "La lista ya es la de tu libro, pero igual se revisa, y eso lo hacemos en un rato."
+  }
+]

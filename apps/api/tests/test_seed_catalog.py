@@ -21,6 +21,7 @@ from scripts.seed_catalog import (
 
 EXPECTED_SLUGS = (
     "introduccion-ia-docentes",
+    "gemini-con-tu-libro",
     "prompting-para-docentes",
     "notebooklm-en-el-aula",
     "evaluacion-asistida-por-ia",

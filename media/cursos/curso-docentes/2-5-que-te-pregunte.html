@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ILIA · Que Gemini te pregunte primero</title>
+<link rel="stylesheet" href="scene-kit.css">
+<style>
+  /* Light ILIA stand-in for the chat; every Gemini line is quoted from the real conversation. */
+  .chat { width: 960px; background: #fff; border: 1.5px solid var(--line); border-radius: 18px; padding: 22px 26px; box-shadow: 0 14px 34px rgba(0,0,0,.06); display: flex; flex-direction: column; gap: 14px; }
+  .msg { max-width: 760px; font-size: 21px; line-height: 1.45; padding: 12px 16px; border-radius: 14px; }
+  .me { align-self: flex-end; background: var(--blue-soft); }
+  .gm { align-self: flex-start; background: #f4f3ef; }
+  .who { font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+  .hlw { border-radius: 4px; padding: 0 3px; }
+  .on-red { background: #fdecea; color: var(--red); }
+  .on-blue { background: var(--blue-soft); color: var(--blue); font-weight: 700; }
+  table { border-collapse: collapse; font-size: 18px; width: 100%; }
+  td { border-bottom: 1px solid var(--line); padding: 8px 10px; vertical-align: top; }
+  td:first-child { white-space: nowrap; color: var(--muted); }
+</style>
+</head>
+<body>
+<header><b>ILIA</b>Que use tu libro · Que Gemini te pregunte primero</header>
+
+<section data-scene="pedido">
+  <div class="chat">
+    <div class="msg me" data-in="0.3"><div class="who">Andrés</div>Quiero preparar una clase de 40 minutos sobre tipos de argumento para mi 2.º de Bachillerato. Antes de proponer nada, hazme las preguntas que necesites para que la clase sirva para mi curso. <span class="hlw" data-mark="6.6">Una por una, y espera mi respuesta antes de la siguiente.</span></div>
+  </div>
+</section>
+
+<section data-scene="espana">
+  <div class="chat">
+    <div class="msg gm" data-in="0.3"><div class="who">Gemini</div>¿Qué enfoque principal tiene esta clase: preparar el comentario de texto argumentativo de la prueba de acceso a la universidad (<span class="hlw" data-mark-red="3.0">PAU / EBAU / Selectividad</span>) o trabajar la argumentación práctica (como debates o producción de ensayos propios)?</div>
+    <div class="kicker" style="color: var(--red)" data-in="7.7">Supuso que Andrés está en España.</div>
+  </div>
+</section>
+
+<section data-scene="contesta">
+  <div class="chat">
+    <div class="msg me" data-in="0.3"><div class="who">Andrés</div>Ninguna de las dos. Estoy en Ecuador: colegio fiscal de Manta, 2.º de Bachillerato General Unificado, unos 35 estudiantes. Quiero que la clase termine con algo escrito que yo pueda revisar.</div>
+  </div>
+</section>
+
+<section data-scene="memoria">
+  <div class="chat">
+    <div class="msg gm" data-in="0.3"><div class="who">Gemini</div>Entendido: colegio fiscal, 35 estudiantes y un entregable escrito para evaluar en esos 40 minutos. Para aterrizar esa actividad práctica, ¿tienen los estudiantes que basarse en un tema específico que ya estén debatiendo (<span class="hlw" data-mark-red="2.0">como la obligatoriedad del uniforme</span>) y usar los tipos de argumento <span class="hlw" data-mark-red="3.0">del libro del Ministerio</span>, o prefieres que planteemos un tema nuevo?</div>
+    <div class="kicker" style="color: var(--red)" data-in="6.9">Eso venía de otro chat: Gemini recuerda tus conversaciones.</div>
+    <div class="kicker" data-in="10.2">Nunca pegues nombres ni notas de estudiantes.</div>
+  </div>
+</section>
+
+<section data-scene="plan">
+  <div class="chat">
+    <div class="who" data-in="0.2">Gemini · Plan de Clase: Argumentos vs. Opiniones (40 minutos)</div>
+    <table>
+      <tr data-in="0.6"><td>0 - 5 min</td><td>Gancho (Proyector)</td></tr>
+      <tr data-in="1.0"><td>5 - 15 min</td><td>Teoría Aplicada (Proyector)</td></tr>
+      <tr data-in="1.4"><td>15 - 35 min</td><td>Producción Escrita (Entregable)</td></tr>
+      <tr data-in="1.8"><td>35 - 40 min</td><td>Plenaria y Recolección</td></tr>
+    </table>
+    <div class="kicker" data-in="4.2">Tres preguntas: lo que le faltaba a tu pedido.</div>
+  </div>
+</section>
+
+<section data-scene="nombres" style="gap: 40px;">
+  <div class="col" style="width: 360px;">
+    <div class="kicker">Lo que escribió Gemini</div>
+    <span class="chip red" data-in="0.6">Argumento de Hecho</span>
+    <span class="chip red" data-in="1.2">Causa-Efecto</span>
+    <span class="chip red" data-in="1.8">Ejemplificación</span>
+  </div>
+  <div class="mark" style="color: var(--muted)" data-in="5.0">≠</div>
+  <div class="col" style="width: 360px;">
+    <div class="kicker" data-in="5.3">Lo que dice el libro</div>
+    <span class="chip blue" data-in="5.8">Datos contables</span>
+    <span class="chip blue" data-in="6.1">Causa y consecuencia</span>
+    <span class="chip blue" data-in="6.4">Ejemplo</span>
+  </div>
+</section>
+
+<section data-scene="cierre">
+  <div class="rule" data-in="0.4">Si te pregunta algo que no sabes, dile que no sabes. Es mejor que inventarle una respuesta.</div>
+</section>
+
+<div class="progress"><i></i></div>
+<script src="scene-kit.js"></script>
+<script>
+  const baseRender = window.renderAt;
+  window.renderAt = (t) => {
+    baseRender(t);
+    for (const beat of window.ILIA.beats) {
+      const section = document.querySelector(`section[data-scene="${beat.scene}"]`);
+      const local = t - beat.at;
+      section.querySelectorAll('[data-mark]').forEach((el) => el.classList.toggle('on-blue', local >= Number(el.dataset.mark)));
+      section.querySelectorAll('[data-mark-red]').forEach((el) => el.classList.toggle('on-red', local >= Number(el.dataset.markRed)));
+    }
+  };
+</script>
+</body>
+</html>

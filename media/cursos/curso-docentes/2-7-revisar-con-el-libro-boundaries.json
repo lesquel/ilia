@@ -1,0 +1,77 @@
+[
+  {
+    "offset": 0.0,
+    "duration": 3.08,
+    "text": "Pon la página a un lado y la hoja al otro."
+  },
+  {
+    "offset": 3.38,
+    "duration": 2.44,
+    "text": "Es la forma más rápida de revisar."
+  },
+  {
+    "offset": 6.12,
+    "duration": 5.44,
+    "text": "Primero la tabla, tipo por tipo: ¿está en la página?"
+  },
+  {
+    "offset": 11.860000000000001,
+    "duration": 2.2,
+    "text": "¿Con el mismo nombre?"
+  },
+  {
+    "offset": 14.360000000000003,
+    "duration": 3.08,
+    "text": "Aquí sí: los seis nombres son los del libro."
+  },
+  {
+    "offset": 17.740000000000006,
+    "duration": 5.32,
+    "text": "Después, cada argumento: ¿da una razón, y de dónde sale lo que dice?"
+  },
+  {
+    "offset": 23.360000000000007,
+    "duration": 2.52,
+    "text": "La encuesta no existe."
+  },
+  {
+    "offset": 26.180000000000007,
+    "duration": 3.32,
+    "text": "«La pedagogía moderna» no es nadie."
+  },
+  {
+    "offset": 29.800000000000008,
+    "duration": 5.56,
+    "text": "El colegio vecino y la experiencia personal los inventó; esos los pones tú."
+  },
+  {
+    "offset": 35.660000000000004,
+    "duration": 5.32,
+    "text": "En el mismo chat escribes la corrección, y dices por qué."
+  },
+  {
+    "offset": 41.28,
+    "duration": 2.8,
+    "text": "Gemini dejó los huecos entre corchetes."
+  },
+  {
+    "offset": 44.379999999999995,
+    "duration": 5.36,
+    "text": "Pero mira el primer argumento: además borró una frase que no le pediste quitar."
+  },
+  {
+    "offset": 50.03999999999999,
+    "duration": 2.36,
+    "text": "Por eso lo que devuelve se vuelve a leer."
+  },
+  {
+    "offset": 52.69999999999999,
+    "duration": 7.28,
+    "text": "Con la página, el error es más chico y se encuentra más rápido."
+  },
+  {
+    "offset": 60.27999999999999,
+    "duration": 1.88,
+    "text": "Pero se sigue buscando."
+  }
+]

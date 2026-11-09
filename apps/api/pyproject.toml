@@ -49,6 +49,7 @@ select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
 "migrations/versions/*" = ["E501"]
 # Lesson bodies and worked examples are prose tables; wrapping breaks the seed text.
 "app/content/teacher_catalog.py" = ["E501"]
+"app/content/gemini_libro_course.py" = ["E501"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["app"]

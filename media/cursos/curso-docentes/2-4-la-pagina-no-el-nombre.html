@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ILIA · Por qué la página y no el nombre del libro</title>
+<link rel="stylesheet" href="scene-kit.css">
+</head>
+<body>
+<header><b>ILIA</b>Que use tu libro · Por qué la página y no el nombre</header>
+
+<!-- 1. La lista que más se repite -->
+<section data-scene="lista-comun" style="flex-direction: column; gap: 26px;">
+  <div class="bubble" data-in="0.2">Dame tipos de argumento para mi clase</div>
+  <div style="max-width: 900px; text-align: center;">
+    <span class="chip" data-in="1.6" style="width:120px;height:46px;background:#f1efe9;border-color:#f1efe9"></span><span class="chip" data-in="1.9" style="width:160px;height:46px;background:#f1efe9;border-color:#f1efe9"></span><span class="chip" data-in="2.2" style="width:210px;height:46px;background:#f1efe9;border-color:#f1efe9"></span><span class="chip" data-in="2.5" style="width:110px;height:46px;background:#f1efe9;border-color:#f1efe9"></span><span class="chip" data-in="2.8" style="width:150px;height:46px;background:#f1efe9;border-color:#f1efe9"></span><span class="chip" data-in="3.1" style="width:180px;height:46px;background:#f1efe9;border-color:#f1efe9"></span><span class="chip" data-in="3.4" style="width:130px;height:46px;background:#f1efe9;border-color:#f1efe9"></span>
+  </div>
+  <div class="kicker" data-in="5.2">La lista de siempre. No es la de tu libro.</div>
+</section>
+
+<!-- 2. Lo que no está en el libro -->
+<section data-scene="no-esta">
+  <div style="display: flex; flex-direction: column; gap: 18px;">
+    <span class="chip red strike" data-in="0.6" data-strike="5.2">utilidad práctica</span>
+    <span class="chip red strike" data-in="1.4" data-strike="5.6">hombre de paja</span>
+  </div>
+  <div class="page" data-in="3.0">
+    <h4>Tu libro</h4>
+    <div class="bar"></div><div class="bar" style="width: 80%"></div><div class="bar"></div><div class="bar" style="width: 60%"></div><div class="bar"></div><div class="bar" style="width: 70%"></div>
+    <div class="scan" data-scan="3.6" data-scan-dur="2.2"></div>
+  </div>
+  <div class="mark" style="color: var(--red)" data-in="5.8">No está</div>
+</section>
+
+<!-- 3. Los siete del libro -->
+<section data-scene="siete">
+  <div class="page" style="height: 470px; width: 420px;">
+    <h4>Lengua y Literatura · 2.º BGU</h4>
+    <ul>
+      <li data-in="2.2">Datos contables</li>
+      <li data-in="3.4">Citas o argumentos de autoridad</li>
+      <li data-in="5.0">Ejemplo</li>
+      <li data-in="5.8">Experiencia personal</li>
+      <li data-in="7.0">Analogía</li>
+      <li data-in="7.9">Verdades universales</li>
+      <li data-in="9.0">Causa y consecuencia</li>
+    </ul>
+  </div>
+  <div class="big" style="color: var(--blue)" data-in="0.8">7 tipos</div>
+</section>
+
+<!-- 4. Tres listas -->
+<section data-scene="tres-listas">
+  <div class="col" data-in="0.2"><div class="page"><h4>El libro</h4><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><p style="color: var(--blue)">La que usan tus chicos</p></div>
+  <div class="col" data-in="1.0"><div class="page"><h4>El currículo</h4><div class="bar" style="width: 70%"></div><div class="bar" style="width: 90%"></div><div class="bar" style="width: 60%"></div><div class="bar" style="width: 80%"></div></div><p>Otra lista</p></div>
+  <div class="col" data-in="2.0"><div class="page"><h4>Gemini</h4><div class="bar" style="width: 85%"></div><div class="bar" style="width: 65%"></div><div class="bar" style="width: 95%"></div><div class="bar" style="width: 55%"></div><div class="bar" style="width: 75%"></div></div><p>Una tercera</p></div>
+</section>
+
+<!-- 5. Nombre vs página -->
+<section data-scene="adivina">
+  <div class="col" data-in="0.2">
+    <div class="bubble" style="text-align: left;">Usa el libro de Lengua de 2.º del Ministerio</div>
+    <div class="mark" style="color: var(--muted); margin-top: 26px;" data-in="1.4">¿…?</div>
+    <p>Adivina qué dice</p>
+  </div>
+  <div class="col" data-in="2.8">
+    <div class="page" style="height: 300px;"><h4>La página</h4><div class="bar"></div><div class="bar" style="width: 80%"></div><div class="bar"></div><div class="bar" style="width: 70%"></div><div class="bar"></div><div class="scan" data-scan="3.4" data-scan-dur="2.4"></div></div>
+    <p style="color: var(--blue)">La lee</p>
+  </div>
+</section>
+
+<!-- 6. La foto derecha -->
+<section data-scene="foto">
+  <div class="page" data-in="0.3" data-straighten="3.2" style="height: 360px;">
+    <h4>Foto de la página</h4><div class="bar"></div><div class="bar" style="width: 80%"></div><div class="bar"></div><div class="bar" style="width: 65%"></div><div class="bar"></div>
+  </div>
+  <div style="max-width: 420px;">
+    <div class="kicker" data-in="0.8">Primero</div>
+    <div class="big" data-in="3.6">La página entera y derecha.</div>
+  </div>
+</section>
+
+<!-- 7. Igual se revisa -->
+<section data-scene="revisa">
+  <div class="page" style="height: 380px; width: 400px;">
+    <h4>Lo que devolvió</h4>
+    <ul>
+      <li data-in="0.2"><div class="bar" style="margin:4px 0"></div></li>
+      <li data-in="0.5"><div class="bar" style="margin:4px 0; width:70%"></div></li>
+      <li data-in="0.8" style="color: var(--red); font-weight:700">¿Está en la página? ✗</li>
+      <li data-in="1.1"><div class="bar" style="margin:4px 0; width:85%"></div></li>
+      <li data-in="1.4"><div class="bar" style="margin:4px 0; width:60%"></div></li>
+    </ul>
+  </div>
+  <div style="max-width: 420px;">
+    <div class="kicker" data-in="0.8">Segundo</div>
+    <div class="big" data-in="4.2">Antes de imprimir, se revisa con el libro al lado.</div>
+  </div>
+</section>
+
+<!-- 8. La regla -->
+<section data-scene="regla">
+  <div class="rule" data-in="0.4">Si en tu clase un concepto tiene un nombre, pásale a Gemini la página donde aparece con ese nombre.</div>
+</section>
+
+<div class="progress"><i></i></div>
+
+<script src="scene-kit.js"></script>
+</body>
+</html>
