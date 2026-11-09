@@ -53,7 +53,8 @@ async def _add_user(email: str, role: str = "student") -> None:
         async with db.engine.begin() as connection:
             await connection.execute(
                 text("""
-                    INSERT INTO identity.app_user (id, email, full_name, password_hash, role, is_active)
+                    INSERT INTO identity.app_user
+                        (id, email, full_name, password_hash, role, is_active)
                     VALUES (:id, :email, 'Persona', 'argon2::fake', :role, true)
                 """),
                 {"id": uuid4(), "email": email, "role": role},

@@ -821,7 +821,8 @@ LESSON_EXAMPLES: dict[str, list[tuple[str, str]]] = {
 
 def _attach_examples(lessons: list[Lesson]) -> list[Lesson]:
     attached: list[Lesson] = []
-    for title, kind, duration, body in lessons:
+    for lesson in lessons:
+        title, body = lesson[0], lesson[3]
         examples = LESSON_EXAMPLES.get(title)
         if not examples:
             raise ValueError(f"Missing worked example for lesson: {title}")
@@ -829,7 +830,12 @@ def _attach_examples(lessons: list[Lesson]) -> list[Lesson]:
             f":::ejemplo {example_title}\n{example_body.strip()}\n:::"
             for example_title, example_body in examples
         )
-        attached.append((title, kind, duration, f"{body}\n\n{fences}"))
+        with_examples = f"{body}\n\n{fences}"
+        # A lesson may carry a fifth element, the media key; keep it.
+        if len(lesson) == 5:
+            attached.append((title, lesson[1], lesson[2], with_examples, lesson[4]))
+        else:
+            attached.append((title, lesson[1], lesson[2], with_examples))
     return attached
 
 

@@ -144,7 +144,8 @@ async def seed_activity_with_attempts(
         if for_other_user:
             await connection.execute(
                 text("""
-                    INSERT INTO identity.app_user (id, email, full_name, password_hash, role, is_active)
+                    INSERT INTO identity.app_user
+                        (id, email, full_name, password_hash, role, is_active)
                     VALUES (:id, :email, 'Otra', 'argon2::fake', 'student', true)
                 """),
                 {"id": author, "email": f"{author}@colegio.edu"},

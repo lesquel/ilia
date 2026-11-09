@@ -189,7 +189,8 @@ class TestAttemptFairness:
         async with database.engine.begin() as connection:
             await connection.execute(
                 text("""
-                    INSERT INTO identity.app_user (id, email, full_name, password_hash, role, is_active)
+                    INSERT INTO identity.app_user
+                        (id, email, full_name, password_hash, role, is_active)
                     VALUES (:uid, :email, 'Docente', 'argon2::fake', 'student', true)
                 """),
                 {"uid": user_id, "email": f"{user_id}@colegio.edu"},
