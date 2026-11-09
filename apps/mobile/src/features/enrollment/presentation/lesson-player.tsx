@@ -34,6 +34,9 @@ export function LessonPlayer({
 }) {
   const theme = useTheme();
   const restored = useRef(false);
+  // A link that expired or a file that is not there leaves a silent black box;
+  // the teacher needs to know it is the video, not their computer.
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
   const lastSaved = useRef(resumePositionSeconds);
   const [isReady, setIsReady] = useState(false);
   const [showResumeChoice, setShowResumeChoice] = useState(resumePositionSeconds > 4);
@@ -92,6 +95,10 @@ export function LessonPlayer({
   // Expo Web does not emit `sourceLoad`; `statusChange` is its ready signal.
   // Seeking through expo-video's imperative media handle is an external effect.
   useEventListener(player, 'statusChange', ({ status }) => {
+    if (status === 'error') {
+      setFailedUrl(url);
+      return;
+    }
     if (status !== 'readyToPlay') return;
     setIsReady(true);
     if (restored.current) return;
@@ -124,6 +131,8 @@ export function LessonPlayer({
     if (!isPlaying) savePosition(player.currentTime, true);
   });
   useEventListener(player, 'playToEnd', () => savePosition(player.currentTime, true));
+
+  if (failedUrl === url) return <LessonPlayerUnavailable />;
 
   return (
     <View

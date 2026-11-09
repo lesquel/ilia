@@ -453,7 +453,8 @@ function primaryAction(
     return { kind: 'write', label: 'Escribir el pedido', icon: Play, disabled: false };
   }
   if (scene?.type === 'lab' && labPhase === 'composing') {
-    return { kind: 'send', label: 'Enviar', icon: Send, disabled: false };
+    // The banner says nothing is sent; the button must not say it is.
+    return { kind: 'send', label: 'Ver qué devuelve', icon: Send, disabled: false };
   }
   if (scene?.type === 'lab' && labPhase === 'processing') {
     return { kind: 'send', label: 'Procesando…', icon: Send, disabled: true };
@@ -644,7 +645,9 @@ const styles = StyleSheet.create({
     paddingBottom: 88,
   },
   slideCopyInnerWide: {
-    paddingRight: 36,
+    // The presenter sits over the bottom-right corner (168 px wide, 8 px in).
+    // Every scene keeps clear of it, not only the idea scene.
+    paddingRight: 176,
     paddingBottom: 24,
   },
   ideaBeat: {
@@ -656,7 +659,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'stretch',
     gap: 28,
-    paddingRight: 168,
     minHeight: 520,
   },
   ideaArtColumn: {
