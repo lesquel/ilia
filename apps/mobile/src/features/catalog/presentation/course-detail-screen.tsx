@@ -24,13 +24,15 @@ import { breakpoint, useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
 import { MascotGuide } from '@/core/ui/mascot-guide';
 import { ErrorState, LoadingState } from '@/core/ui/state-view';
-import { useCourse } from '@/features/catalog/application/use-catalog';
+import { useCourse, useCourses } from '@/features/catalog/application/use-catalog';
 import {
+  LEVEL_LABELS,
   currentItemIdInModule,
   formatDuration,
   nextOpenSyllabusItem,
   syllabusStationLabel,
   syllabusStationStatuses,
+  startingCourseId,
   type Module,
   type ModuleActivity,
   type SyllabusStationStatus,
@@ -69,6 +71,8 @@ export function CourseDetailScreen({
   const isWide = width >= breakpoint.compact;
 
   const { course, isLoading, error, refetch } = useCourse(slug ?? '');
+  // Only the first course of the route is the door; the others say their level.
+  const { courses: catalog } = useCourses();
 
   if (isLoading) {
     return (
@@ -110,12 +114,14 @@ export function CourseDetailScreen({
       ? 'En curso · falta la práctica'
       : isEnrolled
         ? `En curso · ${completedLessonCount} de ${course.lessonCount}`
-        : 'Empieza aquí';
+        : course.id === startingCourseId(catalog)
+          ? 'Empieza aquí'
+          : `Nivel ${LEVEL_LABELS[course.level].toLocaleLowerCase('es')}`;
   const lede = isCourseFinished
     ? 'Terminaste este curso.'
     : isEnrolled && followTitle
       ? `Sigue: ${followTitle}.`
-      : 'Para que el lunes tengas la hoja, no otra tarde armándola.';
+      : course.summary;
   const mascotLine = isEnrolled && followTitle ? `Sigue: ${followTitle}.` : 'Cuando quieras, empezamos.';
   const activityCount = course.modules.reduce((total, module) => total + module.activities.length, 0);
 

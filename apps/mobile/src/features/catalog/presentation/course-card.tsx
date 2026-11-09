@@ -44,9 +44,14 @@ function cardLift(raised: boolean) {
   };
 }
 
-export function CourseCard({ course }: { course: CourseSummary }) {
+export function CourseCard({
+  course,
+  isStartHere = false,
+}: {
+  course: CourseSummary;
+  isStartHere?: boolean;
+}) {
   const theme = useTheme();
-  const isStartHere = course.level === 'beginner';
 
   return (
     // `Link` and not an onPress handler: on web this renders a real anchor, so

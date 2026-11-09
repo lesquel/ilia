@@ -7,7 +7,12 @@ import { BrandMark } from '@/core/ui/brand-mark';
 import { MascotGuide } from '@/core/ui/mascot-guide';
 import { breakpoint, useTheme } from '@/core/theme';
 import { useSession } from '@/features/auth';
-import { CourseCard, sortCoursesAlongLearningPath, useCourses } from '@/features/catalog';
+import {
+  CourseCard,
+  sortCoursesAlongLearningPath,
+  startingCourseId,
+  useCourses,
+} from '@/features/catalog';
 import { featuredCoursesHeading } from '@/features/landing/domain/entities';
 import { LandingHeroStage } from '@/features/landing/presentation/landing-hero-stage';
 
@@ -43,6 +48,7 @@ export function LandingScreen() {
     0,
     FEATURED_COURSE_COUNT,
   );
+  const startHereId = startingCourseId(courses);
   const catalogHasMore = courses.length > featuredCourses.length || Boolean(hasMore);
   const showGuestActions = !isSessionLoading && !isAuthenticated;
 
@@ -172,7 +178,7 @@ export function LandingScreen() {
                       : { paddingBottom: 16 }
                   }
                 >
-                  <CourseCard course={course} />
+                  <CourseCard course={course} isStartHere={course.id === startHereId} />
                 </View>
               ))}
             </View>

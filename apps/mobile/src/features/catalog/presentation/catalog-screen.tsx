@@ -19,6 +19,7 @@ import {
   LEVELS,
   LEVEL_LABELS,
   sortCoursesAlongLearningPath,
+  startingCourseId,
   emptyCatalogMessage,
   type Level,
 } from '@/features/catalog/domain/entities';
@@ -42,6 +43,7 @@ export function CatalogScreen() {
   const { courses, isLoading, error, hasMore, isLoadingMore, loadMore, refetch } =
     useCourses(filters);
   const coursesAlongPath = useMemo(() => sortCoursesAlongLearningPath(courses), [courses]);
+  const startHereId = useMemo(() => startingCourseId(courses), [courses]);
 
   // Same breakpoints as the mockup's container queries: one column on a phone,
   // two on a tablet, three on a desktop.
@@ -129,7 +131,7 @@ export function CatalogScreen() {
       keyExtractor={(course) => course.id}
       renderItem={({ item }) => (
         <View style={columns > 1 ? [styles.gridItem, { maxWidth: cardMaxWidth }] : undefined}>
-          <CourseCard course={item} />
+          <CourseCard course={item} isStartHere={item.id === startHereId} />
         </View>
       )}
       ListHeaderComponent={header}

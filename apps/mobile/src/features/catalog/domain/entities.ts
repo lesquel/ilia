@@ -115,6 +115,18 @@ export function sortCoursesAlongLearningPath<Course extends { level: Level }>(
   );
 }
 
+/**
+ * Only one course is the door. Several beginner cards all saying "start here"
+ * leave the teacher choosing instead of starting.
+ */
+export function startingCourseId<Course extends { id: string; level: Level }>(
+  catalog: Course[],
+): string | undefined {
+  // A filtered list without beginner courses has no door to point at.
+  const first = sortCoursesAlongLearningPath(catalog)[0];
+  return first?.level === 'beginner' ? first.id : undefined;
+}
+
 export function nextCourseAlongLearningPath<Course extends { id: string; level: Level }>(
   current: Course,
   catalog: Course[],

@@ -7,6 +7,7 @@ import {
   isSyllabusFinished,
   nextOpenSyllabusItem,
   sortCoursesAlongLearningPath,
+  startingCourseId,
   syllabusStationLabel,
   syllabusStationStatuses,
   type Level,
@@ -47,6 +48,20 @@ describe('sortCoursesAlongLearningPath', () => {
       'notebooklm',
       'evaluacion',
     ]);
+  });
+});
+
+describe('startingCourseId', () => {
+  it('marks a single starting course even when several are beginner', () => {
+    const catalog = [
+      { id: '1', slug: 'intro', level: 'beginner' as Level },
+      { id: '2', slug: 'prompting', level: 'beginner' as Level },
+      { id: '3', slug: 'notebooklm', level: 'intermediate' as Level },
+    ];
+
+    expect(startingCourseId(catalog)).toBe('1');
+    expect(startingCourseId([])).toBeUndefined();
+    expect(startingCourseId([catalog[2]!])).toBeUndefined();
   });
 });
 
