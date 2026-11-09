@@ -22,6 +22,17 @@ const CLIENT_PLATFORM = Platform.OS === 'web' ? 'web' : 'native';
  */
 export interface AuthTokenProvider {
   getAccessToken(): Promise<string | null>;
+  /**
+   * Renews the session after the short-lived access token expires. Resolves
+   * true when there is a new one to retry with. Without it a teacher is
+   * silently signed out fifteen minutes into a lesson.
+   */
+  refreshSession?(): Promise<boolean>;
+}
+
+/** Endpoints that hand out or drop credentials: a 401 there is the answer. */
+function canRetryAfterRefresh(path: string): boolean {
+  return !path.startsWith('/auth/') || path.startsWith('/auth/me');
 }
 
 export interface HttpClientOptions {
@@ -45,6 +56,9 @@ export interface RequestOptions {
 export class HttpClient {
   private readonly baseUrl: string;
   private tokenProvider?: AuthTokenProvider;
+  // One renewal at a time: a page fires several requests at once, and they
+  // all come back 401 together.
+  private refreshing: Promise<boolean> | null = null;
 
   constructor({ baseUrl = apiUrl, tokenProvider }: HttpClientOptions = {}) {
     this.baseUrl = baseUrl.replace(/\/$/, '');
@@ -62,7 +76,19 @@ export class HttpClient {
     this.tokenProvider = provider;
   }
 
-  async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  private refreshOnce(): Promise<boolean> {
+    const refresh = this.tokenProvider?.refreshSession;
+    if (!refresh) return Promise.resolve(false);
+    this.refreshing ??= refresh
+      .call(this.tokenProvider)
+      .catch(() => false)
+      .finally(() => {
+        this.refreshing = null;
+      });
+    return this.refreshing;
+  }
+
+  async request<T>(path: string, options: RequestOptions = {}, retried = false): Promise<T> {
     const { method = 'GET', body, signal, idempotencyKey, headers = {} } = options;
 
     const requestHeaders: Record<string, string> = {
@@ -97,6 +123,10 @@ export class HttpClient {
       });
     } catch (cause) {
       throw ApiError.network(cause);
+    }
+
+    if (response.status === 401 && !retried && canRetryAfterRefresh(path)) {
+      if (await this.refreshOnce()) return this.request<T>(path, options, true);
     }
 
     if (response.status === 204) {
