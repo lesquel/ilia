@@ -65,15 +65,19 @@ for (let frame = 0; frame < total; frame += 1) {
 }
 await browser.close();
 
-const subtitlesArg = assPath.replaceAll('\\', '/').replaceAll(':', '\\:').replaceAll("'", "\\'");
 const mp4Path = path.join(root, `${slug}.mp4`);
+// Captions travel as a soft track, not burned in: the lesson player reads the
+// sibling .vtt and shows them with its own CC toggle (same as render-module).
 const result = spawnSync(ffmpegPath, [
   '-hide_banner', '-loglevel', 'error', '-y',
   '-framerate', String(fps), '-i', path.join(framesDir, 'f%05d.jpg'),
   '-i', path.join(root, `${slug}.wav`),
-  '-vf', `subtitles=${subtitlesArg},format=yuv420p`,
+  '-i', vttPath,
+  '-map', '0:v:0', '-map', '1:a:0', '-map', '2:s:0',
+  '-vf', 'format=yuv420p',
   '-c:v', 'libx264', '-preset', 'medium', '-crf', '20',
   '-c:a', 'aac', '-b:a', '160k', '-ar', '48000', '-af', 'loudnorm=I=-18:LRA=7:TP=-2',
+  '-c:s', 'mov_text', '-metadata:s:s:0', 'language=spa', '-disposition:s:0', '0',
   '-shortest', '-movflags', '+faststart',
   '-metadata', `title=${module.title} | ILIA`,
   '-metadata', `comment=${process.env.ILIA_VOICE_NOTE ?? 'Narración sintética (voz neural). Animación generada.'}`,

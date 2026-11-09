@@ -155,7 +155,7 @@ export function LessonPlayer({
         contentFit="contain"
         playsInline
       />
-      {captionsUrl ? (
+      {captionsUrl && cues.length > 0 ? (
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={captionsEnabled ? 'Desactivar subtítulos' : 'Activar subtítulos'}

@@ -183,7 +183,9 @@ async def read_lesson(
             view.content.resource_ref,
             ttl=timedelta(seconds=settings.storage_url_ttl_seconds),
         )
-        if slug == "introduccion-ia-docentes" and view.kind == "video":
+        # Every video may have a sibling .vtt; the player shows the CC toggle only
+        # when that file actually loads.
+        if view.kind == "video":
             captions_ref = str(PurePosixPath(view.content.resource_ref).with_suffix(".vtt"))
             captions = request.app.state.storage.read_url(
                 captions_ref,
