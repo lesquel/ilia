@@ -52,4 +52,3 @@ class ObjectStorage(Protocol):
     async def delete(self, reference: str) -> None:
         """Delete an object by its server-owned opaque reference."""
         ...
-

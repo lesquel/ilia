@@ -124,9 +124,7 @@ class SessionResponse(BaseModel):
     expires_in: int | None = None
 
     @classmethod
-    def for_native(
-        cls, session: Session, *, avatar_url: str | None = None
-    ) -> "SessionResponse":
+    def for_native(cls, session: Session, *, avatar_url: str | None = None) -> "SessionResponse":
         return cls(
             user=UserResponse.from_entity(session.user, avatar_url=avatar_url),
             access_token=session.tokens.access_token,

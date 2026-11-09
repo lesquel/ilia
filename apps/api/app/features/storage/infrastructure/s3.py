@@ -74,9 +74,7 @@ class S3CompatibleStorage:
     def write_url(self, reference: str, *, content_type: str, ttl: timedelta) -> SignedUrl:
         # Bind Content-Type as a SigV4 header. Putting it into the query string
         # would not constrain the object metadata sent by an upload client.
-        return self._signed(
-            "PUT", reference, ttl, signed_headers={"content-type": content_type}
-        )
+        return self._signed("PUT", reference, ttl, signed_headers={"content-type": content_type})
 
     async def read_bytes(self, reference: str, *, max_bytes: int) -> bytes:
         """Read no more than max_bytes + 1, so oversized objects are rejected."""
@@ -101,4 +99,3 @@ class S3CompatibleStorage:
         async with httpx.AsyncClient(timeout=10.0, follow_redirects=False) as client:
             response = await client.delete(signed.url)
             response.raise_for_status()
-

@@ -46,8 +46,10 @@ class SqlAlchemyUserRepository:
             return []
         async with self._db.session() as session:
             rows = (
-                await session.execute(select(UserModel).where(UserModel.id.in_(user_ids)))
-            ).scalars().all()
+                (await session.execute(select(UserModel).where(UserModel.id.in_(user_ids))))
+                .scalars()
+                .all()
+            )
             return [_to_entity(row) for row in rows]
 
     async def get_by_email(self, email: Email) -> User | None:

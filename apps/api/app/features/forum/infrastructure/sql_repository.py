@@ -107,13 +107,17 @@ class SqlAlchemyThreadRepository:
         if not course_ids:
             return []
         async with self._db.session() as session:
-            rows = (await session.scalars(
-                select(ForumThreadModel).where(
-                    ForumThreadModel.author_id == author_id,
-                    ForumThreadModel.course_id.in_(course_ids),
+            rows = (
+                await session.scalars(
+                    select(ForumThreadModel)
+                    .where(
+                        ForumThreadModel.author_id == author_id,
+                        ForumThreadModel.course_id.in_(course_ids),
+                    )
+                    .order_by(ForumThreadModel.created_at.desc())
+                    .limit(limit)
                 )
-                .order_by(ForumThreadModel.created_at.desc()).limit(limit)
-            )).all()
+            ).all()
         return [_to_thread(row) for row in rows]
 
 
@@ -163,13 +167,16 @@ class SqlAlchemyPostRepository:
         if not course_ids:
             return []
         async with self._db.session() as session:
-            rows = (await session.scalars(
-                select(ForumPostModel).join(
-                    ForumThreadModel, ForumThreadModel.id == ForumPostModel.thread_id
-                ).where(
-                    ForumPostModel.author_id == author_id,
-                    ForumThreadModel.course_id.in_(course_ids),
+            rows = (
+                await session.scalars(
+                    select(ForumPostModel)
+                    .join(ForumThreadModel, ForumThreadModel.id == ForumPostModel.thread_id)
+                    .where(
+                        ForumPostModel.author_id == author_id,
+                        ForumThreadModel.course_id.in_(course_ids),
+                    )
+                    .order_by(ForumPostModel.created_at.desc())
+                    .limit(limit)
                 )
-                .order_by(ForumPostModel.created_at.desc()).limit(limit)
-            )).all()
+            ).all()
         return [_to_post(row) for row in rows]

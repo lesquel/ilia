@@ -36,4 +36,3 @@ class LocalStorage:
 
     async def delete(self, reference: str) -> None:
         raise NotImplementedError("Uploads need real object storage. Set ILIA_STORAGE_PROVIDER.")
-

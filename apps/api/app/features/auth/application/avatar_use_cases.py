@@ -124,9 +124,7 @@ class SelectProfileAvatar:
 
 
 class RemoveProfileAvatar:
-    async def execute(
-        self, *, user: User, users: UserRepository, storage: ObjectStorage
-    ) -> User:
+    async def execute(self, *, user: User, users: UserRepository, storage: ObjectStorage) -> User:
         old_key = user.avatar_key
         previous = user.clear_avatar()
         try:

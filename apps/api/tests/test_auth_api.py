@@ -324,9 +324,7 @@ class FakeAvatarStorage:
 
 class TestProfileAvatar:
     def test_avatar_routes_require_a_session(self, client: TestClient) -> None:
-        response = client.put(
-            "/api/v1/auth/me/avatar", json={"avatar_key": "colibri"}, headers=WEB
-        )
+        response = client.put("/api/v1/auth/me/avatar", json={"avatar_key": "colibri"}, headers=WEB)
 
         assert response.status_code == 401
 
@@ -335,9 +333,7 @@ class TestProfileAvatar:
     ) -> None:
         register(client, WEB)
 
-        selected = client.put(
-            "/api/v1/auth/me/avatar", json={"avatar_key": "colibri"}, headers=WEB
-        )
+        selected = client.put("/api/v1/auth/me/avatar", json={"avatar_key": "colibri"}, headers=WEB)
 
         assert selected.status_code == 200
         assert selected.json()["avatar_key"] == "colibri"
@@ -420,9 +416,7 @@ class TestProfileAvatar:
             json={"content_type": "image/png"},
             headers=WEB,
         ).json()
-        client.post(
-            "/api/v1/auth/me/avatar", json={"reference": upload["reference"]}, headers=WEB
-        )
+        client.post("/api/v1/auth/me/avatar", json={"reference": upload["reference"]}, headers=WEB)
 
         removed = client.delete("/api/v1/auth/me/avatar", headers=WEB)
 

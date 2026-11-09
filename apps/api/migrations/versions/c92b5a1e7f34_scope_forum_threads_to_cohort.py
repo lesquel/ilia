@@ -40,9 +40,7 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.drop_index(
-        "ix_forum_thread_forum_activity", table_name="forum_thread", schema="community"
-    )
+    op.drop_index("ix_forum_thread_forum_activity", table_name="forum_thread", schema="community")
     op.drop_constraint(
         "fk_forum_thread_cohort", "forum_thread", schema="community", type_="foreignkey"
     )

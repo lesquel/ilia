@@ -12,8 +12,12 @@ depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
-    op.add_column("app_user", sa.Column("avatar_key", sa.String(length=40), nullable=True), schema="auth")
-    op.add_column("app_user", sa.Column("avatar_ref", sa.String(length=512), nullable=True), schema="auth")
+    op.add_column(
+        "app_user", sa.Column("avatar_key", sa.String(length=40), nullable=True), schema="auth"
+    )
+    op.add_column(
+        "app_user", sa.Column("avatar_ref", sa.String(length=512), nullable=True), schema="auth"
+    )
     op.create_check_constraint(
         "ck_app_user_avatar_choice",
         "app_user",

@@ -176,9 +176,7 @@ class TestThreads:
         )
 
         listing = client.get(forum_threads("ia-basica"), headers=auth(token)).json()[0]
-        detail = client.get(
-            f"{FORUM}/ia-basica/threads/{thread_id}", headers=auth(token)
-        ).json()
+        detail = client.get(f"{FORUM}/ia-basica/threads/{thread_id}", headers=auth(token)).json()
 
         for author in (listing, detail):
             assert author["author_name"] == "Ana Docente"
@@ -190,9 +188,7 @@ class TestThreads:
         assert detail["posts"][0]["author_id"] == str(reply_user.id)
         assert "email" not in detail["posts"][0]
 
-    def test_forum_access_is_checked_before_minting_avatar_urls(
-        self, client: TestClient
-    ) -> None:
+    def test_forum_access_is_checked_before_minting_avatar_urls(self, client: TestClient) -> None:
         member_token = enrolled(client)
         author = next(iter(client.app.state.auth["users"]._by_id.values()))
         author.avatar_ref = f"avatars/{author.id}/{'a' * 32}"
@@ -200,9 +196,7 @@ class TestThreads:
         client.app.state.storage = storage
         client.post(forum_threads("ia-basica"), json=THREAD, headers=auth(member_token))
         storage.reads.clear()
-        member_response = client.get(
-            forum_threads("ia-basica"), headers=auth(member_token)
-        )
+        member_response = client.get(forum_threads("ia-basica"), headers=auth(member_token))
         assert member_response.status_code == 200
         assert member_response.json()[0]["author_avatar_url"].startswith(
             "https://storage.example/avatars/"
@@ -210,9 +204,7 @@ class TestThreads:
         storage.reads.clear()
         outsider = register(client, "otra@colegio.edu", "Otra Persona")
 
-        response = client.get(
-            forum_threads("ia-basica"), headers=auth(outsider)
-        )
+        response = client.get(forum_threads("ia-basica"), headers=auth(outsider))
 
         assert response.status_code == 403
         assert storage.reads == []

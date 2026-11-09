@@ -101,9 +101,7 @@ class ListThreads:
         cohort_id: UUID | None,
     ) -> list[ForumThread]:
         course = await self._access.course_for(user=user, slug=slug)
-        await self._access.validate_cohort_forum(
-            user=user, course=course, cohort_id=cohort_id
-        )
+        await self._access.validate_cohort_forum(user=user, course=course, cohort_id=cohort_id)
         if module_id not in {module.id for module in course.modules}:
             raise ForumModuleNotFoundError()
         return await self._threads.list_for_module(
@@ -135,9 +133,7 @@ class OpenThread:
         cohort_id: UUID | None,
     ) -> ForumThread:
         course = await self._access.course_for(user=user, slug=slug)
-        await self._access.validate_cohort_forum(
-            user=user, course=course, cohort_id=cohort_id
-        )
+        await self._access.validate_cohort_forum(user=user, course=course, cohort_id=cohort_id)
         if module_id not in {module.id for module in course.modules}:
             raise ForumModuleNotFoundError()
 
@@ -187,9 +183,7 @@ class ReadThread:
         # id would be readable through any course the caller happens to be in.
         if thread is None or thread.course_id != course.id or thread.cohort_id != cohort_id:
             raise ThreadNotFoundError()
-        await self._access.validate_cohort_forum(
-            user=user, course=course, cohort_id=cohort_id
-        )
+        await self._access.validate_cohort_forum(user=user, course=course, cohort_id=cohort_id)
 
         return ThreadWithPosts(thread=thread, posts=await self._posts.list_for_thread(thread_id))
 
@@ -223,9 +217,7 @@ class ReplyToThread:
         thread = await self._threads.get(thread_id)
         if thread is None or thread.course_id != course.id or thread.cohort_id != cohort_id:
             raise ThreadNotFoundError()
-        await self._access.validate_cohort_forum(
-            user=user, course=course, cohort_id=cohort_id
-        )
+        await self._access.validate_cohort_forum(user=user, course=course, cohort_id=cohort_id)
 
         now = self._clock.now()
 

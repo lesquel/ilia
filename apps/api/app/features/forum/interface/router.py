@@ -214,7 +214,9 @@ async def community_courses(
                             ],
                         )
                         for module in course.ordered_modules
-                    ] if course else [],
+                    ]
+                    if course
+                    else [],
                 )
             )
         if page.next_cursor is None:
@@ -289,7 +291,9 @@ async def community_member(
                                 ],
                             )
                             for module in detail.ordered_modules
-                        ] if detail else [],
+                        ]
+                        if detail
+                        else [],
                     )
             if page.next_cursor is None:
                 return result
@@ -400,9 +404,7 @@ async def community_member(
                         "",
                     ),
                     cohort_id=thread.cohort_id,
-                    cohort_title=cohort_titles.get(thread.cohort_id)
-                    if thread.cohort_id
-                    else None,
+                    cohort_title=cohort_titles.get(thread.cohort_id) if thread.cohort_id else None,
                 )
             )
     activity.sort(
@@ -414,9 +416,7 @@ async def community_member(
         full_name=member.full_name,
         avatar_key=member.avatar_key,
         avatar_url=(
-            avatar_read_url(member, request.app.state.storage)
-            if is_self or shared_scopes
-            else None
+            avatar_read_url(member, request.app.state.storage) if is_self or shared_scopes else None
         ),
         activity=activity[:50],
     )
@@ -452,9 +452,7 @@ async def list_threads(
             can_moderate=moderator,
             author=by_id.get(item.author_id),
             avatar_url=(
-                avatar_read_url(by_id[item.author_id], storage)
-                if item.author_id in by_id
-                else None
+                avatar_read_url(by_id[item.author_id], storage) if item.author_id in by_id else None
             ),
         )
         for item in found

@@ -553,7 +553,9 @@ La próxima semana le pasamos a Gemini tu unidad entera, no una página, y vemos
 MODULE_3_LESSONS: list[Lesson] = [
     _video("¿Cómo te fue?", 33, M3_COMO_TE_FUE, "3-1-como-te-fue"),
     _text("Antes de empezar", 120, M3_ANTES),
-    _video("Pedir desde el tema y desde la destreza", 74, M3_TEMA_O_DESTREZA, "3-3-tema-o-destreza"),
+    _video(
+        "Pedir desde el tema y desde la destreza", 74, M3_TEMA_O_DESTREZA, "3-3-tema-o-destreza"
+    ),
     _video(
         "Destreza, evidencia y clase",
         56,

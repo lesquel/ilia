@@ -44,7 +44,8 @@ class InMemoryThreadRepository:
         self, author_id: UUID, *, course_ids: set[UUID], limit: int = 50
     ) -> list[ForumThread]:
         matching = [
-            item for item in self._threads.values()
+            item
+            for item in self._threads.values()
             if item.author_id == author_id and item.course_id in course_ids
         ]
         matching.sort(
@@ -83,7 +84,8 @@ class InMemoryPostRepository:
             if thread.course_id in course_ids
         }
         matching = [
-            item for item in self._posts.values()
+            item
+            for item in self._posts.values()
             if item.author_id == author_id and item.thread_id in visible_thread_ids
         ]
         matching.sort(
