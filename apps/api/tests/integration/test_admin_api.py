@@ -307,7 +307,7 @@ class TestPagination:
 
     def test_a_page_reports_the_total_beyond_it(self, client: TestClient, admin: str) -> None:
         for n in range(5):
-            register(client, f"docente{n}@colegio.edu", f"Docente {n}")
+            register(client, f"docente{n}@colegio.edu", f"Docente {'ABCDEFGHIJ'[n]}")
 
         page = client.get(f"{API}/users", params={"limit": 2}, headers=auth(admin)).json()
 
@@ -320,7 +320,7 @@ class TestPagination:
         self, client: TestClient, admin: str
     ) -> None:
         for n in range(5):
-            register(client, f"docente{n}@colegio.edu", f"Docente {n}")
+            register(client, f"docente{n}@colegio.edu", f"Docente {'ABCDEFGHIJ'[n]}")
 
         seen: list[str] = []
         for offset in (0, 2, 4):
