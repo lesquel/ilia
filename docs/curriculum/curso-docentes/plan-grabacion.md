@@ -2,6 +2,8 @@
 
 Parte de [curso-docentes](./README.md). Para una jornada de unas 5 horas.
 
+> **Estado, noviembre de 2026.** Solo se grabó el módulo 1 (seis videos, ver [transcripciones-modulo-1.md](./transcripciones-modulo-1.md)); sus nombres de archivo no siguen la numeración de este plan. Los módulos siguientes no se graban: se hacen con IA, con pedidos reales en Gemini guardados tal cual salen y narración sintética. Este plan queda como referencia de qué muestra cada video.
+
 ## Qué cabe en 5 horas
 
 Los módulos 1, 2 y 3: 16 videos y unos 39 minutos de video final.

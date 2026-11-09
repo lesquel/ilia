@@ -2,6 +2,8 @@
 
 *Lengua y Literatura 2 BGU*, Ministerio de Educación, 2025. Leídos en las páginas del [índice](https://mislibrostexto.com/ec/edu/bachillerato/2do-bgu/lengua-y-literatura-2-bgu): 31 (falacias), 37 (tema y tesis), 41 a 43 (tipos de argumento). Sirven para pegarlos en Gemini. No hace falta el libro en papel.
 
+Ojo con la numeración: es la del visor web, que cuenta la portada. En el libro impreso los tipos de argumento están en las páginas 40 a 42 (comprobado en noviembre de 2026). Las demás páginas no se han cotejado con el impreso.
+
 El nombre del libro en el pedido no alcanza. Hay que pegarle esta lista.
 
 ## Para pegar

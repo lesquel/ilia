@@ -17,6 +17,8 @@ Docentes de colegio (el primer segmento es Manta) que llegan cansados, en horari
 | NotebookLM en el aula | Intermedio | Aplicaciones + ética (profundizar) | Guía, preguntas y nota a familias **desde su material** |
 | Evaluación asistida por IA | Experto | Evaluación + agencia (crear) | Una rúbrica observable y un criterio para no dejar que el modelo certifique solo |
 
+> **Nombre del producto.** Desde el 16 de julio de 2026, NotebookLM se llama Gemini Notebook ([anuncio de Google](https://blog.google/innovation-and-ai/products/gemini-notebook/notebooklm-gemini-notebook/?hl=es)). Es la misma herramienta y los enlaces viejos redirigen. El curso, su slug `notebooklm-en-el-aula` y los guiones V3–V4 todavía usan el nombre anterior.
+
 Referencia: [Marco de competencias de IA para docentes, UNESCO](https://www.unesco.org/en/articles/ai-competency-framework-teachers) (publicado 2024, ficha actualizada enero 2026). No lo citamos en cada lección: se nota en el diseño (humano al centro, ética al cargar fuentes, evaluación que se puede defender).
 
 ## De dónde sale el prompting (septiembre 2026)

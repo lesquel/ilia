@@ -80,7 +80,7 @@ Unos 35 minutos, con 12 de video.
 |---|---|---|
 | 0:00 | Abres el PDF del libro en la página de tipos de argumento | «Esta es la página del libro de segundo que usa Andrés. Ten abierta la tuya, de tu materia.» |
 | 0:20 | Muestras la captura que sacaste | «Le saqué una captura. En el celular basta con tomarle una foto a la página.» |
-| 0:40 | En Gemini, «Nuevo chat». Clic en «Agregar archivos» (el +) y subes la imagen | «Aquí se suben fotos, capturas o un PDF. Mejor solo la página que necesitas, no el libro entero.» |
+| 0:40 | En Gemini, «Nuevo chat». Clic en el + («Subidas y herramientas» en la web) y subes la imagen | «Aquí se suben fotos, capturas o un PDF. Mejor solo la página que necesitas, no el libro entero.» |
 | 1:10 | Escribes el pedido (abajo), línea por línea | En la línea de «solo los tipos que aparecen en esa página»: «Esta es la línea importante. Sin ella, la página es una sugerencia.» |
 | 2:10 | En la línea de los corchetes | «Un argumento de datos necesita un dato. Si le digo que no invente cifras, le pido que me deje el hueco para ponerla yo.» |
 | 2:40 | Envías y bajas por la respuesta | Revisas en voz alta la tabla: si cada tipo está en la página y con el mismo nombre |
@@ -102,7 +102,7 @@ Copia la respuesta en tu documento de respuestas reales. Va en el texto de 2.4 y
 **Texto de la lección**
 
 1. Abre la página de tu libro y sácale una captura o una foto.
-2. En Gemini, haz clic en «Agregar archivos» (el +) y súbela. Se pueden subir hasta 10 archivos por mensaje.
+2. En Gemini, haz clic en el + (en la web se llama «Subidas y herramientas») y súbela. Si son varias páginas, júntalas en una sola imagen: con tres imágenes sueltas, Gemini se quedó colgado.
 3. En el pedido, di que use solo lo que está en esa página y con los mismos nombres.
 4. Si tu hoja necesita datos, pide que deje el hueco entre corchetes. El dato lo pones tú.
 
@@ -241,7 +241,7 @@ El laboratorio de hoy solo recibe texto, no imágenes. Mientras no acepte archiv
 
 ## Pendiente de confirmar
 
-- Que Gemini en la web deja pegar una captura con Ctrl + V o Cmd + V, además de subirla con el +.
-- El nombre del + en español, en la web y en la app.
-- Las páginas del libro.
+- ~~Que Gemini en la web deja pegar una captura con Ctrl + V o Cmd + V, además de subirla con el +.~~ Confirmado en la web (noviembre de 2026): Cmd + V adjunta la captura.
+- El nombre del + en español, en la web y en la app. En la web, el botón se anuncia como «Subidas y herramientas». Falta la app.
+- Las páginas del libro. Los tipos de argumento están en las páginas 41 a 43 del visor web y 40 a 42 del impreso (ver [puchitos-libro.md](./puchitos-libro.md)).
 - Que el PDF del libro está en la página de textos del Ministerio.
