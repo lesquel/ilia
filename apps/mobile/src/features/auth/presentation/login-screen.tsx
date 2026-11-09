@@ -1,5 +1,5 @@
 import { Link, useLocalSearchParams, useRouter, type Href } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -17,7 +17,7 @@ import { ApiError } from '@/core/errors/api-error';
 import { breakpoint, useTheme } from '@/core/theme';
 import { AuthShell } from '@/features/auth/presentation/auth-shell';
 import { useLogin } from '@/features/auth/application/use-auth';
-import { safeDestination } from '@/features/auth/domain/entities';
+import { credentialsToSubmit, safeDestination } from '@/features/auth/domain/entities';
 
 /** Wording the teacher reads, chosen here from the backend's stable error code. */
 function messageFor(error: unknown): string {
@@ -56,12 +56,27 @@ export function LoginScreen() {
   const [password, setPassword] = useState('');
   const [revealed, setRevealed] = useState(false);
 
-  const canSubmit = email.trim().length > 0 && password.length > 0 && !login.isPending;
+  const [missing, setMissing] = useState(false);
+  const emailRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);
+
+  // On the web a TextInput is an <input>; its value is what Chrome autofilled
+  // even when React never heard about it.
+  const fieldValue = (ref: typeof emailRef) =>
+    Platform.OS === 'web'
+      ? ((ref.current as unknown as { value?: string } | null)?.value ?? '')
+      : '';
 
   const submit = () => {
-    if (!canSubmit) return;
+    if (login.isPending) return;
+    const credentials = credentialsToSubmit(
+      { email, password },
+      { email: fieldValue(emailRef), password: fieldValue(passwordRef) },
+    );
+    setMissing(credentials === null);
+    if (!credentials) return;
     login.mutate(
-      { email: email.trim(), password },
+      credentials,
       // Back to where they were going, not to a generic home page.
       { onSuccess: () => router.replace(destination) },
     );
@@ -96,6 +111,7 @@ export function LoginScreen() {
           <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>Correo</Text>
           <TextInput
             style={inputStyle}
+            ref={emailRef}
             value={email}
             onChangeText={setEmail}
             placeholder="docente@colegio.edu"
@@ -121,6 +137,7 @@ export function LoginScreen() {
           </View>
           <TextInput
             style={inputStyle}
+            ref={passwordRef}
             value={password}
             onChangeText={setPassword}
             placeholder="••••••••"
@@ -139,7 +156,14 @@ export function LoginScreen() {
             Olvidé mi contraseña
           </Link>
 
-          {login.isError ? (
+          {missing ? (
+            <Text
+              style={[styles.error, { color: theme.colors.accentRamp[700] }]}
+              accessibilityRole="alert"
+            >
+              Escribe tu correo y tu contraseña.
+            </Text>
+          ) : login.isError ? (
             <Text
               style={[styles.error, { color: theme.colors.accentRamp[700] }]}
               accessibilityRole="alert"
@@ -150,14 +174,14 @@ export function LoginScreen() {
 
           <Pressable
             onPress={submit}
-            disabled={!canSubmit}
+            disabled={login.isPending}
             accessibilityRole="button"
             style={({ pressed }) => [
               styles.button,
               {
                 backgroundColor: theme.colors.accentButton,
                 borderRadius: theme.radius.md,
-                opacity: !canSubmit ? 0.5 : pressed ? 0.85 : 1,
+                opacity: login.isPending ? 0.5 : pressed ? 0.85 : 1,
               },
             ]}
           >

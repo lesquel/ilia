@@ -4,10 +4,34 @@ import {
   DEFAULT_DESTINATION,
   FULL_NAME_MAX_LENGTH,
   cleanFullName,
+  credentialsToSubmit,
   isEmailFieldRejected,
   isFullNameChange,
   safeDestination,
 } from './entities';
+
+describe('credentialsToSubmit', () => {
+  it('uses what the teacher typed', () => {
+    expect(credentialsToSubmit({ email: ' ana@colegio.edu ', password: 'clave' })).toEqual({
+      email: 'ana@colegio.edu',
+      password: 'clave',
+    });
+  });
+
+  it('falls back to what the browser autofilled but never reported', () => {
+    expect(
+      credentialsToSubmit(
+        { email: '', password: '' },
+        { email: 'ana@colegio.edu', password: 'clave' },
+      ),
+    ).toEqual({ email: 'ana@colegio.edu', password: 'clave' });
+  });
+
+  it('refuses when a field is still empty', () => {
+    expect(credentialsToSubmit({ email: 'ana@colegio.edu', password: '' })).toBeNull();
+    expect(credentialsToSubmit({ email: '  ', password: 'clave' }, { email: '' })).toBeNull();
+  });
+});
 
 describe('safeDestination', () => {
   it('keeps an internal path so the person lands where they were going', () => {

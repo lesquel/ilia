@@ -158,6 +158,21 @@ export interface Session {
 export const DEFAULT_DESTINATION = '/catalog';
 
 /**
+ * Chrome shows saved credentials in the fields but does not report them to the
+ * page until the person interacts, so the form state can be empty while the
+ * fields look full. Pressing "Entrar" is that interaction: read what the
+ * fields hold at that moment instead of keeping the button disabled.
+ */
+export function credentialsToSubmit(
+  typed: Credentials,
+  autofilled: Partial<Credentials> = {},
+): Credentials | null {
+  const email = typed.email.trim() || autofilled.email?.trim() || '';
+  const password = typed.password || autofilled.password || '';
+  return email && password ? { email, password } : null;
+}
+
+/**
  * Sanitise the `next` parameter carried to the login screen.
  *
  * Only an internal path is ever accepted. Redirecting to whatever arrives in a
