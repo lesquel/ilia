@@ -1,62 +1,62 @@
 [
   {
     "offset": 0.0,
-    "duration": 4.8,
+    "duration": 4.7,
     "text": "Ahora sí le pides la clase, para llegar a la opción que elegiste."
   },
   {
-    "offset": 5.1,
-    "duration": 6.52,
+    "offset": 5.0,
+    "duration": 6.0,
     "text": "Y le pides que, en cada momento, te diga cuántos minutos dura, qué haces tú y qué hacen ellos."
   },
   {
-    "offset": 11.92,
-    "duration": 7.8,
+    "offset": 11.3,
+    "duration": 7.58,
     "text": "Si Gemini se queda pensando mucho rato, recarga la página: a veces el mensaje se pierde y hay que enviarlo otra vez."
   },
   {
-    "offset": 20.02,
-    "duration": 3.36,
+    "offset": 19.180000000000003,
+    "duration": 2.38,
     "text": "La clase llega en cuatro momentos."
   },
   {
-    "offset": 23.68,
-    "duration": 2.48,
+    "offset": 21.860000000000003,
+    "duration": 2.14,
     "text": "El gancho, cinco minutos."
   },
   {
-    "offset": 26.46,
-    "duration": 2.28,
+    "offset": 24.300000000000004,
+    "duration": 2.2,
     "text": "La caja de herramientas, diez."
   },
   {
-    "offset": 29.040000000000003,
-    "duration": 2.12,
+    "offset": 26.800000000000004,
+    "duration": 1.66,
     "text": "El polígrafo, diez."
   },
   {
-    "offset": 31.460000000000004,
-    "duration": 3.08,
+    "offset": 28.760000000000005,
+    "duration": 2.68,
     "text": "Y la defensa a la carta, quince."
   },
   {
-    "offset": 34.84,
-    "duration": 5.48,
+    "offset": 31.740000000000006,
+    "duration": 4.92,
     "text": "En los últimos quince lo escriben en clase, no de deber, para que no lo haga la IA por ellos."
   },
   {
-    "offset": 40.620000000000005,
-    "duration": 3.52,
+    "offset": 36.96,
+    "duration": 3.0,
     "text": "Le pediste separar lo que haces tú de lo que hacen ellos."
   },
   {
-    "offset": 44.440000000000005,
-    "duration": 3.64,
+    "offset": 40.26,
+    "duration": 3.14,
     "text": "Así ves de una vez si hablas toda la hora."
   },
   {
-    "offset": 48.38,
-    "duration": 3.04,
+    "offset": 43.699999999999996,
+    "duration": 2.54,
     "text": "Esta clase la armaste desde lo que quieres ver al final."
   }
 ]

@@ -10,19 +10,19 @@ Style: Default,Arial,24,&H00171B1B,&H000000FF,&H10F7FAFB,&H10F7FAFB,1,0,3,10,0,2
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-Dialogue: 0,0:00:00.00,0:00:02.48,Default,,0,0,0,,A veces no sabes bien qué contarle.
-Dialogue: 0,0:00:02.77,0:00:06.33,Default,,0,0,0,,Entonces le pides que te pregunte él.
-Dialogue: 0,0:00:06.63,0:00:09.51,Default,,0,0,0,,Fíjate en la última línea: una por una.
-Dialogue: 0,0:00:09.82,0:00:13.74,Default,,0,0,0,,La primera pregunta ya enseña algo.
-Dialogue: 0,0:00:14.04,0:00:17.24,Default,,0,0,0,,Habla de la Selectividad, que es un examen de España.
-Dialogue: 0,0:00:17.54,0:00:24.18,Default,,0,0,0,,Para Gemini, segundo de Bachillerato sin más es España.
-Dialogue: 0,0:00:24.48,0:00:31.52,Default,,0,0,0,,Andrés le contesta con lo suyo: Ecuador, colegio fiscal de Manta, treinta y cinco estudiantes.
-Dialogue: 0,0:00:31.82,0:00:38.38,Default,,0,0,0,,En la segunda pregunta, mira esto: menciona el uniforme y el libro del Ministerio, que eran de otro chat.
-Dialogue: 0,0:00:38.67,0:00:41.75,Default,,0,0,0,,Gemini recuerda tus conversaciones anteriores.
-Dialogue: 0,0:00:42.05,0:00:45.49,Default,,0,0,0,,Por eso nunca se pegan nombres ni notas de estudiantes.
-Dialogue: 0,0:00:45.79,0:00:49.71,Default,,0,0,0,,Con tres preguntas, ya propone la clase.
-Dialogue: 0,0:00:50.01,0:00:56.41,Default,,0,0,0,,Y te enseña qué le faltaba a tu pedido; la próxima vez lo pones sin que te pregunte.
-Dialogue: 0,0:00:56.71,0:01:01.71,Default,,0,0,0,,Pero revisa los nombres: argumento de hecho, causa-efecto, ejemplificación.
-Dialogue: 0,0:01:02.01,0:01:06.21,Default,,0,0,0,,Dice que salen de la unidad uno del libro, y el libro nunca lo vio.
-Dialogue: 0,0:01:06.51,0:01:11.19,Default,,0,0,0,,Si te pregunta algo que no sabes, dile que no sabes.
-Dialogue: 0,0:01:11.49,0:01:15.09,Default,,0,0,0,,Es mejor eso que inventarle una respuesta.
+Dialogue: 0,0:00:00.00,0:00:02.00,Default,,0,0,0,,A veces no sabes bien qué contarle.
+Dialogue: 0,0:00:02.29,0:00:05.21,Default,,0,0,0,,Entonces le pides que te pregunte él.
+Dialogue: 0,0:00:05.51,0:00:07.95,Default,,0,0,0,,Fíjate en la última línea: una por una.
+Dialogue: 0,0:00:08.25,0:00:12.08,Default,,0,0,0,,La primera pregunta ya enseña algo.
+Dialogue: 0,0:00:12.38,0:00:15.06,Default,,0,0,0,,Habla de la Selectividad, que es un examen de España.
+Dialogue: 0,0:00:15.36,0:00:21.90,Default,,0,0,0,,Para Gemini, segundo de Bachillerato sin más es España.
+Dialogue: 0,0:00:22.20,0:00:29.00,Default,,0,0,0,,Andrés le contesta con lo suyo: Ecuador, colegio fiscal de Manta, treinta y cinco estudiantes.
+Dialogue: 0,0:00:29.30,0:00:35.74,Default,,0,0,0,,En la segunda pregunta, mira esto: menciona el uniforme y el libro del Ministerio, que eran de otro chat.
+Dialogue: 0,0:00:36.03,0:00:38.57,Default,,0,0,0,,Gemini recuerda tus conversaciones anteriores.
+Dialogue: 0,0:00:38.87,0:00:41.81,Default,,0,0,0,,Por eso nunca se pegan nombres ni notas de estudiantes.
+Dialogue: 0,0:00:42.11,0:00:45.01,Default,,0,0,0,,Con tres preguntas, ya propone la clase.
+Dialogue: 0,0:00:45.31,0:00:51.59,Default,,0,0,0,,Y te enseña qué le faltaba a tu pedido; la próxima vez lo pones sin que te pregunte.
+Dialogue: 0,0:00:51.89,0:00:56.55,Default,,0,0,0,,Pero revisa los nombres: argumento de hecho, causa-efecto, ejemplificación.
+Dialogue: 0,0:00:56.85,0:01:00.69,Default,,0,0,0,,Dice que salen de la unidad uno del libro, y el libro nunca lo vio.
+Dialogue: 0,0:01:00.99,0:01:05.63,Default,,0,0,0,,Si te pregunta algo que no sabes, dile que no sabes.
+Dialogue: 0,0:01:05.93,0:01:09.39,Default,,0,0,0,,Es mejor eso que inventarle una respuesta.

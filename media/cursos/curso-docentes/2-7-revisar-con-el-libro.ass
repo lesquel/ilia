@@ -10,18 +10,18 @@ Style: Default,Arial,24,&H00171B1B,&H000000FF,&H10F7FAFB,&H10F7FAFB,1,0,3,10,0,2
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-Dialogue: 0,0:00:00.00,0:00:03.08,Default,,0,0,0,,Pon la página a un lado y la hoja al otro.
-Dialogue: 0,0:00:03.37,0:00:05.82,Default,,0,0,0,,Es la forma más rápida de revisar.
-Dialogue: 0,0:00:06.12,0:00:11.56,Default,,0,0,0,,Primero la tabla, tipo por tipo: ¿está en la página?
-Dialogue: 0,0:00:11.86,0:00:14.06,Default,,0,0,0,,¿Con el mismo nombre?
-Dialogue: 0,0:00:14.36,0:00:17.44,Default,,0,0,0,,Aquí sí: los seis nombres son los del libro.
-Dialogue: 0,0:00:17.74,0:00:23.06,Default,,0,0,0,,Después, cada argumento: ¿da una razón, y de dónde sale lo que dice?
-Dialogue: 0,0:00:23.36,0:00:25.88,Default,,0,0,0,,La encuesta no existe.
-Dialogue: 0,0:00:26.18,0:00:29.50,Default,,0,0,0,,«La pedagogía moderna» no es nadie.
-Dialogue: 0,0:00:29.80,0:00:35.36,Default,,0,0,0,,El colegio vecino y la experiencia personal los inventó; esos los pones tú.
-Dialogue: 0,0:00:35.66,0:00:40.98,Default,,0,0,0,,En el mismo chat escribes la corrección, y dices por qué.
-Dialogue: 0,0:00:41.28,0:00:44.07,Default,,0,0,0,,Gemini dejó los huecos entre corchetes.
-Dialogue: 0,0:00:44.37,0:00:49.73,Default,,0,0,0,,Pero mira el primer argumento: además borró una frase que no le pediste quitar.
-Dialogue: 0,0:00:50.03,0:00:52.39,Default,,0,0,0,,Por eso lo que devuelve se vuelve a leer.
-Dialogue: 0,0:00:52.69,0:00:59.97,Default,,0,0,0,,Con la página, el error es más chico y se encuentra más rápido.
-Dialogue: 0,0:01:00.27,0:01:02.15,Default,,0,0,0,,Pero se sigue buscando.
+Dialogue: 0,0:00:00.00,0:00:02.54,Default,,0,0,0,,Pon la página a un lado y la hoja al otro.
+Dialogue: 0,0:00:02.83,0:00:04.92,Default,,0,0,0,,Es la forma más rápida de revisar.
+Dialogue: 0,0:00:05.21,0:00:10.50,Default,,0,0,0,,Primero la tabla, tipo por tipo: ¿está en la página?
+Dialogue: 0,0:00:10.80,0:00:12.88,Default,,0,0,0,,¿Con el mismo nombre?
+Dialogue: 0,0:00:13.18,0:00:15.76,Default,,0,0,0,,Aquí sí: los seis nombres son los del libro.
+Dialogue: 0,0:00:16.06,0:00:21.28,Default,,0,0,0,,Después, cada argumento: ¿da una razón, y de dónde sale lo que dice?
+Dialogue: 0,0:00:21.58,0:00:23.16,Default,,0,0,0,,La encuesta no existe.
+Dialogue: 0,0:00:23.46,0:00:26.34,Default,,0,0,0,,«La pedagogía moderna» no es nadie.
+Dialogue: 0,0:00:26.64,0:00:31.82,Default,,0,0,0,,El colegio vecino y la experiencia personal los inventó; esos los pones tú.
+Dialogue: 0,0:00:32.12,0:00:37.36,Default,,0,0,0,,En el mismo chat escribes la corrección, y dices por qué.
+Dialogue: 0,0:00:37.66,0:00:39.92,Default,,0,0,0,,Gemini dejó los huecos entre corchetes.
+Dialogue: 0,0:00:40.21,0:00:45.15,Default,,0,0,0,,Pero mira el primer argumento: además borró una frase que no le pediste quitar.
+Dialogue: 0,0:00:45.45,0:00:47.63,Default,,0,0,0,,Por eso lo que devuelve se vuelve a leer.
+Dialogue: 0,0:00:47.93,0:00:55.11,Default,,0,0,0,,Con la página, el error es más chico y se encuentra más rápido.
+Dialogue: 0,0:00:55.41,0:00:56.73,Default,,0,0,0,,Pero se sigue buscando.

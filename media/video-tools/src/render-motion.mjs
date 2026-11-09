@@ -78,7 +78,9 @@ const result = spawnSync(ffmpegPath, [
   '-c:v', 'libx264', '-preset', 'medium', '-crf', '20',
   '-c:a', 'aac', '-b:a', '160k', '-ar', '48000', '-af', 'loudnorm=I=-18:LRA=7:TP=-2',
   '-c:s', 'mov_text', '-metadata:s:s:0', 'language=spa', '-disposition:s:0', '0',
-  '-shortest', '-movflags', '+faststart',
+  // No -shortest: with a sparse subtitle track ffmpeg ends the file at the last
+  // cue and cuts the narration. Frames and audio already have the same length.
+  '-movflags', '+faststart',
   '-metadata', `title=${module.title} | ILIA`,
   '-metadata', `comment=${process.env.ILIA_VOICE_NOTE ?? 'Narración sintética (voz neural). Animación generada.'}`,
   mp4Path,

@@ -1,77 +1,77 @@
 [
   {
     "offset": 0.0,
-    "duration": 3.84,
+    "duration": 3.5,
     "text": "Tres preguntas para revisar una clase que te armó Gemini."
   },
   {
-    "offset": 4.14,
-    "duration": 2.48,
+    "offset": 3.8,
+    "duration": 2.4,
     "text": "Una: ¿suma cuarenta?"
   },
   {
-    "offset": 6.919999999999999,
-    "duration": 3.2,
+    "offset": 6.499999999999999,
+    "duration": 3.14,
     "text": "Súmalo tú: cinco, diez, diez y quince."
   },
   {
-    "offset": 10.42,
-    "duration": 1.52,
+    "offset": 9.94,
+    "duration": 0.94,
     "text": "Esta vez sí."
   },
   {
-    "offset": 12.24,
-    "duration": 2.4,
+    "offset": 11.18,
+    "duration": 1.94,
     "text": "Dos: ¿cuánto rato solo escuchan?"
   },
   {
-    "offset": 14.940000000000001,
-    "duration": 3.28,
+    "offset": 13.42,
+    "duration": 2.78,
     "text": "Del minuto cinco al quince, solo toman nota."
   },
   {
-    "offset": 18.520000000000003,
-    "duration": 3.16,
+    "offset": 16.5,
+    "duration": 2.5,
     "text": "Son diez minutos seguidos; eso se parte."
   },
   {
-    "offset": 21.980000000000004,
-    "duration": 3.2,
+    "offset": 19.3,
+    "duration": 3.12,
     "text": "Y mira el polígrafo: dice cuatro frases, y pone tres."
   },
   {
-    "offset": 25.480000000000004,
-    "duration": 4.08,
+    "offset": 22.720000000000002,
+    "duration": 3.72,
     "text": "Tres: ¿termina con la evidencia que elegiste, hecha en clase?"
   },
   {
-    "offset": 29.860000000000003,
-    "duration": 1.0,
+    "offset": 26.740000000000002,
+    "duration": 0.5,
     "text": "Sí."
   },
   {
-    "offset": 31.160000000000004,
-    "duration": 4.0,
+    "offset": 27.540000000000003,
+    "duration": 3.9,
     "text": "En el mismo chat escribes lo que cambias."
   },
   {
-    "offset": 35.46,
-    "duration": 7.04,
+    "offset": 31.740000000000002,
+    "duration": 6.52,
     "text": "Gemini agregó una pausa en el minuto diez, completó la cuarta frase y dejó la cifra entre corchetes."
   },
   {
-    "offset": 42.8,
-    "duration": 3.2,
+    "offset": 38.56,
+    "duration": 2.88,
     "text": "Pero a una frase le puso dos tipos a la vez."
   },
   {
-    "offset": 46.3,
-    "duration": 2.64,
+    "offset": 41.74,
+    "duration": 2.56,
     "text": "Esa la decides tú."
   },
   {
-    "offset": 49.239999999999995,
-    "duration": 4.0,
+    "offset": 44.6,
+    "duration": 3.48,
     "text": "Revisada y corregida, ya la puedes llevar al aula."
   }
 ]

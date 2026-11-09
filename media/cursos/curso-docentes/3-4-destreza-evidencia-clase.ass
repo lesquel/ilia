@@ -10,14 +10,14 @@ Style: Default,Arial,24,&H00171B1B,&H000000FF,&H10F7FAFB,&H10F7FAFB,1,0,3,10,0,2
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-Dialogue: 0,0:00:00.00,0:00:02.43,Default,,0,0,0,,Una clase se puede pedir de dos formas.
-Dialogue: 0,0:00:02.73,0:00:07.77,Default,,0,0,0,,La primera es desde el tema: una clase sobre tipos de argumento.
-Dialogue: 0,0:00:08.08,0:00:16.11,Default,,0,0,0,,Gemini devuelve lo más común, una explicación, ejemplos y una actividad, y casi nunca termina con algo que puedas revisar.
-Dialogue: 0,0:00:16.41,0:00:20.77,Default,,0,0,0,,La segunda es desde la destreza.
-Dialogue: 0,0:00:21.07,0:00:23.83,Default,,0,0,0,,Primero, qué tiene que poder hacer el estudiante.
-Dialogue: 0,0:00:24.13,0:00:30.89,Default,,0,0,0,,En el libro de Andrés está al pie de la página: defender una tesis con diferentes tipos de argumentos.
-Dialogue: 0,0:00:31.19,0:00:35.03,Default,,0,0,0,,Después, qué haría al final de la hora para demostrarlo.
-Dialogue: 0,0:00:35.33,0:00:38.37,Default,,0,0,0,,Y recién entonces, la clase para llegar ahí.
-Dialogue: 0,0:00:38.67,0:00:41.55,Default,,0,0,0,,La evidencia la eliges tú.
-Dialogue: 0,0:00:41.85,0:00:50.29,Default,,0,0,0,,Gemini propone opciones, pero no sabe cuánto tiempo tienes para revisar treinta y cinco cuadernos, ni qué te sirve para la clase siguiente.
-Dialogue: 0,0:00:50.59,0:00:55.71,Default,,0,0,0,,La regla que te llevas: no le pidas la clase hasta saber qué vas a revisar al final.
+Dialogue: 0,0:00:00.00,0:00:02.10,Default,,0,0,0,,Una clase se puede pedir de dos formas.
+Dialogue: 0,0:00:02.39,0:00:07.00,Default,,0,0,0,,La primera es desde el tema: una clase sobre tipos de argumento.
+Dialogue: 0,0:00:07.29,0:00:15.16,Default,,0,0,0,,Gemini devuelve lo más común, una explicación, ejemplos y una actividad, y casi nunca termina con algo que puedas revisar.
+Dialogue: 0,0:00:15.46,0:00:19.50,Default,,0,0,0,,La segunda es desde la destreza.
+Dialogue: 0,0:00:19.80,0:00:22.06,Default,,0,0,0,,Primero, qué tiene que poder hacer el estudiante.
+Dialogue: 0,0:00:22.36,0:00:28.64,Default,,0,0,0,,En el libro de Andrés está al pie de la página: defender una tesis con diferentes tipos de argumentos.
+Dialogue: 0,0:00:28.94,0:00:32.42,Default,,0,0,0,,Después, qué haría al final de la hora para demostrarlo.
+Dialogue: 0,0:00:32.71,0:00:35.33,Default,,0,0,0,,Y recién entonces, la clase para llegar ahí.
+Dialogue: 0,0:00:35.63,0:00:37.95,Default,,0,0,0,,La evidencia la eliges tú.
+Dialogue: 0,0:00:38.25,0:00:46.23,Default,,0,0,0,,Gemini propone opciones, pero no sabe cuánto tiempo tienes para revisar treinta y cinco cuadernos, ni qué te sirve para la clase siguiente.
+Dialogue: 0,0:00:46.53,0:00:51.27,Default,,0,0,0,,La regla que te llevas: no le pidas la clase hasta saber qué vas a revisar al final.

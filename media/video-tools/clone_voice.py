@@ -19,6 +19,7 @@ import torch
 import torchaudio
 
 from chatterbox.mtl_tts import ChatterboxMultilingualTTS
+from clean_narration import clean
 
 SAMPLE_RATE = 24000
 PAUSE = 0.3
@@ -55,6 +56,9 @@ def synthesize(sentence: str) -> tuple[torch.Tensor, float]:
         if plausible(sentence, duration):
             break
     assert best is not None
+    # Trim the noisy tail and fade the edges, so joined sentences never click.
+    wav = torch.from_numpy(clean(best[0].squeeze(0).numpy(), SAMPLE_RATE)).unsqueeze(0)
+    best = (wav, wav.shape[-1] / SAMPLE_RATE)
     if not plausible(sentence, best[1]):
         print(f"  ! sin toma plausible ({best[1]:.1f}s): {sentence}", flush=True)
     return best

@@ -10,15 +10,15 @@ Style: Default,Arial,24,&H00171B1B,&H000000FF,&H10F7FAFB,&H10F7FAFB,1,0,3,10,0,2
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-Dialogue: 0,0:00:00.00,0:00:04.79,Default,,0,0,0,,Ahora sí le pides la clase, para llegar a la opción que elegiste.
-Dialogue: 0,0:00:05.09,0:00:11.61,Default,,0,0,0,,Y le pides que, en cada momento, te diga cuántos minutos dura, qué haces tú y qué hacen ellos.
-Dialogue: 0,0:00:11.92,0:00:19.71,Default,,0,0,0,,Si Gemini se queda pensando mucho rato, recarga la página: a veces el mensaje se pierde y hay que enviarlo otra vez.
-Dialogue: 0,0:00:20.01,0:00:23.37,Default,,0,0,0,,La clase llega en cuatro momentos.
-Dialogue: 0,0:00:23.67,0:00:26.16,Default,,0,0,0,,El gancho, cinco minutos.
-Dialogue: 0,0:00:26.46,0:00:28.74,Default,,0,0,0,,La caja de herramientas, diez.
-Dialogue: 0,0:00:29.04,0:00:31.16,Default,,0,0,0,,El polígrafo, diez.
-Dialogue: 0,0:00:31.46,0:00:34.54,Default,,0,0,0,,Y la defensa a la carta, quince.
-Dialogue: 0,0:00:34.84,0:00:40.32,Default,,0,0,0,,En los últimos quince lo escriben en clase, no de deber, para que no lo haga la IA por ellos.
-Dialogue: 0,0:00:40.62,0:00:44.14,Default,,0,0,0,,Le pediste separar lo que haces tú de lo que hacen ellos.
-Dialogue: 0,0:00:44.44,0:00:48.08,Default,,0,0,0,,Así ves de una vez si hablas toda la hora.
-Dialogue: 0,0:00:48.38,0:00:51.42,Default,,0,0,0,,Esta clase la armaste desde lo que quieres ver al final.
+Dialogue: 0,0:00:00.00,0:00:04.70,Default,,0,0,0,,Ahora sí le pides la clase, para llegar a la opción que elegiste.
+Dialogue: 0,0:00:05.00,0:00:11.00,Default,,0,0,0,,Y le pides que, en cada momento, te diga cuántos minutos dura, qué haces tú y qué hacen ellos.
+Dialogue: 0,0:00:11.30,0:00:18.88,Default,,0,0,0,,Si Gemini se queda pensando mucho rato, recarga la página: a veces el mensaje se pierde y hay que enviarlo otra vez.
+Dialogue: 0,0:00:19.18,0:00:21.56,Default,,0,0,0,,La clase llega en cuatro momentos.
+Dialogue: 0,0:00:21.86,0:00:24.00,Default,,0,0,0,,El gancho, cinco minutos.
+Dialogue: 0,0:00:24.30,0:00:26.50,Default,,0,0,0,,La caja de herramientas, diez.
+Dialogue: 0,0:00:26.80,0:00:28.46,Default,,0,0,0,,El polígrafo, diez.
+Dialogue: 0,0:00:28.76,0:00:31.44,Default,,0,0,0,,Y la defensa a la carta, quince.
+Dialogue: 0,0:00:31.74,0:00:36.66,Default,,0,0,0,,En los últimos quince lo escriben en clase, no de deber, para que no lo haga la IA por ellos.
+Dialogue: 0,0:00:36.96,0:00:39.96,Default,,0,0,0,,Le pediste separar lo que haces tú de lo que hacen ellos.
+Dialogue: 0,0:00:40.25,0:00:43.39,Default,,0,0,0,,Así ves de una vez si hablas toda la hora.
+Dialogue: 0,0:00:43.69,0:00:46.23,Default,,0,0,0,,Esta clase la armaste desde lo que quieres ver al final.

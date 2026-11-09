@@ -10,11 +10,11 @@ Style: Default,Arial,24,&H00171B1B,&H000000FF,&H10F7FAFB,&H10F7FAFB,1,0,3,10,0,2
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-Dialogue: 0,0:00:00.00,0:00:04.20,Default,,0,0,0,,¿Le pasaste una página de tu libro a Gemini?
-Dialogue: 0,0:00:04.50,0:00:07.90,Default,,0,0,0,,¿Cambió algo en lo que te devolvió?
-Dialogue: 0,0:00:08.20,0:00:10.08,Default,,0,0,0,,Hasta ahora le pedimos hojas.
-Dialogue: 0,0:00:10.38,0:00:15.14,Default,,0,0,0,,Si le pides una clase entera, pasa otra cosa.
-Dialogue: 0,0:00:15.44,0:00:20.96,Default,,0,0,0,,Te arma una clase donde tú hablas y ellos escuchan, y al final no sabes si aprendieron.
-Dialogue: 0,0:00:21.26,0:00:23.94,Default,,0,0,0,,En este módulo empezamos al revés.
-Dialogue: 0,0:00:24.24,0:00:28.88,Default,,0,0,0,,Primero decides qué tendría que hacer un estudiante para demostrarte que lo logró.
-Dialogue: 0,0:00:29.18,0:00:32.14,Default,,0,0,0,,Después armas la clase para llegar ahí.
+Dialogue: 0,0:00:00.00,0:00:04.09,Default,,0,0,0,,¿Le pasaste una página de tu libro a Gemini?
+Dialogue: 0,0:00:04.39,0:00:07.63,Default,,0,0,0,,¿Cambió algo en lo que te devolvió?
+Dialogue: 0,0:00:07.93,0:00:09.50,Default,,0,0,0,,Hasta ahora le pedimos hojas.
+Dialogue: 0,0:00:09.80,0:00:12.98,Default,,0,0,0,,Si le pides una clase entera, pasa otra cosa.
+Dialogue: 0,0:00:13.28,0:00:18.44,Default,,0,0,0,,Te arma una clase donde tú hablas y ellos escuchan, y al final no sabes si aprendieron.
+Dialogue: 0,0:00:18.74,0:00:21.00,Default,,0,0,0,,En este módulo empezamos al revés.
+Dialogue: 0,0:00:21.30,0:00:25.56,Default,,0,0,0,,Primero decides qué tendría que hacer un estudiante para demostrarte que lo logró.
+Dialogue: 0,0:00:25.86,0:00:28.44,Default,,0,0,0,,Después armas la clase para llegar ahí.

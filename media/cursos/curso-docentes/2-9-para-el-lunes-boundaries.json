@@ -1,22 +1,22 @@
 [
   {
     "offset": 0.0,
-    "duration": 3.92,
+    "duration": 3.44,
     "text": "Para el lunes, prepara una hoja con una página de tu libro."
   },
   {
-    "offset": 4.22,
-    "duration": 4.6,
+    "offset": 3.7399999999999998,
+    "duration": 4.18,
     "text": "Pásasela a Gemini y revisa lo que devuelva con la página al lado."
   },
   {
-    "offset": 9.120000000000001,
-    "duration": 3.2,
+    "offset": 8.22,
+    "duration": 3.02,
     "text": "La próxima semana cambiamos el punto de partida."
   },
   {
-    "offset": 12.620000000000001,
-    "duration": 5.52,
+    "offset": 11.540000000000001,
+    "duration": 5.18,
     "text": "En vez de pedir una clase sobre un tema, la vas a pedir desde la destreza que tienes que trabajar."
   }
 ]

@@ -1,42 +1,42 @@
 [
   {
     "offset": 0.0,
-    "duration": 4.2,
+    "duration": 4.1,
     "text": "¿Le pasaste una página de tu libro a Gemini?"
   },
   {
-    "offset": 4.5,
-    "duration": 3.4,
+    "offset": 4.3999999999999995,
+    "duration": 3.24,
     "text": "¿Cambió algo en lo que te devolvió?"
   },
   {
-    "offset": 8.200000000000001,
-    "duration": 1.88,
+    "offset": 7.9399999999999995,
+    "duration": 1.56,
     "text": "Hasta ahora le pedimos hojas."
   },
   {
-    "offset": 10.380000000000003,
-    "duration": 4.76,
+    "offset": 9.8,
+    "duration": 3.18,
     "text": "Si le pides una clase entera, pasa otra cosa."
   },
   {
-    "offset": 15.440000000000003,
-    "duration": 5.52,
+    "offset": 13.280000000000001,
+    "duration": 5.16,
     "text": "Te arma una clase donde tú hablas y ellos escuchan, y al final no sabes si aprendieron."
   },
   {
-    "offset": 21.26,
-    "duration": 2.68,
+    "offset": 18.740000000000002,
+    "duration": 2.26,
     "text": "En este módulo empezamos al revés."
   },
   {
-    "offset": 24.240000000000002,
-    "duration": 4.64,
+    "offset": 21.3,
+    "duration": 4.26,
     "text": "Primero decides qué tendría que hacer un estudiante para demostrarte que lo logró."
   },
   {
-    "offset": 29.180000000000003,
-    "duration": 2.96,
+    "offset": 25.860000000000003,
+    "duration": 2.58,
     "text": "Después armas la clase para llegar ahí."
   }
 ]

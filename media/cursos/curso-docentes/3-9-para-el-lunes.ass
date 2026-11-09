@@ -10,6 +10,6 @@ Style: Default,Arial,24,&H00171B1B,&H000000FF,&H10F7FAFB,&H10F7FAFB,1,0,3,10,0,2
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-Dialogue: 0,0:00:00.00,0:00:04.32,Default,,0,0,0,,Para el lunes, elige una destreza de tu planificación de esta semana.
-Dialogue: 0,0:00:04.62,0:00:10.53,Default,,0,0,0,,Pídele a Gemini tres evidencias, elige una, y arma la clase para llegar ahí.
-Dialogue: 0,0:00:10.83,0:00:19.16,Default,,0,0,0,,La próxima semana le pasamos a Gemini tu unidad entera, no una página, y vemos cómo comprobar de dónde saca cada cosa.
+Dialogue: 0,0:00:00.00,0:00:03.83,Default,,0,0,0,,Para el lunes, elige una destreza de tu planificación de esta semana.
+Dialogue: 0,0:00:04.13,0:00:08.98,Default,,0,0,0,,Pídele a Gemini tres evidencias, elige una, y arma la clase para llegar ahí.
+Dialogue: 0,0:00:09.28,0:00:17.48,Default,,0,0,0,,La próxima semana le pasamos a Gemini tu unidad entera, no una página, y vemos cómo comprobar de dónde saca cada cosa.
