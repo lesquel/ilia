@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><title>ILIA · De una frase a un pedido claro</title><link rel="stylesheet" href="scene-kit.css">
+<style>
+  .chat { width: 1000px; }
+  .card { background: #fff; border: 1.5px solid var(--line); border-radius: 14px; padding: 22px 26px; box-shadow: 0 14px 34px rgba(0,0,0,.06); }
+  .pc1, .pc2, .pc3, .pc4, .pc5 { font-weight: 700; }
+  .pc1 { background: #cfe0ff; color: #0b4fc9; } .pc2 { background: #c4ecd3; color: #0f6a36; } .pc3 { background: #ffdc9a; color: #7a4a00; } .pc4 { background: #e0d1ff; color: #5a2bb0; } .pc5 { background: #fbcbc4; color: #a32c1b; }
+  .piece { width: 720px; display: flex; align-items: center; gap: 16px; font-size: 26px; padding: 10px 0; }
+  .piece i { font-style: normal; width: 36px; height: 36px; border-radius: 50%; background: var(--blue); color: #fff; display: grid; place-items: center; font-size: 18px; font-weight: 700; flex: none; }
+  .me { background: #f4f3ef; } .qrow { font-size: 19px; line-height: 1.35; }
+  .qrow .ig { color: var(--green); font-weight: 800; flex: none; }
+</style></head>
+<body>
+<header><b>ILIA</b>IA para preparar tu próxima clase · De una frase a un pedido claro</header>
+
+<section data-scene="pedido">
+  <div class="chat">
+    <div class="who">Tu pedido completo</div>
+    <div class="msg me" style="max-width: 940px; font-size: 21px; line-height: 1.7;">
+      <span class="hlw" data-say="Primero, quién eres" data-mode="mark" data-mark-class="pc1">Doy Lengua y Literatura en séptimo de EGB en una escuela fiscal de Ecuador.</span>
+      <span class="hlw" data-say="Después, qué ya" data-mode="mark" data-mark-class="pc2">Mis estudiantes ya leyeron un cuento y ahora están aprendiendo a distinguir el tema de la idea principal de un párrafo.</span>
+      <span class="hlw" data-say="Luego, la tarea" data-mode="mark" data-mark-class="pc3">Escribe un párrafo de seis a ocho líneas sobre cómo un curso de séptimo se organiza para cuidar el huerto escolar: turnos de riego y un cuaderno donde anotan los cambios de las plantas. Después escribe cinco preguntas que se respondan solo con ese párrafo: la primera sobre el tema y la segunda sobre la idea principal.</span>
+      <span class="hlw" data-say="El formato: la" data-mode="mark" data-mark-class="pc4">Pon la clave de respuestas al final, separada.</span>
+      <span class="hlw" data-say="Y un límite" data-mode="mark" data-mark-class="pc5">No inventes autores ni datos que no estén en el párrafo.</span>
+    </div>
+  </div>
+</section>
+
+<section data-scene="resumen" style="flex-direction: column; gap: 4px;">
+  <div class="piece" data-in="0.2"><i>1</i><span class="hlw pc1">Quién eres y para quién</span></div>
+  <div class="piece" data-in="0.5"><i>2</i><span class="hlw pc2">Qué ya trabajaron y qué deben aprender</span></div>
+  <div class="piece" data-in="0.8"><i>3</i><span class="hlw pc3">La tarea concreta</span></div>
+  <div class="piece" data-in="1.1"><i>4</i><span class="hlw pc4">El formato</span></div>
+  <div class="piece" data-in="1.4"><i>5</i><span class="hlw pc5">Un límite</span></div>
+  <div class="kicker" style="margin-top: 14px;" data-in="2.2">Cada pieza: una decisión que Gemini no podía adivinar.</div>
+</section>
+
+<section data-scene="cambio">
+  <div class="chat">
+    <div class="who">Un solo cambio, en el mismo chat</div>
+    <div class="msg me" data-in="0.3" style="font-size: 24px; max-width: 900px;">La pregunta 5 no practica tema ni idea principal. Cámbiala por una que pida explicar para qué le sirve el cuaderno al curso, con la respuesta en el párrafo. No cambies nada más.</div>
+  </div>
+</section>
+
+<section data-scene="q5" style="gap: 28px; align-items: center;">
+  <div class="card" style="width: 500px;" data-in="0.3">
+    <div class="kicker">Se mantiene igual</div>
+    <div class="row qrow"><span>1. ¿Cuál es el tema general del párrafo leído?</span><span class="ig">igual</span></div>
+    <div class="row qrow"><span>2. ¿Cuál es la idea principal del texto?</span><span class="ig">igual</span></div>
+    <div class="row qrow"><span>3. Según el párrafo, ¿en qué momento del día […]</span><span class="ig">igual</span></div>
+    <div class="row qrow" style="border: 0;"><span>4. ¿Qué datos específicos anotan los equipos en el cuaderno de campo […]</span><span class="ig">igual</span></div>
+  </div>
+  <div style="display:flex; flex-direction: column; gap: 16px; width: 620px;">
+    <div class="card" data-in="0.8">
+      <div class="kicker" style="color: var(--red)">Antes · pregunta 5</div>
+      <div class="strike" data-strike="3.2" style="font-size: 22px;">5. ¿Qué dos factores han permitido que las plantas crezcan sanas y no queden desatendidas?</div>
+    </div>
+    <div class="card" data-in="3.6" style="border-color: var(--blue);">
+      <div class="kicker">Gemini · tal cual · ahora</div>
+      <div style="font-size: 22px; font-weight: 700;">«Según el párrafo, ¿para qué le sirve el cuaderno de campo al curso?»</div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="cierre">
+  <div class="rule" data-in="0.4">Un cambio a la vez: ves si se arregló sin romper lo demás.</div>
+</section>
+
+<div class="progress"><i></i></div>
+<script src="scene-kit.js"></script>
+</body>
+</html>

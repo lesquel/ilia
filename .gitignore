@@ -76,3 +76,5 @@ apps/api/web-dist/
 
 # Narración regenerable: se versionan los mp4, no los wav.
 media/cursos/curso-docentes/*.wav
+media/cursos/introduccion-ia-docentes-v2/*.wav
+media/cursos/introduccion-ia-docentes-v2/*.mp4

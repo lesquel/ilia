@@ -1,0 +1,23 @@
+[Script Info]
+Title: ILIA · Revisar el borrador y cuidar los datos
+ScriptType: v4.00+
+PlayResX: 1280
+PlayResY: 720
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,24,&H00171B1B,&H000000FF,&H10F7FAFB,&H10F7FAFB,1,0,3,10,0,2,140,140,52,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:04.62,Default,,0,0,0,,Antes de imprimir, revisa cada respuesta con el párrafo al lado.
+Dialogue: 0,0:00:04.92,0:00:10.17,Default,,0,0,0,,Puedes pedirle ayuda: que copie la frase exacta que sostiene cada respuesta.
+Dialogue: 0,0:00:10.48,0:00:15.62,Default,,0,0,0,,Gemini lo hizo y cerró con seguridad: todas las respuestas se sostienen en el párrafo.
+Dialogue: 0,0:00:15.92,0:00:22.70,Default,,0,0,0,,Revisemos la cinco: la clave dice que el cuaderno ayuda a que los chicos aprendan a observar la naturaleza.
+Dialogue: 0,0:00:23.00,0:00:27.90,Default,,0,0,0,,Pero el párrafo le da ese mérito al trabajo coordinado de los niños, no al cuaderno.
+Dialogue: 0,0:00:28.20,0:00:33.22,Default,,0,0,0,,Es un detalle, y es justo el tipo de detalle que un estudiante atento te va a señalar.
+Dialogue: 0,0:00:33.52,0:00:43.06,Default,,0,0,0,,Además, el mismo pedido no da siempre lo mismo: la primera vez nos salió una pregunta sobre el color del cuaderno, que no practica nada.
+Dialogue: 0,0:00:43.35,0:00:45.03,Default,,0,0,0,,Por eso se revisa cada vez.
+Dialogue: 0,0:00:45.33,0:00:52.25,Default,,0,0,0,,Y algo que no se negocia: no pegues nombres, notas, diagnósticos ni fotos de tus estudiantes.
+Dialogue: 0,0:00:52.55,0:00:58.29,Default,,0,0,0,,Para preparar la clase, el modelo necesita tu contenido, no los datos de tus chicos.
+Dialogue: 0,0:00:58.59,0:01:04.11,Default,,0,0,0,,El borrador lo escribe la inteligencia artificial; lo que llega al aula lo decides tú.

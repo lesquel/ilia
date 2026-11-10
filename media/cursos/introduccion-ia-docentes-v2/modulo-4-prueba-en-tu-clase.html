@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><title>ILIA · Probarlo con tu próxima clase</title><link rel="stylesheet" href="scene-kit.css">
+<style>
+  .card { background: #fff; border: 1.5px solid var(--line); border-radius: 14px; padding: 22px 26px; box-shadow: 0 14px 34px rgba(0,0,0,.06); }
+  .tl { font-size: 26px; line-height: 1.5; padding: 4px 10px; border-radius: 6px; }
+  .tl .gap { font-size: 26px; }
+  .ck { width: 760px; display: flex; align-items: center; gap: 16px; font-size: 30px; padding: 12px 0; }
+  .ck i { font-style: normal; width: 36px; height: 36px; border: 2.5px solid var(--green); border-radius: 8px; display: grid; place-items: center; color: var(--green); font-weight: 800; font-size: 24px; flex: none; }
+</style></head>
+<body>
+<header><b>ILIA</b>IA para preparar tu próxima clase · Probarlo con tu próxima clase</header>
+
+<section data-scene="toca" style="flex-direction: column; gap: 18px;">
+  <div class="kicker" data-in="0.3">Tu turno</div>
+  <div class="big" data-in="0.6">Una clase tuya de esta semana</div>
+</section>
+
+<section data-scene="elige" style="flex-direction: column; gap: 20px;">
+  <div class="kicker" data-in="0.2">Elige algo pequeño</div>
+  <div style="display:flex; gap: 14px; flex-wrap: wrap; justify-content: center;">
+    <span class="chip blue" style="font-size: 28px;" data-say="Elige algo pequeño" data-delay="1.6">unas preguntas de lectura</span>
+    <span class="chip blue" style="font-size: 28px;" data-say="Elige algo pequeño" data-delay="3.2">una explicación corta</span>
+    <span class="chip blue" style="font-size: 28px;" data-say="Elige algo pequeño" data-delay="4.4">una guía para una hora</span>
+  </div>
+</section>
+
+<section data-scene="plantilla">
+  <div class="card" style="width: 1000px;">
+    <div class="who" style="margin-bottom: 8px;">Tu pedido, con las piezas del curso</div>
+    <div class="tl" data-say="Escribe el pedido" data-mode="mark" data-mark-class="on-blue" data-delay="1.8">Doy <span class="gap">[materia]</span> en <span class="gap">[grado]</span>…</div>
+    <div class="tl" data-say="Escribe el pedido" data-mode="mark" data-mark-class="on-blue" data-delay="4.2">Ya trabajaron <span class="gap">[tema]</span>… Ahora deben <span class="gap">[destreza]</span>…</div>
+    <div class="tl" data-say="Suma la tarea" data-mode="mark" data-mark-class="on-blue">Prepara <span class="gap">[tarea]</span>…</div>
+    <div class="tl" data-say="Suma la tarea" data-mode="mark" data-mark-class="on-blue" data-delay="2.0">Entrégalo como <span class="gap">[formato]</span>…</div>
+    <div class="tl" data-say="Y di lo que" data-mode="mark" data-mark-class="on-blue">No inventes <span class="gap">[límite]</span>…</div>
+  </div>
+</section>
+
+<section data-scene="revisar" style="flex-direction: column; gap: 6px;">
+  <div class="kicker" data-in="0.2">Cuando llegue el borrador</div>
+  <div class="ck" data-in="1.0"><i>✓</i><span>Revisarlo con la planificación abierta</span></div>
+  <div class="ck" data-in="4.0"><i>✓</i><span>Si algo falla, un cambio a la vez</span></div>
+</section>
+
+<section data-scene="examen" style="flex-direction: column; gap: 24px;">
+  <div class="kicker" data-in="0.2">Examen final</div>
+  <div class="rule" data-in="0.5">Tu pedido para una clase real.</div>
+  <div class="kicker" style="font-size: 22px; max-width: 900px; color: var(--ink); text-align: center;" data-say="Escríbelo de modo">Que un colega que te cubra la hora entienda qué preparar, para quién y cómo.</div>
+</section>
+
+<div class="progress"><i></i></div>
+<script src="scene-kit.js"></script>
+</body>
+</html>

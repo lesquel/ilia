@@ -1,0 +1,52 @@
+[
+  {
+    "offset": 0.0,
+    "duration": 3.14,
+    "text": "Veamos el pedido completo, pieza por pieza."
+  },
+  {
+    "offset": 3.44,
+    "duration": 5.06,
+    "text": "Primero, quién eres y para quién es: Lengua, séptimo de básica, escuela fiscal."
+  },
+  {
+    "offset": 8.8,
+    "duration": 6.96,
+    "text": "Después, qué ya trabajaron y qué deben aprender: leyeron un cuento y ahora distinguen el tema de la idea principal."
+  },
+  {
+    "offset": 16.060000000000002,
+    "duration": 6.58,
+    "text": "Luego, la tarea concreta: un párrafo de seis a ocho líneas sobre el huerto y cinco preguntas."
+  },
+  {
+    "offset": 22.94,
+    "duration": 5.34,
+    "text": "El formato: la clave al final, separada, para proyectar la actividad sin adelantar las respuestas."
+  },
+  {
+    "offset": 28.580000000000002,
+    "duration": 3.76,
+    "text": "Y un límite: que no invente autores ni datos."
+  },
+  {
+    "offset": 32.64,
+    "duration": 4.5,
+    "text": "Cada pieza le quita a Gemini una decisión que no podía adivinar."
+  },
+  {
+    "offset": 37.44,
+    "duration": 4.22,
+    "text": "Si algo no te convence, no empieces de nuevo: pide un solo cambio."
+  },
+  {
+    "offset": 41.959999999999994,
+    "duration": 7.04,
+    "text": "Aquí pedimos cambiar solo la pregunta cinco, para que apunte a para qué sirve el cuaderno, y Gemini dejó el resto igual."
+  },
+  {
+    "offset": 49.29999999999999,
+    "duration": 5.04,
+    "text": "Un cambio a la vez te deja ver si se arregló sin romper lo que ya estaba bien."
+  }
+]

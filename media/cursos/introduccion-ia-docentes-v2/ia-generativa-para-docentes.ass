@@ -1,0 +1,21 @@
+[Script Info]
+Title: ILIA · Un primer borrador para séptimo
+ScriptType: v4.00+
+PlayResX: 1280
+PlayResY: 720
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,24,&H00171B1B,&H000000FF,&H10F7FAFB,&H10F7FAFB,1,0,3,10,0,2,140,140,52,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:03.48,Default,,0,0,0,,Profe, piensa en la clase de lectura que tienes mañana en séptimo.
+Dialogue: 0,0:00:03.77,0:00:08.69,Default,,0,0,0,,Le pedimos a Gemini lo más corto posible: hazme una lectura con preguntas.
+Dialogue: 0,0:00:09.00,0:00:13.19,Default,,0,0,0,,Nos devolvió un cuento sobre un farero que desaparece en una tormenta.
+Dialogue: 0,0:00:13.50,0:00:19.39,Default,,0,0,0,,Habla de una lámpara de vapor de mercurio y de vientos de noventa nudos, y no trae clave de respuestas.
+Dialogue: 0,0:00:19.69,0:00:24.87,Default,,0,0,0,,No es un error del modelo: no sabía tu grado, ni qué leyeron, ni qué quieres que aprendan.
+Dialogue: 0,0:00:25.17,0:00:32.70,Default,,0,0,0,,Así que se lo contamos: séptimo de básica, ya leyeron un cuento y están aprendiendo a distinguir el tema de la idea principal.
+Dialogue: 0,0:00:33.00,0:00:40.82,Default,,0,0,0,,Ahora sí: un párrafo sobre el huerto de la escuela, cinco preguntas que se responden con el texto y la clave aparte.
+Dialogue: 0,0:00:41.11,0:00:46.55,Default,,0,0,0,,Lo que la inteligencia artificial sabe de tu clase, lo sabe porque tú se lo dijiste.
+Dialogue: 0,0:00:46.85,0:00:53.07,Default,,0,0,0,,Y el borrador se revisa antes de llegar al aula; eso es lo que vamos a practicar en este curso.

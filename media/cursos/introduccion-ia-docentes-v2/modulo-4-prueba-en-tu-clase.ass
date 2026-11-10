@@ -1,0 +1,20 @@
+[Script Info]
+Title: ILIA · Probarlo con tu próxima clase
+ScriptType: v4.00+
+PlayResX: 1280
+PlayResY: 720
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,24,&H00171B1B,&H000000FF,&H10F7FAFB,&H10F7FAFB,1,0,3,10,0,2,140,140,52,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:02.79,Default,,0,0,0,,Ahora te toca con una clase tuya de esta semana.
+Dialogue: 0,0:00:03.09,0:00:09.30,Default,,0,0,0,,Elige algo pequeño: unas preguntas de lectura, una explicación corta o una guía para una hora.
+Dialogue: 0,0:00:09.60,0:00:16.10,Default,,0,0,0,,Escribe el pedido con las piezas que vimos: quién eres, tu grado, qué ya trabajaron y qué deben aprender.
+Dialogue: 0,0:00:16.40,0:00:20.78,Default,,0,0,0,,Suma la tarea concreta y el formato en que la quieres recibir.
+Dialogue: 0,0:00:21.08,0:00:25.60,Default,,0,0,0,,Y di lo que no debe hacer: inventar datos o salirse de tu material.
+Dialogue: 0,0:00:25.90,0:00:32.10,Default,,0,0,0,,Cuando llegue el borrador, revísalo con tu planificación abierta, y si algo falla, pide un cambio a la vez.
+Dialogue: 0,0:00:32.39,0:00:35.78,Default,,0,0,0,,Ese es el examen final: tu pedido para una clase real.
+Dialogue: 0,0:00:36.07,0:00:43.42,Default,,0,0,0,,Escríbelo de modo que un colega que te cubra la hora entienda qué preparar, para quién y cómo.

@@ -869,9 +869,9 @@ TEACHER_COURSES: list[dict[str, Any]] = [
                     (
                         "Un primer borrador para séptimo",
                         "video",
-                        128,
-                        "El video muestra una clase de lectura sobre el cuidado del huerto: un párrafo, cinco preguntas respondibles desde el texto y una clave final. La docente revisa que cada respuesta tenga evidencia en el párrafo y ajusta lo que no encaje con su grupo.",
-                        "cursos/introduccion-ia-docentes/ia-generativa-para-docentes.mp4",
+                        53,
+                        "El video compara dos pedidos reales a Gemini. Con «Hazme una lectura con preguntas» devuelve un cuento sobre un farero, sin grado ni clave. Con el contexto de séptimo devuelve un párrafo sobre el huerto escolar, cinco preguntas y la clave aparte.",
+                        "cursos/introduccion-ia-docentes/ia-generativa-para-docentes-v2.mp4",
                     ),
                     (
                         "El modelo propone; tú conoces el curso",
@@ -942,9 +942,9 @@ TEACHER_COURSES: list[dict[str, Any]] = [
                     (
                         "De una frase a un pedido claro",
                         "video",
-                        69,
-                        "La docente compara «hazme una lectura con preguntas» con una solicitud que explica grado, tema, qué ya vio el curso, qué deben hacer y el formato. El cambio no es una fórmula: son decisiones del aula que el modelo ya no tiene que adivinar.",
-                        "cursos/introduccion-ia-docentes/modulo-2-pedido-claro.mp4",
+                        54,
+                        "El video recorre el pedido completo pieza por pieza: quién eres y para quién es, qué ya trabajaron, la tarea, el formato y un límite. Después pide un solo cambio, la pregunta cinco, y muestra que Gemini deja el resto igual.",
+                        "cursos/introduccion-ia-docentes/modulo-2-pedido-claro-v2.mp4",
                     ),
                     (
                         "Cuéntale lo que solo tú sabes",
@@ -1015,9 +1015,9 @@ TEACHER_COURSES: list[dict[str, Any]] = [
                     (
                         "Antes de copiar o compartir",
                         "video",
-                        76,
-                        "En pantalla, la docente revisa una guía: busca afirmaciones que no estén en la fuente, comprueba el nivel, verifica las respuestas y retira nombres y calificaciones. La salida vuelve al aula solo después de pasar por su criterio.",
-                        "cursos/introduccion-ia-docentes/modulo-3-revision-privacidad.mp4",
+                        64,
+                        "El video le pide a Gemini la frase que sostiene cada respuesta. Gemini asegura que todas se sostienen, pero la clave de la pregunta cinco le atribuye al cuaderno algo que el párrafo atribuye al trabajo coordinado. Cierra con los datos de estudiantes que no se pegan en el chat.",
+                        "cursos/introduccion-ia-docentes/modulo-3-revision-privacidad-v2.mp4",
                     ),
                     (
                         "Revisa las respuestas con la fuente",
@@ -1088,9 +1088,9 @@ TEACHER_COURSES: list[dict[str, Any]] = [
                     (
                         "Un pedido para tu aula",
                         "video",
-                        72,
-                        "Una docente escribe un pedido completo para su próxima clase, pega el material sin datos personales y pide una salida concreta. Luego revisa una respuesta, señala la fuente y ajusta el borrador. La pantalla termina con el pedido listo para que cada docente lo adapte.",
-                        "cursos/introduccion-ia-docentes/modulo-4-prueba-en-tu-clase.mp4",
+                        43,
+                        "El video arma la plantilla del pedido con las piezas del curso y la revisión con la planificación abierta. Termina en el examen final: tu pedido para una clase real.",
+                        "cursos/introduccion-ia-docentes/modulo-4-prueba-en-tu-clase-v2.mp4",
                     ),
                     (
                         "Empieza con una tarea pequeña",

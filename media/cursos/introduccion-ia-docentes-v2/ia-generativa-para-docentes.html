@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><title>ILIA · Un primer borrador para séptimo</title><link rel="stylesheet" href="scene-kit.css">
+<style>
+  .chat { width: 1000px; }
+  .msg { font-size: 22px; }
+  .small { font-size: 18px; line-height: 1.45; }
+  .tag { font-size: 14px; font-weight: 700; color: var(--muted); }
+  .q { font-size: 18px; line-height: 1.4; padding: 4px 0; }
+  .card { background: #fff; border: 1.5px solid var(--line); border-radius: 14px; padding: 22px 26px; box-shadow: 0 14px 34px rgba(0,0,0,.06); }
+  .row b { color: var(--ink); } .row span.no { color: var(--red); font-weight: 800; }
+  .miss { display: flex; align-items: center; gap: 20px; font-size: 28px; padding: 12px 0; }
+  .tag2 { font-size: 24px; color: var(--red); background: #fdecea; padding: 4px 16px; border-radius: 999px; font-weight: 700; }
+</style></head>
+<body>
+<header><b>ILIA</b>IA para preparar tu próxima clase · Un primer borrador para séptimo</header>
+
+<section data-scene="profe" style="flex-direction: column; gap: 18px;">
+  <div class="kicker" data-in="0.3">La clase de mañana</div>
+  <div class="big" data-in="0.6">Lectura en séptimo</div>
+</section>
+
+<section data-scene="corto">
+  <div class="chat">
+    <div class="who">Tu pedido</div>
+    <div class="msg me" data-in="0.3" style="font-size: 32px;">Hazme una lectura con preguntas.</div>
+    <div class="kicker" style="margin: 8px 0 0;" data-in="2.2">Lo más corto posible</div>
+  </div>
+</section>
+
+<section data-scene="faro">
+  <div class="chat">
+    <div class="msg me" style="font-size: 18px;">Hazme una lectura con preguntas.</div>
+    <div class="msg gm" data-in="0.3">
+      <div class="who">Gemini · tal cual</div>
+      <div style="font-size: 26px; font-weight: 700; margin-bottom: 8px;">El enigma del faro de Cabo Gris</div>
+      <div class="q" data-in="1.4">[…]</div>
+      <div class="q" data-in="1.8">1. Comprensión literal: ¿Cuál era la rutina diaria que Mateo realizaba a las seis de la tarde en el faro?</div>
+      <div class="q" data-in="2.4">3. Inferencia: A partir de la última anotación del cuaderno y el estado en que se encontró la sala, ¿qué le ocurrió probablemente a Mateo?</div>
+      <div class="q" data-in="3.0">[…]</div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="detalles" style="flex-direction: column; gap: 22px;">
+  <div class="kicker" data-in="0.2">Lo que trae el cuento</div>
+  <div style="display:flex; gap: 20px;">
+    <span class="chip" style="font-size: 28px;" data-say="Habla de una lámpara" data-mode="mark" data-mark-class="on-blue" data-delay="0.8">lámpara de vapor de mercurio</span>
+    <span class="chip" style="font-size: 28px;" data-say="Habla de una lámpara" data-mode="mark" data-mark-class="on-blue" data-delay="2.4">vientos de noventa nudos</span>
+  </div>
+  <div class="card" style="width: 560px;" data-say="Habla de una lámpara" data-delay="4.4">
+    <div class="row" style="font-size: 26px; border: 0;"><span>¿Clave de respuestas?</span><span class="no">no</span></div>
+  </div>
+</section>
+
+<section data-scene="faltaba" style="flex-direction: column; gap: 8px;">
+  <div class="kicker" style="font-size: 22px;" data-in="0.2">Lo que Gemini no sabía de tu clase</div>
+  <div class="card" style="width: 820px; padding: 14px 34px;">
+    <div class="row" style="font-size: 34px; padding: 18px 0; align-items: center;" data-in="2.0"><span>El grado</span><span class="tag2">no lo sabía</span></div>
+    <div class="row" style="font-size: 34px; padding: 18px 0; align-items: center;" data-in="3.6"><span>Qué leyeron</span><span class="tag2">no lo sabía</span></div>
+    <div class="row" style="font-size: 34px; padding: 18px 0; border: 0; align-items: center;" data-in="4.8"><span>Qué deben aprender</span><span class="tag2">no lo sabía</span></div>
+  </div>
+</section>
+
+<section data-scene="contexto">
+  <div class="chat">
+    <div class="who">Tu pedido, completo</div>
+    <div class="msg me small" style="max-width: 940px; font-size: 20px;">
+      <span class="hlw" data-say="Así que se lo contamos" data-mode="mark" data-mark-class="on-blue" data-delay="1.0">Doy Lengua y Literatura en séptimo de EGB en una escuela fiscal de Ecuador.</span>
+      <span class="hlw" data-say="Así que se lo contamos" data-mode="mark" data-mark-class="on-blue" data-delay="3.6">Mis estudiantes ya leyeron un cuento y ahora están aprendiendo a distinguir el tema de la idea principal de un párrafo.</span>
+      Escribe un párrafo de seis a ocho líneas sobre cómo un curso de séptimo se organiza para cuidar el huerto escolar: turnos de riego y un cuaderno donde anotan los cambios de las plantas. Después escribe cinco preguntas que se respondan solo con ese párrafo: la primera sobre el tema y la segunda sobre la idea principal. Pon la clave de respuestas al final, separada. No inventes autores ni datos que no estén en el párrafo.
+    </div>
+  </div>
+</section>
+
+<section data-scene="huerto">
+  <div class="chat" style="width: 980px; gap: 10px;">
+    <div class="who" style="margin: 0;">Gemini · tal cual · Texto de lectura</div>
+    <div class="msg gm" style="font-size: 19px; max-width: 920px;" data-in="0.3">Los estudiantes de séptimo grado de la escuela se organizaron en comisiones semanales para cuidar el huerto escolar durante todo el trimestre. […] El trabajo coordinado de los niños ha permitido que todos participen activamente y aprendan a observar la naturaleza de forma ordenada.</div>
+    <div class="msg gm" style="font-size: 18px; max-width: 920px;" data-in="1.2">1. ¿Cuál es el tema general del párrafo leído?<br>2. ¿Cuál es la idea principal del texto? […]</div>
+    <div class="who" style="margin: 4px 0 0;" data-say="Ahora sí" data-delay="4.8">Gemini · tal cual · Clave de respuestas</div>
+    <div class="msg gm" style="font-size: 18px; max-width: 920px;" data-say="Ahora sí" data-delay="4.8"><b>Tema:</b> La organización de los estudiantes de séptimo grado para el cuidado del huerto escolar. <b>Idea principal:</b> Los estudiantes de séptimo grado se organizaron en turnos de riego y en el registro de un cuaderno de campo para cuidar ordenadamente el huerto escolar. […]</div>
+  </div>
+</section>
+
+<section data-scene="cierre" style="flex-direction: column; gap: 26px;">
+  <div class="rule" data-in="0.4" style="font-size: 32px;">Lo que la inteligencia artificial sabe de tu clase, lo sabe porque tú se lo dijiste.</div>
+  <div class="rule" data-say="Y el borrador se revisa" style="font-size: 32px; border-left-color: var(--green);">El borrador se revisa antes de llegar al aula.</div>
+</section>
+
+<div class="progress"><i></i></div>
+<script src="scene-kit.js"></script>
+</body>
+</html>
