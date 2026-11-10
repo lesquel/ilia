@@ -1013,7 +1013,7 @@ TEACHER_COURSES: list[dict[str, Any]] = [
                 "Revisar y proteger",
                 [
                     (
-                        "Antes de copiar o compartir",
+                        "Revisar el borrador y cuidar los datos",
                         "video",
                         64,
                         "El video le pide a Gemini la frase que sostiene cada respuesta. Gemini asegura que todas se sostienen, pero la clave de la pregunta cinco le atribuye al cuaderno algo que el párrafo atribuye al trabajo coordinado. Cierra con los datos de estudiantes que no se pegan en el chat.",
@@ -1086,7 +1086,7 @@ TEACHER_COURSES: list[dict[str, Any]] = [
                 "Probarlo con tu próxima clase",
                 [
                     (
-                        "Un pedido para tu aula",
+                        "Probarlo con tu próxima clase",
                         "video",
                         43,
                         "El video arma la plantilla del pedido con las piezas del curso y la revisión con la planificación abierta. Termina en el examen final: tu pedido para una clase real.",
