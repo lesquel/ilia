@@ -22,6 +22,7 @@ import { useActivity, useSubmitPrompt } from '@/features/lab/application/use-lab
 import { MAX_PROMPT_CHARS, canSubmit } from '@/features/lab/domain/entities';
 import { liaMarginNotes } from '@/features/lab/domain/margin-notes';
 import { AttemptHistory } from '@/features/lab/presentation/attempt-history';
+import { PromptSignalsPanel } from '@/features/lab/presentation/prompt-signals-panel';
 
 function messageFor(error: unknown): string {
   if (!(error instanceof ApiError)) return 'No pudimos enviar tu prompt.';
@@ -222,6 +223,8 @@ export function LabScreen() {
             </Card>
           ) : null}
         </View>
+
+        <PromptSignalsPanel prompt={prompt} />
 
         {submit.isError ? (
           <Text
