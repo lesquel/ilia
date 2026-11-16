@@ -1,0 +1,82 @@
+[
+  {
+    "caso": "P1",
+    "metodo": "POST",
+    "ruta": "/api/practica/entregas-codigo",
+    "solicitud": {
+      "exercise_id": 1,
+      "language": "python",
+      "code": "def suma(numeros):\n    return sum(numeros)",
+      "history": [
+        {
+          "kind": "paste",
+          "code": "def suma(numeros):\n    return sum(numeros)",
+          "pasted_chars": 42
+        }
+      ],
+      "ai_usage": "none"
+    },
+    "estado": 201,
+    "respuesta": {
+      "data": {
+        "submission_id": 1,
+        "exercise_id": 1,
+        "submitted_at": "2026-11-15T21:41:07.290407Z",
+        "step_count": 1,
+        "paste_count": 1,
+        "largest_paste_chars": 42
+      }
+    },
+    "entregas_guardadas": 1
+  },
+  {
+    "caso": "P2",
+    "metodo": "POST",
+    "ruta": "/api/practica/entregas-codigo",
+    "solicitud": {
+      "exercise_id": 1,
+      "language": "python",
+      "history": [
+        {
+          "kind": "paste",
+          "code": "def suma(numeros):\n    return sum(numeros)",
+          "pasted_chars": 42
+        }
+      ],
+      "ai_usage": "none"
+    },
+    "estado": 422,
+    "respuesta": {
+      "message": "The code field is required.",
+      "errors": {
+        "code": [
+          "The code field is required."
+        ]
+      }
+    },
+    "entregas_guardadas": 1
+  },
+  {
+    "caso": "P3",
+    "metodo": "POST",
+    "ruta": "/api/practica/entregas-codigo",
+    "solicitud": {
+      "exercise_id": 1,
+      "language": "python",
+      "code": "def suma(numeros):\n    return sum(numeros)",
+      "history": "texto",
+      "ai_usage": "none"
+    },
+    "estado": 422,
+    "respuesta": {
+      "message": "The history field must be an array. (and 1 more error)",
+      "errors": {
+        "history": [
+          "The history field must be an array.",
+          "The history field must be a list."
+        ]
+      }
+    },
+    "entregas_guardadas": 1
+  }
+]
