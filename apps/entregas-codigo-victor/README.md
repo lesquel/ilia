@@ -1,16 +1,14 @@
 ## Cómo ejecutar el módulo en Windows
 
-### Requisitos e instalación
+### Requisitos
 
-1. **PHP 8.2 o superior.** Si aún no tienes PHP, descarga [XAMPP para Windows con PHP 8.2](https://www.apachefriends.org/es/download.html). Agrega al `Path` de Windows la carpeta que contiene `php.exe`. Por ejemplo, `C:\xampp\php`.
+- **PHP 8.2 o superior.** Si aún no tienes PHP, puedes instalar [XAMPP para Windows con PHP 8.2](https://www.apachefriends.org/es/download.html). Agrega al `Path` de Windows la carpeta que contiene `php.exe`, por ejemplo `C:\xampp\php`.
 
-2. **Composer 2.** Descarga y ejecuta [Composer-Setup.exe](https://getcomposer.org/Composer-Setup.exe). Cuando el instalador te pida la ruta de PHP, selecciona el `php.exe` de tu instalación. Por ejemplo, `C:\xampp\php\php.exe`.
+- **Composer 2.** Ejecuta [Composer-Setup.exe](https://getcomposer.org/Composer-Setup.exe) y selecciona el `php.exe` de tu instalación cuando te lo pida.
 
-3. **Node.js y npm.** Descarga el [instalador de Node.js LTS para Windows](https://nodejs.org/en/download) y completa la instalación. El instalador incluye npm.
+- **Node.js y npm.** Instala [Node.js LTS para Windows](https://nodejs.org/en/download). El instalador incluye npm.
 
-### Verificar la instalación
-
-Después de instalar, cierra y vuelve a abrir VS Code para que reconozca el `Path` actualizado. Abre una terminal PowerShell y ejecuta:
+Después de instalar, cierra y vuelve a abrir VS Code. Comprueba las versiones y las extensiones de PHP desde PowerShell:
 
 ```powershell
 php -v
@@ -20,22 +18,18 @@ npm -v
 php -m | Select-String '^(pdo_sqlite|mbstring|openssl)$'
 ```
 
-Los primeros cuatro comandos deben mostrar sus versiones y el último debe listar `pdo_sqlite`, `mbstring` y `openssl`. Si falta alguna de esas extensiones, ejecuta `php --ini` para localizar el archivo `php.ini` activo y habilítala allí. Luego repite la comprobación.
+El último comando debe listar `pdo_sqlite`, `mbstring` y `openssl`. Si falta alguna extensión, usa `php --ini` para localizar el archivo `php.ini` activo y habilítala.
 
-Con los requisitos verificados, abre la carpeta raíz de ILIA en VS Code y utiliza dos terminales de PowerShell, una para Laravel y otra para la interfaz web.
+### 1. Configuración inicial
 
-### 1. Configurar Laravel
+#### Laravel
 
-En la primera terminal, entra al módulo e instala las dependencias:
+Desde la raíz de ILIA, abre una terminal PowerShell y ejecuta:
 
 ```powershell
 cd apps/entregas-codigo-victor
 composer install
-```
 
-Si es la primera vez que ejecutas el módulo, crea el archivo de configuración, genera la clave de Laravel y prepara la base de datos SQLite:
-
-```powershell
 if (-not (Test-Path .env)) {
     Copy-Item .env.example .env
     php artisan key:generate
@@ -46,46 +40,57 @@ if (-not (Test-Path database/database.sqlite)) {
 }
 ```
 
-Abre el archivo `.env` y asigna una contraseña de prueba distinta a cada cuenta. Usa contraseñas de 12 a 64 bytes.
+Abre `apps/entregas-codigo-victor/.env` y asigna una contraseña de prueba distinta a cada cuenta. Usa contraseñas de 12 a 64 bytes.
 
 | Variable en `.env` | Cuenta de prueba |
 |---|---|
 | `PRACTICA_STUDENT_PASSWORD` | `student@practica.test` |
 | `PRACTICA_INSTRUCTOR_PASSWORD` | `instructor@practica.test` |
 
-Después de guardar el archivo, ejecuta las migraciones y carga las cuentas de prueba y la tarea **Suma de una lista**:
+Guarda el archivo y ejecuta el siguiente comando desde la carpeta del módulo. Esto crea las tablas y prepara las cuentas y la tarea de ejemplo **Suma de una lista**.
 
 ```powershell
 php artisan migrate --seed
 ```
 
-Inicia Laravel y deja esta terminal abierta:
+#### Interfaz web de ILIA
 
-```powershell
-php artisan serve --host=localhost --port=8010
-```
-
-### 2. Iniciar la interfaz web de ILIA
-
-En la segunda terminal, desde la raíz del proyecto, ejecuta:
+Abre una segunda terminal PowerShell desde la raíz de ILIA e instala las dependencias de la interfaz:
 
 ```powershell
 cd apps/mobile
 npm ci
-$env:EXPO_PUBLIC_CODE_MODULE_URL = "http://localhost:8010"
+```
+
+En `apps/mobile`, crea el archivo `.env.local` o ábrelo si ya existe. Agrega esta línea y guarda el archivo:
+
+```dotenv
+EXPO_PUBLIC_CODE_MODULE_URL=http://localhost:8010
+```
+
+Esta configuración se hace una sola vez. Expo carga la URL al iniciar y con ella habilita el botón **Entrar al módulo de código**.
+
+### 2. Iniciar el módulo cada vez que lo uses
+
+Abre dos terminales PowerShell desde la raíz de ILIA.
+
+**Terminal 1 · Laravel**
+
+```powershell
+cd apps/entregas-codigo-victor
+php artisan serve --host=localhost --port=8010
+```
+
+**Terminal 2 · Interfaz web**
+
+```powershell
+cd apps/mobile
 npm run web -- --port 8081
 ```
 
-Deja ambas terminales abiertas mientras utilizas el módulo. Las dos direcciones usan `localhost`. Laravel escucha en el puerto `8010` e ILIA web en el `8081`.
+Deja ambas terminales abiertas. Abre [http://localhost:8081/login](http://localhost:8081/login), pulsa **Entrar al módulo de código** e inicia sesión con la cuenta de estudiante o instructor.
 
-### 3. Entrar al módulo y comprobar el acceso
-
-Abre [http://localhost:8081/login](http://localhost:8081/login) y selecciona **Entrar al módulo de código**. Usa la contraseña que configuraste para la cuenta correspondiente.
-
-- **Estudiante.** Entra con `student@practica.test`. En **Mi espacio → Mis tareas**, abre **Suma de una lista**, escribe o pega una solución en el editor y envía la entrega.
-- **Instructor.** Cierra sesión y entra con `instructor@practica.test`. En **Mi espacio → Mis tareas**, abre **Suma de una lista** y selecciona **Revisar historial** junto a la entrega del estudiante.
-
-Si ya configuraste el módulo, conserva tu `.env` y tu base SQLite. Para volver a usarlo, inicia los dos servidores con los comandos anteriores. Ejecuta de nuevo `php artisan migrate --seed` si necesitas actualizar las cuentas de prueba y restablecer la consigna de demostración.
+Para volver a usar el módulo, basta con los comandos de la sección **Iniciar el módulo cada vez que lo uses**. Conserva el `.env` de Laravel, el `.env.local` de Expo y la base de datos SQLite.
 
 ## Actividad 1. Selección del proceso
 
