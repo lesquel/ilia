@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CodePracticeController as Practice;
+use App\Http\Controllers\NormalizacionEntregaController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/modulo');
@@ -16,4 +17,12 @@ Route::middleware('auth')->group(function () {
         ->whereNumber('id')->name('module.instructor.exercise');
     Route::get('/entregas/{id}', [Practice::class, 'review'])->whereNumber('id')->name('module.review');
     Route::post('/api/practica/entregas-codigo', [Practice::class, 'store'])->name('module.submit');
+});
+
+// Práctica individual 2.3: traducción de dos orígenes al contrato de entregas.
+Route::middleware('auth')->group(function () {
+    Route::post('/api/practica/normalizacion-entregas/web',
+        [NormalizacionEntregaController::class, 'web']);
+    Route::post('/api/practica/normalizacion-entregas/externo',
+        [NormalizacionEntregaController::class, 'externo']);
 });
