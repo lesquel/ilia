@@ -9,6 +9,7 @@ from app.features.auth.infrastructure.security import SystemClock
 from app.features.evaluation.application.use_cases import RunEvaluation
 from app.features.evaluation.domain.ports import (
     ActivityRepository,
+    EvaluationEngine,
     EvaluationQueue,
     EvaluationRepository,
     PromptExecutor,
@@ -20,7 +21,9 @@ from app.features.evaluation.infrastructure.llm import (
     STUB_LLM_NAME,
     LlmPromptExecutor,
     LlmPromptJudge,
+    build_fallback_llm_client,
     build_llm_client,
+    selected_fallback_llm_name,
     selected_llm_name,
 )
 from app.features.evaluation.infrastructure.local_provider import (
@@ -80,6 +83,16 @@ def build_evaluation_container(
         judge = LocalPromptJudge()
         llm_name = STUB_LLM_NAME
 
+    # Optional second provider for when the primary is down. Built (and
+    # validated) at startup like the primary, never lazily during an outage.
+    fallback_client = build_fallback_llm_client(settings)
+    fallback: EvaluationEngine | None = None
+    if fallback_client is not None:
+        fallback = EvaluationEngine(
+            executor=LlmPromptExecutor(fallback_client),
+            judge=LlmPromptJudge(fallback_client),
+        )
+
     run = RunEvaluation(
         activities=activities,
         submissions=submissions,
@@ -88,6 +101,7 @@ def build_evaluation_container(
         judge=judge,
         usage=usage,  # type: ignore[arg-type]
         clock=SystemClock(),
+        fallback=fallback,
     )
 
     return {
@@ -104,6 +118,7 @@ def build_evaluation_container(
         # What `/health/ready` reports. The name evaluation actually selected,
         # not the raw env string — whitespace is the stub.
         "llm": llm_name,
+        "llm_fallback": selected_fallback_llm_name(settings) if fallback else None,
     }
 
 

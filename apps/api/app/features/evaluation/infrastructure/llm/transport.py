@@ -11,7 +11,7 @@ from typing import Any
 import httpx
 import structlog
 
-from app.features.evaluation.infrastructure.llm.base import LlmError
+from app.features.evaluation.infrastructure.llm.base import LlmError, LlmUnavailableError
 
 logger = structlog.get_logger()
 
@@ -23,6 +23,11 @@ DEFAULT_TIMEOUT_SECONDS = 60.0
 # will build the same bad request again; retrying it just spends money slower.
 RETRY_STATUSES = frozenset({408, 409, 429, 500, 502, 503, 504})
 MAX_ATTEMPTS = 3
+
+# Statuses that say "this provider cannot serve you right now", as opposed to
+# "this request is wrong". Only these send an evaluation to the fallback: a 400
+# can be a content refusal the teacher's prompt provoked.
+UNAVAILABLE_STATUSES = RETRY_STATUSES | {401, 403}
 
 
 async def post_json(
@@ -50,12 +55,12 @@ async def post_json(
                 last_error = "timeout"
                 logger.warning("llm_timeout", provider=provider, attempt=attempt)
                 if attempt == MAX_ATTEMPTS:
-                    raise LlmError(f"{provider} timed out") from exc
+                    raise LlmUnavailableError(f"{provider} timed out") from exc
             except httpx.HTTPError as exc:
                 last_error = "transport"
                 logger.warning("llm_transport_error", provider=provider, attempt=attempt)
                 if attempt == MAX_ATTEMPTS:
-                    raise LlmError(f"{provider} could not be reached") from exc
+                    raise LlmUnavailableError(f"{provider} could not be reached") from exc
             else:
                 if response.status_code < 400:
                     try:
@@ -76,10 +81,15 @@ async def post_json(
                 )
 
                 if response.status_code not in RETRY_STATUSES or attempt == MAX_ATTEMPTS:
-                    raise LlmError(f"{provider} answered {response.status_code}")
+                    error = (
+                        LlmUnavailableError
+                        if response.status_code in UNAVAILABLE_STATUSES
+                        else LlmError
+                    )
+                    raise error(f"{provider} answered {response.status_code}")
 
             # Exponential back-off. A provider rate-limiting us is asking for
             # room, and hammering it is how a queue turns into an outage.
             await asyncio.sleep(0.5 * 2 ** (attempt - 1))
 
-    raise LlmError(f"{provider} failed after {MAX_ATTEMPTS} attempts ({last_error})")
+    raise LlmUnavailableError(f"{provider} failed after {MAX_ATTEMPTS} attempts ({last_error})")

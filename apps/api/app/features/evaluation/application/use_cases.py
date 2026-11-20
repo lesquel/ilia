@@ -21,6 +21,7 @@ from app.features.evaluation.domain.entities import (
     MAX_PROMPT_CHARS,
     Activity,
     Evaluation,
+    ModelOutput,
     Submission,
     SubmissionStatus,
 )
@@ -31,12 +32,15 @@ from app.features.evaluation.domain.errors import (
     EvaluationQuotaExceededError,
     NoAttemptsLeftError,
     PromptTooLongError,
+    ProviderUnavailableError,
     SubmissionNotFoundError,
 )
 from app.features.evaluation.domain.ports import (
     ActivityRepository,
+    EvaluationEngine,
     EvaluationQueue,
     EvaluationRepository,
+    JudgeVerdict,
     PromptExecutor,
     PromptJudge,
     QuotaPolicy,
@@ -160,14 +164,36 @@ class RunEvaluation:
         judge: PromptJudge,
         usage: UsageRecorder,
         clock: Clock,
+        fallback: EvaluationEngine | None = None,
     ) -> None:
         self._activities = activities
         self._submissions = submissions
         self._evaluations = evaluations
-        self._executor = executor
-        self._judge = judge
+        self._primary = EvaluationEngine(executor=executor, judge=judge)
+        self._fallback = fallback
         self._usage = usage
         self._clock = clock
+
+    async def _run_engine(
+        self, engine: EvaluationEngine, activity: Activity, prompt: UntrustedPrompt
+    ) -> tuple[ModelOutput, JudgeVerdict]:
+        """Execute, then judge — both on the same provider."""
+        output = await engine.executor.execute(prompt, max_output_tokens=MAX_OUTPUT_TOKENS)
+        verdict = await engine.judge.judge(
+            statement=activity.statement,
+            prompt=prompt,
+            output=output.text,
+            rubric=activity.rubric,
+        )
+        return output, verdict
+
+    async def _fail(self, submission: Submission, *, reason: str) -> None:
+        # A provider outage must leave a state the student can see and retry,
+        # not a submission that silently never finishes.
+        submission.status = SubmissionStatus.FAILED
+        submission.failure_reason = reason
+        await self._submissions.update(submission)
+        logger.warning("evaluation_failed", submission_id=str(submission.id), error=reason)
 
     async def execute(self, submission_id: UUID) -> Evaluation | None:
         submission = await self._submissions.get(submission_id)
@@ -188,25 +214,31 @@ class RunEvaluation:
         untrusted = UntrustedPrompt(submission.prompt)
 
         try:
-            output = await self._executor.execute(untrusted, max_output_tokens=MAX_OUTPUT_TOKENS)
-            verdict = await self._judge.judge(
-                statement=activity.statement,
-                prompt=untrusted,
-                output=output.text,
-                rubric=activity.rubric,
-            )
-        except Exception as exc:
-            # A provider outage must leave a state the student can see and
-            # retry, not a submission that silently never finishes.
-            submission.status = SubmissionStatus.FAILED
-            submission.failure_reason = type(exc).__name__
-            await self._submissions.update(submission)
+            output, verdict = await self._run_engine(self._primary, activity, untrusted)
+        except Exception as primary_exc:
+            # Only a provider outage moves the evaluation to the fallback. A
+            # failure the prompt itself can provoke ends here, as before: a
+            # second grader on demand would let a prompt shop for a better mark.
+            if self._fallback is None or not isinstance(primary_exc, ProviderUnavailableError):
+                await self._fail(submission, reason=type(primary_exc).__name__)
+                return None
+
+            # Degraded, not failed: the primary provider is down, the teacher
+            # still gets a grade. Both steps rerun on the fallback — an output
+            # from one provider is never judged by another.
             logger.warning(
-                "evaluation_failed",
+                "evaluation_degraded",
                 submission_id=str(submission_id),
-                error=type(exc).__name__,
+                primary_error=type(primary_exc).__name__,
             )
-            return None
+            try:
+                output, verdict = await self._run_engine(self._fallback, activity, untrusted)
+            except Exception as fallback_exc:
+                await self._fail(
+                    submission,
+                    reason=f"{type(primary_exc).__name__}; fallback: {type(fallback_exc).__name__}",
+                )
+                return None
 
         checks = run_checks(submission.prompt, activity.checks)
 

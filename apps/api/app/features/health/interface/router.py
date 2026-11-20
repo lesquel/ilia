@@ -39,6 +39,8 @@ class ReadinessResponse(BaseModel):
     # What the process would grade and store with, so a deploy can be checked
     # without reading its environment variables.
     llm: str
+    # Provider that takes over when `llm` fails; null when there is none.
+    llm_fallback: str | None = None
     storage: str
 
 
@@ -87,5 +89,6 @@ async def ready(request: Request, response: Response) -> ReadinessResponse:
         # never a key. "local-stub" here is how you notice a deployment that
         # is not really grading anything.
         llm=request.app.state.evaluation.get("llm", "local-stub"),
+        llm_fallback=request.app.state.evaluation.get("llm_fallback"),
         storage=settings.storage_provider or "local",
     )
