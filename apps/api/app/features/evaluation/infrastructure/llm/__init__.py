@@ -9,6 +9,7 @@ from app.features.evaluation.infrastructure.llm.base import (
     LlmError,
     LlmResponse,
     LlmResponseInvalidError,
+    LlmUnavailableError,
 )
 from app.features.evaluation.infrastructure.llm.executor import LlmPromptExecutor
 from app.features.evaluation.infrastructure.llm.judge import LlmPromptJudge
@@ -32,6 +33,7 @@ __all__ = [
     "LlmPromptJudge",
     "LlmResponse",
     "LlmResponseInvalidError",
+    "LlmUnavailableError",
     "Provider",
     "ProviderMisconfiguredError",
     "build_fallback_llm_client",

@@ -32,6 +32,7 @@ from app.features.evaluation.domain.errors import (
     EvaluationQuotaExceededError,
     NoAttemptsLeftError,
     PromptTooLongError,
+    ProviderUnavailableError,
     SubmissionNotFoundError,
 )
 from app.features.evaluation.domain.ports import (
@@ -215,7 +216,10 @@ class RunEvaluation:
         try:
             output, verdict = await self._run_engine(self._primary, activity, untrusted)
         except Exception as primary_exc:
-            if self._fallback is None:
+            # Only a provider outage moves the evaluation to the fallback. A
+            # failure the prompt itself can provoke ends here, as before: a
+            # second grader on demand would let a prompt shop for a better mark.
+            if self._fallback is None or not isinstance(primary_exc, ProviderUnavailableError):
                 await self._fail(submission, reason=type(primary_exc).__name__)
                 return None
 
