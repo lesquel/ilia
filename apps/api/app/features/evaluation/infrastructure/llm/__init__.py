@@ -17,7 +17,9 @@ from app.features.evaluation.infrastructure.llm.registry import (
     STUB_LLM_NAME,
     Provider,
     ProviderMisconfiguredError,
+    build_fallback_llm_client,
     build_llm_client,
+    selected_fallback_llm_name,
     selected_llm_name,
 )
 
@@ -32,6 +34,8 @@ __all__ = [
     "LlmResponseInvalidError",
     "Provider",
     "ProviderMisconfiguredError",
+    "build_fallback_llm_client",
     "build_llm_client",
+    "selected_fallback_llm_name",
     "selected_llm_name",
 ]

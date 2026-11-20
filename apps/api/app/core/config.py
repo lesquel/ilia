@@ -52,6 +52,19 @@ class Settings(BaseSettings):
     # deployment. Left empty, each provider uses its documented endpoint.
     llm_base_url: str = ""
 
+    # Optional second provider, used only when the primary one fails for an
+    # evaluation. Empty (the default) keeps the single-provider behaviour: a
+    # primary outage ends the submission as `failed`.
+    #
+    # This does not contradict "one provider at a time": every evaluation is
+    # still graded end to end by exactly one provider — execution and judgement
+    # never mix — and the model that graded it is stored with the grade, so a
+    # degraded mark can always be told apart and explained.
+    llm_fallback_provider: str = ""
+    llm_fallback_api_key: str = ""
+    llm_fallback_model: str = ""
+    llm_fallback_base_url: str = ""
+
     # Price per million tokens for the *configured* model, for the admin cost
     # report (PRD A-03). Not derived from a built-in table: published prices
     # change, and a stale hard-coded number reads as authoritative while being

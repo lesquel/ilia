@@ -88,6 +88,19 @@ class PromptJudge(Protocol):
         ...
 
 
+@dataclass(frozen=True)
+class EvaluationEngine:
+    """An executor and a judge that belong to the same provider.
+
+    They travel as a pair so a fallback can only ever swap both at once. An
+    output produced by one provider and judged by another would be a grade
+    nobody could reproduce or explain.
+    """
+
+    executor: PromptExecutor
+    judge: PromptJudge
+
+
 class ActivityRepository(Protocol):
     async def get(self, activity_id: UUID) -> Activity | None: ...
 

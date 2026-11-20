@@ -57,11 +57,22 @@ class ProviderMisconfiguredError(ValueError):
     """
 
 
+# Which environment variables a role reads. The fallback mirrors the primary
+# one-for-one, so an error message can name the exact variable to fix.
+PRIMARY_PREFIX = "ILIA_LLM"
+FALLBACK_PREFIX = "ILIA_LLM_FALLBACK"
+
+
 def selected_llm_name(settings: Settings) -> str:
     """The provider evaluation will grade with, after the same strip/lower
     `build_llm_client` uses. Empty or whitespace is the local stub.
     """
     return settings.llm_provider.strip().lower() or STUB_LLM_NAME
+
+
+def selected_fallback_llm_name(settings: Settings) -> str | None:
+    """The provider used when the primary fails, or None when there is none."""
+    return settings.llm_fallback_provider.strip().lower() or None
 
 
 def build_llm_client(settings: Settings) -> LlmClient | None:
@@ -75,31 +86,73 @@ def build_llm_client(settings: Settings) -> LlmClient | None:
     if name == STUB_LLM_NAME:
         return None
 
+    return _build(
+        name=name,
+        api_key=settings.llm_api_key,
+        model=settings.llm_model,
+        base_url=settings.llm_base_url,
+        prefix=PRIMARY_PREFIX,
+    )
+
+
+def build_fallback_llm_client(settings: Settings) -> LlmClient | None:
+    """The secondary client, or None when no fallback is configured.
+
+    Validated at startup exactly like the primary: a fallback that only reveals
+    its missing key during an outage is a fallback that was never there.
+    """
+    name = selected_fallback_llm_name(settings)
+    if name is None:
+        return None
+
+    if selected_llm_name(settings) == STUB_LLM_NAME:
+        # A fallback behind the stub would only ever back up a grader that
+        # does not grade. Refusing is clearer than silently ignoring it.
+        raise ProviderMisconfiguredError(
+            f"{FALLBACK_PREFIX}_PROVIDER is set but ILIA_LLM_PROVIDER is empty: "
+            "configure the primary provider first"
+        )
+
+    return _build(
+        name=name,
+        api_key=settings.llm_fallback_api_key,
+        model=settings.llm_fallback_model,
+        base_url=settings.llm_fallback_base_url,
+        prefix=FALLBACK_PREFIX,
+    )
+
+
+def _build(*, name: str, api_key: str, model: str, base_url: str, prefix: str) -> LlmClient:
     try:
         provider = Provider(name)
     except ValueError as exc:
         supported = ", ".join(sorted(p.value for p in Provider))
         raise ProviderMisconfiguredError(
-            f"Unknown ILIA_LLM_PROVIDER {name!r}. Supported: {supported}"
+            f"Unknown {prefix}_PROVIDER {name!r}. Supported: {supported}"
         ) from exc
 
-    api_key = settings.llm_api_key.strip()
+    api_key = api_key.strip()
     if not api_key:
         raise ProviderMisconfiguredError(
-            f"ILIA_LLM_PROVIDER is {provider.value!r} but ILIA_LLM_API_KEY is empty"
+            f"{prefix}_PROVIDER is {provider.value!r} but {prefix}_API_KEY is empty"
         )
 
-    model = settings.llm_model.strip() or DEFAULT_MODELS.get(provider, "")
+    model = model.strip() or DEFAULT_MODELS.get(provider, "")
     if not model:
         raise ProviderMisconfiguredError(
-            f"ILIA_LLM_MODEL is required for provider {provider.value!r}"
+            f"{prefix}_MODEL is required for provider {provider.value!r}"
         )
 
-    base_url = settings.llm_base_url.strip()
+    base_url = base_url.strip()
 
     # The provider and model are logged; the key never is, not even truncated.
     # A prefix is enough to identify which key leaked and which account to bill.
-    logger.info("llm_provider_configured", provider=provider.value, model=model)
+    logger.info(
+        "llm_provider_configured",
+        role="fallback" if prefix == FALLBACK_PREFIX else "primary",
+        provider=provider.value,
+        model=model,
+    )
 
     if provider is Provider.ANTHROPIC:
         return AnthropicClient(api_key=api_key, model=model)
@@ -122,7 +175,7 @@ def build_llm_client(settings: Settings) -> LlmClient | None:
 
     if not base_url:
         raise ProviderMisconfiguredError(
-            "ILIA_LLM_BASE_URL is required for provider 'openai-compatible'"
+            f"{prefix}_BASE_URL is required for provider 'openai-compatible'"
         )
 
     return OpenAiCompatibleClient(
