@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\NormalizadorEntrega;
+use App\Services\AmbitoEjercicios;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -14,14 +15,21 @@ class NormalizacionEntregaController extends Controller
     {
         $entrada = $this->leerJson($request, 'history');
 
-        return response()->json(['data' => $normalizador->desdeWeb($entrada)]);
+        return $this->respuesta($request, $normalizador->desdeWeb($entrada));
     }
 
     public function externo(Request $request, NormalizadorEntrega $normalizador): JsonResponse
     {
         $entrada = $this->leerJson($request, 'pasos');
 
-        return response()->json(['data' => $normalizador->desdeExterno($entrada)]);
+        return $this->respuesta($request, $normalizador->desdeExterno($entrada));
+    }
+
+    private function respuesta(Request $request, array $data): JsonResponse
+    {
+        abort_unless(AmbitoEjercicios::query($request->user())->where('exercises.id', $data['exercise_id'])->exists(), 404);
+
+        return response()->json(['data' => $data]);
     }
 
     private function leerJson(Request $request, string $historial): array

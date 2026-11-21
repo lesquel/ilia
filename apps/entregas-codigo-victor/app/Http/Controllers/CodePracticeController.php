@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Data\CodeSubmission;
+use App\Services\AmbitoEjercicios;
 use App\Http\Requests\StoreCodeSubmission;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -18,18 +19,37 @@ class CodePracticeController extends Controller
 
     public function login(Request $request): JsonResponse
     {
+        abort_unless(config('ilia.practice_enabled'), 404);
         $credentials = $request->validate([
             'email' => ['required', 'email', 'max:254'],
             'password' => ['required', 'string', 'max:128'],
         ]);
 
-        if (! Auth::attempt($credentials)) {
+        if (! Auth::attempt($credentials + ['ilia_user_id' => null])) {
             return response()->json(['message' => 'El correo o la contraseña del módulo son incorrectos.'], 422);
         }
 
+        $request->session()->forget('ilia_identity');
         $request->session()->regenerate();
 
         return response()->json(['role' => $request->user()->role])->header('Cache-Control', 'no-store');
+    }
+
+    public function practiceForm()
+    {
+        abort_unless(config('ilia.practice_enabled'), 404);
+
+        return view('practice-login');
+    }
+
+    public function practiceLogin(Request $request)
+    {
+        $response = $this->login($request);
+        if ($response->getStatusCode() !== 200) {
+            return back()->withErrors(['email' => 'El correo o la contraseña de práctica son incorrectos.']);
+        }
+
+        return redirect()->route('module.dashboard');
     }
 
     public function logout(Request $request)
@@ -44,7 +64,7 @@ class CodePracticeController extends Controller
     public function dashboard(Request $request)
     {
         $user = $request->user();
-        $query = DB::table('exercises')->select('exercises.*')->orderBy('id');
+        $query = AmbitoEjercicios::query($user)->select('exercises.*')->orderBy('exercises.id');
         $submissionCount = DB::table('submissions')
             ->selectRaw('count(*)')
             ->whereColumn('submissions.exercise_id', 'exercises.id');
@@ -90,7 +110,7 @@ class CodePracticeController extends Controller
     public function exercise(Request $request, int $id)
     {
         abort_unless($request->user()->role === 'student', 403);
-        $exercise = DB::table('exercises')->find($id);
+        $exercise = AmbitoEjercicios::query($request->user())->where('exercises.id', $id)->first();
 
         abort_unless($exercise, 404);
 

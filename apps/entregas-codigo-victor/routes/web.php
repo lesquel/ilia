@@ -1,11 +1,15 @@
 <?php
 
 use App\Http\Controllers\CodePracticeController as Practice;
+use App\Http\Controllers\AccesoIliaController;
 use App\Http\Controllers\NormalizacionEntregaController;
 use App\Http\Controllers\ReporteEntregasController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/modulo');
+Route::post('/acceso/ilia', [AccesoIliaController::class, 'entrar'])->middleware('throttle:10,1');
+Route::get('/acceso/practica', [Practice::class, 'practiceForm']);
+Route::post('/acceso/practica', [Practice::class, 'practiceLogin'])->middleware('throttle:10,1');
 Route::get('/acceso/csrf', [Practice::class, 'csrf'])->middleware('throttle:60,1');
 Route::post('/acceso/login', [Practice::class, 'login'])->middleware('throttle:10,1');
 

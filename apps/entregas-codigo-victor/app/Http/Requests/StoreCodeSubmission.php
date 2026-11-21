@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Services\AmbitoEjercicios;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Validator;
@@ -53,6 +54,12 @@ class StoreCodeSubmission extends FormRequest
 
             if (($raw->history[array_key_last($raw->history)]->code ?? null) !== $this->input('code')) {
                 $validator->errors()->add('history', 'La última versión debe coincidir con el código entregado.');
+            }
+
+            if (! AmbitoEjercicios::query($this->user())->where('exercises.id', $this->input('exercise_id'))->exists()) {
+                $validator->errors()->add('exercise_id', 'La tarea no está disponible para esta cuenta.');
+
+                return;
             }
 
             $language = DB::table('exercises')->where('id', $this->input('exercise_id'))->value('language');

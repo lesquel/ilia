@@ -20,6 +20,7 @@ import { BrandMark } from '@/core/ui/brand-mark';
 import { DropdownMenu } from '@/core/ui/dropdown-menu';
 import { Icon } from '@/core/ui/icon';
 import { ProfileAvatar } from '@/core/ui/profile-avatar';
+import { CodeModuleButton } from '@/features/auth/presentation/code-module-button';
 import { useLogout, useSession } from '@/features/auth/application/use-auth';
 import {
   SESSION_ROLE_LABELS,
@@ -88,6 +89,7 @@ export function AccountBar() {
         ))}
       </View>
 
+      <CodeModuleButton />
       <SessionMenu key={pathname} user={user} />
     </View>
   );

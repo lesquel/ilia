@@ -21,6 +21,14 @@
         </div>
     </header>
     <main class="container">
+        <p>
+            @if (auth()->user()?->ilia_user_id)
+                Cuenta oficial de ILIA · {{ auth()->user()->name }}
+            @else
+                Acceso de práctica
+            @endif
+            · <a href="{{ rtrim(config('practica.ilia_origin'), '/') }}">Volver a ILIA</a>
+        </p>
         @yield('content')
     </main>
 </body>

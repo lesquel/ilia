@@ -17,7 +17,7 @@ import { ApiError } from '@/core/errors/api-error';
 import { breakpoint, useTheme } from '@/core/theme';
 import { AuthShell } from '@/features/auth/presentation/auth-shell';
 import { useLogin } from '@/features/auth/application/use-auth';
-import { codeModuleUrl, signInToCodeModule } from '@/features/auth/data/code-module-access';
+import { codeModuleUrl, officialCodeModule, signInToCodeModule } from '@/features/auth/data/code-module-access';
 import { credentialsToSubmit, safeDestination } from '@/features/auth/domain/entities';
 
 /** Wording the teacher reads, chosen here from the backend's stable error code. */
@@ -99,7 +99,7 @@ export function LoginScreen() {
         await signInToCodeModule(codeModuleUrl, credentials);
       } catch (error) {
         setModuleError(error instanceof Error && !(error instanceof TypeError)
-          ? error.message
+          ? (error instanceof ApiError ? messageFor(error) : error.message)
           : 'No pudimos conectar con el módulo de código.');
         setModulePending(false);
       }
@@ -135,7 +135,7 @@ export function LoginScreen() {
         <View style={styles.card}>
           <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">Iniciar sesión</Text>
           <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
-            {moduleMode ? 'Usa tu cuenta del módulo de código' : 'Entra para continuar con tus cursos'}
+            {moduleMode ? (officialCodeModule ? 'Usa tu cuenta oficial de ILIA' : 'Usa tu cuenta del módulo de código') : 'Entra para continuar con tus cursos'}
           </Text>
 
           <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>Correo</Text>
