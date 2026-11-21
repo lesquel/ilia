@@ -9,6 +9,9 @@
 export const env = {
   apiBaseUrl: process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000',
   apiPrefix: '/api/v1',
+  // Public address of the web app, used for links a phone shares (certificate
+  // QR). Unset means a phone has no link to give, so sharing stays hidden there.
+  webBaseUrl: process.env.EXPO_PUBLIC_WEB_URL || undefined,
 } as const;
 
 export const apiUrl = `${env.apiBaseUrl}${env.apiPrefix}`;

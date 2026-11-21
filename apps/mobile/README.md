@@ -24,6 +24,9 @@ Crea un `.env` en `apps/mobile/` con:
 
 ```
 EXPO_PUBLIC_API_URL=http://localhost:8000
+# Optional: public web address for links a phone shares (certificate QR).
+# Without it the app on a phone hides "Compartir"; the web uses its own origin.
+EXPO_PUBLIC_WEB_URL=https://<dominio-publico>
 ```
 
 Las variables `EXPO_PUBLIC_*` se **inlinean en el bundle**, así que son públicas

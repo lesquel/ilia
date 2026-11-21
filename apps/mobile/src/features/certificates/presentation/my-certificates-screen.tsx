@@ -1,15 +1,34 @@
 import type { Href } from 'expo-router';
-import { Award, CalendarDays, ExternalLink, ShieldCheck, UserRound } from 'lucide-react-native';
-import type { ReactNode } from 'react';
+import {
+  Award,
+  CalendarDays,
+  ExternalLink,
+  QrCode,
+  ShieldCheck,
+  UserRound,
+} from 'lucide-react-native';
+import { useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import { breakpoint, useTheme } from '@/core/theme';
 import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
-import { Card, Fact, OutlineLink, ScreenHeader, SubCard, Tag } from '@/core/ui/surface';
+import {
+  Card,
+  Fact,
+  OutlineButton,
+  OutlineLink,
+  ScreenHeader,
+  SubCard,
+  Tag,
+} from '@/core/ui/surface';
 import { useSession } from '@/features/auth';
 import { useMyCertificates } from '@/features/certificates/application/use-certificates';
 import { CERTIFICATE_PROOF } from '@/features/certificates/domain/copy';
 import { formatIssueDate, type Certificate } from '@/features/certificates/domain/entities';
+import {
+  ShareCertificateCard,
+  publicOrigin,
+} from '@/features/certificates/presentation/share-certificate-card';
 
 const CONTENT_MAX_WIDTH = 960;
 const CONTENT_PADDING = 20.4;
@@ -100,6 +119,8 @@ function Screen({ children }: { children: ReactNode }) {
 function CertificateCard({ certificate }: { certificate: Certificate }) {
   const theme = useTheme();
   const valid = certificate.status === 'valid';
+  const canShare = valid && publicOrigin() !== undefined;
+  const [sharing, setSharing] = useState(false);
 
   return (
     <Card style={styles.card}>
@@ -135,7 +156,20 @@ function CertificateCard({ certificate }: { certificate: Certificate }) {
           label="Ver la página de verificación"
           glyph={ExternalLink}
         />
+        {/* A revoked certificate proves nothing, so there is nothing to share;
+            without a public address there is no link to put in the QR. */}
+        {canShare ? (
+          <OutlineButton
+            label={sharing ? 'Ocultar tarjeta' : 'Compartir'}
+            glyph={QrCode}
+            accessibilityLabel={
+              sharing ? 'Ocultar la tarjeta para compartir' : 'Compartir el certificado con un QR'
+            }
+            onPress={() => setSharing((open) => !open)}
+          />
+        ) : null}
       </View>
+      {canShare && sharing ? <ShareCertificateCard certificate={certificate} /> : null}
     </Card>
   );
 }
