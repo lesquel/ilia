@@ -23,7 +23,7 @@ class CertificateModel(Base):
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     user_id: Mapped[UUID] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("auth.app_user.id", ondelete="CASCADE"),
+        ForeignKey("identity.app_user.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
@@ -49,5 +49,5 @@ class CertificateModel(Base):
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     revoked_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     revoked_by: Mapped[UUID | None] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("auth.app_user.id", ondelete="SET NULL"), nullable=True
+        Uuid(as_uuid=True), ForeignKey("identity.app_user.id", ondelete="SET NULL"), nullable=True
     )

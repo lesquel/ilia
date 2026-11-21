@@ -45,7 +45,7 @@ export function CertificatePanel({ slug, courseTitle }: { slug: string; courseTi
           },
         ]}
       >
-        <Text style={[styles.title, { color: theme.colors.accentRamp[800] }]}>
+        <Text style={[styles.title, { color: theme.colors.accentRamp[800] }]} accessibilityRole="header">
           Ya tienes tu certificado 🎓
         </Text>
         <Text selectable style={[styles.code, { color: theme.colors.accentRamp[800] }]}>
@@ -54,7 +54,7 @@ export function CertificatePanel({ slug, courseTitle }: { slug: string; courseTi
         <Text style={[styles.missing, { color: theme.colors.accentRamp[800] }]}>
           {CERTIFICATE_PROOF}
         </Text>
-        <Link href="/certificates" style={[styles.link, { color: theme.colors.accent }]}>
+        <Link href="/certificates" style={[styles.link, { color: theme.colors.accentAlt }]}>
           Ver mis certificados →
         </Link>
       </View>
@@ -66,7 +66,7 @@ export function CertificatePanel({ slug, courseTitle }: { slug: string; courseTi
       <View
         style={[styles.panel, { borderColor: theme.colors.divider, borderRadius: theme.radius.md }]}
       >
-        <Text style={[styles.title, { color: theme.colors.text }]}>
+        <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">
           Para tu certificado te falta
         </Text>
         {/* The reasons, not just a "no". Telling someone who has been working
@@ -97,13 +97,13 @@ export function CertificatePanel({ slug, courseTitle }: { slug: string; courseTi
           },
         ]}
       >
-        <Text style={[styles.title, { color: theme.colors.accentRamp[800] }]}>
+        <Text style={[styles.title, { color: theme.colors.accentRamp[800] }]} accessibilityRole="header">
           Completaste todo lo que pide este curso 🎉
         </Text>
         <Text style={[styles.missing, { color: theme.colors.accentRamp[800] }]}>
           {PLAN_BLOCKS_CERTIFICATE}
         </Text>
-        <Link href="/plans" style={[styles.link, { color: theme.colors.accent }]}>
+        <Link href="/plans" style={[styles.link, { color: theme.colors.accentAlt }]}>
           Ver planes →
         </Link>
       </View>
@@ -121,7 +121,7 @@ export function CertificatePanel({ slug, courseTitle }: { slug: string; courseTi
         },
       ]}
     >
-      <Text style={[styles.title, { color: theme.colors.accentRamp[800] }]}>
+      <Text style={[styles.title, { color: theme.colors.accentRamp[800] }]} accessibilityRole="header">
         Completaste todo lo que pide este curso
       </Text>
       <Text style={[styles.missing, { color: theme.colors.accentRamp[800] }]}>
@@ -143,14 +143,14 @@ export function CertificatePanel({ slug, courseTitle }: { slug: string; courseTi
         style={({ pressed }) => [
           styles.button,
           {
-            backgroundColor: theme.colors.accent,
+            backgroundColor: theme.colors.accentButton,
             borderRadius: theme.radius.md,
             opacity: issue.isPending ? 0.6 : pressed ? 0.85 : 1,
           },
         ]}
       >
         {issue.isPending ? (
-          <ActivityIndicator color="#f2f2f3" />
+          <ActivityIndicator color="#ffffff" />
         ) : (
           <Text style={styles.buttonLabel}>Obtener mi certificado</Text>
         )}
@@ -172,5 +172,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minHeight: 48,
   },
-  buttonLabel: { color: '#f2f2f3', fontSize: 16, fontWeight: '600' },
+  buttonLabel: { color: '#ffffff', fontSize: 16, fontWeight: '600' },
 });

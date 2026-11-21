@@ -24,13 +24,15 @@ import { breakpoint, useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
 import { MascotGuide } from '@/core/ui/mascot-guide';
 import { ErrorState, LoadingState } from '@/core/ui/state-view';
-import { useCourse } from '@/features/catalog/application/use-catalog';
+import { useCourse, useCourses } from '@/features/catalog/application/use-catalog';
 import {
+  LEVEL_LABELS,
   currentItemIdInModule,
   formatDuration,
   nextOpenSyllabusItem,
   syllabusStationLabel,
   syllabusStationStatuses,
+  startingCourseId,
   type Module,
   type ModuleActivity,
   type SyllabusStationStatus,
@@ -69,6 +71,8 @@ export function CourseDetailScreen({
   const isWide = width >= breakpoint.compact;
 
   const { course, isLoading, error, refetch } = useCourse(slug ?? '');
+  // Only the first course of the route is the door; the others say their level.
+  const { courses: catalog } = useCourses();
 
   if (isLoading) {
     return (
@@ -110,12 +114,14 @@ export function CourseDetailScreen({
       ? 'En curso · falta la práctica'
       : isEnrolled
         ? `En curso · ${completedLessonCount} de ${course.lessonCount}`
-        : 'Empieza aquí';
+        : course.id === startingCourseId(catalog)
+          ? 'Empieza aquí'
+          : `Nivel ${LEVEL_LABELS[course.level].toLocaleLowerCase('es')}`;
   const lede = isCourseFinished
     ? 'Terminaste este curso.'
     : isEnrolled && followTitle
       ? `Sigue: ${followTitle}.`
-      : 'Para que el lunes tengas la hoja, no otra tarde armándola.';
+      : course.summary;
   const mascotLine = isEnrolled && followTitle ? `Sigue: ${followTitle}.` : 'Cuando quieras, empezamos.';
   const activityCount = course.modules.reduce((total, module) => total + module.activities.length, 0);
 
@@ -163,7 +169,7 @@ export function CourseDetailScreen({
           >
             <View style={styles.kickerRow}>
               <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
-              <Text style={[styles.kicker, { color: theme.colors.accent }]}>
+              <Text style={[styles.kicker, { color: theme.colors.accentAlt }]}>
                 Instituto {INSTITUTE_SHORT_NAME}
               </Text>
             </View>
@@ -184,7 +190,7 @@ export function CourseDetailScreen({
           >
             <Text style={[styles.badgeText, { color: theme.colors.accentRamp[800] }]}>{badgeLabel}</Text>
           </View>
-          <Text style={[styles.title, { color: theme.colors.text }]}>{course.title}</Text>
+          <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">{course.title}</Text>
           <Text style={[styles.lede, { color: theme.colors.neutral[700] }]}>{lede}</Text>
           <View style={styles.facts}>
             <Fact
@@ -212,7 +218,7 @@ export function CourseDetailScreen({
                     style={[
                       styles.followButton,
                       {
-                        backgroundColor: theme.colors.accent,
+                        backgroundColor: theme.colors.accentButton,
                         borderRadius: theme.radius.md,
                         opacity: pressed ? 0.85 : 1,
                       },
@@ -335,7 +341,7 @@ function SyllabusStation({
             style={[
               styles.here,
               {
-                backgroundColor: status === 'now' ? theme.colors.accent : theme.colors.neutral[200],
+                backgroundColor: status === 'now' ? theme.colors.accentButton : theme.colors.neutral[200],
               },
             ]}
           >
@@ -452,7 +458,7 @@ function SyllabusRow({
       <Text
         style={[
           styles.rowIndex,
-          { color: isCurrent ? theme.colors.accent : theme.colors.neutral[500] },
+          { color: isCurrent ? theme.colors.accentAlt : theme.colors.neutral[500] },
         ]}
       >
         {indexLabel}
@@ -481,7 +487,7 @@ function SyllabusRow({
         <Text
           style={[
             styles.rowTrailing,
-            { color: isCurrent ? theme.colors.accent : theme.colors.neutral[500] },
+            { color: isCurrent ? theme.colors.accentAlt : theme.colors.neutral[500] },
           ]}
         >
           {isCurrent ? 'Aquí' : isDone ? 'Hecha' : trailing}

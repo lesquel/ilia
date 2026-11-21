@@ -8,6 +8,13 @@ class ThreadNotFoundError(NotFoundError):
         super().__init__("That discussion does not exist")
 
 
+class ForumModuleNotFoundError(NotFoundError):
+    code = "forum_module_not_found"
+
+    def __init__(self) -> None:
+        super().__init__("That module does not belong to this course")
+
+
 class ForumAccessDeniedError(PermissionDeniedError):
     """Reading or posting without being enrolled.
 

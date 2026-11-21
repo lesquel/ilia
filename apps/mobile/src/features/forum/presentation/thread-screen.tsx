@@ -1,10 +1,11 @@
-import { useLocalSearchParams, type Href } from 'expo-router';
-import { Clock, Lock, MessageSquare, UserRound } from 'lucide-react-native';
+import { Link, useLocalSearchParams, type Href } from 'expo-router';
+import { Clock, Lock, MessageSquare } from 'lucide-react-native';
 import { useState, type ReactNode } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
+import { ProfileAvatar } from '@/core/ui/profile-avatar';
 import { ErrorState, LoadingState } from '@/core/ui/state-view';
 import {
   Card,
@@ -13,7 +14,6 @@ import {
   OutlineLink,
   PrimaryButton,
   ScreenHeader,
-  SectionHeading,
   SubCard,
 } from '@/core/ui/surface';
 import { useEntitlements } from '@/features/billing';
@@ -23,15 +23,23 @@ import { ModerateControl } from '@/features/forum/presentation/moderate-control'
 
 export function ThreadScreen() {
   const theme = useTheme();
-  const { slug, threadId } = useLocalSearchParams<{ slug: string; threadId: string }>();
+  const { slug, threadId, moduleId: moduleParam, cohortId: cohortParam, cohortTitle: cohortTitleParam } =
+    useLocalSearchParams<{ slug: string; threadId: string; moduleId?: string; cohortId?: string; cohortTitle?: string }>();
   const courseSlug = slug ?? '';
+  const moduleId = moduleParam ?? '';
+  const cohortId = cohortParam ?? '';
+  const cohortTitle = cohortTitleParam ?? '';
+  const forumQuery = [moduleId ? `moduleId=${moduleId}` : '', cohortId ? `cohortId=${cohortId}` : '', cohortTitle ? `cohortTitle=${encodeURIComponent(cohortTitle)}` : '']
+    .filter(Boolean)
+    .join('&');
+  const forumHref = `/catalog/${courseSlug}/forum${forumQuery ? `?${forumQuery}` : ''}` as Href;
 
-  const { thread, isLoading, error } = useThread(courseSlug, threadId ?? '');
+  const { thread, isLoading, error, refetch } = useThread(courseSlug, threadId ?? '', cohortId || undefined);
   const { entitlements } = useEntitlements();
   // Null means billing is not configured, which is generous by design: a
   // misconfiguration must not silence a whole course's forum.
   const canPost = entitlements === null || entitlements.canPostInForum;
-  const reply = useReply(courseSlug, threadId ?? '');
+  const reply = useReply(courseSlug, threadId ?? '', cohortId || undefined);
   const [body, setBody] = useState('');
 
   const ready = body.trim().length > 0 && !reply.isPending;
@@ -44,6 +52,10 @@ export function ThreadScreen() {
   if (isLoading) {
     return (
       <Screen>
+        <ScreenHeader
+          back={{ label: 'Volver al foro', href: forumHref }}
+          title="Discusión"
+        />
         <LoadingState label="Cargando la discusión…" />
       </Screen>
     );
@@ -52,7 +64,11 @@ export function ThreadScreen() {
   if (error || !thread) {
     return (
       <Screen>
-        <ErrorState error={error} />
+        <ScreenHeader
+          back={{ label: 'Volver al foro', href: forumHref }}
+          title="Discusión"
+        />
+        <ErrorState error={error} onRetry={() => void refetch()} />
       </Screen>
     );
   }
@@ -60,17 +76,20 @@ export function ThreadScreen() {
   return (
     <Screen>
       <ScreenHeader
-        back={{ label: 'Volver al foro', href: `/catalog/${courseSlug}/forum` as Href }}
+        back={{ label: 'Volver al foro', href: forumHref }}
         title={thread.isHidden ? '[Discusión retirada por moderación]' : thread.title}
       />
 
-      <Card>
+      <Card title="Publicación inicial" style={styles.question}>
         <View style={styles.facts}>
-          <Fact glyph={UserRound} label={thread.authorName} />
+          <Link href={`/community/members/${thread.authorId}`} asChild><Pressable accessibilityRole="link" style={styles.author}>
+            <ProfileAvatar name={thread.authorName} avatarKey={thread.authorAvatarKey} avatarUrl={thread.authorAvatarUrl} size={28} />
+            <Text style={[styles.authorName, { color: theme.colors.text }]}>{thread.authorName}</Text>
+          </Pressable></Link>
           <Fact glyph={Clock} label={timeAgo(thread.createdAt)} />
           <Fact glyph={MessageSquare} label={replyLabel(thread.replyCount)} />
         </View>
-        <Text style={[styles.body, { color: theme.colors.text }]}>{thread.body}</Text>
+        <Text style={[styles.questionBody, { color: theme.colors.text }]}>{thread.body}</Text>
 
         {thread.canModerate && !thread.isHidden ? (
           <ModerateControl slug={courseSlug} kind="thread" id={thread.id} />
@@ -78,35 +97,47 @@ export function ThreadScreen() {
       </Card>
 
       {thread.posts.length > 0 ? (
-        <View style={styles.replies}>
-          <SectionHeading title="Respuestas" />
-          {thread.posts.map((post) => (
-            <Card key={post.id} style={styles.post}>
-              <View style={styles.facts}>
-                <Text style={[styles.author, { color: theme.colors.text }]}>{post.authorName}</Text>
-                <Fact glyph={Clock} label={timeAgo(post.createdAt)} />
-              </View>
-              {/* A moderated reply is replaced, not removed: the shape of the
-                  conversation survives, so nobody is left wondering what the reply
-                  above them was answering. */}
-              <Text
+        <Card title="Respuestas">
+          <View>
+            {thread.posts.map((post, index) => (
+              <View
+                key={post.id}
                 style={[
-                  styles.body,
-                  {
-                    color: post.isHidden ? theme.colors.neutral[600] : theme.colors.text,
-                    fontStyle: post.isHidden ? 'italic' : 'normal',
-                  },
+                  styles.post,
+                  index > 0
+                    ? { borderTopWidth: 1, borderTopColor: theme.colors.divider }
+                    : undefined,
                 ]}
               >
-                {post.body}
-              </Text>
+                <View style={styles.facts}>
+                <Link href={`/community/members/${post.authorId}`} asChild><Pressable accessibilityRole="link" style={styles.author}>
+                    <ProfileAvatar name={post.authorName} avatarKey={post.authorAvatarKey} avatarUrl={post.authorAvatarUrl} size={28} />
+                    <Text style={[styles.authorName, { color: theme.colors.text }]}>{post.authorName}</Text>
+                </Pressable></Link>
+                  <Fact glyph={Clock} label={timeAgo(post.createdAt)} />
+                </View>
+                {/* A moderated reply is replaced, not removed: the shape of the
+                    conversation survives, so nobody is left wondering what the reply
+                    above them was answering. */}
+                <Text
+                  style={[
+                    styles.body,
+                    {
+                      color: post.isHidden ? theme.colors.neutral[600] : theme.colors.text,
+                      fontStyle: post.isHidden ? 'italic' : 'normal',
+                    },
+                  ]}
+                >
+                  {post.body}
+                </Text>
 
-              {thread.canModerate && !post.isHidden ? (
-                <ModerateControl slug={courseSlug} kind="post" id={post.id} />
-              ) : null}
-            </Card>
-          ))}
-        </View>
+                {thread.canModerate && !post.isHidden ? (
+                  <ModerateControl slug={courseSlug} kind="post" id={post.id} />
+                ) : null}
+              </View>
+            ))}
+          </View>
+        </Card>
       ) : null}
 
       {/* Same rule as the forum listing, which already got this right: someone
@@ -179,10 +210,12 @@ const styles = StyleSheet.create({
     gap: 20.4,
   },
   facts: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', columnGap: 13.6, rowGap: 3.4 },
+  question: { gap: 16 },
+  questionBody: { fontSize: 16, lineHeight: 26 },
   body: { fontSize: 15, lineHeight: 23 },
-  replies: { gap: 10.2 },
-  post: { gap: 6.8 },
-  author: { fontSize: 14, fontWeight: '700' },
+  post: { gap: 6.8, paddingVertical: 10.2 },
+  author: { flexDirection: 'row', alignItems: 'center', gap: 7 },
+  authorName: { fontSize: 14, fontWeight: '700' },
   planNote: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10.2 },
   planNoteText: { flexGrow: 1, flexShrink: 1, flexBasis: 220, fontSize: 14, lineHeight: 21 },
   textarea: { minHeight: 110, lineHeight: 22 },

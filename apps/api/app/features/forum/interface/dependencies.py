@@ -29,7 +29,8 @@ def build_forum_container(
         "forum_using_in_memory_repositories",
         detail="ILIA_DATABASE_URL is not set; discussions will be lost on restart",
     )
-    return {"threads": InMemoryThreadRepository(), "posts": InMemoryPostRepository()}
+    threads = InMemoryThreadRepository()
+    return {"threads": threads, "posts": InMemoryPostRepository(threads)}
 
 
 def get_threads(request: Request) -> ThreadRepository:

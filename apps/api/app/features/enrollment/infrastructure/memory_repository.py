@@ -41,6 +41,9 @@ class InMemoryEnrollmentRepository:
             reverse=True,
         )
 
+    async def list_for_course(self, course_id: UUID) -> list[Enrollment]:
+        return [item for item in self._enrollments if item.course_id == course_id]
+
 
 class InMemoryProgressRepository:
     def __init__(self) -> None:

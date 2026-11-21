@@ -4,6 +4,13 @@ import structlog
 from fastapi import APIRouter, Depends, Request, Response, status
 from pydantic import BaseModel
 
+from app.features.auth.application.avatar_use_cases import (
+    AttachProfileAvatar,
+    PrepareAvatarUpload,
+    RemoveProfileAvatar,
+    SelectProfileAvatar,
+    avatar_read_url,
+)
 from app.features.auth.application.use_cases import (
     AuthenticateUser,
     ChangePassword,
@@ -20,6 +27,7 @@ from app.features.auth.domain.errors import InvalidTokenError
 from app.features.auth.interface.dependencies import (
     CurrentUser,
     SettingsDep,
+    UsersDep,
     get_authenticate_user,
     get_change_password,
     get_complete_password_reset,
@@ -31,6 +39,10 @@ from app.features.auth.interface.dependencies import (
     require_role,
 )
 from app.features.auth.interface.schemas import (
+    AvatarReferenceRequest,
+    AvatarSelectionRequest,
+    AvatarUploadRequest,
+    AvatarUploadResponse,
     ChangePasswordRequest,
     LoginRequest,
     PasswordResetConfirmRequest,
@@ -71,8 +83,9 @@ def _deliver(
     settings: SettingsDep,
 ) -> SessionResponse:
     """Hand the session back the way this client can safely hold it."""
+    avatar_url = avatar_read_url(session.user, request.app.state.storage)
     if ClientPlatform.from_request(request) is ClientPlatform.NATIVE:
-        return SessionResponse.for_native(session)
+        return SessionResponse.for_native(session, avatar_url=avatar_url)
 
     set_session_cookies(
         response,
@@ -82,7 +95,7 @@ def _deliver(
         access_max_age=session.tokens.access_expires_in,
         refresh_max_age=session.tokens.refresh_expires_in,
     )
-    return SessionResponse.for_web(session)
+    return SessionResponse.for_web(session, avatar_url=avatar_url)
 
 
 @router.post("/register", response_model=SessionResponse, status_code=status.HTTP_201_CREATED)
@@ -162,8 +175,10 @@ async def logout(response: Response, settings: SettingsDep) -> None:
 
 
 @router.get("/me", response_model=UserResponse)
-async def me(user: CurrentUser) -> UserResponse:
-    return UserResponse.from_entity(user)
+async def me(user: CurrentUser, request: Request) -> UserResponse:
+    return UserResponse.from_entity(
+        user, avatar_url=avatar_read_url(user, request.app.state.storage)
+    )
 
 
 @router.patch("/me", response_model=UserResponse)
@@ -171,10 +186,83 @@ async def update_me(
     payload: UpdateProfileRequest,
     user: CurrentUser,
     use_case: UpdateProfileDep,
+    request: Request,
 ) -> UserResponse:
     """Correct your own name. The id comes from the session, never the body."""
     updated = await use_case.execute(user_id=user.id, full_name=payload.full_name)
-    return UserResponse.from_entity(updated)
+    return UserResponse.from_entity(
+        updated, avatar_url=avatar_read_url(updated, request.app.state.storage)
+    )
+
+
+@router.post("/me/avatar-upload", response_model=AvatarUploadResponse)
+async def prepare_avatar_upload(
+    payload: AvatarUploadRequest,
+    user: CurrentUser,
+    request: Request,
+) -> AvatarUploadResponse:
+    prepared = await PrepareAvatarUpload().execute(
+        user=user,
+        storage=request.app.state.storage,
+        content_type=payload.content_type,
+    )
+    return AvatarUploadResponse(
+        upload_url=prepared.upload_url,
+        reference=prepared.reference,
+        expires_in=prepared.expires_in_seconds,
+    )
+
+
+@router.post("/me/avatar", response_model=UserResponse)
+async def confirm_avatar_upload(
+    payload: AvatarReferenceRequest,
+    user: CurrentUser,
+    users: UsersDep,
+    request: Request,
+) -> UserResponse:
+    updated = await AttachProfileAvatar().execute(
+        user=user,
+        users=users,
+        storage=request.app.state.storage,
+        reference=payload.reference,
+    )
+    return UserResponse.from_entity(
+        updated, avatar_url=avatar_read_url(updated, request.app.state.storage)
+    )
+
+
+@router.put("/me/avatar", response_model=UserResponse)
+async def choose_avatar(
+    payload: AvatarSelectionRequest,
+    user: CurrentUser,
+    users: UsersDep,
+    request: Request,
+) -> UserResponse:
+    updated = await SelectProfileAvatar().execute(
+        user=user,
+        users=users,
+        storage=request.app.state.storage,
+        key=payload.avatar_key,
+    )
+    return UserResponse.from_entity(
+        updated, avatar_url=avatar_read_url(updated, request.app.state.storage)
+    )
+
+
+@router.delete("/me/avatar", response_model=UserResponse)
+async def remove_avatar(
+    user: CurrentUser,
+    users: UsersDep,
+    request: Request,
+) -> UserResponse:
+    updated = await RemoveProfileAvatar().execute(
+        user=user,
+        users=users,
+        storage=request.app.state.storage,
+    )
+    return UserResponse.from_entity(
+        updated, avatar_url=avatar_read_url(updated, request.app.state.storage)
+    )
 
 
 @router.post("/password-reset/request", status_code=status.HTTP_204_NO_CONTENT)

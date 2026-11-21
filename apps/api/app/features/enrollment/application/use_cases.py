@@ -298,6 +298,7 @@ class GetLesson:
         previous, following, position = neighbours(course, lesson_id)
         order = syllabus_order(course)
         current = next(ref for ref in order if ref.lesson_id == lesson_id)
+        module = next(module for module in course.modules if module.id == current.module_id)
 
         content = await self._contents.get_content(lesson_id)
         completed = await self._progress.completed_lesson_ids(enrollment.id)
@@ -314,4 +315,5 @@ class GetLesson:
             next=following,
             position=position,
             total_lessons=len(order),
+            module_total_lessons=len(module.lessons),
         )

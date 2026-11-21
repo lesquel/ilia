@@ -95,14 +95,14 @@ export function ModerateControl({
           style={({ pressed }) => [
             styles.button,
             {
-              backgroundColor: theme.colors.accent,
+              backgroundColor: theme.colors.accentButton,
               borderRadius: theme.radius.sm,
               opacity: !ready ? 0.5 : pressed ? 0.85 : 1,
             },
           ]}
         >
           {moderate.isPending ? (
-            <ActivityIndicator size="small" color="#f2f2f3" />
+            <ActivityIndicator size="small" color="#ffffff" />
           ) : (
             <Text style={styles.buttonLabel}>Retirar</Text>
           )}
@@ -126,5 +126,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minHeight: 36,
   },
-  buttonLabel: { color: '#f2f2f3', fontSize: 13, fontWeight: '600' },
+  buttonLabel: { color: '#ffffff', fontSize: 13, fontWeight: '600' },
 });

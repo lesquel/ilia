@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -8,7 +8,6 @@ import {
   TextInput,
   View,
   useWindowDimensions,
-  type TextStyle,
 } from 'react-native';
 
 import { INSTITUTE_SHORT_NAME } from '@/core/brand';
@@ -23,6 +22,7 @@ import { useActivity, useSubmitPrompt } from '@/features/lab/application/use-lab
 import { MAX_PROMPT_CHARS, canSubmit } from '@/features/lab/domain/entities';
 import { liaMarginNotes } from '@/features/lab/domain/margin-notes';
 import { AttemptHistory } from '@/features/lab/presentation/attempt-history';
+import { PromptSignalsPanel } from '@/features/lab/presentation/prompt-signals-panel';
 
 function messageFor(error: unknown): string {
   if (!(error instanceof ApiError)) return 'No pudimos enviar tu prompt.';
@@ -106,16 +106,25 @@ export function LabScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        {/* The lab URL carries no course, so the way back has to be explicit. */}
+        {activity.courseSlug ? (
+          <Link
+            href={`/catalog/${activity.courseSlug}`}
+            style={[styles.back, { color: theme.colors.accentAlt }]}
+          >
+            ← Curso
+          </Link>
+        ) : null}
         <View style={styles.kickerRow}>
           <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
-          <Text style={[styles.kicker, { color: theme.colors.accent }]}>
+          <Text style={[styles.kicker, { color: theme.colors.accentAlt }]}>
             Taller · Instituto {INSTITUTE_SHORT_NAME}
           </Text>
         </View>
 
         <View style={styles.headingRow}>
           <View style={styles.headingCopy}>
-            <Text style={[styles.title, { color: theme.colors.text }]}>{activity.title}</Text>
+            <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">{activity.title}</Text>
             <Text style={[styles.lede, { color: theme.colors.neutral[700] }]}>
               Escribes el pedido. Sale una hoja. El lunes fotocopias lo que sirve.
             </Text>
@@ -156,9 +165,6 @@ export function LabScreen() {
               style={[
                 styles.editor,
                 { color: theme.colors.text },
-                Platform.OS === 'web'
-                  ? ({ outlineStyle: 'none' } as unknown as TextStyle)
-                  : undefined,
               ]}
             />
           </Card>
@@ -217,6 +223,8 @@ export function LabScreen() {
             </Card>
           ) : null}
         </View>
+
+        <PromptSignalsPanel prompt={prompt} />
 
         {submit.isError ? (
           <Text
@@ -281,6 +289,11 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
     paddingBottom: 48,
+  },
+  back: {
+    fontSize: 14,
+    fontWeight: '600',
+    alignSelf: 'flex-start',
   },
   kickerRow: {
     flexDirection: 'row',

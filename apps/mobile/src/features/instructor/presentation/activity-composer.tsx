@@ -183,7 +183,7 @@ export function ActivityComposer({ courseId, moduleId }: { courseId: string; mod
                     styles.chip,
                     {
                       backgroundColor:
-                        dimension.kind === kind ? theme.colors.accent : 'transparent',
+                        dimension.kind === kind ? theme.colors.accentButton : 'transparent',
                       borderColor:
                         dimension.kind === kind ? theme.colors.accent : theme.colors.divider,
                       borderRadius: theme.radius.sm,
@@ -194,7 +194,7 @@ export function ActivityComposer({ courseId, moduleId }: { courseId: string; mod
                     style={[
                       styles.chipLabel,
                       {
-                        color: dimension.kind === kind ? '#f2f2f3' : theme.colors.neutral[800],
+                        color: dimension.kind === kind ? '#ffffff' : theme.colors.neutral[800],
                       },
                     ]}
                   >
@@ -248,7 +248,7 @@ export function ActivityComposer({ courseId, moduleId }: { courseId: string; mod
             }
             style={styles.addDimension}
           >
-            <Text style={[styles.toggle, { color: theme.colors.accent }]}>+ Otra dimensión</Text>
+            <Text style={[styles.toggle, { color: theme.colors.accentAlt }]}>+ Otra dimensión</Text>
           </Pressable>
         ) : null}
       </FieldGroup>
@@ -323,14 +323,14 @@ export function ActivityComposer({ courseId, moduleId }: { courseId: string; mod
           style={({ pressed }) => [
             styles.button,
             {
-              backgroundColor: theme.colors.accent,
+              backgroundColor: theme.colors.accentButton,
               borderRadius: theme.radius.md,
               opacity: !ready ? 0.5 : pressed ? 0.85 : 1,
             },
           ]}
         >
           {add.isPending ? (
-            <ActivityIndicator size="small" color="#f2f2f3" />
+            <ActivityIndicator size="small" color="#ffffff" />
           ) : (
             <Text style={styles.buttonLabel}>Crear actividad</Text>
           )}
@@ -373,5 +373,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minHeight: 44,
   },
-  buttonLabel: { color: '#f2f2f3', fontSize: 14, fontWeight: '600' },
+  buttonLabel: { color: '#ffffff', fontSize: 14, fontWeight: '600' },
 });

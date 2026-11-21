@@ -1,5 +1,6 @@
 import { httpClient } from '@/core/api/http-client';
 
+import { authRepository } from './auth-repository';
 import { tokenStore } from './token-store';
 
 /**
@@ -12,5 +13,15 @@ import { tokenStore } from './token-store';
 export function installAuthTokenProvider(): void {
   httpClient.setTokenProvider({
     getAccessToken: () => tokenStore.read(),
+    // The refresh cookie (web) or stored refresh token (native) lasts 30 days;
+    // the access token 15 minutes.
+    refreshSession: async () => {
+      try {
+        await authRepository.refresh();
+        return true;
+      } catch {
+        return false;
+      }
+    },
   });
 }

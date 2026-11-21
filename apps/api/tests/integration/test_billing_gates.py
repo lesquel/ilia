@@ -32,7 +32,7 @@ TABLES = (
     "learning.certificate, community.forum_post, community.forum_thread, "
     "assessment.evaluation_score, assessment.evaluation, assessment.model_output, "
     "billing.llm_usage, assessment.submission, assessment.activity, assessment.rubric_dimension, "
-    "assessment.rubric, catalog.lesson, catalog.course_module, catalog.course, auth.app_user, "
+    "assessment.rubric, catalog.lesson, catalog.course_module, catalog.course, identity.app_user, "
     "learning.cohort, billing.plan"
 )
 
@@ -94,7 +94,7 @@ def client() -> Iterator[TestClient]:
 def register(client: TestClient, email: str, name: str = "Ana Pérez") -> dict:  # type: ignore[type-arg]
     return client.post(
         "/api/v1/auth/register",
-        json={"email": email, "full_name": name, "password": "una-clave-larga"},
+        json={"email": email, "full_name": name, "password": "Una-clave-larga1"},
         headers=NATIVE,
     ).json()
 
@@ -104,7 +104,7 @@ def auth(token: str) -> dict[str, str]:
 
 
 def promote(email: str, role: Role) -> None:
-    sql([f"UPDATE auth.app_user SET role = '{role.value}' WHERE email = '{email}'"])
+    sql([f"UPDATE identity.app_user SET role = '{role.value}' WHERE email = '{email}'"])
 
 
 def subscribe(email: str, plan_code: str) -> None:
@@ -112,7 +112,7 @@ def subscribe(email: str, plan_code: str) -> None:
         [
             "INSERT INTO billing.subscription (id, user_id, plan_code, started_at) "
             f"SELECT gen_random_uuid(), id, '{plan_code}', now() "
-            f"FROM auth.app_user WHERE email = '{email}'"
+            f"FROM identity.app_user WHERE email = '{email}'"
         ]
     )
 
@@ -252,7 +252,7 @@ class TestLevelGate:
         subscribe("ana@colegio.edu", "pro")
         token = client.post(
             "/api/v1/auth/login",
-            json={"email": "ana@colegio.edu", "password": "una-clave-larga"},
+            json={"email": "ana@colegio.edu", "password": "Una-clave-larga1"},
             headers=NATIVE,
         ).json()["access_token"]
 
@@ -279,12 +279,20 @@ class TestForumGate:
         publish_course(client, instructor, "basico", "beginner")
         token = register(client, "ana@colegio.edu")["access_token"]
         client.post("/api/v1/enrollments", json={"course_slug": "basico"}, headers=auth(token))
+        # Every thread belongs to a module since threads were scoped by module.
+        course = client.get("/api/v1/catalog/courses/basico").json()
+        self.module_id = course["modules"][0]["id"]
         return token
 
     def test_the_free_plan_can_read_the_forum(self, client: TestClient, instructor: str) -> None:
         token = self.setup_forum(client, instructor)
 
-        assert client.get("/api/v1/forum/basico/threads", headers=auth(token)).status_code == 200
+        assert (
+            client.get(
+                f"/api/v1/forum/basico/threads?module_id={self.module_id}", headers=auth(token)
+            ).status_code
+            == 200
+        )
 
     def test_but_not_post_in_it(self, client: TestClient, instructor: str) -> None:
         # PRD 11: free reads, paid participates.
@@ -292,7 +300,7 @@ class TestForumGate:
 
         response = client.post(
             "/api/v1/forum/basico/threads",
-            json={"title": "Una duda", "body": "cuerpo"},
+            json={"title": "Una duda", "body": "cuerpo", "module_id": self.module_id},
             headers=auth(token),
         )
 
@@ -304,13 +312,13 @@ class TestForumGate:
         subscribe("ana@colegio.edu", "pro")
         token = client.post(
             "/api/v1/auth/login",
-            json={"email": "ana@colegio.edu", "password": "una-clave-larga"},
+            json={"email": "ana@colegio.edu", "password": "Una-clave-larga1"},
             headers=NATIVE,
         ).json()["access_token"]
 
         response = client.post(
             "/api/v1/forum/basico/threads",
-            json={"title": "Una duda", "body": "cuerpo"},
+            json={"title": "Una duda", "body": "cuerpo", "module_id": self.module_id},
             headers=auth(token),
         )
 
@@ -333,12 +341,12 @@ class TestForumGate:
         subscribe("ana@colegio.edu", "pro")
         author = client.post(
             "/api/v1/auth/login",
-            json={"email": "ana@colegio.edu", "password": "una-clave-larga"},
+            json={"email": "ana@colegio.edu", "password": "Una-clave-larga1"},
             headers=NATIVE,
         ).json()["access_token"]
         thread = client.post(
             "/api/v1/forum/basico/threads",
-            json={"title": "Una duda", "body": "cuerpo"},
+            json={"title": "Una duda", "body": "cuerpo", "module_id": self.module_id},
             headers=auth(author),
         ).json()
 
@@ -405,7 +413,7 @@ class TestCertificateGate:
         subscribe("ana@colegio.edu", "pro")
         token = client.post(
             "/api/v1/auth/login",
-            json={"email": "ana@colegio.edu", "password": "una-clave-larga"},
+            json={"email": "ana@colegio.edu", "password": "Una-clave-larga1"},
             headers=NATIVE,
         ).json()["access_token"]
 

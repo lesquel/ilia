@@ -1,0 +1,22 @@
+[Script Info]
+Title: ILIA · De una frase a un pedido claro
+ScriptType: v4.00+
+PlayResX: 1280
+PlayResY: 720
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,24,&H00171B1B,&H000000FF,&H10F7FAFB,&H10F7FAFB,1,0,3,10,0,2,140,140,52,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:03.14,Default,,0,0,0,,Veamos el pedido completo, pieza por pieza.
+Dialogue: 0,0:00:03.43,0:00:08.50,Default,,0,0,0,,Primero, quién eres y para quién es: Lengua, séptimo de básica, escuela fiscal.
+Dialogue: 0,0:00:08.80,0:00:15.76,Default,,0,0,0,,Después, qué ya trabajaron y qué deben aprender: leyeron un cuento y ahora distinguen el tema de la idea principal.
+Dialogue: 0,0:00:16.06,0:00:22.64,Default,,0,0,0,,Luego, la tarea concreta: un párrafo de seis a ocho líneas sobre el huerto y cinco preguntas.
+Dialogue: 0,0:00:22.94,0:00:28.28,Default,,0,0,0,,El formato: la clave al final, separada, para proyectar la actividad sin adelantar las respuestas.
+Dialogue: 0,0:00:28.58,0:00:32.34,Default,,0,0,0,,Y un límite: que no invente autores ni datos.
+Dialogue: 0,0:00:32.64,0:00:37.14,Default,,0,0,0,,Cada pieza le quita a Gemini una decisión que no podía adivinar.
+Dialogue: 0,0:00:37.43,0:00:41.65,Default,,0,0,0,,Si algo no te convence, no empieces de nuevo: pide un solo cambio.
+Dialogue: 0,0:00:41.95,0:00:48.99,Default,,0,0,0,,Aquí pedimos cambiar solo la pregunta cinco, para que apunte a para qué sirve el cuaderno, y Gemini dejó el resto igual.
+Dialogue: 0,0:00:49.29,0:00:54.33,Default,,0,0,0,,Un cambio a la vez te deja ver si se arregló sin romper lo que ya estaba bien.

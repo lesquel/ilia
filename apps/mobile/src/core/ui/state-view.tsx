@@ -89,7 +89,7 @@ export function EmptyState({
   return (
     <Frame>
       {glyph ? <Glyph glyph={glyph} /> : null}
-      <Text style={[styles.title, { color: theme.colors.text }]}>{title}</Text>
+      <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">{title}</Text>
       {hint ? (
         <Text style={[styles.body, { color: theme.colors.neutral[600] }]}>{hint}</Text>
       ) : null}

@@ -1,5 +1,5 @@
-import type { Role, Session, User } from '@/features/auth/domain/entities';
-import { ROLES } from '@/features/auth/domain/entities';
+import type { ProfileAvatarKey, Role, Session, User } from '@/features/auth/domain/entities';
+import { isProfileAvatarKey, ROLES } from '@/features/auth/domain/entities';
 
 /**
  * The wire format, exactly as the API sends it (snake_case included).
@@ -14,6 +14,8 @@ export interface UserDto {
   email: string;
   full_name: string;
   role: string;
+  avatar_key?: string | null;
+  avatar_url?: string | null;
 }
 
 export interface SessionDto {
@@ -30,11 +32,16 @@ function toRole(value: string): Role {
 }
 
 export function toUser(dto: UserDto): User {
+  const avatarKey: ProfileAvatarKey | null = isProfileAvatarKey(dto.avatar_key)
+    ? dto.avatar_key
+    : null;
   return {
     id: dto.id,
     email: dto.email,
     fullName: dto.full_name,
     role: toRole(dto.role),
+    avatarKey,
+    avatarUrl: avatarKey ? null : (dto.avatar_url ?? null),
   };
 }
 

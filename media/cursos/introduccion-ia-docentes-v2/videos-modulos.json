@@ -1,0 +1,122 @@
+[
+  {
+    "slug": "ia-generativa-para-docentes",
+    "title": "Un primer borrador para séptimo",
+    "narration": "Profe, piensa en la clase de lectura que tienes mañana en séptimo. Le pedimos a Gemini lo más corto posible: hazme una lectura con preguntas. Nos devolvió un cuento sobre un farero que desaparece en una tormenta. Habla de una lámpara de vapor de mercurio y de vientos de noventa nudos, y no trae clave de respuestas. No es un error del modelo: no sabía tu grado, ni qué leyeron, ni qué quieres que aprendan. Así que se lo contamos: séptimo de básica, ya leyeron un cuento y están aprendiendo a distinguir el tema de la idea principal. Ahora sí: un párrafo sobre el huerto de la escuela, cinco preguntas que se responden con el texto y la clave aparte. Lo que la inteligencia artificial sabe de tu clase, lo sabe porque tú se lo dijiste. Y el borrador se revisa antes de llegar al aula; eso es lo que vamos a practicar en este curso.",
+    "beats": [
+      {
+        "phrase": "Profe, piensa en la",
+        "scene": "profe"
+      },
+      {
+        "phrase": "Le pedimos a Gemini",
+        "scene": "corto"
+      },
+      {
+        "phrase": "Nos devolvió un cuento",
+        "scene": "faro"
+      },
+      {
+        "phrase": "No es un error",
+        "scene": "faltaba"
+      },
+      {
+        "phrase": "Así que se lo",
+        "scene": "contexto"
+      },
+      {
+        "phrase": "Ahora sí: un párrafo",
+        "scene": "huerto"
+      },
+      {
+        "phrase": "Lo que la inteligencia",
+        "scene": "cierre"
+      }
+    ]
+  },
+  {
+    "slug": "modulo-2-pedido-claro",
+    "title": "De una frase a un pedido claro",
+    "narration": "Veamos el pedido completo, pieza por pieza. Primero, quién eres y para quién es: Lengua, séptimo de básica, escuela fiscal. Después, qué ya trabajaron y qué deben aprender: leyeron un cuento y ahora distinguen el tema de la idea principal. Luego, la tarea concreta: un párrafo de seis a ocho líneas sobre el huerto y cinco preguntas. El formato: la clave al final, separada, para proyectar la actividad sin adelantar las respuestas. Y un límite: que no invente autores ni datos. Cada pieza le quita a Gemini una decisión que no podía adivinar. Si algo no te convence, no empieces de nuevo: pide un solo cambio. Aquí pedimos cambiar solo la pregunta cinco, para que apunte a para qué sirve el cuaderno, y Gemini dejó el resto igual. Un cambio a la vez te deja ver si se arregló sin romper lo que ya estaba bien.",
+    "beats": [
+      {
+        "phrase": "Veamos el pedido completo,",
+        "scene": "pedido"
+      },
+      {
+        "phrase": "Cada pieza le quita",
+        "scene": "resumen"
+      },
+      {
+        "phrase": "Si algo no te",
+        "scene": "cambio"
+      },
+      {
+        "phrase": "Aquí pedimos cambiar solo",
+        "scene": "q5"
+      },
+      {
+        "phrase": "Un cambio a la",
+        "scene": "cierre"
+      }
+    ]
+  },
+  {
+    "slug": "modulo-3-revision-privacidad",
+    "title": "Revisar el borrador y cuidar los datos",
+    "narration": "Antes de imprimir, revisa cada respuesta con el párrafo al lado. Puedes pedirle ayuda: que copie la frase exacta que sostiene cada respuesta. Gemini lo hizo y cerró con seguridad: todas las respuestas se sostienen en el párrafo. Revisemos la cinco: la clave dice que el cuaderno ayuda a que los chicos aprendan a observar la naturaleza. Pero el párrafo le da ese mérito al trabajo coordinado de los niños, no al cuaderno. Es un detalle, y es justo el tipo de detalle que un estudiante atento te va a señalar. Además, el mismo pedido no da siempre lo mismo: la primera vez nos salió una pregunta sobre el color del cuaderno, que no practica nada. Por eso se revisa cada vez. Y algo que no se negocia: no pegues nombres, notas, diagnósticos ni fotos de tus estudiantes. Para preparar la clase, el modelo necesita tu contenido, no los datos de tus chicos. El borrador lo escribe la inteligencia artificial; lo que llega al aula lo decides tú.",
+    "beats": [
+      {
+        "phrase": "Antes de imprimir, revisa",
+        "scene": "antes"
+      },
+      {
+        "phrase": "Puedes pedirle ayuda: que",
+        "scene": "cita"
+      },
+      {
+        "phrase": "Revisemos la cinco: la",
+        "scene": "clave5"
+      },
+      {
+        "phrase": "Además, el mismo pedido",
+        "scene": "primera"
+      },
+      {
+        "phrase": "Y algo que no",
+        "scene": "privacidad"
+      },
+      {
+        "phrase": "El borrador lo escribe",
+        "scene": "cierre"
+      }
+    ]
+  },
+  {
+    "slug": "modulo-4-prueba-en-tu-clase",
+    "title": "Probarlo con tu próxima clase",
+    "narration": "Ahora te toca con una clase tuya de esta semana. Elige algo pequeño: unas preguntas de lectura, una explicación corta o una guía para una hora. Escribe el pedido con las piezas que vimos: quién eres, tu grado, qué ya trabajaron y qué deben aprender. Suma la tarea concreta y el formato en que la quieres recibir. Y di lo que no debe hacer: inventar datos o salirse de tu material. Cuando llegue el borrador, revísalo con tu planificación abierta, y si algo falla, pide un cambio a la vez. Ese es el examen final: tu pedido para una clase real. Escríbelo de modo que un colega que te cubra la hora entienda qué preparar, para quién y cómo.",
+    "beats": [
+      {
+        "phrase": "Ahora te toca con",
+        "scene": "toca"
+      },
+      {
+        "phrase": "Elige algo pequeño: unas",
+        "scene": "elige"
+      },
+      {
+        "phrase": "Escribe el pedido con",
+        "scene": "plantilla"
+      },
+      {
+        "phrase": "Cuando llegue el borrador,",
+        "scene": "revisar"
+      },
+      {
+        "phrase": "Ese es el examen",
+        "scene": "examen"
+      }
+    ]
+  }
+]

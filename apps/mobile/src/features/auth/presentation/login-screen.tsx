@@ -1,5 +1,5 @@
 import { Link, useLocalSearchParams, useRouter, type Href } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -17,7 +17,8 @@ import { ApiError } from '@/core/errors/api-error';
 import { breakpoint, useTheme } from '@/core/theme';
 import { AuthShell } from '@/features/auth/presentation/auth-shell';
 import { useLogin } from '@/features/auth/application/use-auth';
-import { safeDestination } from '@/features/auth/domain/entities';
+import { codeModuleUrl, officialCodeModule, signInToCodeModule } from '@/features/auth/data/code-module-access';
+import { credentialsToSubmit, safeDestination } from '@/features/auth/domain/entities';
 
 /** Wording the teacher reads, chosen here from the backend's stable error code. */
 function messageFor(error: unknown): string {
@@ -56,12 +57,56 @@ export function LoginScreen() {
   const [password, setPassword] = useState('');
   const [revealed, setRevealed] = useState(false);
 
-  const canSubmit = email.trim().length > 0 && password.length > 0 && !login.isPending;
+  const [moduleMode, setModuleMode] = useState(false);
+  const [modulePending, setModulePending] = useState(false);
+  const [moduleError, setModuleError] = useState('');
+  const moduleAvailable = Platform.OS === 'web' && Boolean(codeModuleUrl);
+  const pending = login.isPending || modulePending;
 
-  const submit = () => {
-    if (!canSubmit) return;
+  const [missing, setMissing] = useState(false);
+  const emailRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);
+
+  // On the web a TextInput is an <input>; its value is what Chrome autofilled
+  // even when React never heard about it.
+  const fieldValue = (ref: typeof emailRef) =>
+    Platform.OS === 'web'
+      ? ((ref.current as unknown as { value?: string } | null)?.value ?? '')
+      : '';
+
+  const switchAccess = () => {
+    setModuleMode((current) => !current);
+    setEmail('');
+    setPassword('');
+    setRevealed(false);
+    setMissing(false);
+    setModuleError('');
+    login.reset();
+  };
+
+  const submit = async () => {
+    if (pending) return;
+    const credentials = credentialsToSubmit(
+      { email, password },
+      { email: fieldValue(emailRef), password: fieldValue(passwordRef) },
+    );
+    setMissing(credentials === null);
+    if (!credentials) return;
+    if (moduleMode && codeModuleUrl) {
+      setModuleError('');
+      setModulePending(true);
+      try {
+        await signInToCodeModule(codeModuleUrl, credentials);
+      } catch (error) {
+        setModuleError(error instanceof Error && !(error instanceof TypeError)
+          ? (error instanceof ApiError ? messageFor(error) : error.message)
+          : 'No pudimos conectar con el módulo de código.');
+        setModulePending(false);
+      }
+      return;
+    }
     login.mutate(
-      { email: email.trim(), password },
+      credentials,
       // Back to where they were going, not to a generic home page.
       { onSuccess: () => router.replace(destination) },
     );
@@ -88,20 +133,22 @@ export function LoginScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.card}>
-          <Text style={[styles.title, { color: theme.colors.text }]}>Iniciar sesión</Text>
+          <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">Iniciar sesión</Text>
           <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
-            Entra para continuar con tus cursos
+            {moduleMode ? (officialCodeModule ? 'Usa tu cuenta oficial de ILIA' : 'Usa tu cuenta del módulo de código') : 'Entra para continuar con tus cursos'}
           </Text>
 
           <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>Correo</Text>
           <TextInput
             style={inputStyle}
+            key={moduleMode ? 'module-email' : 'ilia-email'}
+            ref={emailRef}
             value={email}
             onChangeText={setEmail}
             placeholder="docente@colegio.edu"
             placeholderTextColor={theme.colors.neutral[500]}
             autoCapitalize="none"
-            autoComplete="email"
+            autoComplete={moduleMode ? 'off' : 'email'}
             keyboardType="email-address"
             inputMode="email"
             accessibilityLabel="Correo electrónico"
@@ -114,69 +161,91 @@ export function LoginScreen() {
               accessibilityLabel={revealed ? 'Ocultar contraseña' : 'Mostrar contraseña'}
               onPress={() => setRevealed((on) => !on)}
             >
-              <Text style={[styles.toggle, { color: theme.colors.accent }]}>
+              <Text style={[styles.toggle, { color: theme.colors.accentAlt }]}>
                 {revealed ? 'Ocultar' : 'Mostrar'}
               </Text>
             </Pressable>
           </View>
           <TextInput
             style={inputStyle}
+            key={moduleMode ? 'module-password' : 'ilia-password'}
+            ref={passwordRef}
             value={password}
             onChangeText={setPassword}
             placeholder="••••••••"
             placeholderTextColor={theme.colors.neutral[500]}
             secureTextEntry={!revealed}
-            autoComplete="current-password"
+            autoComplete={moduleMode ? 'off' : 'current-password'}
             onSubmitEditing={submit}
             returnKeyType="go"
             accessibilityLabel="Contraseña"
           />
 
-          <Link
+          {!moduleMode && <Link
             href="/forgot-password"
-            style={[styles.forgotLink, { color: theme.colors.accent }]}
+            style={[styles.forgotLink, { color: theme.colors.accentAlt }]}
           >
             Olvidé mi contraseña
-          </Link>
+          </Link>}
 
-          {login.isError ? (
+          {missing ? (
             <Text
               style={[styles.error, { color: theme.colors.accentRamp[700] }]}
               accessibilityRole="alert"
             >
-              {messageFor(login.error)}
+              Escribe tu correo y tu contraseña.
+            </Text>
+          ) : (moduleMode ? Boolean(moduleError) : login.isError) ? (
+            <Text
+              style={[styles.error, { color: theme.colors.accentRamp[700] }]}
+              accessibilityRole="alert"
+            >
+              {moduleMode ? moduleError : messageFor(login.error)}
             </Text>
           ) : null}
 
           <Pressable
             onPress={submit}
-            disabled={!canSubmit}
+            disabled={pending}
             accessibilityRole="button"
             style={({ pressed }) => [
               styles.button,
               {
-                backgroundColor: theme.colors.accent,
+                backgroundColor: theme.colors.accentButton,
                 borderRadius: theme.radius.md,
-                opacity: !canSubmit ? 0.5 : pressed ? 0.85 : 1,
+                opacity: pending ? 0.5 : pressed ? 0.85 : 1,
               },
             ]}
           >
-            {login.isPending ? (
-              <ActivityIndicator color="#f2f2f3" />
+            {pending ? (
+              <ActivityIndicator color="#ffffff" />
             ) : (
-              <Text style={styles.buttonLabel}>Entrar</Text>
+              <Text style={styles.buttonLabel}>{moduleMode ? 'Entrar al módulo' : 'Entrar'}</Text>
             )}
           </Pressable>
 
-          <Text style={[styles.footer, { color: theme.colors.neutral[600] }]}>
+          {moduleAvailable && (
+            <Pressable
+              accessibilityRole="button"
+              disabled={pending}
+              onPress={switchAccess}
+              style={styles.switchAccess}
+            >
+              <Text style={[styles.toggle, { color: theme.colors.accentAlt }]}>
+                {moduleMode ? 'Volver al acceso de ILIA' : 'Entrar al módulo de código'}
+              </Text>
+            </Pressable>
+          )}
+
+          {!moduleMode && <Text style={[styles.footer, { color: theme.colors.neutral[600] }]}>
             ¿Todavía no tienes cuenta?{' '}
             <Link
               href={next ? `/register?next=${encodeURIComponent(next)}` : '/register'}
-              style={{ color: theme.colors.accent }}
+              style={{ color: theme.colors.accentAlt }}
             >
               Crear cuenta
             </Link>
-          </Text>
+          </Text>}
 
           <Text style={[styles.legal, { color: theme.colors.neutral[600] }]}>
             <Link href="/terms" style={{ color: theme.colors.neutral[600] }}>
@@ -256,9 +325,14 @@ const styles = StyleSheet.create({
     minHeight: 48,
   },
   buttonLabel: {
-    color: '#f2f2f3',
+    color: '#ffffff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  switchAccess: {
+    alignSelf: 'center',
+    marginTop: 16,
+    padding: 6,
   },
   footer: {
     fontSize: 14,

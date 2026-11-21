@@ -137,7 +137,7 @@ export function CourseDetailsForm({ course }: { course: AuthoredCourse }) {
                 style={[
                   styles.chip,
                   {
-                    backgroundColor: selected ? theme.colors.accent : 'transparent',
+                    backgroundColor: selected ? theme.colors.accentButton : 'transparent',
                     borderColor: selected ? theme.colors.accent : theme.colors.divider,
                     borderRadius: theme.radius.sm,
                   },
@@ -146,7 +146,7 @@ export function CourseDetailsForm({ course }: { course: AuthoredCourse }) {
                 <Text
                   style={[
                     styles.chipLabel,
-                    { color: selected ? '#f2f2f3' : theme.colors.neutral[800] },
+                    { color: selected ? '#ffffff' : theme.colors.neutral[800] },
                   ]}
                 >
                   {LEVEL_LABELS[option]}
@@ -178,14 +178,14 @@ export function CourseDetailsForm({ course }: { course: AuthoredCourse }) {
           style={({ pressed }) => [
             styles.button,
             {
-              backgroundColor: theme.colors.accent,
+              backgroundColor: theme.colors.accentButton,
               borderRadius: theme.radius.md,
               opacity: !canSave ? 0.5 : pressed ? 0.85 : 1,
             },
           ]}
         >
           {update.isPending ? (
-            <ActivityIndicator color="#f2f2f3" />
+            <ActivityIndicator color="#ffffff" />
           ) : (
             <Text style={styles.buttonLabel}>Guardar cambios</Text>
           )}
@@ -221,5 +221,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minHeight: 44,
   },
-  buttonLabel: { color: '#f2f2f3', fontSize: 15, fontWeight: '600' },
+  buttonLabel: { color: '#ffffff', fontSize: 15, fontWeight: '600' },
 });

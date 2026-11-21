@@ -88,7 +88,7 @@ export function InstructorCoursesScreen() {
         <View style={styles.header}>
           <View style={styles.titleRow}>
             <View style={styles.titleText}>
-              <Text style={[styles.title, { color: theme.colors.text }]}>Mis cursos</Text>
+              <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">Mis cursos</Text>
               <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
                 Acá ves también los borradores, que el catálogo público no muestra.
               </Text>
@@ -107,13 +107,13 @@ export function InstructorCoursesScreen() {
                   style={({ pressed }) => [
                     styles.button,
                     {
-                      backgroundColor: theme.colors.accent,
+                      backgroundColor: theme.colors.accentButton,
                       borderRadius: theme.radius.md,
                       opacity: pressed ? 0.85 : 1,
                     },
                   ]}
                 >
-                  <Icon glyph={Plus} size={16} color="#f2f2f3" />
+                  <Icon glyph={Plus} size={16} color="#ffffff" />
                   <Text style={styles.buttonLabel}>Nuevo curso</Text>
                 </Pressable>
               )}
@@ -173,14 +173,14 @@ export function InstructorCoursesScreen() {
                   style={({ pressed }) => [
                     styles.button,
                     {
-                      backgroundColor: theme.colors.accent,
+                      backgroundColor: theme.colors.accentButton,
                       borderRadius: theme.radius.md,
                       opacity: !ready ? 0.5 : pressed ? 0.85 : 1,
                     },
                   ]}
                 >
                   {create.isPending ? (
-                    <ActivityIndicator color="#f2f2f3" />
+                    <ActivityIndicator color="#ffffff" />
                   ) : (
                     <Text style={styles.buttonLabel}>Crear borrador</Text>
                   )}
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minHeight: 44,
   },
-  buttonLabel: { color: '#f2f2f3', fontSize: 15, fontWeight: '600' },
+  buttonLabel: { color: '#ffffff', fontSize: 15, fontWeight: '600' },
   error: { fontSize: 14 },
   card: { borderWidth: 1, padding: 20.4, gap: 10.2 },
   courseTitle: { fontSize: 20, fontWeight: '700', lineHeight: 26, letterSpacing: -0.2 },

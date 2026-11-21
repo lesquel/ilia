@@ -114,7 +114,10 @@ class LessonViewResponse(BaseModel):
 
     lesson_id: UUID
     title: str
+    module_id: UUID
     module_title: str
+    module_position: int
+    module_total_lessons: int
     kind: str
     duration_seconds: int
     body: str
@@ -124,6 +127,7 @@ class LessonViewResponse(BaseModel):
     # client that can ask for someone else's lesson.
     media_url: str | None = None
     media_expires_in: int | None = None
+    captions_url: str | None = None
     is_completed: bool
     resume_position_seconds: int
     position: int
@@ -132,17 +136,26 @@ class LessonViewResponse(BaseModel):
     next: NextLessonResponse | None
 
     @classmethod
-    def from_entity(cls, view: LessonView, media: SignedUrl | None = None) -> "LessonViewResponse":
+    def from_entity(
+        cls,
+        view: LessonView,
+        media: SignedUrl | None = None,
+        captions: SignedUrl | None = None,
+    ) -> "LessonViewResponse":
         return cls(
             lesson_id=view.lesson.lesson_id,
             title=view.lesson.lesson_title,
+            module_id=view.lesson.module_id,
             module_title=view.lesson.module_title,
+            module_position=view.lesson.lesson_position,
+            module_total_lessons=view.module_total_lessons,
             kind=view.kind,
             duration_seconds=view.duration_seconds,
             body=view.content.body,
             resource_ref=view.content.resource_ref,
             media_url=media.url if media else None,
             media_expires_in=media.expires_in_seconds if media else None,
+            captions_url=captions.url if captions else None,
             is_completed=view.is_completed,
             resume_position_seconds=view.resume_position_seconds,
             position=view.position,

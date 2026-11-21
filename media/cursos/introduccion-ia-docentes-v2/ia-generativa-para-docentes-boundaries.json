@@ -1,0 +1,47 @@
+[
+  {
+    "offset": 0.0,
+    "duration": 3.48,
+    "text": "Profe, piensa en la clase de lectura que tienes mañana en séptimo."
+  },
+  {
+    "offset": 3.78,
+    "duration": 4.92,
+    "text": "Le pedimos a Gemini lo más corto posible: hazme una lectura con preguntas."
+  },
+  {
+    "offset": 9.0,
+    "duration": 4.2,
+    "text": "Nos devolvió un cuento sobre un farero que desaparece en una tormenta."
+  },
+  {
+    "offset": 13.5,
+    "duration": 5.9,
+    "text": "Habla de una lámpara de vapor de mercurio y de vientos de noventa nudos, y no trae clave de respuestas."
+  },
+  {
+    "offset": 19.7,
+    "duration": 5.18,
+    "text": "No es un error del modelo: no sabía tu grado, ni qué leyeron, ni qué quieres que aprendan."
+  },
+  {
+    "offset": 25.18,
+    "duration": 7.52,
+    "text": "Así que se lo contamos: séptimo de básica, ya leyeron un cuento y están aprendiendo a distinguir el tema de la idea principal."
+  },
+  {
+    "offset": 33.0,
+    "duration": 7.82,
+    "text": "Ahora sí: un párrafo sobre el huerto de la escuela, cinco preguntas que se responden con el texto y la clave aparte."
+  },
+  {
+    "offset": 41.12,
+    "duration": 5.44,
+    "text": "Lo que la inteligencia artificial sabe de tu clase, lo sabe porque tú se lo dijiste."
+  },
+  {
+    "offset": 46.85999999999999,
+    "duration": 6.22,
+    "text": "Y el borrador se revisa antes de llegar al aula; eso es lo que vamos a practicar en este curso."
+  }
+]

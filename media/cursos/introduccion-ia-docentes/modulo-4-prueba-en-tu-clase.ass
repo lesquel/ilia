@@ -1,0 +1,26 @@
+[Script Info]
+Title: ILIA · Probarlo con tu próxima clase
+ScriptType: v4.00+
+PlayResX: 1280
+PlayResY: 720
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,21,&H001B1B17,&H000000FF,&H20FBFAF7,&H20FBFAF7,1,0,3,1,0,2,150,150,60,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:03.21,Default,,0,0,0,,Pensemos en una clase de esta semana.
+Dialogue: 0,0:00:03.51,0:00:06.92,Default,,0,0,0,,No hace falta empezar con un plan enorme.
+Dialogue: 0,0:00:07.22,0:00:15.07,Default,,0,0,0,,Elige una tarea pequeña: unas preguntas de un texto, una explicación breve o una guía para una hora de clase.
+Dialogue: 0,0:00:15.37,0:00:20.33,Default,,0,0,0,,Cuéntale al modelo el grado, qué trabajaron y qué quieres que puedan hacer.
+Dialogue: 0,0:00:20.64,0:00:26.03,Default,,0,0,0,,Si tienes un texto, adjunta solo ese material y comprueba que se lea bien.
+Dialogue: 0,0:00:26.33,0:00:34.04,Default,,0,0,0,,Pide la salida con un formato que puedas revisar: por ejemplo, un párrafo, cinco preguntas y la clave al final.
+Dialogue: 0,0:00:34.34,0:00:39.45,Default,,0,0,0,,Di qué no debe inventar y deja fuera los datos personales de tus estudiantes.
+Dialogue: 0,0:00:39.75,0:00:44.09,Default,,0,0,0,,Cuando llegue el borrador, léelo junto a tu planificación.
+Dialogue: 0,0:00:44.39,0:00:48.14,Default,,0,0,0,,Comprueba las respuestas, el nivel y el tiempo.
+Dialogue: 0,0:00:48.44,0:00:53.60,Default,,0,0,0,,Si algo no funciona, pide un cambio concreto y vuelve a revisarlo.
+Dialogue: 0,0:00:53.90,0:00:57.86,Default,,0,0,0,,Puedes quedarte con una parte y escribir otra de nuevo.
+Dialogue: 0,0:00:58.16,0:01:01.83,Default,,0,0,0,,Ahora escribe tu pedido para una clase tuya.
+Dialogue: 0,0:01:02.13,0:01:06.50,Default,,0,0,0,,Que un colega pudiera entender qué prepara, para quién y cómo.
+Dialogue: 0,0:01:06.80,0:01:11.77,Default,,0,0,0,,Ese es el examen final: un pedido que puedes defender y ajustar.

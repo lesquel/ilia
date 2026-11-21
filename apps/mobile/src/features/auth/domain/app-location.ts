@@ -12,6 +12,7 @@ export type AppSectionId =
   | 'catalog'
   | 'my-courses'
   | 'certificates'
+  | 'community'
   | 'account'
   | 'instructor'
   | 'admin'
@@ -34,7 +35,7 @@ export type AppLocation = {
 export type AppNavItem = {
   sectionId: AppSectionId;
   label: string;
-  href: '/catalog' | '/my-courses' | '/certificates' | '/instructor' | '/admin';
+  href: '/catalog' | '/my-courses' | '/certificates' | '/community' | '/instructor' | '/admin';
 };
 
 export const SESSION_ROLE_LABELS: Record<Role, string> = {
@@ -60,6 +61,7 @@ export function appNavItemsForRole(role: Role): AppNavItem[] {
     { sectionId: 'catalog', label: 'Catálogo', href: '/catalog' },
     { sectionId: 'my-courses', label: 'Mis cursos', href: '/my-courses' },
     { sectionId: 'certificates', label: 'Certificados', href: '/certificates' },
+    { sectionId: 'community', label: 'Comunidad', href: '/community' },
   ];
 
   if (canActAs(role, 'instructor')) {
@@ -132,6 +134,12 @@ export function resolveAppLocation(pathname: string, names: AppLocationNames = {
     ]);
   }
 
+  if (root === 'community') {
+    const crumbs: AppLocationCrumb[] = [{ label: 'Comunidad', href: '/community' }];
+    if (second === 'members' && third) crumbs.push({ label: 'Perfil', href: path });
+    return locationOf('community', 'Comunidad', crumbs);
+  }
+
   if (root === 'account') {
     return locationOf('account', 'Tu cuenta', [{ label: 'Tu cuenta', href: '/account' }]);
   }
@@ -179,6 +187,33 @@ export function resolveAppLocation(pathname: string, names: AppLocationNames = {
   }
 
   return locationOf('other', 'ILIA', [{ label: 'ILIA', href: path }]);
+}
+
+/** Pages a guest sees, where the location trail is not shown. */
+const GUEST_PAGE_TITLES: Record<string, string> = {
+  '/login': 'Iniciar sesión',
+  '/register': 'Crear cuenta',
+  '/forgot-password': 'Recuperar contraseña',
+  '/reset-password': 'Nueva contraseña',
+};
+
+/**
+ * The browser tab's name: the most specific place first, so a row of tabs
+ * still tells one lesson from another. The brand closes it.
+ */
+export function documentTitle(pathname: string, names: AppLocationNames = {}): string {
+  const path = normalizePath(pathname);
+  const guestTitle = GUEST_PAGE_TITLES[path];
+  if (guestTitle) return `${guestTitle} · ILIA`;
+
+  const { sectionId, crumbs } = resolveAppLocation(path, names);
+  if (sectionId === 'home' || sectionId === 'other') return 'ILIA';
+
+  const nearest = crumbs
+    .slice(-2)
+    .reverse()
+    .map((crumb) => crumb.label);
+  return [...nearest, 'ILIA'].join(' · ');
 }
 
 /** The slug of the course a path stands in, if it stands in one. */

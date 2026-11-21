@@ -14,5 +14,13 @@ describe('facingStillForMood', () => {
     expect(facingStillForMood('think')).toBe('think');
     expect(facingStillForMood('show')).toBe('show');
     expect(facingStillForMood('done')).toBe('done');
+    expect(facingStillForMood('happy')).toBe('happy');
+    expect(facingStillForMood('angry')).toBe('angry');
+    expect(facingStillForMood('sad')).toBe('sad');
+    expect(facingStillForMood('celebrate')).toBe('celebrate');
+    expect(facingStillForMood('curious')).toBe('curious');
+    expect(facingStillForMood('encourage')).toBe('encourage');
+    expect(facingStillForMood('proud')).toBe('proud');
   });
+
 });

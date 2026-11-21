@@ -32,7 +32,7 @@ TABLES = (
     "community.forum_post, community.forum_thread, assessment.evaluation_score, "
     "assessment.evaluation, assessment.model_output, billing.llm_usage, assessment.submission, "
     "assessment.activity, assessment.rubric_dimension, assessment.rubric, catalog.lesson, "
-    "catalog.course_module, catalog.course, auth.app_user, learning.cohort, "
+    "catalog.course_module, catalog.course, identity.app_user, learning.cohort, "
     "billing.subscription, billing.plan"
 )
 
@@ -74,7 +74,7 @@ def client() -> Iterator[TestClient]:
 def register(client: TestClient, email: str, name: str = "Ana Pérez") -> dict:  # type: ignore[type-arg]
     return client.post(
         "/api/v1/auth/register",
-        json={"email": email, "full_name": name, "password": "una-clave-larga"},
+        json={"email": email, "full_name": name, "password": "Una-clave-larga1"},
         headers=NATIVE,
     ).json()
 
@@ -84,7 +84,7 @@ def auth(token: str) -> dict[str, str]:
 
 
 def promote(email: str, role: Role) -> None:
-    sql([f"UPDATE auth.app_user SET role = '{role.value}' WHERE email = '{email}'"])
+    sql([f"UPDATE identity.app_user SET role = '{role.value}' WHERE email = '{email}'"])
 
 
 @pytest.fixture
@@ -307,7 +307,7 @@ class TestPagination:
 
     def test_a_page_reports_the_total_beyond_it(self, client: TestClient, admin: str) -> None:
         for n in range(5):
-            register(client, f"docente{n}@colegio.edu", f"Docente {n}")
+            register(client, f"docente{n}@colegio.edu", f"Docente {'ABCDEFGHIJ'[n]}")
 
         page = client.get(f"{API}/users", params={"limit": 2}, headers=auth(admin)).json()
 
@@ -320,7 +320,7 @@ class TestPagination:
         self, client: TestClient, admin: str
     ) -> None:
         for n in range(5):
-            register(client, f"docente{n}@colegio.edu", f"Docente {n}")
+            register(client, f"docente{n}@colegio.edu", f"Docente {'ABCDEFGHIJ'[n]}")
 
         seen: list[str] = []
         for offset in (0, 2, 4):

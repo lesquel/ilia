@@ -65,10 +65,10 @@ export function ReviewScreen() {
       renderItem={({ item }) => <ReviewRow item={item} />}
       ListHeaderComponent={
         <View style={styles.header}>
-          <Link href="/instructor" style={[styles.link, { color: theme.colors.accent }]}>
+          <Link href="/instructor" style={[styles.link, { color: theme.colors.accentAlt }]}>
             ← Mis cursos
           </Link>
-          <Text style={[styles.title, { color: theme.colors.text }]}>Entregas</Text>
+          <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">Entregas</Text>
           <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
             Si el evaluador automático se equivocó, corrige la nota. Queda registrado quién,
             cuándo y por qué.
@@ -131,7 +131,7 @@ function ReviewRow({ item }: { item: ReviewItem }) {
         <Text
           style={[
             styles.verdict,
-            { color: item.passed ? theme.colors.accent : theme.colors.neutral[600] },
+            { color: item.passed ? theme.colors.accentAlt : theme.colors.neutral[600] },
           ]}
         >
           {item.passed ? 'Aprobada' : 'No aprobada'}
@@ -195,14 +195,14 @@ function ReviewRow({ item }: { item: ReviewItem }) {
               style={({ pressed }) => [
                 styles.button,
                 {
-                  backgroundColor: theme.colors.accent,
+                  backgroundColor: theme.colors.accentButton,
                   borderRadius: theme.radius.md,
                   opacity: !valid ? 0.5 : pressed ? 0.85 : 1,
                 },
               ]}
             >
               {override.isPending ? (
-                <ActivityIndicator color="#f2f2f3" />
+                <ActivityIndicator color="#ffffff" />
               ) : (
                 <Text style={styles.buttonLabel}>Guardar corrección</Text>
               )}
@@ -211,7 +211,7 @@ function ReviewRow({ item }: { item: ReviewItem }) {
         </View>
       ) : (
         <Pressable onPress={() => setOpen(true)} accessibilityRole="button">
-          <Text style={[styles.link, { color: theme.colors.accent }]}>
+          <Text style={[styles.link, { color: theme.colors.accentAlt }]}>
             {item.wasOverridden ? 'Corregir de nuevo' : 'Corregir la nota'}
           </Text>
         </Pressable>
@@ -255,5 +255,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minHeight: 44,
   },
-  buttonLabel: { color: '#f2f2f3', fontSize: 15, fontWeight: '600' },
+  buttonLabel: { color: '#ffffff', fontSize: 15, fontWeight: '600' },
 });

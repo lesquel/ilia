@@ -80,6 +80,23 @@ class TestUrlShape:
 
         assert first != second
 
+    def test_signed_headers_are_bound_to_the_signature_not_query_parameters(self) -> None:
+        url = self.make(method="PUT", signed_headers={"content-type": "image/png"})
+        params = parse_qs(urlparse(url).query)
+
+        assert params["X-Amz-SignedHeaders"] == ["content-type;host"]
+        assert "Content-Type" not in params
+
+    def test_a_different_signed_content_type_changes_the_signature(self) -> None:
+        png = parse_qs(
+            urlparse(self.make(method="PUT", signed_headers={"content-type": "image/png"})).query
+        )["X-Amz-Signature"]
+        html = parse_qs(
+            urlparse(self.make(method="PUT", signed_headers={"content-type": "text/html"})).query
+        )["X-Amz-Signature"]
+
+        assert png != html
+
     def test_a_key_with_slashes_keeps_them_in_the_path(self) -> None:
         # Encoding them would sign a different object than the one requested.
         url = self.make(path="/lecciones/2026/clase-1.mp4")

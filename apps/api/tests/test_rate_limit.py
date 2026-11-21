@@ -15,7 +15,7 @@ NATIVE = {"X-Client-Platform": "native"}
 ACCOUNT = {
     "email": "docente@colegio.edu",
     "full_name": "Ana Pérez",
-    "password": "una-clave-larga",
+    "password": "Una-clave-larga1!",
 }
 
 
@@ -78,7 +78,11 @@ class TestSlidingWindow:
 @pytest.fixture
 def limited_client() -> TestClient:
     """An app with a small limit, so the test does not need fifty requests."""
-    settings = Settings(auth_rate_limit_attempts=3, auth_rate_limit_window_seconds=300)
+    settings = Settings(
+        auth_rate_limit_attempts=3,
+        auth_rate_limit_window_seconds=300,
+        jwt_secret="rate-limit-test-secret-at-least-32-bytes",
+    )
     return TestClient(create_app(settings))
 
 

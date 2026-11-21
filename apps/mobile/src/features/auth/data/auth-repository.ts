@@ -1,10 +1,12 @@
 import { HttpClient, httpClient } from '@/core/api/http-client';
+import { ApiError } from '@/core/errors/api-error';
 import type {
   Credentials,
   PasswordChange,
   PasswordResetConfirm,
   PasswordResetRequest,
   ProfileUpdate,
+  ProfileAvatarKey,
   Registration,
   Session,
   User,
@@ -96,6 +98,45 @@ export class HttpAuthRepository implements AuthRepository {
         method: 'PATCH',
         body: { full_name: input.fullName },
       }),
+    );
+  }
+
+  async uploadAvatar(file: Blob, contentType: string): Promise<User> {
+    const target = await this.http.post<{
+      upload_url: string;
+      reference: string;
+      expires_in: number;
+    }>("/auth/me/avatar-upload", { content_type: contentType });
+
+    let response: Response;
+    try {
+      response = await fetch(target.upload_url, {
+        method: 'PUT',
+        headers: { 'Content-Type': contentType },
+        body: file,
+        credentials: 'omit',
+      });
+    } catch (cause) {
+      throw ApiError.network(cause);
+    }
+    if (!response.ok) {
+      throw new ApiError('avatar_upload_failed', 'The photo could not be uploaded', response.status);
+    }
+
+    return toUser(
+      await this.http.post<UserDto>("/auth/me/avatar", { reference: target.reference }),
+    );
+  }
+
+  async chooseAvatar(key: ProfileAvatarKey): Promise<User> {
+    return toUser(
+      await this.http.put<UserDto>('/auth/me/avatar', { avatar_key: key }),
+    );
+  }
+
+  async removeAvatar(): Promise<User> {
+    return toUser(
+      await this.http.request<UserDto>('/auth/me/avatar', { method: 'DELETE' }),
     );
   }
 

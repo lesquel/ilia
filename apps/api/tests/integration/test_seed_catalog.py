@@ -22,6 +22,7 @@ from app.main import create_app
 from scripts.seed_catalog import (
     CANONICAL_RUBRIC_NAME,
     CANONICAL_SLUGS,
+    CATALOG_ACTIVITIES,
     CATALOG_DIMENSIONS,
     CATALOG_OWNER_EMAIL,
     run,
@@ -41,7 +42,7 @@ TABLES = (
     "community.forum_thread, assessment.evaluation_score, assessment.evaluation, "
     "assessment.model_output, billing.llm_usage, assessment.submission, assessment.activity, "
     "assessment.rubric_dimension, assessment.rubric, catalog.lesson, catalog.course_module, "
-    "catalog.course, auth.app_user, learning.cohort, billing.subscription, billing.plan"
+    "catalog.course, identity.app_user, learning.cohort, billing.subscription, billing.plan"
 )
 
 
@@ -118,7 +119,7 @@ async def _owner_exists() -> bool:
     try:
         async with db.session() as session:
             row = await session.execute(
-                text("SELECT 1 FROM auth.app_user WHERE email = :email"),
+                text("SELECT 1 FROM identity.app_user WHERE email = :email"),
                 {"email": CATALOG_OWNER_EMAIL},
             )
             return row.first() is not None
@@ -157,5 +158,6 @@ def test_canonical_labs_ignore_a_preexisting_unrelated_rubric(client: TestClient
     asyncio.run(run(_settings()))
 
     activities = asyncio.run(_canonical_activity_rubrics())
-    assert len(activities) == len(CANONICAL_SLUGS)
+    # One lab per course, except the Gemini course: one per module plus a final exam.
+    assert len(activities) == len(CATALOG_ACTIVITIES)
     assert {name for _, name, _ in activities} == {CANONICAL_RUBRIC_NAME}

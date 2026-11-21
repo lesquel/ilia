@@ -88,7 +88,7 @@ export function ResultScreen() {
   }
 
   const simulatedNotice = simulatedEvaluationNotice(evaluation.model);
-  const accent = evaluation.passed && !simulatedNotice ? theme.colors.accent : theme.colors.neutral[600];
+  const accent = evaluation.passed && !simulatedNotice ? theme.colors.accentAlt : theme.colors.neutral[600];
   const sides = sideScoresFromEvaluation(activity, evaluation.dimensionScores);
   const generatedText = evaluation.generatedText.trim();
 
@@ -220,13 +220,13 @@ export function ResultScreen() {
         </View>
       ) : null}
 
-      <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Por dimensión</Text>
+      <Text style={[styles.sectionTitle, { color: theme.colors.text }]} accessibilityRole="header">Por dimensión</Text>
 
       {evaluation.dimensionScores.map((score) => (
         <DimensionRow key={score.key} score={score} name={dimensionName(activity, score.key)} />
       ))}
 
-      <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Devolución</Text>
+      <Text style={[styles.sectionTitle, { color: theme.colors.text }]} accessibilityRole="header">Devolución</Text>
       <Text style={[styles.body, { color: theme.colors.text }]}>{evaluation.feedback}</Text>
 
       <View
@@ -254,7 +254,7 @@ export function ResultScreen() {
           style={({ pressed }) => [
             styles.button,
             {
-              backgroundColor: theme.colors.accent,
+              backgroundColor: theme.colors.accentButton,
               borderRadius: theme.radius.md,
               opacity: pressed ? 0.85 : 1,
             },
@@ -415,6 +415,6 @@ const styles = StyleSheet.create({
     minHeight: 48,
     marginTop: 13.6,
   },
-  buttonLabel: { color: '#f2f2f3', fontSize: 16, fontWeight: '600' },
+  buttonLabel: { color: '#ffffff', fontSize: 16, fontWeight: '600' },
   provenance: { fontSize: 11, textAlign: 'center', marginTop: 13.6 },
 });

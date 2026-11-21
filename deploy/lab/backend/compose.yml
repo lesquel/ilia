@@ -1,0 +1,71 @@
+# Laptop 3: two API replicas plus a one-shot migration. Run from this directory:
+#   docker compose --env-file ../lab.env up -d --build
+# Start the DB (Ubuntu) and MinIO nodes first.
+
+x-api-env: &api-env
+  # `staging`, not `production`: production refuses non-Secure cookies, and the
+  # lab serves plain HTTP.
+  ILIA_ENVIRONMENT: staging
+  ILIA_DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-ilia}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@${DB_IP:?set DB_IP}:5432/${POSTGRES_DB:-ilia}
+  # Both replicas must share this or tokens signed by one fail on the other.
+  ILIA_JWT_SECRET: ${ILIA_JWT_SECRET:?set ILIA_JWT_SECRET}
+  # The browser origin is the LB; the API is reached through it, same origin.
+  ILIA_CORS_ORIGINS: '["http://${LB_IP:?set LB_IP}"]'
+  ILIA_COOKIE_SECURE: 'false'
+  ILIA_COOKIE_DOMAIN: ''
+  ILIA_LLM_PROVIDER: ${ILIA_LLM_PROVIDER:-}
+  ILIA_LLM_API_KEY: ${ILIA_LLM_API_KEY:-}
+  ILIA_LLM_MODEL: ${ILIA_LLM_MODEL:-}
+  ILIA_LLM_BASE_URL: ${ILIA_LLM_BASE_URL:-}
+  ILIA_STORAGE_PROVIDER: s3
+  ILIA_STORAGE_BUCKET: ${ILIA_STORAGE_BUCKET:-ilia}
+  ILIA_STORAGE_REGION: us-east-1
+  ILIA_STORAGE_ACCESS_KEY: ${ILIA_STORAGE_ACCESS_KEY:?set ILIA_STORAGE_ACCESS_KEY}
+  ILIA_STORAGE_SECRET_KEY: ${ILIA_STORAGE_SECRET_KEY:?set ILIA_STORAGE_SECRET_KEY}
+  # Signed URLs are opened by browsers on other laptops, so this must be the
+  # MinIO node's LAN address, never localhost.
+  ILIA_STORAGE_ENDPOINT: http://${FILES_IP:?set FILES_IP}:9000
+
+x-api: &api
+  image: ilia-api:lab
+  environment: *api-env
+  healthcheck:
+    test: ['CMD', 'python', '-c', "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=4).status == 200 else 1)"]
+    interval: 15s
+    timeout: 5s
+    start_period: 20s
+    retries: 3
+  depends_on:
+    migrate:
+      condition: service_completed_successfully
+  read_only: true
+  tmpfs:
+    - /tmp
+  security_opt:
+    - no-new-privileges:true
+  restart: unless-stopped
+
+services:
+  # Runs once, to completion, before either replica starts: two replicas
+  # migrating on boot would race to alter the same tables.
+  migrate:
+    build:
+      context: ../../../apps/api
+    image: ilia-api:lab
+    command: ['alembic', 'upgrade', 'head']
+    environment:
+      ILIA_DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-ilia}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@${DB_IP:?set DB_IP}:5432/${POSTGRES_DB:-ilia}
+      ILIA_JWT_SECRET: ${ILIA_JWT_SECRET:?set ILIA_JWT_SECRET}
+    # The DB is on another laptop, so a cold start may find it unreachable;
+    # a few retries beat a manual re-run.
+    restart: on-failure:5
+
+  api-1:
+    <<: *api
+    ports:
+      - '8001:8000'
+
+  api-2:
+    <<: *api
+    ports:
+      - '8002:8000'

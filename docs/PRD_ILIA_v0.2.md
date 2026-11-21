@@ -4,7 +4,7 @@
 | | |
 |---|---|
 | **Versión** | 0.2 — alineado al código en `main` |
-| **Fecha** | 7 de septiembre de 2026 *(v0.1)* · actualizado 21 de septiembre de 2026 |
+| **Fecha** | 7 de septiembre de 2026 *(v0.1)* · actualizado 23 de octubre de 2026 |
 | **Producto** | **ILIA** *(antes `PRAXIS.AI` en el mockup y en el PRD v0.1)* |
 | **Promotor** | Instituto de Inteligencia Artificial (emprendimiento del equipo) |
 | **Aliado institucional** | Dirección de Educación Complementaria, Alcaldía de Manta |
@@ -187,6 +187,8 @@ En la práctica esto significa que **habrá pantallas que se escriban dos veces*
 
 **Foro**
 - Hilos por módulo, respuestas.
+- Comunidad reúne los foros de los cursos disponibles para cada participante, separados por cohorte y organizados por módulo. Una inscripción sin cohorte usa el foro general del módulo. En los foros se muestra autoría con el nombre y avatar del perfil; los nombres enlazan a un perfil contextual con actividad reciente solo en espacios compartidos. **Extensión aprobada por el equipo el 23-oct-2026; no formaba parte de las fuentes originales del MVP.**
+- Las publicaciones del foro son de texto (hilo y respuestas); los avatares de perfil no son imágenes adjuntas a una publicación.
 
 **Certificados**
 - Emisión al cumplir criterios y **verificación pública por código**. Fase 1: **no hay PDF descargable** ni copia «oficial» ante terceros — alineado a `apps/api/app/features/certificates/interface/router.py` y `docs/pilot-charla.md`.
@@ -222,6 +224,7 @@ En la práctica esto significa que **habrá pantallas que se escriban dos veces*
 | E-05 | Como docente quiero escribir un prompt y saber si está bien hecho. | Recibo puntuación por dimensiones + feedback accionable en la misma sesión. |
 | E-06 | Como docente quiero entender por qué me puntuaron así. | El resultado desglosa cada dimensión con una razón, no solo un número. |
 | E-07 | Como docente quiero preguntar dudas a otros participantes. | Puedo abrir un hilo y responder en el foro del módulo. |
+| E-09 | Como docente quiero encontrar los foros de mis cursos y reconocer a quienes participan. | Comunidad lista los foros de mi cohorte por módulo (o el foro general si mi inscripción no tiene cohorte); desde la autoría puedo abrir un perfil interno con actividad reciente solo de espacios que puedo leer. |
 | E-08 | Como docente quiero **acreditar** que completé el curso. | Tras cumplir criterios, recibo un **código**; cualquiera lo comprueba en verificación pública **sin cuenta**. No hay PDF en Fase 1. |
 
 ### Instructor
@@ -363,4 +366,4 @@ Solo dos fechas salen de la reunión; el resto es propuesta.
 5. ¿El curso inicial para docentes replica la metodología ya validada de Eduardo (prompting + NotebookLM aplicado a tareas docentes)? Sería lo lógico, pero no está decidido.
 6. ¿Quién produce el contenido audiovisual y con qué calendario?
 7. ~~¿Habrá cohortes ligadas a una charla presencial concreta?~~ ✅ **Sí.** Admin crea la cohorte; el docente opcionalmente envía `cohort_code` al inscribirse. Ver TRD §7 y `apps/api/app/features/admin/interface/router.py`.
-8. ¿El foro es por curso, por módulo o por cohorte? El mockup sugiere por módulo.
+8. ~~¿El foro es por curso, por módulo o por cohorte?~~ ✅ **Cohorte + módulo**, extensión aprobada el 23-oct-2026: cada espacio de conversación está aislado por cohorte y organizado dentro de un módulo; si la inscripción no tiene cohorte, usa el espacio general del módulo. El curso organiza los accesos. Todo hilo requiere módulo y puede tener cohorte nula solo para ese espacio general. La referencia original del PRD/mockup definía módulo, sin aislamiento de cohortes.

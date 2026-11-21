@@ -1,6 +1,7 @@
 """Choosing a storage provider from configuration."""
 
 from datetime import timedelta
+from urllib.parse import parse_qs, urlparse
 
 import pytest
 
@@ -91,7 +92,7 @@ class TestUrls:
             "clase.mp4", content_type="video/mp4", ttl=timedelta(minutes=15)
         )
 
-        assert "Content-Type=video%2Fmp4" in signed.url
+        assert parse_qs(urlparse(signed.url).query)["X-Amz-SignedHeaders"] == ["content-type;host"]
         assert "X-Amz-Signature=" in signed.url
 
     def test_the_local_adapter_refuses_uploads_rather_than_faking_them(self) -> None:

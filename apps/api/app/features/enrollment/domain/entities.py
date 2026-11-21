@@ -256,6 +256,7 @@ class LessonView:
     next: LessonRef | None
     position: int
     total_lessons: int
+    module_total_lessons: int = 1
 
 
 def neighbours(course: Course, lesson_id: UUID) -> tuple[LessonRef | None, LessonRef | None, int]:

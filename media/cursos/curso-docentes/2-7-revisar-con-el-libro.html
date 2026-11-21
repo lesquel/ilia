@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ILIA · Revisar con el libro al lado</title>
+<link rel="stylesheet" href="scene-kit.css">
+<style>
+  /* Light ILIA stand-in; the sheet and the correction quote Gemini's real replies. */
+  .sheet { width: 600px; background: #fff; border: 1.5px solid var(--line); border-radius: 14px; padding: 18px 22px; box-shadow: 0 14px 34px rgba(0,0,0,.06); }
+  .sheet p { font-size: 17px; line-height: 1.42; margin: 6px 0; }
+  .who { font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
+  .row { display: flex; justify-content: space-between; gap: 12px; font-size: 19px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .ok { color: var(--green); font-weight: 800; }
+  .hlw { border-radius: 4px; padding: 0 3px; }
+  .on-red { background: #fdecea; color: var(--red); }
+  .gap { color: var(--blue); background: var(--blue-soft); padding: 0 4px; border-radius: 4px; font-weight: 700; }
+  .cut { text-decoration: line-through; text-decoration-color: var(--red); text-decoration-thickness: 2px; color: var(--red); }
+  .sheet .bar { height: 12px; background: #eceae3; border-radius: 6px; margin: 12px 0; }
+  .msg { font-size: 19px; line-height: 1.45; padding: 14px 18px; border-radius: 14px; background: var(--blue-soft); max-width: 900px; }
+</style>
+</head>
+<body>
+<header><b>ILIA</b>Que use tu libro · Revisar con el libro al lado</header>
+
+<section data-scene="lado" style="gap: 28px;">
+  <img src="libro-p41-43.jpg" data-in="0.3" style="width: 520px; flex: none; border-radius: 10px; box-shadow: 0 14px 34px rgba(0,0,0,.1);">
+  <div class="sheet" data-in="1.0" style="width: 480px; flex: none;">
+    <div class="who">La hoja que devolvió Gemini</div>
+    <div class="bar"></div><div class="bar" style="width: 85%"></div><div class="bar"></div><div class="bar" style="width: 70%"></div><div class="bar"></div><div class="bar" style="width: 60%"></div>
+  </div>
+</section>
+
+<section data-scene="tabla">
+  <div class="sheet" style="width: 760px;">
+    <div class="who">Tipo de argumento · ¿está en la página con ese nombre?</div>
+    <div class="row" data-in="0.4"><span>Datos contables</span><span class="ok" data-in="8.3">✓</span></div>
+    <div class="row" data-in="0.8"><span>Citas, frases célebres. Argumentos de autoridad</span><span class="ok" data-in="8.5">✓</span></div>
+    <div class="row" data-in="1.2"><span>El ejemplo como argumento</span><span class="ok" data-in="8.7">✓</span></div>
+    <div class="row" data-in="1.6"><span>La experiencia personal</span><span class="ok" data-in="8.9">✓</span></div>
+    <div class="row" data-in="2.0"><span>Analogía</span><span class="ok" data-in="9.1">✓</span></div>
+    <div class="row" data-in="2.4"><span>Causa y consecuencia</span><span class="ok" data-in="9.3">✓</span></div>
+  </div>
+</section>
+
+<section data-scene="razones">
+  <div class="sheet" style="width: 980px;">
+    <div class="who">Gemini · los argumentos, tal cual</div>
+    <p data-in="0.3"><b>Datos contables:</b> <span class="hlw" data-mark-red="5.7">Según una encuesta local</span>, las familias gastan un [ ]% menos de su presupuesto anual en ropa escolar…</p>
+    <p data-in="0.6"><b>Citas, frases célebres. Argumentos de autoridad:</b> Como afirma <span class="hlw" data-mark-red="8.5">la pedagogía moderna</span>, "el uniforme escolar es una herramienta igualadora…"</p>
+    <p data-in="0.9"><b>El ejemplo como argumento:</b> <span class="hlw" data-mark-red="12.1">Pensemos en lo ocurrido en el colegio de nuestra parroquia vecina…</span></p>
+    <p data-in="1.2"><b>La experiencia personal:</b> <span class="hlw" data-mark-red="12.5">En mis años trabajando en este colegio fiscal…</span></p>
+  </div>
+</section>
+
+<section data-scene="correccion">
+  <div class="msg" data-in="0.3"><div class="who">Andrés, en el mismo chat</div>Lo revisé con la página al lado. Los nombres están bien. Cambia esto: en datos contables quita «según una encuesta local», esa encuesta no existe; deja la cifra entre corchetes y la fuente también: [fuente]. En la cita, «la pedagogía moderna» no es nadie: pon [autor] y [cita] para que yo los busque. El ejemplo del colegio vecino y la experiencia personal no pasaron: déjalos como hueco [...] para que los escriba yo.</div>
+</section>
+
+<section data-scene="huecos">
+  <div class="sheet" style="width: 980px;">
+    <div class="who">Gemini · la corrección, tal cual</div>
+    <p data-in="0.3"><b>Datos contables:</b> Según <span class="gap">[fuente]</span>, las familias gastan un <span class="gap">[ ]%</span> menos de su presupuesto anual en ropa escolar cuando se exige uniforme todos los días.</p>
+    <p data-in="0.7"><b>Citas, frases célebres. Argumentos de autoridad:</b> Como afirma <span class="gap">[autor]</span>, «<span class="gap">[cita]</span>». Por lo tanto, exigir el uniforme escolar a diario garantiza que esta medida se mantenga de forma equitativa.</p>
+    <p data-in="1.1"><b>El ejemplo como argumento:</b> <span class="gap">[...]</span></p>
+    <p data-in="1.4"><b>La experiencia personal:</b> <span class="gap">[...]</span></p>
+  </div>
+</section>
+
+<section data-scene="borro" style="flex-direction: column; gap: 18px;">
+  <div class="sheet" style="width: 980px;" data-in="0.2">
+    <div class="who">Antes</div>
+    <p>Datos contables: Según una encuesta local, las familias gastan un [ ]% menos de su presupuesto anual en ropa escolar cuando se exige uniforme todos los días. <span class="hlw" data-cut="2.0">Mantener esta medida protege la economía de los hogares de Manta.</span></p>
+  </div>
+  <div class="sheet" style="width: 980px;" data-in="0.6">
+    <div class="who">Después</div>
+    <p>Datos contables: Según [fuente], las familias gastan un [ ]% menos de su presupuesto anual en ropa escolar cuando se exige uniforme todos los días.</p>
+  </div>
+  <div class="kicker" style="color: var(--red)" data-in="3.0">Esa frase no se pidió quitar.</div>
+</section>
+
+<section data-scene="cierre">
+  <div class="rule" data-in="0.4">Con la página, el error es más chico y se encuentra más rápido. Pero se sigue buscando.</div>
+</section>
+
+<div class="progress"><i></i></div>
+<script src="scene-kit.js"></script>
+<script>
+  const baseRender = window.renderAt;
+  window.renderAt = (t) => {
+    baseRender(t);
+    for (const beat of window.ILIA.beats) {
+      const section = document.querySelector(`section[data-scene="${beat.scene}"]`);
+      const local = t - beat.at;
+      section.querySelectorAll('[data-mark-red]').forEach((el) => el.classList.toggle('on-red', local >= Number(el.dataset.markRed)));
+      section.querySelectorAll('[data-cut]').forEach((el) => el.classList.toggle('cut', local >= Number(el.dataset.cut)));
+    }
+  };
+</script>
+</body>
+</html>

@@ -136,6 +136,36 @@ describe('parseLessonBody', () => {
   });
 });
 
+describe('parseLessonBody questions', () => {
+  it('reads a question with its best option and the reason behind each one', () => {
+    const blocks = parseLessonBody(
+      'Antes de ver lo que devuelve, piénsalo.\n\n' +
+        ':::pregunta Norma escribe «Hazme una lectura de séptimo». ¿Qué le llega?\n' +
+        '- [ ] Una hoja lista para su curso.\n' +
+        '  Gemini no sabe qué están trabajando.\n' +
+        '- [x] Un texto cualquiera que suena a séptimo.\n' +
+        '  Lo que no le dijo, el modelo lo decide.\n' +
+        '  Por eso no es para su clase.\n' +
+        ':::',
+    );
+
+    expect(blocks.map((block) => block.type)).toEqual(['paragraph', 'question']);
+    const question = blocks[1];
+    if (question?.type !== 'question') throw new Error('expected question');
+    expect(question.stem.map((part) => part.text).join('')).toContain('¿Qué le llega?');
+    expect(question.options.map((option) => option.isBest)).toEqual([false, true]);
+    expect(question.options[1]?.feedback.map((part) => part.text).join('')).toBe(
+      'Lo que no le dijo, el modelo lo decide. Por eso no es para su clase.',
+    );
+  });
+
+  it('falls back to a paragraph when a question has fewer than two options', () => {
+    const blocks = parseLessonBody(':::pregunta ¿Qué harías tú?\n- [x] Leerla entera.\n:::');
+
+    expect(blocks).toEqual([{ type: 'paragraph', inlines: [{ text: '¿Qué harías tú?' }] }]);
+  });
+});
+
 describe('parseInline', () => {
   it('keeps emphasis around the word the teacher must own', () => {
     expect(parseInline('con lo que **tú** le cargas')).toEqual([

@@ -77,7 +77,7 @@ function AttemptRow({ submission }: { submission: Submission }) {
       {scored ? (
         <Link
           href={`/lab/submissions/${submission.id}`}
-          style={[styles.link, { color: theme.colors.accent }]}
+          style={[styles.link, { color: theme.colors.accentAlt }]}
         >
           Ver esa devolución
         </Link>

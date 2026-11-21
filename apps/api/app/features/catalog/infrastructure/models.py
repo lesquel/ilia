@@ -62,7 +62,7 @@ class CourseModel(Base):
     # sequential scans of every course on the platform.
     instructor_id: Mapped[UUID] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("auth.app_user.id", ondelete="RESTRICT"),
+        ForeignKey("identity.app_user.id", ondelete="RESTRICT"),
         nullable=False,
         index=True,
     )

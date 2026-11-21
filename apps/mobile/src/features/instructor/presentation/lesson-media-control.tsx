@@ -93,7 +93,7 @@ export function LessonMediaControl({
       />
 
       <Pressable accessibilityRole="button" disabled={busy} onPress={pick}>
-        <Text style={[styles.action, { color: theme.colors.accent, opacity: busy ? 0.5 : 1 }]}>
+        <Text style={[styles.action, { color: theme.colors.accentAlt, opacity: busy ? 0.5 : 1 }]}>
           {hasMedia ? 'Reemplazar material' : 'Subir material'}
         </Text>
       </Pressable>

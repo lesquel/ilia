@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><title>ILIA · ¿Cómo te fue?</title><link rel="stylesheet" href="scene-kit.css"></head>
+<body>
+<header><b>ILIA</b>Empezar por la destreza · ¿Cómo te fue?</header>
+<section data-scene="pregunta" style="flex-direction: column; gap: 22px;">
+  <div class="big" data-in="0.2">¿Le pasaste una página de tu libro?</div>
+  <div class="big" style="color: var(--blue)" data-in="2.6">¿Cambió lo que te devolvió?</div>
+</section>
+<section data-scene="hojas">
+  <div class="page" data-in="0.2" style="height: 300px; width: 240px;"><h4>Una hoja</h4><div class="bar"></div><div class="bar" style="width: 70%"></div><div class="bar"></div></div>
+  <div class="mark" style="color: var(--blue)" data-in="1.4">→</div>
+  <div class="page" data-in="1.8" style="height: 380px; width: 340px;"><h4>Una clase entera</h4><div class="bar"></div><div class="bar"></div><div class="bar" style="width: 80%"></div><div class="bar"></div><div class="bar" style="width: 60%"></div><div class="bar"></div></div>
+</section>
+<section data-scene="hablas" style="flex-direction: column; gap: 26px;">
+  <div class="big" data-in="0.2">Tú hablas. Ellos escuchan.</div>
+  <div class="big" style="color: var(--muted)" data-in="3.0">Al final: ¿aprendieron?</div>
+</section>
+<section data-scene="reves" style="gap: 30px;">
+  <div class="rule" style="font-size: 26px; max-width: 460px;" data-in="1.2"><span style="color: var(--blue); font-weight: 700;">1.</span> Qué haría un estudiante para demostrar que lo logró</div>
+  <div class="mark" style="color: var(--blue)" data-in="5.0">→</div>
+  <div class="rule" style="font-size: 26px; max-width: 360px;" data-in="5.4"><span style="color: var(--blue); font-weight: 700;">2.</span> La clase para llegar ahí</div>
+</section>
+<div class="progress"><i></i></div>
+<script src="scene-kit.js"></script>
+</body>
+</html>

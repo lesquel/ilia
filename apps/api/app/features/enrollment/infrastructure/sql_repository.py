@@ -73,6 +73,15 @@ class SqlAlchemyEnrollmentRepository:
             )
             return [_to_entity(row) for row in result.scalars()]
 
+    async def list_for_course(self, course_id: UUID) -> list[Enrollment]:
+        async with self._db.session() as session:
+            result = await session.execute(
+                select(EnrollmentModel)
+                .where(EnrollmentModel.course_id == course_id)
+                .order_by(EnrollmentModel.enrolled_at.desc())
+            )
+            return [_to_entity(row) for row in result.scalars()]
+
 
 class SqlAlchemyProgressRepository:
     def __init__(self, database: Database) -> None:

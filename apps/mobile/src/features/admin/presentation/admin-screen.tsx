@@ -59,7 +59,7 @@ export function AdminScreen() {
 
   return (
     <ScrollView style={{ backgroundColor: theme.colors.bg }} contentContainerStyle={styles.content}>
-      <Text style={[styles.title, { color: theme.colors.text }]}>Administración</Text>
+      <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">Administración</Text>
       {/* One row that scrolls sideways on a phone: six tabs wrapped onto three
           lines would push the section itself below the fold. */}
       <ScrollView
@@ -80,7 +80,7 @@ export function AdminScreen() {
               style={({ pressed }) => [
                 styles.tab,
                 {
-                  backgroundColor: selected ? theme.colors.accent : theme.colors.surface,
+                  backgroundColor: selected ? theme.colors.accentButton : theme.colors.surface,
                   borderColor: selected ? theme.colors.accent : theme.colors.divider,
                   borderRadius: theme.radius.md,
                   opacity: pressed ? 0.75 : 1,
@@ -90,9 +90,9 @@ export function AdminScreen() {
               <Icon
                 glyph={tab.glyph}
                 size={16}
-                color={selected ? '#f2f2f3' : theme.colors.accent}
+                color={selected ? '#ffffff' : theme.colors.accent}
               />
-              <Text style={[styles.tabLabel, { color: selected ? '#f2f2f3' : theme.colors.text }]}>
+              <Text style={[styles.tabLabel, { color: selected ? '#ffffff' : theme.colors.text }]}>
                 {tab.label}
               </Text>
             </Pressable>

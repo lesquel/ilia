@@ -68,7 +68,7 @@ export function EnrollPanel({ slug, level }: { slug: string; level?: Level }) {
                 style={[
                   styles.button,
                   {
-                    backgroundColor: theme.colors.accent,
+                    backgroundColor: theme.colors.accentButton,
                     borderRadius: theme.radius.md,
                     opacity: pressed ? 0.85 : 1,
                   },
@@ -99,7 +99,7 @@ export function EnrollPanel({ slug, level }: { slug: string; level?: Level }) {
                 style={[
                   styles.button,
                   {
-                    backgroundColor: theme.colors.accent,
+                    backgroundColor: theme.colors.accentButton,
                     borderRadius: theme.radius.md,
                     opacity: pressed ? 0.85 : 1,
                   },
@@ -186,14 +186,14 @@ export function EnrollPanel({ slug, level }: { slug: string; level?: Level }) {
         style={({ pressed }) => [
           styles.button,
           {
-            backgroundColor: theme.colors.accent,
+            backgroundColor: theme.colors.accentButton,
             borderRadius: theme.radius.md,
             opacity: enroll.isPending ? 0.6 : pressed ? 0.85 : 1,
           },
         ]}
       >
         {enroll.isPending ? (
-          <ActivityIndicator color="#f2f2f3" />
+          <ActivityIndicator color="#ffffff" />
         ) : (
           <Text style={styles.buttonLabel}>Inscribirme</Text>
         )}
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
     minHeight: 48,
   },
   buttonLabel: {
-    color: '#f2f2f3',
+    color: '#ffffff',
     fontSize: 16,
     fontWeight: '600',
   },

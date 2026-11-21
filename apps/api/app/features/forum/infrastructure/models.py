@@ -34,6 +34,19 @@ class ForumThreadModel(Base):
             ondelete="CASCADE",
             name="fk_forum_thread_module_course",
         ),
+        ForeignKeyConstraint(
+            ["cohort_id"],
+            ["learning.cohort.id"],
+            ondelete="CASCADE",
+            name="fk_forum_thread_cohort",
+        ),
+        Index(
+            "ix_forum_thread_forum_activity",
+            "course_id",
+            "module_id",
+            "cohort_id",
+            "last_activity_at",
+        ),
         Index("ix_forum_thread_module_course", "module_id", "course_id"),
         {"schema": DbSchema.COMMUNITY.value},
     )
@@ -42,11 +55,10 @@ class ForumThreadModel(Base):
     course_id: Mapped[UUID] = mapped_column(
         Uuid(as_uuid=True), ForeignKey("catalog.course.id", ondelete="CASCADE"), nullable=False
     )
-    # Null means the thread belongs to the course as a whole — which is what the
-    # mockup shows ("Foro del curso"), despite what PRD open question 8 claims.
-    module_id: Mapped[UUID | None] = mapped_column(Uuid(as_uuid=True), nullable=True)
+    cohort_id: Mapped[UUID | None] = mapped_column(Uuid(as_uuid=True), nullable=True)
+    module_id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), nullable=False)
     author_id: Mapped[UUID] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("auth.app_user.id", ondelete="CASCADE"), nullable=False
+        Uuid(as_uuid=True), ForeignKey("identity.app_user.id", ondelete="CASCADE"), nullable=False
     )
     # Copied so a thread still shows who wrote it after the account is gone.
     author_name: Mapped[str] = mapped_column(String(120), nullable=False)
@@ -82,7 +94,7 @@ class ForumPostModel(Base):
         index=True,
     )
     author_id: Mapped[UUID] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("auth.app_user.id", ondelete="CASCADE"), nullable=False
+        Uuid(as_uuid=True), ForeignKey("identity.app_user.id", ondelete="CASCADE"), nullable=False
     )
     author_name: Mapped[str] = mapped_column(String(120), nullable=False)
     body: Mapped[str] = mapped_column(Text, nullable=False)

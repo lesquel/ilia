@@ -1,0 +1,77 @@
+[
+  {
+    "offset": 0.0,
+    "duration": 3.5,
+    "text": "Tres preguntas para revisar una clase que te armó Gemini."
+  },
+  {
+    "offset": 3.8,
+    "duration": 2.4,
+    "text": "Una: ¿suma cuarenta?"
+  },
+  {
+    "offset": 6.499999999999999,
+    "duration": 3.14,
+    "text": "Súmalo tú: cinco, diez, diez y quince."
+  },
+  {
+    "offset": 9.94,
+    "duration": 0.94,
+    "text": "Esta vez sí."
+  },
+  {
+    "offset": 11.18,
+    "duration": 1.94,
+    "text": "Dos: ¿cuánto rato solo escuchan?"
+  },
+  {
+    "offset": 13.42,
+    "duration": 2.78,
+    "text": "Del minuto cinco al quince, solo toman nota."
+  },
+  {
+    "offset": 16.5,
+    "duration": 2.5,
+    "text": "Son diez minutos seguidos; eso se parte."
+  },
+  {
+    "offset": 19.3,
+    "duration": 3.12,
+    "text": "Y mira el polígrafo: dice cuatro frases, y pone tres."
+  },
+  {
+    "offset": 22.720000000000002,
+    "duration": 3.72,
+    "text": "Tres: ¿termina con la evidencia que elegiste, hecha en clase?"
+  },
+  {
+    "offset": 26.740000000000002,
+    "duration": 0.5,
+    "text": "Sí."
+  },
+  {
+    "offset": 27.540000000000003,
+    "duration": 3.9,
+    "text": "En el mismo chat escribes lo que cambias."
+  },
+  {
+    "offset": 31.740000000000002,
+    "duration": 6.52,
+    "text": "Gemini agregó una pausa en el minuto diez, completó la cuarta frase y dejó la cifra entre corchetes."
+  },
+  {
+    "offset": 38.56,
+    "duration": 2.88,
+    "text": "Pero a una frase le puso dos tipos a la vez."
+  },
+  {
+    "offset": 41.74,
+    "duration": 2.56,
+    "text": "Esa la decides tú."
+  },
+  {
+    "offset": 44.6,
+    "duration": 3.48,
+    "text": "Revisada y corregida, ya la puedes llevar al aula."
+  }
+]

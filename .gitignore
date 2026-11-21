@@ -57,6 +57,7 @@ apps/mobile/.web-build/
 # Local media for the development storage adapter. Real deployments use a
 # bucket; these are throwaway files someone dropped in to try the player.
 apps/api/media/
+apps/api/ilia-local.sqlite3*
 
 # Playwright's scratch output from browser verification runs.
 .playwright-mcp/
@@ -67,3 +68,13 @@ apps/api/media/
 # One-off audit snapshots and temporary document-generation scripts.
 /.audit-mobile-*/
 /tmp/
+.vercel
+.env*
+
+# Static web export baked for the Vercel deploy. Rebuilt with expo export.
+apps/api/web-dist/
+
+# Narración regenerable: se versionan los mp4, no los wav.
+media/cursos/curso-docentes/*.wav
+media/cursos/introduccion-ia-docentes-v2/*.wav
+media/cursos/introduccion-ia-docentes-v2/*.mp4

@@ -1,0 +1,358 @@
+[
+  {
+    "slug": "2-4-la-pagina-no-el-nombre",
+    "title": "Por qué la página y no el nombre del libro",
+    "narration": "Cuando le pides a Gemini tipos de argumento, te da la lista que más se repite en lo que leyó. Esa no es la lista de tu libro. En el módulo uno, a Andrés le salieron «utilidad práctica» y «hombre de paja». Suenan bien, pero sus chicos las buscan en el libro y no las encuentran. El libro de segundo de bachillerato enseña siete tipos: datos contables, citas o argumentos de autoridad, ejemplo, experiencia personal, analogía, verdades universales, y causa y consecuencia. El currículo trae otra lista, y Gemini tiene una tercera. Si le escribes el nombre del libro, adivina qué dice. Si le pasas la página, la lee. Ojo con dos cosas. Una foto torcida o con sombra se lee mal, así que toma la página entera y derecha. Y aunque tenga la página, a veces cambia un nombre o mete un tipo que no está. Por eso igual se revisa antes de imprimir. La regla que te llevas es esta: si en tu clase un concepto tiene un nombre, pásale la página donde aparece con ese nombre.",
+    "beats": [
+      {
+        "phrase": "Cuando le pides",
+        "scene": "lista-comun"
+      },
+      {
+        "phrase": "En el módulo uno",
+        "scene": "no-esta"
+      },
+      {
+        "phrase": "El libro de segundo",
+        "scene": "siete"
+      },
+      {
+        "phrase": "El currículo trae",
+        "scene": "tres-listas"
+      },
+      {
+        "phrase": "Si le escribes",
+        "scene": "adivina"
+      },
+      {
+        "phrase": "Ojo con dos cosas",
+        "scene": "foto"
+      },
+      {
+        "phrase": "Y aunque tenga",
+        "scene": "revisa"
+      },
+      {
+        "phrase": "La regla que te llevas",
+        "scene": "regla"
+      }
+    ]
+  },
+  {
+    "slug": "2-1-como-te-fue",
+    "title": "¿Cómo te fue?",
+    "narration": "En el módulo anterior armaste una hoja para tu clase. Piensa un momento: ¿la usaste? ¿Qué tuviste que cambiar antes de imprimirla? A Andrés le pasó lo que le pasa a casi todos. Gemini usó palabras que no están en su libro: «utilidad práctica» y «hombre de paja». Se ven bien, pero sus chicos las buscan en el libro y no las encuentran. En este módulo, Gemini trabaja con tu libro desde el principio. Y cuando no sepas qué contarle, vas a hacer que él te pregunte.",
+    "beats": [
+      {
+        "phrase": "En el módulo anterior",
+        "scene": "hoja"
+      },
+      {
+        "phrase": "Piensa un momento",
+        "scene": "preguntas"
+      },
+      {
+        "phrase": "A Andrés le pasó",
+        "scene": "andres"
+      },
+      {
+        "phrase": "En este módulo",
+        "scene": "hoy"
+      }
+    ]
+  },
+  {
+    "slug": "2-9-para-el-lunes",
+    "title": "Para el lunes",
+    "narration": "Para el lunes, prepara una hoja con una página de tu libro. Pásasela a Gemini y revisa lo que devuelva con la página al lado. La próxima semana cambiamos el punto de partida. En vez de pedir una clase sobre un tema, la vas a pedir desde la destreza que tienes que trabajar.",
+    "beats": [
+      {
+        "phrase": "Para el lunes",
+        "scene": "tarea"
+      },
+      {
+        "phrase": "La próxima semana",
+        "scene": "sigue"
+      }
+    ]
+  },
+  {
+    "slug": "3-1-como-te-fue",
+    "title": "¿Cómo te fue?",
+    "narration": "¿Le pasaste una página de tu libro a Gemini? ¿Cambió algo en lo que te devolvió? Hasta ahora le pedimos hojas. Si le pides una clase entera, pasa otra cosa. Te arma una clase donde tú hablas y ellos escuchan, y al final no sabes si aprendieron. En este módulo empezamos al revés. Primero decides qué tendría que hacer un estudiante para demostrarte que lo logró. Después armas la clase para llegar ahí.",
+    "beats": [
+      {
+        "phrase": "¿Le pasaste",
+        "scene": "pregunta"
+      },
+      {
+        "phrase": "Hasta ahora",
+        "scene": "hojas"
+      },
+      {
+        "phrase": "Te arma una clase",
+        "scene": "hablas"
+      },
+      {
+        "phrase": "En este módulo",
+        "scene": "reves"
+      }
+    ]
+  },
+  {
+    "slug": "3-4-destreza-evidencia-clase",
+    "title": "Destreza, evidencia y clase",
+    "narration": "Una clase se puede pedir de dos formas. La primera es desde el tema: una clase sobre tipos de argumento. Gemini devuelve lo más común, una explicación, ejemplos y una actividad, y casi nunca termina con algo que puedas revisar. La segunda es desde la destreza. Primero, qué tiene que poder hacer el estudiante. En el libro de Andrés está al pie de la página: defender una tesis con diferentes tipos de argumentos. Después, qué haría al final de la hora para demostrarlo. Y recién entonces, la clase para llegar ahí. La evidencia la eliges tú. Gemini propone opciones, pero no sabe cuánto tiempo tienes para revisar treinta y cinco cuadernos, ni qué te sirve para la clase siguiente. La regla que te llevas: no le pidas la clase hasta saber qué vas a revisar al final.",
+    "beats": [
+      {
+        "phrase": "Una clase se puede",
+        "scene": "dos-formas"
+      },
+      {
+        "phrase": "La primera es",
+        "scene": "tema"
+      },
+      {
+        "phrase": "La segunda es",
+        "scene": "inverso"
+      },
+      {
+        "phrase": "La evidencia la eliges",
+        "scene": "eliges"
+      },
+      {
+        "phrase": "La regla que te llevas",
+        "scene": "regla"
+      }
+    ]
+  },
+  {
+    "slug": "3-9-para-el-lunes",
+    "title": "Para el lunes",
+    "narration": "Para el lunes, elige una destreza de tu planificación de esta semana. Pídele a Gemini tres evidencias, elige una, y arma la clase para llegar ahí. La próxima semana le pasamos a Gemini tu unidad entera, no una página, y vemos cómo comprobar de dónde saca cada cosa.",
+    "beats": [
+      {
+        "phrase": "Para el lunes",
+        "scene": "tarea"
+      },
+      {
+        "phrase": "La próxima semana",
+        "scene": "sigue"
+      }
+    ]
+  },
+  {
+    "slug": "2-3-pasale-la-pagina",
+    "title": "Pásale la página del libro",
+    "narration": "Abre tu libro en la página del tema. Andrés usa la de tipos de argumento, y le saca una captura; en el celular basta con una foto. En Gemini, toca el más, que en la web se llama «Subidas y herramientas», y sube la imagen. Mejor solo las páginas que necesitas, no el libro entero. Ahora el pedido. Fíjate en esta línea: usa solo los tipos que aparecen en esas páginas, con el mismo nombre del libro. Sin ella, la página es apenas una sugerencia. Y en esta otra: si un argumento necesita una cifra, déjala entre corchetes. El dato lo pones tú. Si Gemini te contesta que no puede ayudarte, cambia el modelo a Pro y vuelve a intentarlo; a Andrés le pasó. Esto es lo que devolvió, tal cual. Los nombres ahora son los del libro, y cada uno trae la frase de la página que lo justifica. En el primero dejó el hueco para la cifra. Pero mira lo que puso alrededor: «según una encuesta local». Esa encuesta no existe. La lista ya es la de tu libro, pero igual se revisa, y eso lo hacemos en un rato.",
+    "beats": [
+      {
+        "phrase": "Abre tu libro",
+        "scene": "libro"
+      },
+      {
+        "phrase": "En Gemini, toca",
+        "scene": "subir"
+      },
+      {
+        "phrase": "Ahora el pedido",
+        "scene": "pedido"
+      },
+      {
+        "phrase": "Si Gemini te contesta",
+        "scene": "pro"
+      },
+      {
+        "phrase": "Esto es lo que devolvió",
+        "scene": "respuesta"
+      },
+      {
+        "phrase": "Pero mira lo que puso",
+        "scene": "encuesta"
+      },
+      {
+        "phrase": "La lista ya es",
+        "scene": "cierre"
+      }
+    ]
+  },
+  {
+    "slug": "2-5-que-te-pregunte",
+    "title": "Que Gemini te pregunte primero",
+    "narration": "A veces no sabes bien qué contarle. Entonces le pides que te pregunte él. Fíjate en la última línea: una por una. La primera pregunta ya enseña algo. Habla de la Selectividad, que es un examen de España. Para Gemini, segundo de Bachillerato sin más es España. Andrés le contesta con lo suyo: Ecuador, colegio fiscal de Manta, treinta y cinco estudiantes. En la segunda pregunta, mira esto: menciona el uniforme y el libro del Ministerio, que eran de otro chat. Gemini recuerda tus conversaciones anteriores. Por eso nunca se pegan nombres ni notas de estudiantes. Con tres preguntas, ya propone la clase. Y te enseña qué le faltaba a tu pedido; la próxima vez lo pones sin que te pregunte. Pero revisa los nombres: argumento de hecho, causa-efecto, ejemplificación. Dice que salen de la unidad uno del libro, y el libro nunca lo vio. Si te pregunta algo que no sabes, dile que no sabes. Es mejor eso que inventarle una respuesta.",
+    "beats": [
+      {
+        "phrase": "A veces no sabes",
+        "scene": "pedido"
+      },
+      {
+        "phrase": "La primera pregunta",
+        "scene": "espana"
+      },
+      {
+        "phrase": "Andrés le contesta",
+        "scene": "contesta"
+      },
+      {
+        "phrase": "En la segunda pregunta",
+        "scene": "memoria"
+      },
+      {
+        "phrase": "Con tres preguntas",
+        "scene": "plan"
+      },
+      {
+        "phrase": "Pero revisa los nombres",
+        "scene": "nombres"
+      },
+      {
+        "phrase": "Si te pregunta algo",
+        "scene": "cierre"
+      }
+    ]
+  },
+  {
+    "slug": "2-7-revisar-con-el-libro",
+    "title": "Revisar con el libro al lado",
+    "narration": "Pon la página a un lado y la hoja al otro. Es la forma más rápida de revisar. Primero la tabla, tipo por tipo: ¿está en la página? ¿Con el mismo nombre? Aquí sí: los seis nombres son los del libro. Después, cada argumento: ¿da una razón, y de dónde sale lo que dice? La encuesta no existe. «La pedagogía moderna» no es nadie. El colegio vecino y la experiencia personal los inventó; esos los pones tú. En el mismo chat escribes la corrección, y dices por qué. Gemini dejó los huecos entre corchetes. Pero mira el primer argumento: además borró una frase que no le pediste quitar. Por eso lo que devuelve se vuelve a leer. Con la página, el error es más chico y se encuentra más rápido. Pero se sigue buscando.",
+    "beats": [
+      {
+        "phrase": "Pon la página",
+        "scene": "lado"
+      },
+      {
+        "phrase": "Primero la tabla",
+        "scene": "tabla"
+      },
+      {
+        "phrase": "Después, cada argumento",
+        "scene": "razones"
+      },
+      {
+        "phrase": "En el mismo chat",
+        "scene": "correccion"
+      },
+      {
+        "phrase": "Gemini dejó los huecos",
+        "scene": "huecos"
+      },
+      {
+        "phrase": "Pero mira el primer",
+        "scene": "borro"
+      },
+      {
+        "phrase": "Con la página",
+        "scene": "cierre"
+      }
+    ]
+  },
+  {
+    "slug": "3-3-tema-o-destreza",
+    "title": "Pedir desde el tema y desde la destreza",
+    "narration": "Primero, como lo pediría casi todo el mundo: hazme una clase sobre tipos de argumento para segundo de Bachillerato. Mira lo que vuelve. No es una clase, es una explicación para leer. No hay minutos, no dice qué hacen los estudiantes, y al final no hay nada que puedas revisar. Y otra vez piensa en España: Selectividad, y una cifra del CIS, que es un organismo español. Ahora, el segundo pedido. Empieza por tu curso y por lo que confunden. Después, la destreza, tal como está en tu planificación. Y en la última línea, todavía no le pides la clase: le pides qué haría un estudiante para demostrarlo. Devuelve tres opciones, de la más simple a la más completa, y cada una con el tiempo que te toma revisarla. Diez segundos, treinta, cuarenta y cinco por estudiante. Andrés se queda con la tercera, porque es la destreza completa y la puede leer en el recreo. Ojo: aquí también inventó un cuarenta por ciento. El primero te dio una clase. El segundo te hizo decidir qué quieres ver al final.",
+    "beats": [
+      {
+        "phrase": "Primero, como lo pediría",
+        "scene": "pedidoA"
+      },
+      {
+        "phrase": "Mira lo que vuelve",
+        "scene": "respA"
+      },
+      {
+        "phrase": "Y otra vez piensa",
+        "scene": "espana"
+      },
+      {
+        "phrase": "Ahora, el segundo pedido",
+        "scene": "pedidoB"
+      },
+      {
+        "phrase": "Devuelve tres opciones",
+        "scene": "opciones"
+      },
+      {
+        "phrase": "Andrés se queda",
+        "scene": "elige"
+      },
+      {
+        "phrase": "Ojo: aquí también",
+        "scene": "cuarenta"
+      },
+      {
+        "phrase": "El primero te dio",
+        "scene": "cierre"
+      }
+    ]
+  },
+  {
+    "slug": "3-5-de-la-evidencia-a-la-clase",
+    "title": "De la evidencia a la clase",
+    "narration": "Ahora sí le pides la clase, para llegar a la opción que elegiste. Y le pides que, en cada momento, te diga cuántos minutos dura, qué haces tú y qué hacen ellos. Si Gemini se queda pensando mucho rato, recarga la página: a veces el mensaje se pierde y hay que enviarlo otra vez. La clase llega en cuatro momentos. El gancho, cinco minutos. La caja de herramientas, diez. El polígrafo, diez. Y la defensa a la carta, quince. En los últimos quince lo escriben en clase, no de deber, para que no lo haga la IA por ellos. Le pediste separar lo que haces tú de lo que hacen ellos. Así ves de una vez si hablas toda la hora. Esta clase la armaste desde lo que quieres ver al final.",
+    "beats": [
+      {
+        "phrase": "Ahora sí le pides",
+        "scene": "pedido"
+      },
+      {
+        "phrase": "Si Gemini se queda",
+        "scene": "recarga"
+      },
+      {
+        "phrase": "La clase llega",
+        "scene": "momentos"
+      },
+      {
+        "phrase": "En los últimos quince",
+        "scene": "final"
+      },
+      {
+        "phrase": "Le pediste separar",
+        "scene": "columnas"
+      },
+      {
+        "phrase": "Esta clase la armaste",
+        "scene": "cierre"
+      }
+    ]
+  },
+  {
+    "slug": "3-7-revisar-la-clase",
+    "title": "Revisar la clase",
+    "narration": "Tres preguntas para revisar una clase que te armó Gemini. Una: ¿suma cuarenta? Súmalo tú: cinco, diez, diez y quince. Esta vez sí. Dos: ¿cuánto rato solo escuchan? Del minuto cinco al quince, solo toman nota. Son diez minutos seguidos; eso se parte. Y mira el polígrafo: dice cuatro frases, y pone tres. Tres: ¿termina con la evidencia que elegiste, hecha en clase? Sí. En el mismo chat escribes lo que cambias. Gemini agregó una pausa en el minuto diez, completó la cuarta frase y dejó la cifra entre corchetes. Pero a una frase le puso dos tipos a la vez. Esa la decides tú. Revisada y corregida, ya la puedes llevar al aula.",
+    "beats": [
+      {
+        "phrase": "Tres preguntas",
+        "scene": "tres"
+      },
+      {
+        "phrase": "Una: ¿suma",
+        "scene": "suma"
+      },
+      {
+        "phrase": "Dos: ¿cuánto rato",
+        "scene": "escuchan"
+      },
+      {
+        "phrase": "Y mira el polígrafo",
+        "scene": "poligrafo"
+      },
+      {
+        "phrase": "Tres: ¿termina",
+        "scene": "final"
+      },
+      {
+        "phrase": "En el mismo chat",
+        "scene": "correccion"
+      },
+      {
+        "phrase": "Pero a una frase",
+        "scene": "doble"
+      },
+      {
+        "phrase": "Revisada y corregida",
+        "scene": "cierre"
+      }
+    ]
+  }
+]

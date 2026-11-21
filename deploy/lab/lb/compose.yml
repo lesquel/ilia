@@ -1,0 +1,29 @@
+# Laptop 1: load balancer. Run from this directory:
+#   docker compose --env-file ../lab.env up -d
+services:
+  lb:
+    image: nginx:1.27-alpine
+    ports:
+      - '80:80'
+    environment:
+      BACKEND_IP: ${BACKEND_IP:?set BACKEND_IP in lab.env}
+      FRONTEND_IP: ${FRONTEND_IP:?set FRONTEND_IP in lab.env}
+    volumes:
+      # The image's entrypoint renders /etc/nginx/templates/*.template into
+      # /etc/nginx/conf.d/ with envsubst.
+      - ./nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -q --spider http://127.0.0.1/lb-health || exit 1']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    read_only: true
+    tmpfs:
+      # conf.d is where the rendered config lands, so it must be writable.
+      - /etc/nginx/conf.d
+      - /tmp
+      - /var/cache/nginx
+      - /var/run
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped

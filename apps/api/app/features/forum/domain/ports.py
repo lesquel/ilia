@@ -11,16 +11,24 @@ class ThreadRepository(Protocol):
 
     async def update(self, thread: ForumThread) -> None: ...
 
-    async def list_for_course(
-        self, *, course_id: UUID, module_id: UUID | None = None, limit: int = 50
+    async def list_for_module(
+        self,
+        *,
+        course_id: UUID,
+        module_id: UUID,
+        cohort_id: UUID | None,
+        limit: int = 50,
     ) -> list[ForumThread]:
-        """Threads in a course, most recently active first.
+        """Threads in a course/module/cohort forum, most recently active first.
 
-        A forum sorted by age buries the conversation people are actually
-        having. `module_id` narrows to one module when the team wants that
-        (TRD 7); omitted, it returns every thread in the course.
+        A null cohort represents the general forum for enrollments without
+        cohort attribution.
         """
         ...
+
+    async def list_by_author(
+        self, author_id: UUID, *, course_ids: set[UUID], limit: int = 50
+    ) -> list[ForumThread]: ...
 
 
 class PostRepository(Protocol):
@@ -31,3 +39,7 @@ class PostRepository(Protocol):
     async def update(self, post: ForumPost) -> None: ...
 
     async def list_for_thread(self, thread_id: UUID) -> list[ForumPost]: ...
+
+    async def list_by_author(
+        self, author_id: UUID, *, course_ids: set[UUID], limit: int = 50
+    ) -> list[ForumPost]: ...

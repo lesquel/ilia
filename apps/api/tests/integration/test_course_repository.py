@@ -30,7 +30,7 @@ pytestmark = pytest.mark.skipif(
 )
 
 BASE_TIME = datetime(2026, 9, 1, 12, 0, tzinfo=UTC)
-TABLES = "catalog.lesson, catalog.course_module, catalog.course, auth.app_user, learning.cohort"
+TABLES = "catalog.lesson, catalog.course_module, catalog.course, identity.app_user, learning.cohort"
 
 
 @pytest.fixture

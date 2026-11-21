@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><title>ILIA · ¿Cómo te fue?</title><link rel="stylesheet" href="scene-kit.css"></head>
+<body>
+<header><b>ILIA</b>Que use tu libro · ¿Cómo te fue?</header>
+
+<section data-scene="hoja">
+  <div class="page" data-in="0.2" style="height: 380px;">
+    <h4>Tu hoja de la semana pasada</h4>
+    <div class="bar"></div><div class="bar" style="width: 85%"></div><div class="bar"></div><div class="bar" style="width: 60%"></div><div class="bar"></div><div class="bar" style="width: 75%"></div>
+  </div>
+</section>
+
+<section data-scene="preguntas" style="flex-direction: column; gap: 22px;">
+  <div class="big" data-in="0.3">¿La usaste?</div>
+  <div class="big" style="color: var(--blue)" data-in="2.2">¿Qué cambiaste antes de imprimirla?</div>
+</section>
+
+<section data-scene="andres">
+  <div style="display: flex; flex-direction: column; gap: 18px;">
+    <div class="kicker" data-in="0.2">Lo que le salió a Andrés</div>
+    <span class="chip red strike" data-in="2.2" data-strike="7.4">utilidad práctica</span>
+    <span class="chip red strike" data-in="3.2" data-strike="7.8">hombre de paja</span>
+  </div>
+  <div class="page" data-in="5.6" style="height: 340px;">
+    <h4>Su libro</h4>
+    <div class="bar"></div><div class="bar" style="width: 80%"></div><div class="bar"></div><div class="bar" style="width: 65%"></div><div class="bar"></div>
+    <div class="scan" data-scan="6.0" data-scan-dur="2.0"></div>
+  </div>
+</section>
+
+<section data-scene="hoy" style="gap: 36px;">
+  <div class="rule" style="font-size: 28px; max-width: 480px;" data-in="0.3">Gemini trabaja con tu libro desde el principio.</div>
+  <div class="rule" style="font-size: 28px; max-width: 480px;" data-in="3.4">Si no sabes qué contarle, que él te pregunte.</div>
+</section>
+
+<div class="progress"><i></i></div>
+<script src="scene-kit.js"></script>
+</body>
+</html>

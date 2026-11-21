@@ -185,7 +185,7 @@ function UserRow({
                 style={({ pressed }) => [
                   styles.chip,
                   {
-                    backgroundColor: active ? theme.colors.accent : 'transparent',
+                    backgroundColor: active ? theme.colors.accentButton : 'transparent',
                     borderColor:
                       active || asking === role ? theme.colors.accent : theme.colors.divider,
                     borderRadius: theme.radius.sm,
@@ -199,7 +199,7 @@ function UserRow({
                   <Text
                     style={[
                       styles.chipText,
-                      { color: active ? '#f2f2f3' : theme.colors.neutral[800] },
+                      { color: active ? '#ffffff' : theme.colors.neutral[800] },
                     ]}
                   >
                     {ROLE_LABELS[role]}

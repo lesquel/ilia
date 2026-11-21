@@ -253,7 +253,7 @@ server {
     listen 80;
 
     location /api/ {
-        proxy_pass http://ilia_api/;
+        proxy_pass http://ilia_api;   # sin barra: conserva /api/v1
         proxy_next_upstream error timeout http_502 http_503;
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-For $remote_addr;
@@ -272,8 +272,8 @@ ILIA_STORAGE_ENDPOINT=http://192.168.1.14:9000
 ILIA_COOKIE_SECURE=false   # solo en el laboratorio (HTTP)
 
 # Frontend (Laptop 2), se fija al compilar:
-EXPO_PUBLIC_API_URL=http://192.168.1.10/api</pre>
-      <p class="meta" style="font-size:.88rem">Revisa el formato exacto de <code>ILIA_DATABASE_URL</code> y el valor de <code>ILIA_STORAGE_PROVIDER</code> en <code>apps/api/.env.example</code>.</p>
+EXPO_PUBLIC_API_URL=http://192.168.1.10   # la app agrega /api/v1</pre>
+      <p class="meta" style="font-size:.88rem">Configuración completa por equipo en <code>deploy/lab/</code> (almacenamiento: <code>ILIA_STORAGE_PROVIDER=s3</code>).</p>
     </div>
   </div>
 

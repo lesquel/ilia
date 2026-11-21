@@ -28,12 +28,15 @@ const RAISED_SHADOW = '0 18px 40px rgba(27, 112, 254, 0.16)';
 /** The web-only lift a card that is a link takes under the pointer. */
 export function cardLift(raised: boolean): ViewStyle {
   if (Platform.OS !== 'web') return {};
+  const reduceMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
 
   return {
     boxShadow: raised ? RAISED_SHADOW : RESTING_SHADOW,
-    transform: [{ translateY: raised ? -3 : 0 }],
+    transform: [{ translateY: raised && !reduceMotion ? -3 : 0 }],
     transitionProperty: 'box-shadow, transform, border-color',
-    transitionDuration: '160ms',
+    transitionDuration: reduceMotion ? '0ms' : '160ms',
   } as unknown as ViewStyle;
 }
 

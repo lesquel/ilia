@@ -1,4 +1,5 @@
 import {
+  ArrowRight,
   Check,
   Lightbulb,
   MessageSquare,
@@ -9,8 +10,10 @@ import {
   X,
 } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
+import { useState } from 'react';
 import {
   ActivityIndicator,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -28,6 +31,7 @@ import {
   type LessonBlock,
   type LessonInline,
   type LessonTable,
+  type QuestionOption,
   type WorkedExample,
 } from '@/features/enrollment/domain/lesson-body';
 
@@ -71,11 +75,13 @@ export function LessonBlockView({
   isLead,
   isWide,
   size = 'article',
+  onQuestionChoice,
 }: {
   block: LessonBlock;
   isLead: boolean;
   isWide: boolean;
   size?: 'article' | 'slide';
+  onQuestionChoice?: (chosenOptionIsBest: boolean) => void;
 }) {
   const theme = useTheme();
 
@@ -188,7 +194,130 @@ export function LessonBlockView({
 
     case 'promptResult':
       return <PromptChat prompt={block.prompt} result={block.result} />;
+
+    case 'question':
+      return (
+        <QuestionCard
+          stem={block.stem}
+          options={block.options}
+          onQuestionChoice={onQuestionChoice}
+        />
+      );
   }
+}
+
+/**
+ * A pause before the next beat. The teacher can try every option.
+ * Continuar stays off until the option the lesson marks is the one selected.
+ */
+function QuestionCard({
+  stem,
+  options,
+  onQuestionChoice,
+}: {
+  stem: LessonInline[];
+  options: QuestionOption[];
+  onQuestionChoice?: (chosenOptionIsBest: boolean) => void;
+}) {
+  const theme = useTheme();
+  const [chosenIndex, setChosenIndex] = useState<number | null>(null);
+  const chosen = chosenIndex === null ? null : options[chosenIndex];
+
+  const chooseOption = (optionIndex: number) => {
+    setChosenIndex(optionIndex);
+    onQuestionChoice?.(options[optionIndex]?.isBest ?? false);
+  };
+
+  return (
+    <View
+      style={[
+        styles.question,
+        {
+          backgroundColor: theme.colors.surface,
+          borderColor: theme.colors.accentRamp[200],
+          borderRadius: theme.radius.md,
+        },
+      ]}
+    >
+      <View style={styles.ruleHead}>
+        <Icon glyph={Lightbulb} size={18} color={theme.colors.accent} />
+        <Text style={[styles.ruleKicker, { color: theme.colors.accentRamp[700] }]}>
+          Piénsalo antes de seguir
+        </Text>
+      </View>
+      <Text style={[styles.questionStem, { color: theme.colors.text }]}>
+        <InlineText inlines={stem} />
+      </Text>
+
+      <View accessibilityRole="radiogroup" style={styles.questionOptions}>
+        {options.map((option, optionIndex) => {
+          const isChosen = optionIndex === chosenIndex;
+          const chosenColor = option.isBest ? theme.colors.accent : theme.colors.neutral[700];
+          return (
+            <Pressable
+              key={`option-${optionIndex}`}
+              accessibilityRole="radio"
+              accessibilityState={{ checked: isChosen }}
+              onPress={() => chooseOption(optionIndex)}
+              style={({ pressed }) => [
+                styles.questionOption,
+                {
+                  borderColor: isChosen ? chosenColor : theme.colors.divider,
+                  backgroundColor: isChosen
+                    ? option.isBest
+                      ? theme.colors.accentRamp[100]
+                      : theme.colors.neutral[100]
+                    : theme.colors.surface,
+                  borderRadius: theme.radius.sm,
+                  opacity: pressed ? 0.8 : 1,
+                },
+              ]}
+            >
+              <View
+                style={[
+                  styles.questionMark,
+                  {
+                    borderColor: isChosen ? chosenColor : theme.colors.neutral[400],
+                  },
+                ]}
+              >
+                {isChosen ? (
+                  <Icon glyph={option.isBest ? Check : X} size={12} color={chosenColor} />
+                ) : null}
+              </View>
+              <Text style={[styles.questionOptionText, { color: theme.colors.text }]}>
+                <InlineText inlines={option.inlines} />
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      {chosen ? (
+        <View
+          accessibilityLiveRegion="polite"
+          style={[
+            styles.questionReply,
+            {
+              borderLeftColor: chosen.isBest ? theme.colors.accent : theme.colors.neutral[400],
+            },
+          ]}
+        >
+          <Text style={[styles.questionReplyKicker, { color: theme.colors.neutral[700] }]}>
+            {chosen.isBest ? 'Eso es.' : 'Mira por qué no.'}
+          </Text>
+          <Text style={[styles.ruleBody, { color: theme.colors.text }]}>
+            <InlineText inlines={chosen.feedback} />
+          </Text>
+          {!chosen.isBest ? (
+            <Text style={[styles.questionHint, { color: theme.colors.neutral[600] }]}>
+              Puedes tocar otra.
+            </Text>
+          ) : null}
+        </View>
+      ) : null}
+    </View>
+  );
 }
 
 /**
@@ -245,11 +374,7 @@ export function PromptChat({
               </Text>
             ) : (
               <Text style={[styles.chatPrompt, { color: theme.colors.text }]}>
-                {promptText === undefined ? (
-                  <InlineText inlines={prompt.inlines} />
-                ) : (
-                  promptText
-                )}
+                {promptText === undefined ? <InlineText inlines={prompt.inlines} /> : promptText}
               </Text>
             )}
           </View>
@@ -267,7 +392,10 @@ export function PromptChat({
                   style={[
                     styles.bubbleModel,
                     styles.bubbleThinking,
-                    { backgroundColor: theme.colors.neutral[100], borderColor: theme.colors.divider },
+                    {
+                      backgroundColor: theme.colors.neutral[100],
+                      borderColor: theme.colors.divider,
+                    },
                   ]}
                 >
                   <ActivityIndicator size="small" color={theme.colors.accent} />
@@ -279,7 +407,10 @@ export function PromptChat({
                 <View
                   style={[
                     styles.bubbleModel,
-                    { backgroundColor: theme.colors.neutral[100], borderColor: theme.colors.divider },
+                    {
+                      backgroundColor: theme.colors.neutral[100],
+                      borderColor: theme.colors.divider,
+                    },
                   ]}
                 >
                   {result.inlines.length > 0 ? (
@@ -338,8 +469,7 @@ export function ExampleCard({
           : example.kind === 'prompt'
             ? 'Lo que le pegas'
             : 'Un ejemplo';
-  const kickerColor =
-    tone === 'weak' ? theme.colors.neutral[700] : theme.colors.accentRamp[700];
+  const kickerColor = tone === 'weak' ? theme.colors.neutral[700] : theme.colors.accentRamp[700];
   const headBackground =
     tone === 'weak'
       ? theme.colors.neutral[100]
@@ -367,6 +497,7 @@ export function ExampleCard({
           </Text>
         </View>
       </View>
+      <ExampleVisualFlow kind={example.kind} isResult={isResult} />
       <View style={styles.exampleBody}>
         {example.inlines.length > 0 ? (
           <Text
@@ -392,6 +523,32 @@ export function ExampleCard({
             <ExampleTable table={example.table} />
           )
         ) : null}
+      </View>
+    </View>
+  );
+}
+
+function ExampleVisualFlow({ kind, isResult }: { kind: ExampleKind; isResult: boolean }) {
+  const theme = useTheme();
+  const labels: Record<ExampleKind, [string, string]> = {
+    prompt: ['Tu pedido', 'Primer borrador'],
+    output: ['La propuesta', 'Tu revisión'],
+    table: ['Consigna', 'Respuesta comprobable'],
+    artifact: ['Un ejemplo', 'Una decisión de aula'],
+  };
+  const [first, second] = labels[kind];
+  const iconColor = isResult ? theme.colors.accent : theme.colors.neutral[600];
+
+  return (
+    <View style={styles.exampleFlow} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      <View style={[styles.exampleFlowStep, { backgroundColor: theme.colors.neutral[100] }]}>
+        <Icon glyph={EXAMPLE_GLYPH[kind]} size={17} color={iconColor} />
+        <Text style={[styles.exampleFlowLabel, { color: theme.colors.neutral[700] }]} numberOfLines={1}>{first}</Text>
+      </View>
+      <Icon glyph={ArrowRight} size={16} color={theme.colors.neutral[500]} />
+      <View style={[styles.exampleFlowStep, { backgroundColor: theme.colors.accentRamp[100] }]}>
+        <Icon glyph={isResult ? Check : Sparkles} size={17} color={theme.colors.accent} />
+        <Text style={[styles.exampleFlowLabel, { color: theme.colors.neutral[700] }]} numberOfLines={1}>{second}</Text>
       </View>
     </View>
   );
@@ -433,10 +590,13 @@ function ExerciseSheet({ table }: { table: LessonTable }) {
             key={`${exerciseNumber}-${prompt}`}
             style={[
               styles.sheetItem,
-              { borderBottomColor: theme.colors.divider, backgroundColor: theme.colors.surface },
+              {
+                borderBottomColor: theme.colors.divider,
+                backgroundColor: theme.colors.surface,
+              },
             ]}
           >
-            <Text style={[styles.sheetNumber, { color: theme.colors.accent }]}>{exerciseNumber}.</Text>
+            <Text style={[styles.sheetNumber, { color: theme.colors.accentAlt }]}>{exerciseNumber}.</Text>
             <View style={styles.sheetCopy}>
               <Text style={[styles.sheetPrompt, { color: theme.colors.text }]}>{prompt}</Text>
               {answer ? (
@@ -463,7 +623,10 @@ function ExampleTable({ table }: { table: LessonTable }) {
           {table.headers.map((header) => (
             <Text
               key={header}
-              style={[styles.tableHeader, { color: theme.colors.text, width: tableColumnWidth(table) }]}
+              style={[
+                styles.tableHeader,
+                { color: theme.colors.text, width: tableColumnWidth(table) },
+              ]}
             >
               {header}
             </Text>
@@ -476,14 +639,21 @@ function ExampleTable({ table }: { table: LessonTable }) {
               styles.tableRow,
               {
                 borderTopColor: theme.colors.divider,
-                backgroundColor: rowIndex % 2 === 0 ? theme.colors.surface : theme.colors.neutral[100],
+                backgroundColor:
+                  rowIndex % 2 === 0 ? theme.colors.surface : theme.colors.neutral[100],
               },
             ]}
           >
             {row.map((cell, cellIndex) => (
               <Text
                 key={`${rowIndex}-${cellIndex}-${cell}`}
-                style={[styles.tableCell, { color: theme.colors.neutral[800], width: tableColumnWidth(table) }]}
+                style={[
+                  styles.tableCell,
+                  {
+                    color: theme.colors.neutral[800],
+                    width: tableColumnWidth(table),
+                  },
+                ]}
               >
                 {cell}
               </Text>
@@ -685,6 +855,57 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 26,
   },
+  question: {
+    borderWidth: 1,
+    padding: 16,
+    gap: 12,
+  },
+  questionStem: {
+    fontFamily: READABLE_FONT,
+    fontSize: 17,
+    fontWeight: '600',
+    lineHeight: 26,
+  },
+  questionOptions: {
+    gap: 8,
+  },
+  questionOption: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  questionMark: {
+    width: 20,
+    height: 20,
+    marginTop: 2,
+    borderWidth: 1.5,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  questionOptionText: {
+    fontFamily: READABLE_FONT,
+    flex: 1,
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  questionReply: {
+    borderLeftWidth: 3,
+    paddingLeft: 14,
+    gap: 4,
+  },
+  questionReplyKicker: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  questionHint: {
+    fontSize: 13,
+    lineHeight: 20,
+  },
   chat: {
     borderWidth: 1,
     overflow: 'hidden',
@@ -834,6 +1055,25 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     lineHeight: 22,
   },
+  exampleFlow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  exampleFlowStep: {
+    flex: 1,
+    minHeight: 40,
+    paddingHorizontal: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 7,
+    borderRadius: 8,
+  },
+  exampleFlowLabel: { flexShrink: 1, fontSize: 12, fontWeight: '600' },
   exampleBody: {
     paddingHorizontal: 16,
     paddingVertical: 14,

@@ -146,7 +146,7 @@ class SubmissionModel(Base):
     )
     user_id: Mapped[UUID] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("auth.app_user.id", ondelete="CASCADE"),
+        ForeignKey("identity.app_user.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
@@ -228,7 +228,7 @@ class EvaluationModel(Base):
     override_total: Mapped[float | None] = mapped_column(Float, nullable=True)
     override_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     override_by: Mapped[UUID | None] = mapped_column(
-        Uuid(as_uuid=True), ForeignKey("auth.app_user.id", ondelete="SET NULL"), nullable=True
+        Uuid(as_uuid=True), ForeignKey("identity.app_user.id", ondelete="SET NULL"), nullable=True
     )
     override_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
@@ -272,7 +272,7 @@ class LlmUsageModel(Base):
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     user_id: Mapped[UUID] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("auth.app_user.id", ondelete="SET NULL"),
+        ForeignKey("identity.app_user.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
     )

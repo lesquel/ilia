@@ -1,0 +1,23 @@
+.reports-card { border-top: 4px solid #246bff; }
+.reports-card .row > div { flex: 1 1 250px; min-width: 0; }
+.reports-card .row p { margin-top: 8px; }
+.reports-card [hidden] { display: none !important; }
+.reports-list { list-style: none; margin: 0; padding: 0; }
+.report-item { border-top: 1px solid var(--line); padding-block: 18px; }
+.report-item + .report-item { margin-top: 2px; }
+.report-description { color: var(--muted); font-size: .9rem; margin-top: 7px; }
+.report-badge { display: inline-block; border-radius: 20px; padding: 5px 12px; font-size: .85rem; font-weight: 650; }
+.report-badge-pending { background: #fff2d9; color: #735000; }
+.report-badge-processing { background: #e8f1ff; color: #0a43a8; }
+.report-badge-completed { background: #dff5e7; color: #175337; }
+.report-badge-failed { background: #ffe7e9; color: #912433; }
+.report-trace { margin-top: 10px; font-size: .83rem; color: var(--muted); overflow-wrap: anywhere; }
+.report-trace summary { cursor: pointer; }
+.report-trace dl { margin-top: 8px; display: grid; gap: 4px; }
+.report-trace dt { font-weight: 650; }
+.report-trace dd { font-family: ui-monospace, Consolas, monospace; }
+#reportes-mensaje:empty { display: none; }
+@media (max-width: 600px) {
+    #generar-reporte { width: 100%; }
+    .report-item .secondary { margin-top: 10px; }
+}

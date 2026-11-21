@@ -8,6 +8,7 @@ import type {
   PasswordResetConfirm,
   PasswordResetRequest,
   ProfileUpdate,
+  ProfileAvatarKey,
   Registration,
   User,
 } from '@/features/auth/domain/entities';
@@ -47,7 +48,9 @@ export function useSession(repository: AuthRepository = authRepository) {
         throw error;
       }
     },
-    staleTime: 5 * 60 * 1000,
+    // Profile photo URLs expire after two minutes; refresh the identity before
+    // their signed URL can remain stale for long in account/forum UI.
+    staleTime: 60 * 1000,
   });
 
   return {
@@ -129,6 +132,28 @@ export function useUpdateProfile(repository: AuthRepository = authRepository) {
     mutationFn: (input: ProfileUpdate) => repository.updateProfile(input),
     onSuccess: (user) => {
       queryClient.setQueryData(authKeys.session, user);
+      void queryClient.invalidateQueries({ queryKey: ['forum'] });
+    },
+  });
+}
+
+export type AvatarUpdate =
+  | { kind: 'photo'; file: Blob; contentType: string }
+  | { kind: 'illustrated'; key: ProfileAvatarKey }
+  | { kind: 'remove' };
+
+export function useUpdateAvatar(repository: AuthRepository = authRepository) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: AvatarUpdate) => {
+      if (input.kind === 'photo') return repository.uploadAvatar(input.file, input.contentType);
+      if (input.kind === 'illustrated') return repository.chooseAvatar(input.key);
+      return repository.removeAvatar();
+    },
+    onSuccess: (user) => {
+      queryClient.setQueryData(authKeys.session, user);
+      void queryClient.invalidateQueries({ queryKey: ['forum'] });
     },
   });
 }

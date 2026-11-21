@@ -1,0 +1,47 @@
+[
+  {
+    "slug": "modulo-2-pedido-claro",
+    "title": "Un pedido con contexto",
+    "narration": "Profe, probemos con algo que ya tienes que preparar para mañana.\n\nSi escribes «hazme una lectura con preguntas», el modelo no sabe qué grado tienes ni qué texto leyeron.\n\nPuede completar esos espacios con una idea que suena bien, pero que no corresponde a tu curso.\n\nDile lo que ya trabajaron. Por ejemplo: el grupo leyó un cuento y ahora necesita explicar una idea a partir del texto.\n\nDespués concreta la tarea: prepara un párrafo breve y cinco preguntas que se respondan en él.\n\nPide también el formato: deja la clave al final, para que puedas mostrar la actividad sin adelantar las respuestas.\n\nSi el primer borrador sale largo, no lo empieces de nuevo. Pide un cambio concreto: acorta los enunciados para leerlos en voz alta.\n\nCada dato viene de tu planificación. No es una fórmula; es contexto que el modelo no tiene por sí solo.\n\nLee el resultado y compáralo con tu clase. Tú decides si ya sirve para el lunes.",
+    "beats": [
+      {"phrase":"Profe, probemos", "eyebrow":"Una clase concreta", "title":"La hoja de mañana", "art":"desk"},
+      {"phrase":"Si escribes", "eyebrow":"El pedido corto", "title":"«Hazme una lectura con preguntas»", "art":"vague"},
+      {"phrase":"Puede completar", "eyebrow":"Lo que el modelo no sabe", "title":"Grado, texto y propósito", "art":"guess"},
+      {"phrase":"Dile lo que", "eyebrow":"Tu curso ya trabajó", "title":"Un cuento y una idea", "art":"read"},
+      {"phrase":"Después concreta", "eyebrow":"La tarea", "title":"Un párrafo. Cinco preguntas.", "art":"context"},
+      {"phrase":"Pide también", "eyebrow":"El formato", "title":"La clave va al final", "art":"output"},
+      {"phrase":"Si el primer", "eyebrow":"Una revisión a la vez", "title":"Acorta los enunciados", "art":"edit"},
+      {"phrase":"Cada dato", "eyebrow":"El criterio sigue contigo", "title":"Tú decides qué llega al aula", "art":"close"}
+    ]
+  },
+  {
+    "slug": "modulo-3-revision-privacidad",
+    "title": "Revisar el borrador y cuidar los datos",
+    "narration": "Profe, antes de imprimir una actividad que preparaste con IA, revísala con el material de clase abierto.\n\nPrimero, busca datos y afirmaciones que no estén en el texto. Si no puedes encontrar de dónde salen, corrígelos o quítalos.\n\nDespués comprueba cada respuesta. Una respuesta convincente no basta: debe apoyarse en una frase o una idea de la fuente.\n\nMira también el nivel y el tiempo. ¿Tu grupo puede leer estas instrucciones? ¿La actividad cabe en tu hora?\n\nCuando el material no da una respuesta, puedes pedirle al modelo que lo diga en vez de completar el hueco. Luego verifica que realmente haya respetado la indicación.\n\nY deja los datos personales fuera. No pegues nombres, calificaciones, diagnósticos, fotos ni conversaciones de familias.\n\nPara revisar un trabajo, retira antes cualquier dato que identifique al estudiante y usa solo herramientas autorizadas por tu institución.\n\nEl modelo redacta una propuesta. La revisión que evita llevar un error al aula sigue siendo tuya.",
+    "beats": [
+      {"phrase":"Profe, antes", "eyebrow":"Antes de imprimir", "title":"Abre el material de clase", "art":"check"},
+      {"phrase":"Primero, busca", "eyebrow":"Comprobación de la fuente", "title":"¿Este dato aparece en el texto?", "art":"find"},
+      {"phrase":"Después comprueba", "eyebrow":"Cada respuesta", "title":"Debe apoyarse en una frase", "art":"idea"},
+      {"phrase":"Mira también", "eyebrow":"Tu grupo y tu hora", "title":"Nivel y tiempo", "art":"read"},
+      {"phrase":"Cuando el material", "eyebrow":"No rellenar huecos", "title":"«No está en la fuente»", "art":"edit"},
+      {"phrase":"Y deja los", "eyebrow":"Privacidad", "title":"Nombres y notas se quedan fuera", "art":"privacy"},
+      {"phrase":"Para revisar", "eyebrow":"Un trabajo de estudiante", "title":"Quita los datos que lo identifican", "art":"check"},
+      {"phrase":"El modelo redacta", "eyebrow":"Cierre", "title":"Tú revisas antes de llevarlo al aula", "art":"close"}
+    ]
+  },
+  {
+    "slug": "modulo-4-prueba-en-tu-clase",
+    "title": "Probarlo con tu próxima clase",
+    "narration": "Pensemos en una clase de esta semana. No hace falta empezar con un plan enorme.\n\nElige una tarea pequeña: unas preguntas de un texto, una explicación breve o una guía para una hora de clase.\n\nCuéntale al modelo el grado, qué trabajaron y qué quieres que puedan hacer. Si tienes un texto, adjunta solo ese material y comprueba que se lea bien.\n\nPide la salida con un formato que puedas revisar: por ejemplo, un párrafo, cinco preguntas y la clave al final.\n\nDi qué no debe inventar y deja fuera los datos personales de tus estudiantes.\n\nCuando llegue el borrador, léelo junto a tu planificación. Comprueba las respuestas, el nivel y el tiempo.\n\nSi algo no funciona, pide un cambio concreto y vuelve a revisarlo. Puedes quedarte con una parte y escribir otra de nuevo.\n\nAhora escribe tu pedido para una clase tuya. Que un colega pudiera entender qué prepara, para quién y cómo. Ese es el examen final: un pedido que puedes defender y ajustar.",
+    "beats": [
+      {"phrase":"Pensemos en", "eyebrow":"Tu semana", "title":"Una clase que ya tienes", "art":"desk"},
+      {"phrase":"Elige una", "eyebrow":"Empieza pequeño", "title":"Una actividad concreta", "art":"read"},
+      {"phrase":"Cuéntale al", "eyebrow":"Contexto de aula", "title":"Grado, tarea y lo ya trabajado", "art":"context"},
+      {"phrase":"Pide la salida", "eyebrow":"Formato revisable", "title":"Párrafo, preguntas y clave", "art":"output"},
+      {"phrase":"Di qué no", "eyebrow":"Límites y privacidad", "title":"No inventar. Sin datos personales.", "art":"privacy"},
+      {"phrase":"Cuando llegue", "eyebrow":"Revisa con tu planificación", "title":"Respuestas, nivel y tiempo", "art":"check"},
+      {"phrase":"Si algo no", "eyebrow":"Ajusta una cosa", "title":"Pide el cambio y vuelve a leer", "art":"edit"},
+      {"phrase":"Ahora escribe", "eyebrow":"Examen final", "title":"El pedido de tu próxima clase", "art":"close"}
+    ]
+  }
+]

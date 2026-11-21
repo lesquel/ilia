@@ -65,13 +65,18 @@ function toProgress(dto: ProgressDto): CourseProgress {
 interface LessonViewDto {
   lesson_id: string;
   title: string;
+  module_id: string;
   module_title: string;
+  module_position: number;
+  module_total_lessons: number;
   kind: string;
   duration_seconds: number;
   body: string;
   resource_ref: string | null;
   media_url: string | null;
+  captions_url: string | null;
   is_completed: boolean;
+  resume_position_seconds: number;
   position: number;
   total_lessons: number;
   previous: NextLessonDto | null;
@@ -98,6 +103,7 @@ export interface EnrollmentRepository {
   myCourses(): Promise<EnrolledCourse[]>;
   progressFor(slug: string): Promise<CourseProgress>;
   completeLesson(slug: string, lessonId: string): Promise<CourseProgress>;
+  recordLessonPosition(slug: string, lessonId: string, positionSeconds: number): Promise<void>;
   lesson(slug: string, lessonId: string): Promise<LessonView>;
 }
 
@@ -152,6 +158,17 @@ export class HttpEnrollmentRepository implements EnrollmentRepository {
     );
   }
 
+  async recordLessonPosition(
+    slug: string,
+    lessonId: string,
+    positionSeconds: number,
+  ): Promise<void> {
+    await this.http.patch(
+      `/enrollments/me/${encodeURIComponent(slug)}/lessons/${encodeURIComponent(lessonId)}/position`,
+      { position_seconds: Math.max(0, Math.floor(positionSeconds)) },
+    );
+  }
+
   async lesson(slug: string, lessonId: string): Promise<LessonView> {
     const dto = await this.http.get<LessonViewDto>(
       `/enrollments/me/${encodeURIComponent(slug)}/lessons/${encodeURIComponent(lessonId)}`,
@@ -160,12 +177,17 @@ export class HttpEnrollmentRepository implements EnrollmentRepository {
     return {
       lessonId: dto.lesson_id,
       title: dto.title,
+      moduleId: dto.module_id,
       moduleTitle: dto.module_title,
+      modulePosition: dto.module_position,
+      moduleTotalLessons: dto.module_total_lessons,
       kind: toLessonKind(dto.kind),
       durationSeconds: dto.duration_seconds,
       body: dto.body,
       resourceRef: dto.resource_ref,
       mediaUrl: dto.media_url,
+      captionsUrl: dto.captions_url,
+      resumePositionSeconds: dto.resume_position_seconds ?? 0,
       isCompleted: dto.is_completed,
       position: dto.position,
       totalLessons: dto.total_lessons,

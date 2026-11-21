@@ -93,6 +93,9 @@ class Settings(BaseSettings):
     auth_rate_limit_attempts: int = 10
     auth_rate_limit_window_seconds: int = 300
 
+    # Optional, independent trust boundary for the code module. Empty disables it.
+    code_module_shared_secret: str = ""
+
     # --- Auth ---------------------------------------------------------------
 
     # Override in every deployed environment. The default exists so `uv run` and
