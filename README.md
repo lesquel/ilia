@@ -102,6 +102,7 @@ En `.env` (ver `docs/deploy.env.example` y `docs/pilot-charla.md`):
 | `ILIA_CORS_ORIGINS` | Origen exacto del edge. JSON. Ej. `["http://localhost:8080"]` |
 | `ILIA_COOKIE_DOMAIN` | Vacío en topología same-host |
 | `EXPO_PUBLIC_API_URL` | Misma base que el edge. Se hornea al construir; cambiarla implica reconstruir |
+| `EXPO_PUBLIC_WEB_URL` | Dirección pública de la web. El QR del certificado la usa desde el teléfono; sin ella, el teléfono no ofrece "Compartir" |
 | `ILIA_COOKIE_SECURE` | `false` en HTTP local (`staging`); `true` con TLS (`production`) |
 
 Las cookies se llaman `ilia_session` y `ilia_refresh`.

@@ -25,6 +25,7 @@ import {
 } from '@/features/lab/domain/entities';
 import { sideScoresFromEvaluation } from '@/features/lab/domain/side-scores';
 import { GeneratedSheet } from '@/features/lab/presentation/generated-sheet';
+import { SaveRecipeButton } from '@/features/recipes';
 
 export function ResultScreen() {
   const theme = useTheme();
@@ -168,6 +169,18 @@ export function ResultScreen() {
           <SideScore label="Nota de la hoja" value={sides.resultScore} color={accent} />
         </View>
       </View>
+
+      {/* Wait for the activity: a recipe saved under a generic title is hard to find later. */}
+      {activity ? (
+        <View style={styles.recipeRow}>
+          <SaveRecipeButton
+            submissionId={submission.id}
+            prompt={submission.prompt}
+            activityTitle={activity.title}
+            score={evaluation.effectiveTotal}
+          />
+        </View>
+      ) : null}
 
       {evaluation.passed && !simulatedNotice && activity?.courseSlug ? (
         <PassCertificateCard
@@ -326,6 +339,7 @@ function DimensionRow({ score, name }: { score: DimensionScore; name: string }) 
 }
 
 const styles = StyleSheet.create({
+  recipeRow: { flexDirection: 'row', flexWrap: 'wrap' },
   override: { borderWidth: 1, padding: 13.6, gap: 3.4, marginTop: 6.8 },
   overrideReason: { fontSize: 14, lineHeight: 21 },
   screen: { flex: 1 },
