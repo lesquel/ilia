@@ -13,6 +13,8 @@ import { keyValueStore } from './key-value-store';
 export const SESSION_SCOPED_PREFIXES = [
   /** Prompt drafts. See `features/lab/data/draft-store`. */
   'ilia.draft.',
+  /** Saved lab prompts ("Mi recetario"). See `features/recipes/data/recipe-store`. */
+  'ilia.recipes.',
 ] as const;
 
 /** Wipe every session-scoped key. Called at logout. */

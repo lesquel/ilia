@@ -1,4 +1,5 @@
-import { BookOpen, CalendarDays, ClipboardList } from 'lucide-react-native';
+import { BookOpen, CalendarDays, ClipboardList, NotebookPen } from 'lucide-react-native';
+import type { Href } from 'expo-router';
 import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -71,6 +72,7 @@ export function EvaluationsScreen() {
         back={{ label: 'Mis cursos', href: '/my-courses' }}
         title="Historial de entregas"
         subtitle="Historial de entregas en tus cursos inscritos."
+        actions={<OutlineLink href={'/recetario' as Href} label="Mi recetario" glyph={NotebookPen} />}
       />
 
       {isLoading ? (
