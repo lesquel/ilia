@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { Link, type Href } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
@@ -33,10 +33,26 @@ export function AttemptHistory({ activityId }: { activityId: string }) {
 
   return (
     <View style={styles.block}>
+      {submissions.length >= 2 ? <CompareLink activityId={activityId} /> : null}
       {submissions.map((submission) => (
         <AttemptRow key={submission.id} submission={submission} />
       ))}
     </View>
+  );
+}
+
+function CompareLink({ activityId }: { activityId: string }) {
+  const theme = useTheme();
+
+  return (
+    <Link
+      href={`/lab/compare/${encodeURIComponent(activityId)}` as Href}
+      accessibilityRole="link"
+      accessibilityLabel="Comparar intentos: ver dos de tus pedidos lado a lado"
+      style={[styles.link, { color: theme.colors.accentAlt }]}
+    >
+      Comparar intentos
+    </Link>
   );
 }
 
