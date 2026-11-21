@@ -26,6 +26,7 @@ import {
   registrationPasswordRules,
   safeDestination,
 } from '@/features/auth/domain/entities';
+import { consentGate } from '@/features/legal/domain/consent';
 
 function messageFor(error: unknown): string {
   if (!(error instanceof ApiError)) {
@@ -71,6 +72,7 @@ export function RegisterScreen() {
   // letting someone read what they typed catches that better than asking them
   // to type the same mistake twice.
   const [revealed, setRevealed] = useState(false);
+  const [accepted, setAccepted] = useState(false);
 
   const nameOk = isValidRegistrationName(fullName);
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
@@ -87,7 +89,9 @@ export function RegisterScreen() {
         : passwordLength >= 12
           ? 'Fuerte'
           : 'Buena';
-  const canSubmit = nameOk && emailOk && passwordOk && !register.isPending;
+  const consent = consentGate(accepted);
+  const fieldsOk = nameOk && emailOk && passwordOk;
+  const canSubmit = fieldsOk && consent.allowed && !register.isPending;
 
   const submit = () => {
     if (!canSubmit) return;
@@ -225,6 +229,44 @@ export function RegisterScreen() {
             </View>
           </View>
 
+          <View style={styles.consentRow}>
+            <Pressable
+              onPress={() => setAccepted((on) => !on)}
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: accepted }}
+              accessibilityLabel="Acepto los Términos de uso y la Política de privacidad"
+              hitSlop={10}
+              style={[
+                styles.checkbox,
+                {
+                  borderColor: accepted ? theme.colors.accent : theme.colors.neutral[500],
+                  backgroundColor: accepted ? theme.colors.accent : 'transparent',
+                  borderRadius: theme.radius.sm,
+                },
+              ]}
+            >
+              {accepted ? <Text style={styles.checkmark}>✓</Text> : null}
+            </Pressable>
+            <Text style={[styles.consentLabel, { color: theme.colors.neutral[700] }]}>
+              Acepto los{' '}
+              <Link href="/terms" style={{ color: theme.colors.accent }}>
+                Términos de uso
+              </Link>{' '}
+              y la{' '}
+              <Link href="/privacy" style={{ color: theme.colors.accent }}>
+                Política de privacidad
+              </Link>
+            </Text>
+          </View>
+
+          {/* Said only once the rest of the form is ready, so the reason the
+              button is still off is never a mystery. */}
+          {fieldsOk && !consent.allowed ? (
+            <Text style={[styles.hint, styles.consentHint, { color: theme.colors.neutral[600] }]}>
+              {consent.message}
+            </Text>
+          ) : null}
+
           {register.isError ? (
             <Text
               style={[styles.error, { color: theme.colors.accentRamp[700] }]}
@@ -265,6 +307,16 @@ export function RegisterScreen() {
             {' · '}
             <Link href="/forgot-password" style={{ color: theme.colors.accentAlt }}>
               Olvidé mi contraseña
+            </Link>
+          </Text>
+
+          <Text style={[styles.legal, { color: theme.colors.neutral[600] }]}>
+            <Link href="/terms" style={{ color: theme.colors.neutral[600] }}>
+              Términos
+            </Link>
+            {' · '}
+            <Link href="/privacy" style={{ color: theme.colors.neutral[600] }}>
+              Privacidad
             </Link>
           </Text>
         </View>
@@ -308,4 +360,17 @@ const styles = StyleSheet.create({
   },
   buttonLabel: { color: '#ffffff', fontSize: 16, fontWeight: '600' },
   footer: { fontSize: 14, textAlign: 'center', marginTop: 20.4 },
+  legal: { fontSize: 12, textAlign: 'center', marginTop: 13.6 },
+  consentRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10.2, marginBottom: 16 },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderWidth: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 1,
+  },
+  checkmark: { color: '#f2f2f3', fontSize: 14, fontWeight: '700', lineHeight: 16 },
+  consentLabel: { flex: 1, fontSize: 14, lineHeight: 21 },
+  consentHint: { marginTop: -6.8 },
 });
