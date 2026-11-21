@@ -34,8 +34,13 @@ class S3CompatibleStorage:
         # against AWS. Both are signed the same way; only the host and the
         # leading path segment move.
         if endpoint:
-            self._host = endpoint.replace("https://", "").replace("http://", "").rstrip("/")
-            self._prefix = f"/{bucket}"
+            # An endpoint may carry a base path (Supabase serves S3 under
+            # /storage/v1/s3). SigV4 signs the Host header and the path apart,
+            # so the base path goes in front of the bucket, never in the host.
+            bare = endpoint.replace("https://", "").replace("http://", "").rstrip("/")
+            host, _, base_path = bare.partition("/")
+            self._host = host
+            self._prefix = f"/{base_path}/{bucket}" if base_path else f"/{bucket}"
             self._scheme = "http" if endpoint.startswith("http://") else "https"
         else:
             self._host = f"{bucket}.s3.{region}.amazonaws.com"
