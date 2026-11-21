@@ -122,10 +122,16 @@ function CraftStage({ craft }: { craft: CourseCoverCraft }) {
           <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
           <View style={[styles.inkLine, { backgroundColor: theme.colors.accentRamp[200] }]} />
           <View
-            style={[styles.inkLine, { backgroundColor: theme.colors.accentRamp[200], width: '92%' }]}
+            style={[
+              styles.inkLine,
+              { backgroundColor: theme.colors.accentRamp[200], width: '92%' },
+            ]}
           />
           <View
-            style={[styles.inkLine, { backgroundColor: theme.colors.accentRamp[200], width: '78%' }]}
+            style={[
+              styles.inkLine,
+              { backgroundColor: theme.colors.accentRamp[200], width: '78%' },
+            ]}
           />
           <View
             style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300], width: '84%' }]}
@@ -148,14 +154,20 @@ function CraftStage({ craft }: { craft: CourseCoverCraft }) {
           style={[
             styles.chapterLeaf,
             styles.chapterBack,
-            { backgroundColor: theme.colors.neutral[300], borderColor: theme.colors.neutral[400] },
+            {
+              backgroundColor: theme.colors.neutral[300],
+              borderColor: theme.colors.neutral[400],
+            },
           ]}
         />
         <View
           style={[
             styles.chapterLeaf,
             styles.chapterMid,
-            { backgroundColor: theme.colors.neutral[100], borderColor: theme.colors.neutral[400] },
+            {
+              backgroundColor: theme.colors.neutral[100],
+              borderColor: theme.colors.neutral[400],
+            },
           ]}
         />
         <View
@@ -180,6 +192,164 @@ function CraftStage({ craft }: { craft: CourseCoverCraft }) {
             style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300], width: '54%' }]}
           />
         </View>
+      </View>
+    );
+  }
+
+  if (craft === 'chat-exchange') {
+    // A teacher's request on the right, the model's reply on the left.
+    return (
+      <View
+        style={[
+          styles.chatCard,
+          {
+            backgroundColor: theme.colors.surface,
+            borderColor: theme.colors.accentRamp[200],
+          },
+        ]}
+      >
+        <View style={[styles.chatAsk, { backgroundColor: theme.colors.accentRamp[100] }]}>
+          <View style={[styles.inkLine, { backgroundColor: theme.colors.accentRamp[200] }]} />
+          <View
+            style={[
+              styles.inkLine,
+              { backgroundColor: theme.colors.accentRamp[200], width: '70%' },
+            ]}
+          />
+        </View>
+        <View style={[styles.chatReply, { backgroundColor: theme.colors.neutral[100] }]}>
+          <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
+          <View style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300] }]} />
+          <View
+            style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300], width: '86%' }]}
+          />
+          <View
+            style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300], width: '58%' }]}
+          />
+        </View>
+        <View style={[styles.chatInput, { borderColor: theme.colors.accentRamp[200] }]} />
+      </View>
+    );
+  }
+
+  if (craft === 'cited-source') {
+    // The source page with the cited sentence marked, and its citation chips.
+    return (
+      <View
+        style={[
+          styles.sourcePage,
+          {
+            backgroundColor: theme.colors.surface,
+            borderColor: theme.colors.divider,
+          },
+        ]}
+      >
+        <View style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300] }]} />
+        <View
+          style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300], width: '90%' }]}
+        />
+        <View
+          style={[
+            styles.citedLine,
+            {
+              backgroundColor: theme.colors.accentRamp[100],
+              borderLeftColor: theme.colors.accent,
+            },
+          ]}
+        >
+          <View style={[styles.inkLine, { backgroundColor: theme.colors.accentRamp[200] }]} />
+          <View
+            style={[
+              styles.inkLine,
+              { backgroundColor: theme.colors.accentRamp[200], width: '76%' },
+            ]}
+          />
+        </View>
+        <View
+          style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300], width: '82%' }]}
+        />
+        <View style={styles.citeRow}>
+          <View style={[styles.citeChip, { backgroundColor: theme.colors.neutral[200] }]} />
+          <View style={[styles.citeChip, { backgroundColor: theme.colors.accent }]} />
+        </View>
+      </View>
+    );
+  }
+
+  if (craft === 'quiz-question') {
+    // One multiple-choice question with its answer key marked.
+    return (
+      <View
+        style={[
+          styles.quizCard,
+          {
+            backgroundColor: theme.colors.surface,
+            borderColor: theme.colors.accentRamp[200],
+          },
+        ]}
+      >
+        <View style={[styles.quizTop, { backgroundColor: theme.colors.accent }]} />
+        <View
+          style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300], width: '88%' }]}
+        />
+        {[false, true, false, false].map((correct, index) => (
+          <View
+            key={index}
+            style={[
+              styles.quizOption,
+              correct ? { backgroundColor: theme.colors.accentRamp[100] } : null,
+            ]}
+          >
+            <View
+              style={[
+                styles.quizRadio,
+                {
+                  borderColor: correct ? theme.colors.accent : theme.colors.neutral[400],
+                  backgroundColor: correct ? theme.colors.accent : 'transparent',
+                },
+              ]}
+            />
+            <View
+              style={[
+                styles.rubricLine,
+                {
+                  backgroundColor: correct
+                    ? theme.colors.accentRamp[200]
+                    : theme.colors.neutral[300],
+                },
+              ]}
+            />
+          </View>
+        ))}
+      </View>
+    );
+  }
+
+  if (craft === 'three-part-slide') {
+    // A projected slide in three bands: topic, main idea, detail.
+    const bands = [
+      theme.colors.accentRamp[100],
+      theme.colors.accentRamp[200],
+      theme.colors.neutral[200],
+    ];
+    return (
+      <View
+        style={[
+          styles.slide,
+          {
+            backgroundColor: theme.colors.surface,
+            borderColor: theme.colors.divider,
+          },
+        ]}
+      >
+        {bands.map((band, index) => (
+          <View key={index} style={[styles.slideBand, { backgroundColor: band }]}>
+            <View style={[styles.slideTitle, { backgroundColor: theme.colors.accent }]} />
+            <View
+              style={[styles.inkLine, { backgroundColor: theme.colors.surface, width: '72%' }]}
+            />
+          </View>
+        ))}
       </View>
     );
   }
@@ -407,6 +577,125 @@ const styles = StyleSheet.create({
   rubricLine: {
     flex: 1,
     height: 6,
+    borderRadius: 3,
+  },
+  chatCard: {
+    width: 156,
+    height: 180,
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 10,
+    gap: 8,
+    marginRight: -26,
+    marginBottom: 52,
+    transform: [{ rotate: '-3deg' }],
+    zIndex: 1,
+  },
+  chatAsk: {
+    alignSelf: 'flex-end',
+    width: '74%',
+    borderRadius: 8,
+    padding: 8,
+    gap: 6,
+  },
+  chatReply: {
+    alignSelf: 'flex-start',
+    width: '86%',
+    borderRadius: 8,
+    padding: 8,
+    gap: 6,
+  },
+  chatInput: {
+    marginTop: 'auto',
+    height: 16,
+    borderWidth: 1,
+    borderRadius: 8,
+  },
+  sourcePage: {
+    width: 142,
+    height: 176,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 14,
+    gap: 8,
+    marginRight: -24,
+    marginBottom: 52,
+    transform: [{ rotate: '3deg' }],
+    zIndex: 1,
+  },
+  citedLine: {
+    borderLeftWidth: 3,
+    borderRadius: 3,
+    paddingVertical: 5,
+    paddingHorizontal: 6,
+    gap: 5,
+  },
+  citeRow: {
+    flexDirection: 'row',
+    gap: 6,
+    marginTop: 2,
+  },
+  citeChip: {
+    width: 18,
+    height: 12,
+    borderRadius: 6,
+  },
+  quizCard: {
+    width: 146,
+    height: 178,
+    borderWidth: 1,
+    borderRadius: 8,
+    overflow: 'hidden',
+    paddingHorizontal: 12,
+    paddingBottom: 12,
+    gap: 8,
+    marginRight: -22,
+    marginBottom: 52,
+    transform: [{ rotate: '-2deg' }],
+    zIndex: 1,
+  },
+  quizTop: {
+    height: 8,
+    marginHorizontal: -12,
+    marginBottom: 6,
+  },
+  quizOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderRadius: 4,
+    paddingVertical: 3,
+    paddingHorizontal: 4,
+  },
+  quizRadio: {
+    width: 11,
+    height: 11,
+    borderRadius: 6,
+    borderWidth: 1.5,
+  },
+  slide: {
+    width: 176,
+    height: 124,
+    borderWidth: 1,
+    borderRadius: 6,
+    padding: 8,
+    gap: 6,
+    marginRight: -30,
+    marginBottom: 76,
+    transform: [{ rotate: '-2deg' }],
+    zIndex: 1,
+  },
+  slideBand: {
+    flex: 1,
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    justifyContent: 'center',
+    gap: 4,
+  },
+  slideTitle: {
+    width: 34,
+    height: 5,
     borderRadius: 3,
   },
 });
