@@ -17,6 +17,7 @@ import { ApiError } from '@/core/errors/api-error';
 import { breakpoint, useTheme } from '@/core/theme';
 import { AuthShell } from '@/features/auth/presentation/auth-shell';
 import { useLogin } from '@/features/auth/application/use-auth';
+import { codeModuleUrl, officialCodeModule, signInToCodeModule } from '@/features/auth/data/code-module-access';
 import { credentialsToSubmit, safeDestination } from '@/features/auth/domain/entities';
 
 /** Wording the teacher reads, chosen here from the backend's stable error code. */
@@ -56,6 +57,12 @@ export function LoginScreen() {
   const [password, setPassword] = useState('');
   const [revealed, setRevealed] = useState(false);
 
+  const [moduleMode, setModuleMode] = useState(false);
+  const [modulePending, setModulePending] = useState(false);
+  const [moduleError, setModuleError] = useState('');
+  const moduleAvailable = Platform.OS === 'web' && Boolean(codeModuleUrl);
+  const pending = login.isPending || modulePending;
+
   const [missing, setMissing] = useState(false);
   const emailRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
@@ -67,14 +74,37 @@ export function LoginScreen() {
       ? ((ref.current as unknown as { value?: string } | null)?.value ?? '')
       : '';
 
-  const submit = () => {
-    if (login.isPending) return;
+  const switchAccess = () => {
+    setModuleMode((current) => !current);
+    setEmail('');
+    setPassword('');
+    setRevealed(false);
+    setMissing(false);
+    setModuleError('');
+    login.reset();
+  };
+
+  const submit = async () => {
+    if (pending) return;
     const credentials = credentialsToSubmit(
       { email, password },
       { email: fieldValue(emailRef), password: fieldValue(passwordRef) },
     );
     setMissing(credentials === null);
     if (!credentials) return;
+    if (moduleMode && codeModuleUrl) {
+      setModuleError('');
+      setModulePending(true);
+      try {
+        await signInToCodeModule(codeModuleUrl, credentials);
+      } catch (error) {
+        setModuleError(error instanceof Error && !(error instanceof TypeError)
+          ? (error instanceof ApiError ? messageFor(error) : error.message)
+          : 'No pudimos conectar con el módulo de código.');
+        setModulePending(false);
+      }
+      return;
+    }
     login.mutate(
       credentials,
       // Back to where they were going, not to a generic home page.
@@ -105,19 +135,20 @@ export function LoginScreen() {
         <View style={styles.card}>
           <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">Iniciar sesión</Text>
           <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
-            Entra para continuar con tus cursos
+            {moduleMode ? (officialCodeModule ? 'Usa tu cuenta oficial de ILIA' : 'Usa tu cuenta del módulo de código') : 'Entra para continuar con tus cursos'}
           </Text>
 
           <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>Correo</Text>
           <TextInput
             style={inputStyle}
+            key={moduleMode ? 'module-email' : 'ilia-email'}
             ref={emailRef}
             value={email}
             onChangeText={setEmail}
             placeholder="docente@colegio.edu"
             placeholderTextColor={theme.colors.neutral[500]}
             autoCapitalize="none"
-            autoComplete="email"
+            autoComplete={moduleMode ? 'off' : 'email'}
             keyboardType="email-address"
             inputMode="email"
             accessibilityLabel="Correo electrónico"
@@ -137,24 +168,25 @@ export function LoginScreen() {
           </View>
           <TextInput
             style={inputStyle}
+            key={moduleMode ? 'module-password' : 'ilia-password'}
             ref={passwordRef}
             value={password}
             onChangeText={setPassword}
             placeholder="••••••••"
             placeholderTextColor={theme.colors.neutral[500]}
             secureTextEntry={!revealed}
-            autoComplete="current-password"
+            autoComplete={moduleMode ? 'off' : 'current-password'}
             onSubmitEditing={submit}
             returnKeyType="go"
             accessibilityLabel="Contraseña"
           />
 
-          <Link
+          {!moduleMode && <Link
             href="/forgot-password"
             style={[styles.forgotLink, { color: theme.colors.accentAlt }]}
           >
             Olvidé mi contraseña
-          </Link>
+          </Link>}
 
           {missing ? (
             <Text
@@ -163,36 +195,49 @@ export function LoginScreen() {
             >
               Escribe tu correo y tu contraseña.
             </Text>
-          ) : login.isError ? (
+          ) : (moduleMode ? Boolean(moduleError) : login.isError) ? (
             <Text
               style={[styles.error, { color: theme.colors.accentRamp[700] }]}
               accessibilityRole="alert"
             >
-              {messageFor(login.error)}
+              {moduleMode ? moduleError : messageFor(login.error)}
             </Text>
           ) : null}
 
           <Pressable
             onPress={submit}
-            disabled={login.isPending}
+            disabled={pending}
             accessibilityRole="button"
             style={({ pressed }) => [
               styles.button,
               {
                 backgroundColor: theme.colors.accentButton,
                 borderRadius: theme.radius.md,
-                opacity: login.isPending ? 0.5 : pressed ? 0.85 : 1,
+                opacity: pending ? 0.5 : pressed ? 0.85 : 1,
               },
             ]}
           >
-            {login.isPending ? (
+            {pending ? (
               <ActivityIndicator color="#ffffff" />
             ) : (
-              <Text style={styles.buttonLabel}>Entrar</Text>
+              <Text style={styles.buttonLabel}>{moduleMode ? 'Entrar al módulo' : 'Entrar'}</Text>
             )}
           </Pressable>
 
-          <Text style={[styles.footer, { color: theme.colors.neutral[600] }]}>
+          {moduleAvailable && (
+            <Pressable
+              accessibilityRole="button"
+              disabled={pending}
+              onPress={switchAccess}
+              style={styles.switchAccess}
+            >
+              <Text style={[styles.toggle, { color: theme.colors.accentAlt }]}>
+                {moduleMode ? 'Volver al acceso de ILIA' : 'Entrar al módulo de código'}
+              </Text>
+            </Pressable>
+          )}
+
+          {!moduleMode && <Text style={[styles.footer, { color: theme.colors.neutral[600] }]}>
             ¿Todavía no tienes cuenta?{' '}
             <Link
               href={next ? `/register?next=${encodeURIComponent(next)}` : '/register'}
@@ -200,7 +245,7 @@ export function LoginScreen() {
             >
               Crear cuenta
             </Link>
-          </Text>
+          </Text>}
         </View>
       </ScrollView>
       </AuthShell>
@@ -273,6 +318,11 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  switchAccess: {
+    alignSelf: 'center',
+    marginTop: 16,
+    padding: 6,
   },
   footer: {
     fontSize: 14,

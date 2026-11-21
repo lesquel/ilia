@@ -22,6 +22,7 @@ from app.core.logging import configure_logging
 from app.core.middleware import CorrelationIdMiddleware
 from app.features.admin.interface.dependencies import build_admin_container
 from app.features.admin.interface.router import router as admin_router
+from app.features.auth.interface.code_module import router as code_module_router
 from app.features.auth.interface.dependencies import build_auth_container
 from app.features.auth.interface.router import router as auth_router
 from app.features.billing.interface.dependencies import build_billing_container
@@ -156,6 +157,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app.include_router(health_router)
     app.include_router(auth_router, prefix=settings.api_prefix)
+    app.include_router(code_module_router, prefix=settings.api_prefix)
     app.include_router(catalog_router, prefix=settings.api_prefix)
     app.include_router(enrollment_router, prefix=settings.api_prefix)
     app.include_router(evaluation_router, prefix=settings.api_prefix)
