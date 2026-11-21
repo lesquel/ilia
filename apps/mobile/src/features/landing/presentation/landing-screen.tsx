@@ -2,7 +2,7 @@ import { Link } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import { INSTITUTE_FULL_NAME } from '@/core/brand';
-import { ErrorState, LoadingState } from '@/core/ui/state-view';
+import { ErrorState } from '@/core/ui/state-view';
 import { BrandMark } from '@/core/ui/brand-mark';
 import { MascotGuide } from '@/core/ui/mascot-guide';
 import { breakpoint, useTheme } from '@/core/theme';
@@ -15,6 +15,7 @@ import {
 } from '@/features/catalog';
 import { featuredCoursesHeading } from '@/features/landing/domain/entities';
 import { LandingHeroStage } from '@/features/landing/presentation/landing-hero-stage';
+import { LandingScreenSkeleton } from '@/features/landing/presentation/landing-screen-skeleton';
 
 const FEATURED_COURSE_COUNT = 3;
 
@@ -150,7 +151,7 @@ export function LandingScreen() {
           {error && featuredCourses.length === 0 ? (
             <ErrorState error={error} onRetry={() => void refetch()} />
           ) : isLoading && featuredCourses.length === 0 ? (
-            <LoadingState label="Cargando cursos…" />
+            <LandingScreenSkeleton columns={courseColumns} count={FEATURED_COURSE_COUNT} />
           ) : featuredCourses.length === 0 ? (
             <Text style={[styles.lede, { color: theme.colors.neutral[600] }]}>
               Todavía no hay cursos publicados.

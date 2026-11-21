@@ -4,10 +4,11 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
-import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
+import { EmptyState, ErrorState } from '@/core/ui/state-view';
 import { Card, ScreenHeader } from '@/core/ui/surface';
 import { useSession } from '@/features/auth';
 import { useCommunity } from '@/features/forum/application/use-forum';
+import { CommunityScreenSkeleton } from '@/features/forum/presentation/community-screen-skeleton';
 
 export function CommunityScreen() {
   const theme = useTheme();
@@ -23,7 +24,7 @@ export function CommunityScreen() {
           <Text style={[styles.profileText, { color: theme.colors.accentAlt }]}>Ver mi actividad en foros</Text>
         </Pressable>
       ) : null}
-      {isLoading ? <LoadingState label="Buscando tus foros…" /> : error ? <ErrorState error={error} onRetry={() => void refetch()} /> : courses.length === 0 ? (
+      {isLoading ? <CommunityScreenSkeleton /> : error ? <ErrorState error={error} onRetry={() => void refetch()} /> : courses.length === 0 ? (
         <EmptyState glyph={MessagesSquare} title="Aún no tienes foros disponibles" hint="Cuando te inscribas en un curso, su foro aparecerá aquí." action={{ label: 'Explorar cursos', href: '/catalog' }} />
       ) : (
         <Card title="Foros de tus cursos" hint={`${courses.length} ${courses.length === 1 ? 'curso' : 'cursos'}`}>

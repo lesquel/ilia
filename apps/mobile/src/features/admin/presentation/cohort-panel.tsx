@@ -3,9 +3,10 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { ApiError } from '@/core/errors/api-error';
 import { useTheme } from '@/core/theme';
-import { ErrorState, LoadingState } from '@/core/ui/state-view';
+import { ErrorState } from '@/core/ui/state-view';
 import { useCohorts, useCreateCohort } from '@/features/admin/application/use-admin';
 import { cohortListAppearance, type Cohort } from '@/features/admin/domain/entities';
+import { CohortPanelSkeleton } from '@/features/admin/presentation/admin-panels-skeleton';
 import {
   Card,
   EmptyNote,
@@ -96,7 +97,7 @@ export function CohortPanel() {
 
       <Card title="Cohortes creadas">
         {list === 'loading' ? (
-          <LoadingState label="Cargando cohortes…" />
+          <CohortPanelSkeleton />
         ) : list === 'error' ? (
           <ErrorState error={error} onRetry={() => void refetch()} />
         ) : list === 'empty' ? (

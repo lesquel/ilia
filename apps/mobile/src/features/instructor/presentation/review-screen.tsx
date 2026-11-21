@@ -11,12 +11,13 @@ import {
 
 import { ApiError } from '@/core/errors/api-error';
 import { useTheme } from '@/core/theme';
-import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
+import { EmptyState, ErrorState } from '@/core/ui/state-view';
 import {
   useOverrideScore,
   useReviewInbox,
 } from '@/features/instructor/application/use-instructor';
 import type { ReviewItem } from '@/features/instructor/domain/entities';
+import { ReviewScreenSkeleton } from '@/features/instructor/presentation/review-screen-skeleton';
 import { Field } from '@/features/instructor/presentation/ui';
 
 /**
@@ -79,7 +80,7 @@ export function ReviewScreen() {
       }
       ListEmptyComponent={
         isLoading ? (
-          <LoadingState label="Cargando entregas…" />
+          <ReviewScreenSkeleton />
         ) : (
           <EmptyState
             title="Todavía no hay entregas"

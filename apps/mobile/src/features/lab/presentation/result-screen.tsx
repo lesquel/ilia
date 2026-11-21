@@ -11,7 +11,7 @@ import {
 
 import { breakpoint, useTheme } from '@/core/theme';
 import { ProgressBar } from '@/core/ui/progress-bar';
-import { ErrorState, LoadingState } from '@/core/ui/state-view';
+import { ErrorState } from '@/core/ui/state-view';
 import { PassCertificateCard } from '@/features/certificates';
 import {
   useActivity,
@@ -25,6 +25,7 @@ import {
 } from '@/features/lab/domain/entities';
 import { sideScoresFromEvaluation } from '@/features/lab/domain/side-scores';
 import { GeneratedSheet } from '@/features/lab/presentation/generated-sheet';
+import { ResultScreenSkeleton } from '@/features/lab/presentation/result-screen-skeleton';
 import { SaveRecipeButton } from '@/features/recipes';
 
 export function ResultScreen() {
@@ -40,11 +41,7 @@ export function ResultScreen() {
   const { activity } = useActivity(submission?.activityId ?? '');
 
   if (isLoading) {
-    return (
-      <View style={[styles.screen, { backgroundColor: theme.colors.bg }]}>
-        <LoadingState label="Buscando tu entrega…" />
-      </View>
-    );
+    return <ResultScreenSkeleton />;
   }
 
   if (error || !submission) {

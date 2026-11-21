@@ -3,7 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
 import { useIsWide } from '@/core/ui/surface';
-import { EmptyState, LoadingState } from '@/core/ui/state-view';
+import { EmptyState } from '@/core/ui/state-view';
 import {
   useActivity,
   useMySubmissions,
@@ -16,6 +16,7 @@ import {
   orderPair,
 } from '@/features/lab/domain/attempt-comparison';
 import { dimensionName, type Submission } from '@/features/lab/domain/entities';
+import { CompareAttemptsScreenSkeleton } from '@/features/lab/presentation/compare-attempts-screen-skeleton';
 
 export function CompareAttemptsScreen() {
   const theme = useTheme();
@@ -45,11 +46,7 @@ export function CompareAttemptsScreen() {
   const right = useSubmissionResult(later?.id ?? '');
 
   if (isLoading) {
-    return (
-      <View style={[styles.screen, { backgroundColor: theme.colors.bg }]}>
-        <LoadingState label="Buscando tus intentos…" />
-      </View>
-    );
+    return <CompareAttemptsScreenSkeleton />;
   }
 
   if (!earlier || !later) {

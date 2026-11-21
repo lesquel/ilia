@@ -7,7 +7,7 @@ import { ApiError } from '@/core/errors/api-error';
 import { useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
 import { ProfileAvatar } from '@/core/ui/profile-avatar';
-import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
+import { EmptyState, ErrorState } from '@/core/ui/state-view';
 import {
   Card,
   Fact,
@@ -23,6 +23,10 @@ import { useSession } from '@/features/auth';
 import { useCourse } from '@/features/catalog';
 import { useEntitlements } from '@/features/billing';
 import { useCommunity, useOpenThread, useThreads } from '@/features/forum/application/use-forum';
+import {
+  ForumModulesSkeleton,
+  ForumScreenSkeleton,
+} from '@/features/forum/presentation/forum-screen-skeleton';
 import { ModerateControl } from '@/features/forum/presentation/moderate-control';
 import {
   MAX_TITLE_CHARS,
@@ -176,7 +180,7 @@ export function ForumScreen() {
         </Card>
       ) : null}
 
-      {!moduleId && communityLoading ? <LoadingState label="Buscando los foros del curso…" /> : null}
+      {!moduleId && communityLoading ? <ForumModulesSkeleton /> : null}
       {!moduleId && communityError ? <ErrorState error={communityError} onRetry={() => void refetchCommunity()} /> : null}
       {!moduleId && !communityLoading && !communityError && !communityCourse?.modules.length ? (
         <EmptyState glyph={MessagesSquare} title="Este curso todavía no tiene foros" hint="Cuando tenga módulos publicados, sus conversaciones aparecerán aquí." />
@@ -208,7 +212,7 @@ export function ForumScreen() {
       ) : null}
 
       {moduleId && isLoading ? (
-        <LoadingState label="Cargando el foro…" />
+        <ForumScreenSkeleton />
       ) : moduleId && threads.length === 0 ? (
         <EmptyState
           glyph={MessagesSquare}

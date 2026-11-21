@@ -4,12 +4,13 @@ import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
-import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
+import { EmptyState, ErrorState } from '@/core/ui/state-view';
 import { Card, Fact, OutlineLink, ScreenHeader, Tag, useIsWide } from '@/core/ui/surface';
 import { useSession } from '@/features/auth';
 import { useGlobalSubmissionHistory } from '@/features/lab/application/use-global-submissions';
 import type { SubmissionHistoryItem } from '@/features/lab/domain/submission-history';
 import type { SubmissionStatus } from '@/features/lab/domain/entities';
+import { EvaluationsScreenSkeleton } from '@/features/lab/presentation/evaluations-screen-skeleton';
 
 function statusLabel(status: SubmissionStatus): string {
   switch (status) {
@@ -41,7 +42,7 @@ export function EvaluationsScreen() {
   if (isCheckingSession) {
     return (
       <Screen>
-        <LoadingState />
+        <EvaluationsScreenSkeleton label="Cargando" withHeader />
       </Screen>
     );
   }
@@ -76,7 +77,7 @@ export function EvaluationsScreen() {
       />
 
       {isLoading ? (
-        <LoadingState label="Cargando entregas…" />
+        <EvaluationsScreenSkeleton label="Cargando entregas" />
       ) : items.length === 0 ? (
         <EmptyState
           glyph={ClipboardList}

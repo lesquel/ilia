@@ -6,7 +6,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { ApiError } from '@/core/errors/api-error';
 import { useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
-import { ErrorState, LoadingState } from '@/core/ui/state-view';
+import { ErrorState } from '@/core/ui/state-view';
 import { formatDuration } from '@/features/catalog/domain/entities';
 import {
   useAddLesson,
@@ -18,6 +18,7 @@ import {
 } from '@/features/instructor/application/use-instructor';
 import { canPublish } from '@/features/instructor/domain/entities';
 import { ActivityComposer } from '@/features/instructor/presentation/activity-composer';
+import { CourseEditorScreenSkeleton } from '@/features/instructor/presentation/course-editor-screen-skeleton';
 import { CourseDetailsForm } from '@/features/instructor/presentation/course-details-form';
 import { LessonMediaControl } from '@/features/instructor/presentation/lesson-media-control';
 import {
@@ -55,11 +56,7 @@ export function CourseEditorScreen() {
   const [lessonBody, setLessonBody] = useState('');
 
   if (isLoading) {
-    return (
-      <View style={[styles.screen, { backgroundColor: theme.colors.bg }]}>
-        <LoadingState label="Cargando el curso…" />
-      </View>
-    );
+    return <CourseEditorScreenSkeleton />;
   }
 
   if (error || !course) {

@@ -1,7 +1,6 @@
 import { Search } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
   FlatList,
   Pressable,
   StyleSheet,
@@ -11,7 +10,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 
-import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
+import { EmptyState, ErrorState } from '@/core/ui/state-view';
 import { breakpoint, useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
 import { useCourses } from '@/features/catalog/application/use-catalog';
@@ -24,6 +23,7 @@ import {
   type Level,
 } from '@/features/catalog/domain/entities';
 
+import { CatalogScreenSkeleton } from './catalog-screen-skeleton';
 import { CourseCard } from './course-card';
 
 export function CatalogScreen() {
@@ -137,14 +137,21 @@ export function CatalogScreen() {
       ListHeaderComponent={header}
       ListEmptyComponent={
         isLoading ? (
-          <LoadingState label="Buscando cursos…" />
+          <CatalogScreenSkeleton columns={columns} cardMaxWidth={cardMaxWidth} gap={GRID_GAP} />
         ) : (
           <EmptyState {...emptyCatalogMessage(filters)} />
         )
       }
       ListFooterComponent={
         isLoadingMore ? (
-          <ActivityIndicator style={styles.footer} color={theme.colors.accent} />
+          // The next page draws as the cards it brings, one row of them.
+          <CatalogScreenSkeleton
+            columns={columns}
+            cardMaxWidth={cardMaxWidth}
+            gap={GRID_GAP}
+            rows={1}
+            label="Cargando más cursos"
+          />
         ) : null
       }
       onEndReachedThreshold={0.5}
@@ -259,8 +266,5 @@ const styles = StyleSheet.create({
   },
   gridItem: {
     flex: 1,
-  },
-  footer: {
-    paddingVertical: 20.4,
   },
 });

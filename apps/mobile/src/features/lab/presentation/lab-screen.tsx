@@ -14,7 +14,7 @@ import { INSTITUTE_SHORT_NAME } from '@/core/brand';
 import { ApiError } from '@/core/errors/api-error';
 import { breakpoint, useTheme } from '@/core/theme';
 import { MascotGuide } from '@/core/ui/mascot-guide';
-import { ErrorState, LoadingState } from '@/core/ui/state-view';
+import { ErrorState } from '@/core/ui/state-view';
 import { Card, OutlineLink, PrimaryButton, SubCard } from '@/core/ui/surface';
 import { useEntitlements } from '@/features/billing';
 import { useDraft } from '@/features/lab/application/use-draft';
@@ -22,6 +22,7 @@ import { useActivity, useSubmitPrompt } from '@/features/lab/application/use-lab
 import { MAX_PROMPT_CHARS, canSubmit } from '@/features/lab/domain/entities';
 import { liaMarginNotes } from '@/features/lab/domain/margin-notes';
 import { AttemptHistory } from '@/features/lab/presentation/attempt-history';
+import { LabScreenSkeleton } from '@/features/lab/presentation/lab-screen-skeleton';
 import { PromptSignalsPanel } from '@/features/lab/presentation/prompt-signals-panel';
 
 function messageFor(error: unknown): string {
@@ -66,11 +67,7 @@ export function LabScreen() {
   const { text: prompt, setText: setPrompt, status, restored, clear } = useDraft(id);
 
   if (isLoading) {
-    return (
-      <View style={[styles.screen, { backgroundColor: theme.colors.bg }]}>
-        <LoadingState label="Cargando la actividad…" />
-      </View>
-    );
+    return <LabScreenSkeleton />;
   }
 
   if (error || !activity) {

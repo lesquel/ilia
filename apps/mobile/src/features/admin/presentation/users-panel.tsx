@@ -3,7 +3,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 
 import { ApiError } from '@/core/errors/api-error';
 import { useTheme } from '@/core/theme';
-import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
+import { EmptyState, ErrorState } from '@/core/ui/state-view';
 import { useChangeRole, useManagedUsers } from '@/features/admin/application/use-admin';
 import {
   ROLE_LABELS,
@@ -11,6 +11,7 @@ import {
   roleChangeQuestion,
   type ManagedUser,
 } from '@/features/admin/domain/entities';
+import { UsersPanelSkeleton } from '@/features/admin/presentation/admin-panels-skeleton';
 import {
   Card,
   HeaderCell,
@@ -59,7 +60,7 @@ export function UsersPanel() {
         accessibilityLabel="Buscar usuario"
       />
 
-      {isLoading ? <LoadingState label="Cargando usuarios…" /> : null}
+      {isLoading ? <UsersPanelSkeleton /> : null}
       {error ? <ErrorState error={error} onRetry={() => void refetch()} /> : null}
       {!isLoading && !error && users.length === 0 ? (
         <EmptyState title="No encontramos usuarios" hint="Probá con otro nombre o correo." />

@@ -11,7 +11,7 @@ import { useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import { breakpoint, useTheme } from '@/core/theme';
-import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
+import { EmptyState, ErrorState } from '@/core/ui/state-view';
 import {
   Card,
   Fact,
@@ -25,6 +25,7 @@ import { useSession } from '@/features/auth';
 import { useMyCertificates } from '@/features/certificates/application/use-certificates';
 import { CERTIFICATE_PROOF } from '@/features/certificates/domain/copy';
 import { formatIssueDate, type Certificate } from '@/features/certificates/domain/entities';
+import { MyCertificatesScreenSkeleton } from '@/features/certificates/presentation/my-certificates-screen-skeleton';
 import {
   ShareCertificateCard,
   publicOrigin,
@@ -42,7 +43,7 @@ export function MyCertificatesScreen() {
   if (isCheckingSession) {
     return (
       <Screen>
-        <LoadingState />
+        <MyCertificatesScreenSkeleton label="Cargando" withHeader />
       </Screen>
     );
   }
@@ -85,7 +86,7 @@ export function MyCertificatesScreen() {
       />
 
       {isLoading ? (
-        <LoadingState label="Cargando tus certificados…" />
+        <MyCertificatesScreenSkeleton label="Cargando tus certificados" />
       ) : certificates.length === 0 ? (
         <EmptyState
           glyph={Award}
