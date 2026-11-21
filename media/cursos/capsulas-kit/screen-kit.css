@@ -1,0 +1,52 @@
+/* Screen stand-ins for the cápsulas. ILIA-styled on purpose: they show where
+   things are, not a copy of anyone's product. Light only. */
+.app { width: 1040px; height: 500px; background: #fff; border: 1.5px solid var(--line); border-radius: 16px; box-shadow: 0 18px 40px rgba(0,0,0,.08); overflow: hidden; display: flex; flex-direction: column; }
+.app-bar { height: 42px; flex: none; display: flex; align-items: center; gap: 8px; padding: 0 16px; border-bottom: 1.5px solid var(--line); background: #f6f5f1; font-size: 14px; color: var(--muted); }
+.app-bar > i { width: 11px; height: 11px; border-radius: 50%; background: #dedbd2; }
+.app-bar .url { margin-left: 14px; flex: 1; max-width: 520px; height: 26px; border-radius: 13px; background: #fff; border: 1px solid var(--line); display: flex; align-items: center; padding: 0 12px; font-size: 13px; }
+.app-bar .name { margin-left: auto; font-weight: 700; color: var(--ink); }
+.app-body { flex: 1; display: flex; min-height: 0; position: relative; }
+.side { width: 230px; flex: none; border-right: 1.5px solid var(--line); background: #faf9f6; padding: 16px; display: flex; flex-direction: column; gap: 10px; font-size: 15px; }
+.main { flex: 1; padding: 22px 28px; display: flex; flex-direction: column; gap: 14px; min-width: 0; position: relative; }
+
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 999px; border: 1.5px solid var(--line); background: #fff; font-size: 16px; font-weight: 600; color: var(--ink); width: fit-content; transition: none; }
+.btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+.btn.clicked { border-color: var(--blue); box-shadow: 0 0 0 5px var(--blue-soft); }
+.btn.primary.clicked { box-shadow: 0 0 0 5px rgba(27,112,254,.22); }
+.pressed { transform: scale(.96) !important; }
+
+.field { min-height: 52px; border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 16px; font-size: 18px; line-height: 1.45; background: #fff; }
+.field.composer { margin-top: auto; display: flex; gap: 12px; align-items: flex-end; }
+.field .text { flex: 1; }
+.field .text:empty::before { content: attr(data-placeholder); color: var(--muted); }
+.typing::after { content: ""; display: inline-block; width: 2px; height: 1.05em; margin-left: 2px; vertical-align: -2px; background: var(--blue); }
+
+.reply { align-self: flex-start; max-width: 760px; font-size: 17px; line-height: 1.45; background: #f4f3ef; border-radius: 14px; padding: 12px 16px; }
+.reply ol { margin: 6px 0 0 22px; }
+.reply li { margin: 3px 0; }
+.ask { align-self: flex-end; max-width: 680px; font-size: 17px; line-height: 1.45; background: var(--blue-soft); border-radius: 14px; padding: 12px 16px; }
+.tag { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 4px; letter-spacing: .02em; }
+.cite { display: inline-grid; place-items: center; min-width: 20px; height: 20px; border-radius: 10px; background: #e7e5de; font-size: 12px; font-weight: 700; color: var(--muted); margin: 0 2px; vertical-align: 1px; }
+.cite.clicked { background: var(--blue); color: #fff; }
+.menu { position: absolute; background: #fff; border: 1.5px solid var(--line); border-radius: 12px; box-shadow: 0 14px 30px rgba(0,0,0,.1); padding: 6px; display: flex; flex-direction: column; font-size: 15px; min-width: 220px; }
+.menu > div { padding: 9px 12px; border-radius: 8px; }
+.menu > div.clicked { background: var(--blue-soft); color: var(--blue); font-weight: 700; }
+.toggle { width: 44px; height: 24px; border-radius: 12px; background: #d9d6cc; position: relative; flex: none; }
+.toggle::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; }
+.toggle.clicked { background: var(--blue); }
+.toggle.clicked::after { left: 23px; }
+.note { position: absolute; right: 60px; bottom: 140px; max-width: 360px; background: #fff; border-left: 6px solid var(--blue); border-radius: 10px; padding: 14px 18px; font-size: 18px; line-height: 1.35; box-shadow: 0 12px 28px rgba(0,0,0,.1); }
+
+.cursor { position: absolute; left: 0; top: 0; z-index: 50; opacity: 0; pointer-events: none; }
+.cursor svg { display: block; filter: drop-shadow(0 2px 3px rgba(0,0,0,.25)); }
+.cursor i { position: absolute; left: -10px; top: -10px; width: 26px; height: 26px; border-radius: 50%; border: 3px solid var(--blue); opacity: 0; }
+.cursor.down i { opacity: .8; }
+.cursor.down svg { transform: scale(.9); }
+
+/* Lía, the app's bird, presents each cápsula. */
+.lia-intro { position: absolute; inset: 0; z-index: 40; background: var(--paper); display: flex; align-items: center; justify-content: center; gap: 56px; opacity: 0; }
+.lia-intro .lia-figure img { height: 360px; display: block; }
+.lia-intro .big { font-size: 46px; max-width: 620px; }
+.lia-intro p { font-size: 20px; color: var(--muted); margin-top: 14px; }
+.lia-host { position: absolute; right: 22px; bottom: 34px; z-index: 30; pointer-events: none; }
+.lia-host img { height: 150px; display: block; filter: drop-shadow(0 6px 10px rgba(0,0,0,.08)); }

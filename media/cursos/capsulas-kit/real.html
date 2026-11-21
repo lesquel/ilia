@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ILIA · cápsula real</title>
+<link rel="stylesheet" href="scene-kit.css">
+<link rel="stylesheet" href="screen-kit.css">
+<style>
+  #screen { position: absolute; inset: 0; width: 1280px; height: 720px; object-fit: cover; }
+  .progress { z-index: 35; bottom: 8px; }
+  .lia-host { bottom: 14px; }
+  .lia-host img { height: 140px; }
+  .bubble-name { position: absolute; right: 150px; bottom: 120px; z-index: 31; }
+</style>
+</head>
+<body>
+<img id="screen" alt="">
+<div class="progress"><i></i></div>
+<script>
+  // Composites one output frame: a real recorded screen behind, Lía in front.
+  const clamp = (v) => Math.max(0, Math.min(1, v));
+  const TALK = ['talk', 'talk-2', 'talk-3', 'talk-4'];
+  const poses = (box) => Object.fromEntries([...TALK, 'listen', 'done'].map((pose) => {
+    const img = document.createElement('img');
+    img.src = `lia/${pose}.png`;
+    box.appendChild(img);
+    return [pose, img];
+  }));
+  let cfg;
+  let intro, introPoses, hostPoses;
+  window.setup = (config) => {
+    cfg = config;
+    intro = document.createElement('div');
+    intro.className = 'lia-intro';
+    const figure = document.createElement('div');
+    figure.className = 'lia-figure';
+    const text = document.createElement('div');
+    text.innerHTML = '<div class="kicker"></div><div class="big"></div><p>Tutorial con Lía</p>';
+    text.querySelector('.kicker').textContent = `ILIA · ${cfg.course}`;
+    text.querySelector('.big').textContent = cfg.title;
+    intro.append(figure, text);
+    document.body.appendChild(intro);
+    introPoses = poses(figure);
+    const host = document.createElement('div');
+    host.className = 'lia-host';
+    if (cfg.liaSide === 'left') Object.assign(host.style, { left: '22px', right: 'auto' });
+    document.body.appendChild(host);
+    hostPoses = poses(host);
+    window.host = host;
+    return Promise.all([...document.images].map((img) => img.decode().catch(() => {})));
+  };
+  const show = (set, t) => {
+    const speaking = cfg.speech.some(([a, b]) => t >= a && t < b);
+    const pose = t > cfg.duration - 1.6 ? 'done' : speaking ? TALK[Math.floor(t * 6) % TALK.length] : 'listen';
+    Object.entries(set).forEach(([name, img]) => { img.style.display = name === pose ? 'block' : 'none'; });
+  };
+  const screen = document.getElementById('screen');
+  window.renderAt = async (t, src) => {
+    if (src && screen.dataset.src !== src) {
+      screen.dataset.src = src;
+      screen.src = src;
+      await screen.decode().catch(() => {});
+    }
+    const introShown = clamp((cfg.introEnd - t) / 0.35);
+    intro.style.opacity = introShown;
+    window.host.style.opacity = 1 - introShown;
+    show(introPoses, t);
+    show(hostPoses, t);
+    document.querySelector('.progress i').style.width = `${(100 * t) / cfg.duration}%`;
+  };
+</script>
+</body>
+</html>
