@@ -1,0 +1,56 @@
+[
+  {
+    "slug": "n1-tu-lectura-como-fuente",
+    "course": "Gemini Notebook paso a paso",
+    "title": "Tu lectura como fuente",
+    "cues": [
+      { "event": "intro", "text": "Hola, soy Lía. Vamos a armar un cuaderno con tu propia lectura." },
+      { "event": "home", "text": "Esta es Gemini Notebook, la herramienta que antes se llamaba NotebookLM, en notebook punto google punto com." },
+      { "event": "new", "text": "Toca «Nuevo cuaderno»." },
+      { "event": "add", "text": "En el panel de la izquierda, toca «Fuentes»." },
+      { "event": "dialog", "text": "Puedes subir un PDF, una foto de las páginas de tu libro, un archivo de Drive o pegar un texto." },
+      { "event": "upload", "text": "Rosa sube su lectura de séptimo sobre el huerto escolar, en PDF." },
+      { "event": "ready", "text": "Listo: una fuente. Desde ahora, lo que responda sale de esa lectura, y en el centro ya te dejó un resumen." }
+    ]
+  },
+  {
+    "slug": "n2-preguntas-con-citas",
+    "course": "Gemini Notebook paso a paso",
+    "title": "Preguntas con citas",
+    "cues": [
+      { "event": "intro", "text": "Hola, soy Lía. Ahora le pedimos preguntas que salgan de la lectura." },
+      { "event": "type", "text": "En el chat, Rosa pide cinco preguntas para séptimo que se contesten solo con esta lectura, y que separen el tema, la idea principal y los detalles." },
+      { "event": "send", "text": "Envía." },
+      { "event": "answer", "text": "Fíjate en los numeritos grises al lado de cada respuesta: son las citas." },
+      { "event": "cite", "text": "Toca uno, y a la izquierda se abre la lectura con la frase exacta resaltada. Así revisas cada respuesta en segundos, sin buscar en todo el texto." }
+    ]
+  },
+  {
+    "slug": "n3-cuestionario-desde-studio",
+    "course": "Gemini Notebook paso a paso",
+    "title": "Un cuestionario desde Studio",
+    "cues": [
+      { "event": "intro", "text": "Hola, soy Lía. Vamos a crear un cuestionario desde Studio." },
+      { "event": "quiz", "text": "En el panel de la derecha, en Studio, toca «Cuestionario»." },
+      { "event": "options", "text": "Antes de crearlo, eliges cuántas preguntas, la dificultad y el tipo." },
+      { "event": "types", "text": "Rosa deja solo opción múltiple," },
+      { "event": "level", "text": "y nivel fácil, para empezar." },
+      { "event": "topic", "text": "En el tema escribe lo que quiere medir: el tema, la idea principal y los detalles de la lectura." },
+      { "event": "generate", "text": "Toca «Generar ahora». Tarda un par de minutos." },
+      { "event": "ready", "text": "Ya está en Studio." },
+      { "event": "open-quiz", "text": "Ábrelo: es un cuestionario interactivo de diez preguntas." },
+      { "event": "quiz", "text": "Pero mira la primera: pregunta con qué materiales empezó el huerto. Es un detalle suelto, aunque pedimos tema e idea principal. Revísalo completo antes de compartirlo con tus estudiantes." }
+    ]
+  },
+  {
+    "slug": "n4-lo-que-no-esta-en-la-fuente",
+    "course": "Gemini Notebook paso a paso",
+    "title": "Lo que no está en tu lectura",
+    "cues": [
+      { "event": "intro", "text": "Hola, soy Lía. Ahora, una prueba que conviene hacer siempre." },
+      { "event": "open", "text": "Pregúntale algo que no está en tu lectura." },
+      { "event": "type", "text": "Por ejemplo, en qué año se fundó la escuela y cuántos estudiantes tiene." },
+      { "event": "answer", "text": "Responde que la lectura no tiene esa información. No inventa: solo usa lo que le diste. Por eso importa qué subes. Sube tu libro o tu material, nunca listas con nombres, notas o datos de tus estudiantes." }
+    ]
+  }
+]

@@ -25,6 +25,10 @@ EXPECTED_SLUGS = (
     "prompting-para-docentes",
     "notebooklm-en-el-aula",
     "evaluacion-asistida-por-ia",
+    "gemini-paso-a-paso",
+    "notebooklm-paso-a-paso",
+    "prueba-corta-en-forms",
+    "lamina-en-canva",
 )
 
 

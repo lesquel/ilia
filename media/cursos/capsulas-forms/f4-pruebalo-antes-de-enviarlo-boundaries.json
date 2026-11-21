@@ -1,0 +1,67 @@
+[
+ {
+  "offset": 0.2,
+  "duration": 2.376,
+  "text": "Hola, soy Lía."
+ },
+ {
+  "offset": 2.876,
+  "duration": 4.056,
+  "text": "Antes de mandar la prueba al curso, contéstala tú."
+ },
+ {
+  "offset": 8.384571432931082,
+  "duration": 2.376,
+  "text": "Toca «Publicar»."
+ },
+ {
+  "offset": 11.360571432931083,
+  "duration": 4.824,
+  "text": "Fíjate quién puede responder: cualquier persona que tenga el vínculo."
+ },
+ {
+  "offset": 16.78457143293108,
+  "duration": 1.872,
+  "text": "Publica."
+ },
+ {
+  "offset": 19.256571432931082,
+  "duration": 5.4,
+  "text": "Copia el vínculo, el mismo que vas a mandar a tus estudiantes, y ábrelo."
+ },
+ {
+  "offset": 25.256571432931082,
+  "duration": 2.448,
+  "text": "Así lo van a ver ellos."
+ },
+ {
+  "offset": 28.304571432931084,
+  "duration": 5.832,
+  "text": "Contesta como lo haría un estudiante; aquí, a propósito, una incorrecta."
+ },
+ {
+  "offset": 34.736571432931086,
+  "duration": 1.872,
+  "text": "Envía."
+ },
+ {
+  "offset": 37.20857143293109,
+  "duration": 2.52,
+  "text": "Respuesta registrada."
+ },
+ {
+  "offset": 40.328571432931085,
+  "duration": 3.672,
+  "text": "Vuelve al formulario, a «Respuestas»."
+ },
+ {
+  "offset": 44.60057143293108,
+  "duration": 4.752,
+  "text": "Forms muestra qué pregunta falla más y cuántos eligieron cada opción."
+ },
+ {
+  "offset": 49.65257143293108,
+  "duration": 4.776,
+  "text": "Cuando contesten tus estudiantes, aquí ves qué volver a explicar."
+ }
+]

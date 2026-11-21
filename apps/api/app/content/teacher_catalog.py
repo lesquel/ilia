@@ -8,6 +8,10 @@ cambia de tipo en el panel de instructor; este cuerpo queda como lectura.
 import json
 from typing import Any
 
+from app.content.capsulas_canva import CANVA_CAPSULAS_ACTIVITIES, CANVA_CAPSULAS_COURSE
+from app.content.capsulas_forms import FORMS_CAPSULAS_ACTIVITIES, FORMS_CAPSULAS_COURSE
+from app.content.capsulas_gemini import GEMINI_CAPSULAS_ACTIVITIES, GEMINI_CAPSULAS_COURSE
+from app.content.capsulas_notebook import NOTEBOOK_CAPSULAS_ACTIVITIES, NOTEBOOK_CAPSULAS_COURSE
 from app.content.gemini_libro_course import GEMINI_LIBRO_ACTIVITIES, GEMINI_LIBRO_COURSE
 
 # (title, kind, duration_seconds, body)
@@ -1207,6 +1211,10 @@ TEACHER_COURSES: list[dict[str, Any]] = [
             ("Quién certifica", EVAL_LESSONS_M2),
         ],
     },
+    GEMINI_CAPSULAS_COURSE,
+    NOTEBOOK_CAPSULAS_COURSE,
+    FORMS_CAPSULAS_COURSE,
+    CANVA_CAPSULAS_COURSE,
 ]
 
 
@@ -1296,4 +1304,8 @@ TEACHER_ACTIVITIES: list[dict[str, Any]] = [
             "min_length": 25,
         },
     },
+    *GEMINI_CAPSULAS_ACTIVITIES,
+    *NOTEBOOK_CAPSULAS_ACTIVITIES,
+    *FORMS_CAPSULAS_ACTIVITIES,
+    *CANVA_CAPSULAS_ACTIVITIES,
 ]

@@ -1,0 +1,37 @@
+[
+ {
+  "offset": 0.2,
+  "duration": 2.376,
+  "text": "Hola, soy Lía."
+ },
+ {
+  "offset": 2.876,
+  "duration": 3.84,
+  "text": "Ahora le pedimos preguntas que salgan de la lectura."
+ },
+ {
+  "offset": 8.186285728999547,
+  "duration": 9.72,
+  "text": "En el chat, Rosa pide cinco preguntas para séptimo que se contesten solo con esta lectura, y que separen el tema, la idea principal y los detalles."
+ },
+ {
+  "offset": 18.506285728999543,
+  "duration": 1.872,
+  "text": "Envía."
+ },
+ {
+  "offset": 25.617714330400737,
+  "duration": 5.496,
+  "text": "Fíjate en los numeritos grises al lado de cada respuesta: son las citas."
+ },
+ {
+  "offset": 31.713714330400737,
+  "duration": 5.496,
+  "text": "Toca uno, y a la izquierda se abre la lectura con la frase exacta resaltada."
+ },
+ {
+  "offset": 37.50971433040074,
+  "duration": 5.184,
+  "text": "Así revisas cada respuesta en segundos, sin buscar en todo el texto."
+ }
+]

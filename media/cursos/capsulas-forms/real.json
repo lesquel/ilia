@@ -1,0 +1,65 @@
+[
+  {
+    "slug": "f1-las-preguntas-desde-gemini",
+    "course": "Una prueba corta en Google Forms",
+    "title": "Las preguntas, desde Gemini",
+    "cues": [
+      { "event": "intro", "text": "Hola, soy Lía. Vamos a armar una prueba corta en Google Forms, y empezamos en Gemini." },
+      { "event": "open", "text": "Si tu escuela tiene el plan de pago de Google, Forms puede escribir las preguntas solo. Con una cuenta gratis, se las pides a Gemini y las pasas a Forms." },
+      { "event": "new-chat", "text": "Abre un nuevo chat." },
+      { "event": "type", "text": "Pide cinco preguntas de opción múltiple para séptimo: una del tema, una de la idea principal y tres para clasificar frases." },
+      { "event": "distractors", "text": "Pide que las opciones incorrectas sean creíbles." },
+      { "event": "format", "text": "Y un formato fácil de copiar: cada opción en su línea, con la correcta marcada." },
+      { "event": "paste", "text": "Al final, pega la lectura." },
+      { "event": "send", "text": "Envía." },
+      { "event": "answer", "text": "Así quedaron, con un asterisco en la correcta." },
+      { "event": "scroll", "text": "Léelas antes de copiarlas. En la tercera, la opción D dice que la frase es un error de lectura: nadie la elegiría. Cámbiala por un detalle real del texto." }
+    ]
+  },
+  {
+    "slug": "f2-el-formulario-en-modo-cuestionario",
+    "course": "Una prueba corta en Google Forms",
+    "title": "El formulario, en modo cuestionario",
+    "cues": [
+      { "event": "intro", "text": "Hola, soy Lía. Ahora creamos el formulario en Google Forms." },
+      { "event": "home", "text": "Entra a forms punto google punto com." },
+      { "event": "blank", "text": "Toca «Formulario en blanco»." },
+      { "event": "title", "text": "Ponle un título que tus estudiantes reconozcan." },
+      { "event": "settings", "text": "Ve a «Configuración»." },
+      { "event": "quiz-on", "text": "Y activa «Convertir en cuestionario». Desde ahora cada pregunta puede tener puntos y una respuesta correcta, y Forms corrige solo." }
+    ]
+  },
+  {
+    "slug": "f3-la-pregunta-y-su-clave",
+    "course": "Una prueba corta en Google Forms",
+    "title": "La pregunta y su clave",
+    "cues": [
+      { "event": "intro", "text": "Hola, soy Lía. Vamos a pasar la primera pregunta, con su clave." },
+      { "event": "questions", "text": "En «Preguntas»," },
+      { "event": "question", "text": "pega la pregunta que te dio Gemini." },
+      { "event": "options", "text": "Después, cada opción en su línea. Al dar Enter aparece la siguiente." },
+      { "event": "key", "text": "Ahora toca «Clave de respuesta»." },
+      { "event": "points", "text": "Dale un punto," },
+      { "event": "correct", "text": "y marca la correcta: la que tenía el asterisco." },
+      { "event": "done", "text": "Toca «Listo». Repite lo mismo con las otras cuatro preguntas." }
+    ]
+  },
+  {
+    "slug": "f4-pruebalo-antes-de-enviarlo",
+    "course": "Una prueba corta en Google Forms",
+    "title": "Pruébalo antes de enviarlo",
+    "cues": [
+      { "event": "intro", "text": "Hola, soy Lía. Antes de mandar la prueba al curso, contéstala tú." },
+      { "event": "publish", "text": "Toca «Publicar»." },
+      { "event": "dialog", "text": "Fíjate quién puede responder: cualquier persona que tenga el vínculo." },
+      { "event": "published", "text": "Publica." },
+      { "event": "link", "text": "Copia el vínculo, el mismo que vas a mandar a tus estudiantes, y ábrelo." },
+      { "event": "form", "text": "Así lo van a ver ellos." },
+      { "event": "answer", "text": "Contesta como lo haría un estudiante; aquí, a propósito, una incorrecta." },
+      { "event": "submit", "text": "Envía." },
+      { "event": "sent", "text": "Respuesta registrada." },
+      { "event": "responses", "text": "Vuelve al formulario, a «Respuestas»." },
+      { "event": "detail", "text": "Forms muestra qué pregunta falla más y cuántos eligieron cada opción. Cuando contesten tus estudiantes, aquí ves qué volver a explicar." }
+    ]
+  }
+]

@@ -1,0 +1,57 @@
+[
+ {
+  "offset": 0.2,
+  "duration": 2.376,
+  "text": "Hola, soy Lía."
+ },
+ {
+  "offset": 2.876,
+  "duration": 3.84,
+  "text": "Vamos a pasar la primera pregunta, con su clave."
+ },
+ {
+  "offset": 7.756571457999094,
+  "duration": 2.424,
+  "text": "En «Preguntas»,"
+ },
+ {
+  "offset": 10.780571457999093,
+  "duration": 3,
+  "text": "pega la pregunta que te dio Gemini."
+ },
+ {
+  "offset": 14.380571457999093,
+  "duration": 3.288,
+  "text": "Después, cada opción en su línea."
+ },
+ {
+  "offset": 17.968571457999094,
+  "duration": 2.952,
+  "text": "Al dar Enter aparece la siguiente."
+ },
+ {
+  "offset": 21.52057145799909,
+  "duration": 3.24,
+  "text": "Ahora toca «Clave de respuesta»."
+ },
+ {
+  "offset": 25.36057145799909,
+  "duration": 2.016,
+  "text": "Dale un punto,"
+ },
+ {
+  "offset": 27.97657145799909,
+  "duration": 3.912,
+  "text": "y marca la correcta: la que tenía el asterisco."
+ },
+ {
+  "offset": 32.48857145799909,
+  "duration": 2.208,
+  "text": "Toca «Listo»."
+ },
+ {
+  "offset": 34.996571457999096,
+  "duration": 3.744,
+  "text": "Repite lo mismo con las otras cuatro preguntas."
+ }
+]

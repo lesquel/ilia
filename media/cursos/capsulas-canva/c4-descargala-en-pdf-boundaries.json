@@ -1,0 +1,42 @@
+[
+ {
+  "offset": 0.2,
+  "duration": 2.376,
+  "text": "Hola, soy Lía."
+ },
+ {
+  "offset": 2.876,
+  "duration": 3.432,
+  "text": "Último paso: descargar la lámina."
+ },
+ {
+  "offset": 7.848000002724784,
+  "duration": 2.328,
+  "text": "Toca «Compartir»"
+ },
+ {
+  "offset": 10.776000002724784,
+  "duration": 2.52,
+  "text": "y luego «Descargar»."
+ },
+ {
+  "offset": 13.896000002724785,
+  "duration": 2.976,
+  "text": "El tipo de archivo es PDF."
+ },
+ {
+  "offset": 17.472000002724783,
+  "duration": 3.744,
+  "text": "Si la vas a imprimir, elige «Impresión»."
+ },
+ {
+  "offset": 21.816000002724785,
+  "duration": 2.52,
+  "text": "Y toca «Descargar»."
+ },
+ {
+  "offset": 24.936000002724786,
+  "duration": 6.576,
+  "text": "Listo: queda en tu computadora, para imprimir o proyectar aunque en el aula no haya internet."
+ }
+]
