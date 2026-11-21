@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CodePracticeController as Practice;
 use App\Http\Controllers\NormalizacionEntregaController;
+use App\Http\Controllers\ReporteEntregasController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/modulo');
@@ -25,4 +26,18 @@ Route::middleware('auth')->group(function () {
         [NormalizacionEntregaController::class, 'web']);
     Route::post('/api/practica/normalizacion-entregas/externo',
         [NormalizacionEntregaController::class, 'externo']);
+});
+
+// Práctica individual 3.1: reportes con productor, RabbitMQ y consumidor.
+Route::middleware('auth')->group(function () {
+    Route::post('/api/practica/reportes-entregas', [ReporteEntregasController::class, 'store'])
+        ->middleware('throttle:20,1')->name('module.reports.store');
+    Route::post('/api/practica/reportes-entregas/sincrono', [ReporteEntregasController::class, 'sincrono'])
+        ->middleware('throttle:20,1')->name('module.reports.sync');
+    Route::get('/api/practica/tareas/{id}/reportes', [ReporteEntregasController::class, 'index'])
+        ->whereNumber('id')->name('module.reports.index');
+    Route::get('/api/practica/reportes-entregas/{id}', [ReporteEntregasController::class, 'show'])
+        ->whereUuid('id')->name('module.reports.show');
+    Route::get('/reportes-entregas/{id}/descargar', [ReporteEntregasController::class, 'descargar'])
+        ->whereUuid('id')->name('module.reports.download');
 });
