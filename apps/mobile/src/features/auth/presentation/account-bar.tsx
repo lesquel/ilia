@@ -13,7 +13,15 @@ import {
   type LucideIcon,
 } from 'lucide-react-native';
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 
 import { breakpoint, useTheme } from '@/core/theme';
 import { BrandMark } from '@/core/ui/brand-mark';
@@ -63,34 +71,55 @@ export function AccountBar() {
   const navItems = appNavItemsForRole(user.role);
   const isWide = width >= breakpoint.compact;
 
-  return (
-    <View
-      style={[
-        styles.bar,
-        isWide ? styles.barWide : styles.barStacked,
-        { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.divider },
-      ]}
-    >
-      <View style={[styles.place, isWide ? styles.placeWide : undefined]}>
-        <Link href="/" asChild>
-          <Pressable accessibilityRole="link" accessibilityLabel="ILIA, inicio">
-            <BrandMark variant="monogram" height={28} />
-          </Pressable>
-        </Link>
-        <View style={styles.placeCopy} accessibilityRole="header">
-          <Text style={[styles.hereKicker, { color: theme.colors.neutral[500] }]}>Estás en</Text>
-          <LocationTrail crumbs={location.crumbs} />
+  const place = (
+    <View style={[styles.place, styles.placeGrow]}>
+      <Link href="/" asChild>
+        <Pressable accessibilityRole="link" accessibilityLabel="ILIA, inicio">
+          <BrandMark variant="monogram" height={isWide ? 28 : 24} />
+        </Pressable>
+      </Link>
+      <View style={styles.placeCopy} accessibilityRole="header">
+        <Text style={[styles.hereKicker, { color: theme.colors.neutral[500] }]}>Estás en</Text>
+        <LocationTrail crumbs={location.crumbs} />
+      </View>
+    </View>
+  );
+  const links = navItems.map((item) => (
+    <NavLink key={item.href} item={item} isCurrent={item.sectionId === location.sectionId} />
+  ));
+  const barColors = { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.divider };
+
+  if (isWide) {
+    return (
+      <View style={[styles.bar, styles.barWide, barColors]}>
+        {place}
+        <View style={styles.nav} accessibilityLabel="Secciones de ILIA">
+          {links}
         </View>
+        <CodeModuleButton />
+        <SessionMenu key={pathname} user={user} />
       </View>
+    );
+  }
 
-      <View style={[styles.nav, isWide ? undefined : styles.navFull]} accessibilityLabel="Secciones de ILIA">
-        {navItems.map((item) => (
-          <NavLink key={item.href} item={item} isCurrent={item.sectionId === location.sectionId} />
-        ))}
+  // Phone width: two fixed rows. Place and account share the top row; the
+  // sections stay on one line and scroll sideways instead of wrapping, so the
+  // bar keeps the same height whatever the role shows.
+  return (
+    <View style={[styles.bar, styles.barCompact, barColors]}>
+      <View style={styles.compactTop}>
+        {place}
+        <CodeModuleButton />
+        <SessionMenu key={pathname} user={user} compact />
       </View>
-
-      <CodeModuleButton />
-      <SessionMenu key={pathname} user={user} />
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        accessibilityLabel="Secciones de ILIA"
+        contentContainerStyle={styles.navScroll}
+      >
+        {links}
+      </ScrollView>
     </View>
   );
 }
@@ -106,7 +135,7 @@ function useCourseTitle(slug: string | undefined): string | undefined {
   return useCourse(slug ?? '').course?.title;
 }
 
-function SessionMenu({ user }: { user: User }) {
+function SessionMenu({ user, compact = false }: { user: User; compact?: boolean }) {
   const theme = useTheme();
   const logout = useLogout();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -136,7 +165,9 @@ function SessionMenu({ user }: { user: User }) {
             ]}
           >
             <ProfileAvatar name={user.fullName} avatarKey={user.avatarKey} avatarUrl={user.avatarUrl} size={26} />
-            <Text style={[styles.sessionName, { color: theme.colors.text }]}>{givenName}</Text>
+            {compact ? null : (
+              <Text style={[styles.sessionName, { color: theme.colors.text }]}>{givenName}</Text>
+            )}
             <Icon glyph={ChevronDown} size={14} color={theme.colors.neutral[500]} />
           </Pressable>
         }
@@ -270,9 +301,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  barStacked: {
+  barCompact: {
     flexDirection: 'column',
     alignItems: 'stretch',
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 0,
+    gap: 4,
+  },
+  compactTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   place: {
     flexDirection: 'row',
@@ -281,7 +321,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     minWidth: 0,
   },
-  placeWide: {
+  placeGrow: {
     flex: 1,
   },
   placeCopy: {
@@ -320,8 +360,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
   },
-  navFull: {
-    width: '100%',
+  navScroll: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   navItem: {
     flexDirection: 'row',
