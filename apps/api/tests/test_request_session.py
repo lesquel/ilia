@@ -119,3 +119,19 @@ async def test_reads_in_one_request_are_never_stale(database: Database) -> None:
         async with database.session() as session:
             again = (await session.execute(select(_Note).where(_Note.id == 1))).scalar_one()
     assert again.body == "after"
+
+
+async def test_get_by_primary_key_is_never_stale_either(database: Database) -> None:
+    # `session.get` skips SQL when the row is already in the identity map, so
+    # the select-time refresh alone would hand back the old object.
+    async with database.session() as session:
+        session.add(_Note(id=1, body="before"))
+    async with database.request_scope():
+        async with database.session() as session:
+            held = await session.get(_Note, 1)
+            assert held is not None and held.body == "before"
+        async with database.session() as session:
+            await session.execute(text("UPDATE note SET body = 'after' WHERE id = 1"))
+        async with database.session() as session:
+            again = await session.get(_Note, 1)
+    assert again is not None and again.body == "after"

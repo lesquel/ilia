@@ -16,3 +16,4 @@ Delivery: one work-unit commit per task. Runners: pytest (apps/api, focused file
 ## Log
 - L1 (2026-11-22) user: "si haz todos"
 - L2 Measured before (in-process, live DB): auth/me 1q/1s, course detail 2q/1s, mis cursos 6q/4s, progreso 6q/4s, lección 7q/6s, certificados 2q/2s, entitlements 5q/4s, lab activity 5q/3s, lab intentos 2q/2s, lab resultado 5q/3s, admin overview 6q/2s, admin users 3q/3s, instructor courses 2q/2s, inbox 3q/3s.
+- L3 Independent verifier on c246d08: no blockers; invariants 1,2,4,5 PASS. Advisories: `session.get` could return a held stale object (fixed: expunge_all after each outermost block, test RED→GREEN); nested blocks commit at the outermost end; a read keeps its pooled connection until the next write or request end (both documented in `request_scope`). The query-budget tests on the real app pin the middleware order (reversed order gives >1 session). All API test files green after the fix (524 passed, 3 skipped).

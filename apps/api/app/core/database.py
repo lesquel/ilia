@@ -90,6 +90,12 @@ class Database:
         request's own task reuses one session. What does not change: a block
         that writes commits when it ends, a failing block rolls back, and any
         other task (the background evaluation queue) gets its own session.
+
+        Two differences from a private session per block, both accepted:
+        nested blocks commit once, at the outermost block's end (no repository
+        nests blocks today); and between blocks a read keeps its transaction,
+        and so its pooled connection, open until the next write or the end of
+        the request, including across non-database awaits.
         """
         unit = _RequestUnit(asyncio.current_task())
         token = _request_unit.set(unit)
@@ -133,9 +139,13 @@ class Database:
         unit.depth += 1
         try:
             yield session
-            if unit.depth == 1 and (unit.wrote or session.new or session.dirty or session.deleted):
-                await session.commit()
-                unit.wrote = False
+            if unit.depth == 1:
+                if unit.wrote or session.new or session.dirty or session.deleted:
+                    await session.commit()
+                    unit.wrote = False
+                # Forget what this block loaded: the next block reads fresh rows,
+                # `session.get` included, exactly as a private session would.
+                session.expunge_all()
         except BaseException:
             await session.rollback()
             unit.wrote = False
