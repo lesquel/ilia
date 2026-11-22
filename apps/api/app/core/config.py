@@ -35,6 +35,11 @@ class Settings(BaseSettings):
     # When unset, the app falls back to in-memory repositories: usable for a
     # quick look at the API, useless for anything real (it forgets on restart).
     database_url: str | None = None
+    # Test each pooled connection before use. Keep it on wherever the app runs
+    # serverless: frozen instances come back to connections the pooler already
+    # dropped. Local development against a remote database may turn it off
+    # (ILIA_DB_POOL_PRE_PING=false) to save one round trip per request.
+    db_pool_pre_ping: bool = True
 
     # --- LLM provider -------------------------------------------------------
 

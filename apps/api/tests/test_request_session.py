@@ -135,3 +135,16 @@ async def test_get_by_primary_key_is_never_stale_either(database: Database) -> N
         async with database.session() as session:
             again = await session.get(_Note, 1)
     assert again is not None and again.body == "after"
+
+
+def test_pool_pre_ping_is_on_unless_turned_off(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    # On by default: serverless instances freeze, and the pooler drops their
+    # idle connections. Local development may turn it off to save a round trip.
+    url = URL.create("sqlite+aiosqlite", database=str(tmp_path / "ping.sqlite3"))
+    base = {
+        "environment": "local",
+        "database_url": url.render_as_string(hide_password=False),
+        "jwt_secret": "request-session-test-key-that-is-long-enough",
+    }
+    assert Database(Settings(**base)).engine.pool._pre_ping is True
+    assert Database(Settings(**base, db_pool_pre_ping=False)).engine.pool._pre_ping is False

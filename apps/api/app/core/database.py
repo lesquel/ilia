@@ -65,7 +65,7 @@ class Database:
         self._engine: AsyncEngine = create_async_engine(
             settings.database_url,
             echo=settings.debug and not settings.is_production,
-            pool_pre_ping=True,
+            pool_pre_ping=settings.db_pool_pre_ping,
             connect_args=connect_args,
             **database_options,
         )
