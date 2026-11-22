@@ -17,6 +17,7 @@ import {
 import { cueAt, formatVideoTime, parseWebVtt, type WebVttCue } from './webvtt';
 
 /** Same measure as the lesson column, so the picture sits in the middle. */
+import { lessonVideoMaxWidth } from '@/features/enrollment/domain/lesson-video-size';
 import { LESSON_COLUMN_MAX_WIDTH } from '@/features/enrollment/presentation/lesson-layout';
 
 const CENTERED_PLAYER_MAX_WIDTH = LESSON_COLUMN_MAX_WIDTH;
@@ -48,7 +49,14 @@ export function LessonPlayer({
   onPositionChange?: (positionSeconds: number) => void;
 }) {
   const theme = useTheme();
-  const isWide = useWindowDimensions().width >= breakpoint.compact;
+  const window = useWindowDimensions();
+  const isWide = window.width >= breakpoint.compact;
+  // Short enough that the scene's idea text stays in view under it.
+  const maxWidth = lessonVideoMaxWidth({
+    windowHeight: window.height,
+    columnMax: CENTERED_PLAYER_MAX_WIDTH,
+    isWide,
+  });
   const restored = useRef(false);
   // A link that expired or a file that is not there leaves a silent black box;
   // the teacher needs to know it is the video, not their computer.
@@ -158,6 +166,9 @@ export function LessonPlayer({
       style={[
         styles.frame,
         {
+          maxWidth,
+          // In the wide two-column lesson it lines up with the scene below it.
+          alignSelf: isWide ? 'flex-start' : 'center',
           borderColor: theme.colors.divider,
           borderRadius: theme.radius.md,
           backgroundColor: theme.colors.neutral[900],

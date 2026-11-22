@@ -699,7 +699,8 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   stageMain: { flex: 1, minWidth: 0, minHeight: 0, gap: 12 },
-  stageAside: { width: LESSON_LIA_PANEL_WIDTH, minHeight: 0 },
+  // Lía's panel is as tall as what she says, not a tall empty column.
+  stageAside: { width: LESSON_LIA_PANEL_WIDTH, alignSelf: 'flex-start' },
   // Below a video the scene still needs room to read; the page scrolls instead.
   slideWide: { paddingHorizontal: 0, minHeight: 320 },
   filmBeat: {
