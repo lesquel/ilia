@@ -90,6 +90,7 @@ export function LessonScreen() {
             key={`${lesson.lessonId}:${lesson.mediaUrl}:${lesson.captionsUrl ?? ''}`}
             url={lesson.mediaUrl}
             captionsUrl={lesson.captionsUrl}
+            posterUrl={lesson.posterUrl}
             resumePositionSeconds={lesson.resumePositionSeconds}
             onPositionChange={(positionSeconds) =>
               recordPosition.mutate({ lessonId: lesson.lessonId, positionSeconds })

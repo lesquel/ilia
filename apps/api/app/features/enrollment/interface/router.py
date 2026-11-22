@@ -178,18 +178,21 @@ async def read_lesson(
     # stored on the lesson.
     media = None
     captions = None
+    poster = None
     if view.content.resource_ref:
-        media = request.app.state.storage.read_url(
-            view.content.resource_ref,
-            ttl=timedelta(seconds=settings.storage_url_ttl_seconds),
-        )
-        # Every video may have a sibling .vtt; the player shows the CC toggle only
-        # when that file actually loads.
+        ttl = timedelta(seconds=settings.storage_url_ttl_seconds)
+        media = request.app.state.storage.read_url(view.content.resource_ref, ttl=ttl)
+        # Every video may have a sibling .vtt and .jpg; the player shows the CC
+        # toggle and the poster only when those files actually load.
         if view.kind == "video":
-            captions_ref = str(PurePosixPath(view.content.resource_ref).with_suffix(".vtt"))
-            captions = request.app.state.storage.read_url(
-                captions_ref,
-                ttl=timedelta(seconds=settings.storage_url_ttl_seconds),
-            )
+            captions_ref, poster_ref = video_companion_refs(view.content.resource_ref)
+            captions = request.app.state.storage.read_url(captions_ref, ttl=ttl)
+            poster = request.app.state.storage.read_url(poster_ref, ttl=ttl)
 
-    return LessonViewResponse.from_entity(view, media, captions)
+    return LessonViewResponse.from_entity(view, media, captions, poster)
+
+
+def video_companion_refs(resource_ref: str) -> tuple[str, str]:
+    """The subtitles and the poster frame stored next to a video."""
+    video = PurePosixPath(resource_ref)
+    return str(video.with_suffix(".vtt")), str(video.with_suffix(".jpg"))
