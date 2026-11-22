@@ -33,6 +33,7 @@ import { useLogout, useSession } from '@/features/auth/application/use-auth';
 import {
   SESSION_ROLE_LABELS,
   appNavItemsForRole,
+  compactCrumbs,
   courseSlugInPath,
   firstGivenName,
   resolveAppLocation,
@@ -78,9 +79,12 @@ export function AccountBar() {
           <BrandMark variant="monogram" height={isWide ? 28 : 24} />
         </Pressable>
       </Link>
-      <View style={styles.placeCopy} accessibilityRole="header">
-        <Text style={[styles.hereKicker, { color: theme.colors.neutral[500] }]}>Estás en</Text>
-        <LocationTrail crumbs={location.crumbs} />
+      <View
+        style={styles.placeCopy}
+        accessibilityRole="header"
+        accessibilityLabel={`Estás en ${location.crumbs.map((crumb) => crumb.label).join(', ')}`}
+      >
+        <LocationTrail crumbs={isWide ? location.crumbs : compactCrumbs(location.crumbs)} />
       </View>
     </View>
   );
@@ -222,6 +226,13 @@ function SessionMenu({ user, compact = false }: { user: User; compact?: boolean 
   );
 }
 
+/**
+ * The trail: parents as quiet links, the current place in bold, on one line.
+ *
+ * It never wraps. A second line made the bar change height from page to page;
+ * long titles are cut with an ellipsis instead, and the full trail is read out
+ * by the header's accessibility label.
+ */
 function LocationTrail({ crumbs }: { crumbs: AppLocationCrumb[] }) {
   const theme = useTheme();
 
@@ -230,17 +241,39 @@ function LocationTrail({ crumbs }: { crumbs: AppLocationCrumb[] }) {
       {crumbs.map((crumb, index) => {
         const isLast = index === crumbs.length - 1;
         return (
-          <View key={`${crumb.href}-${crumb.label}`} style={styles.trailItem}>
+          <View
+            key={`${crumb.href}-${crumb.label}`}
+            style={[styles.trailItem, isLast ? styles.trailItemNow : null]}
+          >
             {index > 0 ? (
-              <Icon glyph={ChevronRight} size={12} color={theme.colors.neutral[400]} />
+              <Icon glyph={ChevronRight} size={14} color={theme.colors.neutral[400]} />
             ) : null}
             {isLast ? (
-              <Text style={[styles.hereNow, { color: theme.colors.text }]} numberOfLines={1}>
+              <Text
+                style={[styles.hereNow, { color: theme.colors.text }]}
+                numberOfLines={1}
+                accessibilityRole="text"
+              >
                 {crumb.label}
               </Text>
             ) : (
-              <Link href={crumb.href as Href} style={[styles.trailLink, { color: theme.colors.neutral[600] }]}>
-                {crumb.label}
+              <Link href={crumb.href as Href} asChild>
+                <Pressable accessibilityRole="link" style={styles.trailPress}>
+                  {({ hovered, pressed }: { hovered?: boolean; pressed: boolean }) => (
+                    <Text
+                      numberOfLines={1}
+                      style={[
+                        styles.trailLink,
+                        {
+                          color: hovered || pressed ? theme.colors.accent : theme.colors.neutral[600],
+                          textDecorationLine: hovered ? 'underline' : 'none',
+                        },
+                      ]}
+                    >
+                      {crumb.label}
+                    </Text>
+                  )}
+                </Pressable>
               </Link>
             )}
           </View>
@@ -329,29 +362,36 @@ const styles = StyleSheet.create({
     minWidth: 0,
     gap: 2,
   },
-  hereKicker: {
-    fontSize: 11,
-    fontWeight: '600',
-    letterSpacing: 0.6,
-    textTransform: 'uppercase',
-  },
   trail: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     alignItems: 'center',
-    gap: 2,
+    gap: 4,
+    minWidth: 0,
   },
   trailItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 2,
+    gap: 4,
+    flexShrink: 1,
+    minWidth: 0,
+  },
+  // The current place gives up width last: it is the one the person reads.
+  trailItemNow: {
+    flexShrink: 0,
+    maxWidth: '70%',
+  },
+  trailPress: {
+    flexShrink: 1,
+    minWidth: 0,
+    paddingVertical: 4,
   },
   trailLink: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '500',
   },
   hereNow: {
-    fontSize: 15,
+    flexShrink: 1,
+    fontSize: 16,
     fontWeight: '700',
   },
   nav: {
