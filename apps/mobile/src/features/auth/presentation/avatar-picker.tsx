@@ -83,11 +83,6 @@ export function AvatarPicker({ user }: { user: User }) {
         Elige una ilustración o una foto tuya. JPEG, PNG o WebP; máximo 5 MiB.
       </Text>
 
-      <View style={styles.previewRow}>
-        <ProfileAvatar name={user.fullName} avatarKey={user.avatarKey} avatarUrl={user.avatarUrl} size={56} />
-        <Text style={[styles.previewName, { color: theme.colors.text }]}>{user.fullName}</Text>
-      </View>
-
       {Platform.OS === 'web' ? (
         <input
           ref={input}
@@ -190,8 +185,6 @@ const styles = StyleSheet.create({
   section: { borderTopWidth: 1, paddingTop: 16, marginTop: 12, gap: 10 },
   heading: { fontSize: 17, fontWeight: '700' },
   help: { fontSize: 13, lineHeight: 19 },
-  previewRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 3 },
-  previewName: { fontSize: 15, fontWeight: '600' },
   hiddenInput: { display: 'none' },
   action: { minHeight: 48, borderWidth: 1, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', gap: 9, alignSelf: 'flex-start' },
   actionText: { fontSize: 14, fontWeight: '600' },

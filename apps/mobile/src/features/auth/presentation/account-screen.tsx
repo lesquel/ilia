@@ -9,12 +9,13 @@ import {
   Text,
   TextInput,
   View,
+  useWindowDimensions,
   type TextInputProps,
   type ViewStyle,
 } from 'react-native';
 
 import { ApiError } from '@/core/errors/api-error';
-import { useTheme } from '@/core/theme';
+import { breakpoint, useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
 import { ProfileAvatar } from '@/core/ui/profile-avatar';
 import {
@@ -68,25 +69,75 @@ function profileMessageFor(error: unknown): string {
 export function AccountScreen() {
   const theme = useTheme();
   const { user } = useSession();
+  const { width } = useWindowDimensions();
+  // Two columns once there is room: who you are on the left, what you can
+  // change on the right. One centred column on a phone.
+  const isWide = width >= breakpoint.medium;
+
+  const help = (
+    // Stated rather than hidden: someone who cannot get in needs to know
+    // that today the answer is a person, not a link.
+    <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>
+      ¿Olvidaste tu contraseña y no puedes entrar? Todavía no hay recuperación por correo:
+      escríbenos y la restablecemos.
+    </Text>
+  );
 
   return (
     <ScrollView
       style={{ backgroundColor: theme.colors.bg }}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, isWide ? styles.contentWide : null]}
       keyboardShouldPersistTaps="handled"
     >
-      <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">Tu cuenta</Text>
-
-      {user ? <ProfileCard user={user} /> : null}
-      <PasswordCard />
-
-      {/* Stated rather than hidden: someone who cannot get in needs to know
-          that today the answer is a person, not a link. */}
-      <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>
-        ¿Olvidaste tu contraseña y no puedes entrar? Todavía no hay recuperación por correo:
-        escríbenos y la restablecemos.
+      <Text
+        style={[styles.title, { color: theme.colors.text, fontFamily: theme.typography.display.family }]}
+        accessibilityRole="header"
+      >
+        Tu cuenta
       </Text>
+
+      <View style={isWide ? styles.columns : styles.stack}>
+        {user ? (
+          <View style={isWide ? styles.side : styles.stack}>
+            <IdentityCard user={user} />
+          </View>
+        ) : null}
+        <View style={[styles.stack, isWide ? styles.main : null]}>
+          {user ? <ProfileCard user={user} /> : null}
+          <PasswordCard />
+          {help}
+        </View>
+      </View>
     </ScrollView>
+  );
+}
+
+/** Who is signed in, and the picture that stands for them. */
+function IdentityCard({ user }: { user: User }) {
+  const theme = useTheme();
+
+  return (
+    <Card>
+      <View style={styles.identity}>
+        <ProfileAvatar name={user.fullName} avatarKey={user.avatarKey} avatarUrl={user.avatarUrl} size={88} />
+        <Text
+          style={[styles.name, { color: theme.colors.text, fontFamily: theme.typography.displayBold.family }]}
+          numberOfLines={2}
+        >
+          {user.fullName}
+        </Text>
+        <Text style={[styles.email, { color: theme.colors.neutral[600] }]} numberOfLines={1}>
+          {user.email}
+        </Text>
+        <View style={[styles.roleTag, { backgroundColor: theme.colors.accentRamp[100], borderRadius: 999 }]}>
+          <Text style={[styles.roleTagText, { color: theme.colors.accentRamp[800] }]}>
+            {SESSION_ROLE_LABELS[user.role]}
+          </Text>
+        </View>
+      </View>
+
+      <AvatarPicker user={user} />
+    </Card>
   );
 }
 
@@ -112,31 +163,9 @@ function ProfileCard({ user }: { user: User }) {
 
   return (
     <Card>
-      <View style={styles.identity}>
-        <ProfileAvatar name={user.fullName} avatarKey={user.avatarKey} avatarUrl={user.avatarUrl} size={64} />
-        <View style={styles.identityText}>
-          <Text style={[styles.name, { color: theme.colors.text }]} numberOfLines={2}>
-            {user.fullName}
-          </Text>
-          <Text style={[styles.email, { color: theme.colors.neutral[600] }]} numberOfLines={1}>
-            {user.email}
-          </Text>
-          <View
-            style={[
-              styles.roleTag,
-              { backgroundColor: theme.colors.accentRamp[100], borderRadius: theme.radius.sm },
-            ]}
-          >
-            <Text style={[styles.roleTagText, { color: theme.colors.accentRamp[800] }]}>
-              {SESSION_ROLE_LABELS[user.role]}
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      <AvatarPicker user={user} />
-
-      <View style={[styles.rule, { backgroundColor: theme.colors.divider }]} />
+      <Text style={[styles.sectionTitle, { color: theme.colors.text }]} accessibilityRole="header">
+        Tus datos
+      </Text>
 
       <Text style={[styles.label, { color: theme.colors.neutral[700] }]}>Nombre y apellido</Text>
       <Field
@@ -197,16 +226,20 @@ function ProfileCard({ user }: { user: User }) {
         style={({ pressed }) => [
           styles.button,
           {
-            backgroundColor: theme.colors.accentButton,
+            // Nothing to save reads as a quiet grey button, not a faded blue
+            // one that looks broken.
+            backgroundColor: ready ? theme.colors.accentButton : theme.colors.neutral[200],
             borderRadius: theme.radius.md,
-            opacity: !ready ? 0.5 : pressed ? 0.85 : 1,
+            opacity: pressed ? 0.85 : 1,
           },
         ]}
       >
         {update.isPending ? (
-          <ActivityIndicator color="#ffffff" />
+          <ActivityIndicator color={theme.colors.neutral[600]} />
         ) : (
-          <Text style={styles.buttonLabel}>Guardar cambios</Text>
+          <Text style={[styles.buttonLabel, ready ? null : { color: theme.colors.neutral[600] }]}>
+            Guardar cambios
+          </Text>
         )}
       </Pressable>
     </Card>
@@ -314,16 +347,20 @@ function PasswordCard() {
         style={({ pressed }) => [
           styles.button,
           {
-            backgroundColor: theme.colors.accentButton,
+            // Nothing to save reads as a quiet grey button, not a faded blue
+            // one that looks broken.
+            backgroundColor: ready ? theme.colors.accentButton : theme.colors.neutral[200],
             borderRadius: theme.radius.md,
-            opacity: !ready ? 0.5 : pressed ? 0.85 : 1,
+            opacity: pressed ? 0.85 : 1,
           },
         ]}
       >
         {change.isPending ? (
-          <ActivityIndicator color="#ffffff" />
+          <ActivityIndicator color={theme.colors.neutral[600]} />
         ) : (
-          <Text style={styles.buttonLabel}>Cambiar contraseña</Text>
+          <Text style={[styles.buttonLabel, ready ? null : { color: theme.colors.neutral[600] }]}>
+            Cambiar contraseña
+          </Text>
         )}
       </Pressable>
     </Card>
@@ -371,8 +408,8 @@ function Field({ onFocus, onBlur, ...props }: TextInputProps) {
       style={[
         styles.input,
         {
-          backgroundColor: theme.colors.neutral[100],
-          borderColor: focused ? theme.colors.accent : theme.colors.divider,
+          backgroundColor: theme.colors.surface,
+          borderColor: focused ? theme.colors.accent : theme.colors.neutral[300],
           color: theme.colors.text,
           borderRadius: theme.radius.md,
         },
@@ -383,11 +420,15 @@ function Field({ onFocus, onBlur, ...props }: TextInputProps) {
 
 const styles = StyleSheet.create({
   content: { padding: 20.4, maxWidth: 640, width: '100%', alignSelf: 'center', gap: 20.4 },
-  title: { fontSize: 30, fontWeight: '600' },
+  contentWide: { maxWidth: 1080, paddingTop: 32 },
+  title: { fontSize: 40, lineHeight: 46 },
+  stack: { gap: 20.4 },
+  columns: { flexDirection: 'row', alignItems: 'flex-start', gap: 24 },
+  side: { width: 380, gap: 20.4 },
+  main: { flex: 1, minWidth: 0 },
   card: { borderWidth: 1, padding: 20.4, gap: 3.4 },
-  identity: { flexDirection: 'row', alignItems: 'center', gap: 13.6 },
-  identityText: { flex: 1, minWidth: 0, gap: 3.4, alignItems: 'flex-start' },
-  name: { fontSize: 20, fontWeight: '600', lineHeight: 26 },
+  identity: { alignItems: 'center', gap: 6.8, paddingVertical: 6.8 },
+  name: { fontSize: 24, lineHeight: 30, textAlign: 'center', marginTop: 6.8 },
   email: { fontSize: 14, lineHeight: 20 },
   roleTag: { paddingHorizontal: 10.2, paddingVertical: 3.4, marginTop: 3.4 },
   roleTagText: { fontSize: 12, fontWeight: '600' },
@@ -409,6 +450,8 @@ const styles = StyleSheet.create({
   error: { fontSize: 14, marginTop: 6.8 },
   ok: { fontSize: 14, marginTop: 6.8, fontWeight: '600' },
   button: {
+    alignSelf: 'flex-end',
+    paddingHorizontal: 22,
     paddingVertical: 13.6,
     alignItems: 'center',
     justifyContent: 'center',

@@ -69,7 +69,7 @@ export function LessonLiaPanel({
 }
 
 const styles = StyleSheet.create({
-  panel: { flex: 1, minHeight: 0, borderWidth: 1, overflow: 'hidden' },
+  panel: { borderWidth: 1, overflow: 'hidden' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -89,7 +89,8 @@ const styles = StyleSheet.create({
   avatarImage: { width: 44, height: 44 },
   name: { fontSize: 15, fontWeight: '700' },
   role: { fontSize: 12 },
-  thread: { flex: 1 },
+  // As tall as the bubbles, scrolling only past a long lab conversation.
+  thread: { flexGrow: 0, maxHeight: 520 },
   threadInner: { padding: 20, gap: 12 },
   bubble: {
     alignSelf: 'flex-start',
