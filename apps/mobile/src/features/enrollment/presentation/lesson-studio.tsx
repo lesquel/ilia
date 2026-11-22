@@ -15,6 +15,7 @@ import { Check, ChevronLeft, ChevronRight, Play, Send } from 'lucide-react-nativ
 import { breakpoint, useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
 import { MascotGuide, type MascotMood } from '@/core/ui/mascot-guide';
+import { lessonColumn } from '@/features/enrollment/presentation/lesson-layout';
 import { useReducedMotion } from 'react-native-reanimated';
 import { examplePlainText, parseLessonBody } from '@/features/enrollment/domain/lesson-body';
 import {
@@ -149,7 +150,7 @@ export function LessonStudio({
 
   return (
     <View style={styles.deck}>
-      <View style={styles.film}>
+      <View style={[styles.film, lessonColumn]}>
         {scenes.map((scene, index) => (
           <View
             key={`${scene.type}-${index}`}
@@ -168,7 +169,7 @@ export function LessonStudio({
         </Text>
       </View>
 
-      <View style={styles.slide}>
+      <View style={[styles.slide, lessonColumn]}>
         <ScrollView
           style={styles.slideCopy}
           contentContainerStyle={[
@@ -235,6 +236,9 @@ export function LessonStudio({
           { borderTopColor: theme.colors.divider, backgroundColor: theme.colors.surface },
         ]}
       >
+        {/* The bar spans the window; its contents keep to the lesson column, so
+            "Leer de un tirón" sits at the column's edge, not the screen's. */}
+        <View style={[styles.dockColumn, lessonColumn]}>
         <View style={[styles.dockActions, isWide ? undefined : styles.dockActionsCompact]}>
         <Pressable
           accessibilityRole="button"
@@ -339,6 +343,7 @@ export function LessonStudio({
             Leer de un tirón
           </Text>
         </Pressable>
+        </View>
       </View>
 
       <LabProcessor
@@ -616,7 +621,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingHorizontal: 40,
+    paddingHorizontal: 24,
     paddingTop: 8,
     paddingBottom: 4,
   },
@@ -632,7 +637,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 0,
     position: 'relative',
-    paddingHorizontal: 28,
+    paddingHorizontal: 24,
     paddingTop: 8,
   },
   slideCopy: {
@@ -693,6 +698,10 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderTopWidth: 1,
   },
+  dockColumn: {
+    position: 'relative',
+    alignItems: 'center',
+  },
   dockActions: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -702,7 +711,7 @@ const styles = StyleSheet.create({
   dockActionsCompact: { width: '100%', flexWrap: 'wrap' },
   readAllLink: {
     position: 'absolute',
-    right: 24,
+    right: 0,
     top: 0,
     bottom: 0,
     justifyContent: 'center',
