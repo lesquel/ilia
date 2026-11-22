@@ -6,7 +6,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } fr
 import { breakpoint, useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
 import { ProgressBar } from '@/core/ui/progress-bar';
-import { ErrorState, LoadingState } from '@/core/ui/state-view';
+import { ErrorState } from '@/core/ui/state-view';
 import {
   useAuthoredCourseDetail,
   useCourseInsights,
@@ -24,6 +24,10 @@ import {
   type DayCount,
   type RosterEntry,
 } from '@/features/instructor/domain/entities';
+import {
+  RosterEntriesSkeleton,
+  RosterInsightsSkeleton,
+} from '@/features/instructor/presentation/roster-screen-skeleton';
 import { Card } from '@/features/instructor/presentation/ui';
 
 /** How many day columns fit one row before the labels start to collide. */
@@ -72,7 +76,7 @@ export function RosterScreen() {
       </View>
 
       {insightsLoading || !insights ? (
-        <LoadingState label="Cargando las cifras del curso…" />
+        <RosterInsightsSkeleton />
       ) : (
         <>
           <StatTiles insights={insights} />
@@ -103,7 +107,7 @@ export function RosterScreen() {
 
       <Card title="Inscritos" hint="Quién se anotó, de qué charla vino y hasta dónde llegó.">
         {rosterLoading ? (
-          <LoadingState label="Cargando inscritos…" />
+          <RosterEntriesSkeleton />
         ) : roster.length === 0 ? (
           <View style={styles.emptyRoster}>
             <Text style={[styles.emptyTitle, { color: theme.colors.text }]}>

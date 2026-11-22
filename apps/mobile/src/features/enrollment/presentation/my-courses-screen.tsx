@@ -5,7 +5,7 @@ import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-n
 
 import { breakpoint, useTheme } from '@/core/theme';
 import { ProgressBar } from '@/core/ui/progress-bar';
-import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
+import { EmptyState, ErrorState } from '@/core/ui/state-view';
 import {
   Card,
   Fact,
@@ -32,6 +32,7 @@ import {
 } from '@/features/enrollment/domain/entities';
 import { primaryCourseToContinue } from '@/features/enrollment/domain/resume';
 import { ContinueHero } from '@/features/enrollment/presentation/continue-hero';
+import { MyCoursesScreenSkeleton } from '@/features/enrollment/presentation/my-courses-screen-skeleton';
 
 const CONTENT_MAX_WIDTH = 1080;
 const CONTENT_PADDING = 20.4;
@@ -46,7 +47,7 @@ export function MyCoursesScreen() {
   if (isCheckingSession) {
     return (
       <Screen>
-        <LoadingState />
+        <MyCoursesScreenSkeleton withHeader />
       </Screen>
     );
   }
@@ -96,7 +97,7 @@ export function MyCoursesScreen() {
       />
 
       {isLoading ? (
-        <LoadingState label="Cargando tus cursos…" />
+        <MyCoursesScreenSkeleton />
       ) : courses.length === 0 ? (
         <EmptyState
           glyph={GraduationCap}

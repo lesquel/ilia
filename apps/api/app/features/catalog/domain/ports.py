@@ -39,3 +39,12 @@ class CourseRepository(Protocol):
         catalog from this method.
         """
         ...
+
+    async def get_many_by_ids(self, course_ids: list[UUID]) -> dict[UUID, Course]:
+        """Several courses by id, any status, keyed by id; missing ids are absent.
+
+        The batch form of `get_by_id`, with the same narrow purpose. "Mis
+        cursos" renders every course a teacher joined; one lookup per course
+        there is an N+1 paid on the screen opened most often.
+        """
+        ...

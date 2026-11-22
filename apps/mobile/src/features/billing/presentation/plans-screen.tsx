@@ -4,7 +4,6 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
 import { ProgressBar } from '@/core/ui/progress-bar';
-import { LoadingState } from '@/core/ui/state-view';
 import { Card, FieldLabel, ScreenHeader, Tag, useIsWide } from '@/core/ui/surface';
 import { useSession } from '@/features/auth';
 import { useEntitlements, usePlans } from '@/features/billing/application/use-billing';
@@ -15,6 +14,7 @@ import {
   type Entitlements,
   type Plan,
 } from '@/features/billing/domain/entities';
+import { PlansScreenSkeleton } from '@/features/billing/presentation/plans-screen-skeleton';
 import { CERTIFICATE_PLAN_FEATURE } from '@/features/certificates/domain/copy';
 
 export function PlansScreen() {
@@ -25,11 +25,7 @@ export function PlansScreen() {
   const { entitlements } = useEntitlements({ enabled: isAuthenticated });
 
   if (isLoading) {
-    return (
-      <View style={[styles.screen, { backgroundColor: theme.colors.bg }]}>
-        <LoadingState label="Cargando los planes…" />
-      </View>
-    );
+    return <PlansScreenSkeleton />;
   }
 
   return (
@@ -165,7 +161,6 @@ function Feature({ text, included }: { text: string; included: boolean }) {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, paddingTop: 40 },
   content: {
     padding: 20.4,
     maxWidth: 1080,

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   appNavItemsForRole,
+  compactCrumbs,
   courseSlugInPath,
   documentTitle,
   firstGivenName,
@@ -114,6 +115,48 @@ describe('resolveAppLocation', () => {
     expect(resolveAppLocation('/lab/submissions/abc').crumbs.at(-1)?.label).toBe('Resultado');
   });
 
+  it('places the lab under my courses, lit in the navigation', () => {
+    const labels = (path: string) => resolveAppLocation(path).crumbs.map((crumb) => crumb.label);
+
+    expect(resolveAppLocation('/lab/activity-1').sectionId).toBe('my-courses');
+    expect(labels('/lab/activity-1')).toEqual(['Mis cursos', 'Laboratorio']);
+    expect(labels('/lab/submissions/abc')).toEqual([
+      'Mis cursos',
+      'Historial de entregas',
+      'Resultado',
+    ]);
+    expect(labels('/lab/compare/activity-1')).toEqual([
+      'Mis cursos',
+      'Historial de entregas',
+      'Comparar intentos',
+    ]);
+  });
+
+  it('names the recetario as a place under my courses', () => {
+    const location = resolveAppLocation('/recetario');
+    expect(location.sectionId).toBe('my-courses');
+    expect(location.crumbs).toEqual([
+      { label: 'Mis cursos', href: '/my-courses' },
+      { label: 'Mi recetario', href: '/recetario' },
+    ]);
+  });
+
+  it('never links a parent crumb back to the page itself', () => {
+    const paths = [
+      '/lab/activity-1',
+      '/lab/submissions/abc',
+      '/lab/compare/activity-1',
+      '/recetario',
+      '/evaluations',
+      '/catalog/curso/forum/t1',
+      '/instructor/courses/c1/roster',
+    ];
+    for (const path of paths) {
+      const parents = resolveAppLocation(path).crumbs.slice(0, -1);
+      expect(parents.map((crumb) => crumb.href)).not.toContain(path);
+    }
+  });
+
   it('treats the signed-in landing as home', () => {
     expect(resolveAppLocation('/').sectionId).toBe('home');
     expect(resolveAppLocation('').sectionLabel).toBe('Inicio');
@@ -188,5 +231,21 @@ describe('titleFromSlug', () => {
 
   it('does not print an opaque id', () => {
     expect(titleFromSlug('e0011ee5-4ed0-4e06-8c77-8414bb205a59')).toBe('Curso');
+  });
+});
+
+describe('compactCrumbs', () => {
+  const crumb = (label: string) => ({ label, href: `/${label}` });
+
+  it('keeps only the parent and the current place on a phone', () => {
+    expect(compactCrumbs([crumb('a'), crumb('b'), crumb('c')]).map((c) => c.label)).toEqual([
+      'b',
+      'c',
+    ]);
+  });
+
+  it('leaves short trails as they are', () => {
+    expect(compactCrumbs([crumb('a'), crumb('b')]).map((c) => c.label)).toEqual(['a', 'b']);
+    expect(compactCrumbs([crumb('a')]).map((c) => c.label)).toEqual(['a']);
   });
 });

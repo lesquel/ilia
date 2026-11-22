@@ -13,10 +13,10 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '@/core/theme';
 import { BrandMark } from '@/core/ui/brand-mark';
 import { Icon } from '@/core/ui/icon';
-import { LoadingState } from '@/core/ui/state-view';
 import { Card, Fact, Field, FieldLabel, PrimaryButton, Tag, useIsWide } from '@/core/ui/surface';
 import { useVerification } from '@/features/certificates/application/use-certificates';
 import { formatIssueDate } from '@/features/certificates/domain/entities';
+import { VerifyScreenSkeleton } from '@/features/certificates/presentation/verify-screen-skeleton';
 
 /**
  * Public certificate verification.
@@ -84,7 +84,7 @@ export function VerifyScreen() {
         <PrimaryButton label="Verificar" glyph={ShieldCheck} onPress={search} stretch />
       </Card>
 
-      {code && isLoading ? <LoadingState label="Buscando el certificado…" /> : null}
+      {code && isLoading ? <VerifyScreenSkeleton /> : null}
 
       {code && error ? (
         <Verdict glyph={SearchX} title="No encontramos ningún certificado con ese código">

@@ -13,6 +13,7 @@ import {
   useEnroll,
 } from '@/features/enrollment/application/use-enrollment';
 import { callToAction } from '@/features/enrollment/domain/entities';
+import { EnrollPanelSkeleton } from '@/features/enrollment/presentation/enroll-panel-skeleton';
 
 function messageFor(error: unknown): string {
   if (!(error instanceof ApiError)) return 'No pudimos completar la inscripción.';
@@ -52,7 +53,7 @@ export function EnrollPanel({ slug, level }: { slug: string; level?: Level }) {
   const [cohortCode, setCohortCode] = useState('');
 
   if (isCheckingSession || (isAuthenticated && isLoading)) {
-    return <ActivityIndicator color={theme.colors.accent} style={styles.loader} />;
+    return <EnrollPanelSkeleton />;
   }
 
   if (!isAuthenticated) {
@@ -203,9 +204,6 @@ export function EnrollPanel({ slug, level }: { slug: string; level?: Level }) {
 }
 
 const styles = StyleSheet.create({
-  loader: {
-    paddingVertical: 20.4,
-  },
   // A rule, not a box: the panel sits inside the course card, and a square
   // frame inside a rounded one read as a form pasted on top.
   panel: {

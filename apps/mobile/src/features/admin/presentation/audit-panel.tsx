@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
-import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
+import { EmptyState, ErrorState } from '@/core/ui/state-view';
 import { useAuditLog } from '@/features/admin/application/use-admin';
 import {
   ACTION_LABELS,
@@ -9,6 +9,7 @@ import {
   auditFooter,
   type AuditEntry,
 } from '@/features/admin/domain/entities';
+import { AuditPanelSkeleton } from '@/features/admin/presentation/admin-panels-skeleton';
 import {
   Card,
   HeaderCell,
@@ -29,7 +30,7 @@ export function AuditPanel() {
       title="Auditoría"
       hint="Registro de acciones sensibles. Solo se agrega: nada de aquí se puede editar."
     >
-      {isLoading ? <LoadingState label="Cargando auditoría…" /> : null}
+      {isLoading ? <AuditPanelSkeleton /> : null}
       {error ? <ErrorState error={error} onRetry={() => void refetch()} /> : null}
       {!isLoading && !error && entries.length === 0 ? (
         <EmptyState title="Todavía no hay acciones registradas" />

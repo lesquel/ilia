@@ -2,7 +2,12 @@ from datetime import datetime
 from typing import Protocol
 from uuid import UUID
 
-from app.features.enrollment.domain.entities import Cohort, Enrollment, LessonContent
+from app.features.enrollment.domain.entities import (
+    Cohort,
+    Enrollment,
+    LessonContent,
+    ProgressSnapshot,
+)
 
 
 class EnrollmentRepository(Protocol):
@@ -39,6 +44,28 @@ class ProgressRepository(Protocol):
         Without this the syllabus showed a completion mark next to every lesson
         and nothing next to the activity, so a teacher who had passed the
         exercise saw no acknowledgement of the hardest thing they did.
+        """
+        ...
+
+    async def snapshot(
+        self, *, enrollment_id: UUID, user_id: UUID, course_id: UUID
+    ) -> ProgressSnapshot:
+        """Completions, resume positions and passed activities in one go.
+
+        The same three answers as `completed_lesson_ids`,
+        `positions_for_enrollment` and `passed_activity_ids`, read together:
+        against a remote database three separate reads are three sessions.
+        """
+        ...
+
+    async def snapshots(
+        self, *, user_id: UUID, enrollments: dict[UUID, UUID]
+    ) -> dict[UUID, ProgressSnapshot]:
+        """`snapshot` for several enrollments at once.
+
+        `enrollments` maps each enrollment id to its course id; the result has
+        one entry per enrollment id. "Mis cursos" reads every course a teacher
+        joined, so this is one read for all of them, not one per course.
         """
         ...
 

@@ -164,14 +164,25 @@ export function resolveAppLocation(pathname: string, names: AppLocationNames = {
     return locationOf('admin', 'Administración', [{ label: 'Administración', href: '/admin' }]);
   }
 
+  // The lab is reached from a course and its results live in the delivery
+  // history, so it sits under "Mis cursos" and that section stays lit. The
+  // first crumb is a real place to go back to, never the page itself.
   if (root === 'lab') {
-    const crumbs: AppLocationCrumb[] = [{ label: 'Laboratorio', href: path }];
-    if (second === 'submissions') {
-      crumbs.push({ label: 'Resultado', href: path });
-    } else if (second) {
-      crumbs.push({ label: 'Actividad', href: path });
+    const crumbs: AppLocationCrumb[] = [{ label: 'Mis cursos', href: '/my-courses' }];
+    if (second === 'submissions' || second === 'compare') {
+      crumbs.push({ label: 'Historial de entregas', href: '/evaluations' });
+      crumbs.push({ label: second === 'compare' ? 'Comparar intentos' : 'Resultado', href: path });
+    } else {
+      crumbs.push({ label: 'Laboratorio', href: path });
     }
-    return locationOf('lab', 'Laboratorio', crumbs);
+    return locationOf('my-courses', 'Laboratorio', crumbs);
+  }
+
+  if (root === 'recetario') {
+    return locationOf('my-courses', 'Mi recetario', [
+      { label: 'Mis cursos', href: '/my-courses' },
+      { label: 'Mi recetario', href: '/recetario' },
+    ]);
   }
 
   if (root === 'plans') {
@@ -187,6 +198,14 @@ export function resolveAppLocation(pathname: string, names: AppLocationNames = {
   }
 
   return locationOf('other', 'ILIA', [{ label: 'ILIA', href: path }]);
+}
+
+/**
+ * The trail a phone has room for: the parent to go back to and the current
+ * place. Anything further up is one tap away from the parent.
+ */
+export function compactCrumbs(crumbs: AppLocationCrumb[]): AppLocationCrumb[] {
+  return crumbs.length > 2 ? crumbs.slice(-2) : crumbs;
 }
 
 /** Pages a guest sees, where the location trail is not shown. */

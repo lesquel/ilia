@@ -6,13 +6,14 @@ import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from '
 import { ApiError } from '@/core/errors/api-error';
 import { useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
-import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
+import { EmptyState, ErrorState } from '@/core/ui/state-view';
 import { LEVEL_LABELS, formatDuration } from '@/features/catalog/domain/entities';
 import {
   useAuthoredCourses,
   useCreateCourse,
 } from '@/features/instructor/application/use-instructor';
 import { slugify, type AuthoredCourse } from '@/features/instructor/domain/entities';
+import { CoursesScreenSkeleton } from '@/features/instructor/presentation/courses-screen-skeleton';
 import {
   Card,
   Fact,
@@ -192,7 +193,7 @@ export function InstructorCoursesScreen() {
       }
       ListEmptyComponent={
         isLoading ? (
-          <LoadingState label="Cargando tus cursos…" />
+          <CoursesScreenSkeleton />
         ) : (
           <EmptyState
             title="Todavía no creaste ningún curso"

@@ -1,9 +1,10 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
-import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
+import { EmptyState, ErrorState } from '@/core/ui/state-view';
 import { useUsage } from '@/features/admin/application/use-admin';
 import { formatTokens, type UsageByUser } from '@/features/admin/domain/entities';
+import { UsagePanelSkeleton } from '@/features/admin/presentation/admin-panels-skeleton';
 import {
   Card,
   EmptyNote,
@@ -21,7 +22,7 @@ export function UsagePanel() {
   return (
     <View style={styles.panel}>
       <Card title="Consumo de LLM · últimos 30 días">
-        {isLoading ? <LoadingState label="Cargando uso de LLM…" /> : null}
+        {isLoading ? <UsagePanelSkeleton /> : null}
         {error ? <ErrorState error={error} onRetry={() => void refetch()} /> : null}
         {!isLoading && !error && !report ? <EmptyState title="No hay datos de uso" /> : null}
         {report ? (

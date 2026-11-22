@@ -4,11 +4,9 @@ import type { CatalogFilters, CoursePage } from '@/features/catalog/domain/entit
 import type { CatalogRepository } from '@/features/catalog/domain/repository';
 import { catalogRepository } from '@/features/catalog/data/catalog-repository';
 
-export const catalogKeys = {
-  all: ['catalog'] as const,
-  list: (filters: CatalogFilters) => ['catalog', 'list', filters] as const,
-  detail: (slug: string) => ['catalog', 'detail', slug] as const,
-};
+import { catalogKeys } from './query-keys';
+
+export { catalogKeys };
 
 /**
  * The paginated catalog.

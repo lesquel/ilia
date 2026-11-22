@@ -6,7 +6,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
 import { ProfileAvatar } from '@/core/ui/profile-avatar';
-import { ErrorState, LoadingState } from '@/core/ui/state-view';
+import { ErrorState } from '@/core/ui/state-view';
 import {
   Card,
   Fact,
@@ -20,6 +20,7 @@ import { useEntitlements } from '@/features/billing';
 import { useReply, useThread } from '@/features/forum/application/use-forum';
 import { MAX_BODY_CHARS, replyLabel, timeAgo } from '@/features/forum/domain/entities';
 import { ModerateControl } from '@/features/forum/presentation/moderate-control';
+import { ThreadScreenSkeleton } from '@/features/forum/presentation/thread-screen-skeleton';
 
 export function ThreadScreen() {
   const theme = useTheme();
@@ -56,7 +57,7 @@ export function ThreadScreen() {
           back={{ label: 'Volver al foro', href: forumHref }}
           title="Discusión"
         />
-        <LoadingState label="Cargando la discusión…" />
+        <ThreadScreenSkeleton />
       </Screen>
     );
   }

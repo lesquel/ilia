@@ -22,10 +22,10 @@ import {
 } from '@/features/admin/domain/entities';
 import { Card } from '@/features/admin/presentation/ui';
 
-const TILE_GAP = 10.2;
+export const TILE_GAP = 10.2;
 /** Below this a tile cannot hold its icon and a two-word label on one line. */
-const TILE_MIN_WIDTH = 150;
-const MAX_COLUMNS = 4;
+export const TILE_MIN_WIDTH = 150;
+export const MAX_COLUMNS = 4;
 
 /** The platform at a glance: who is here, what is offered, what was certified. */
 export function OverviewPanel({ overview }: { overview: PlatformOverview }) {

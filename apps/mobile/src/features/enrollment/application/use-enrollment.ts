@@ -1,20 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { ApiError } from '@/core/errors/api-error';
-import { catalogKeys } from '@/features/catalog/application/use-catalog';
 import type { CourseProgress } from '@/features/enrollment/domain/entities';
 import {
   enrollmentRepository,
   type EnrollmentRepository,
 } from '@/features/enrollment/data/enrollment-repository';
 
-export const enrollmentKeys = {
-  all: ['enrollment'] as const,
-  myCourses: ['enrollment', 'my-courses'] as const,
-  progress: (slug: string) => ['enrollment', 'progress', slug] as const,
-  lesson: (slug: string, lessonId: string) =>
-    ['enrollment', 'lesson', slug, lessonId] as const,
-};
+import { enrollMutationOptions } from './enroll-mutation';
+import { enrollmentKeys } from './query-keys';
+
+export { enrollmentKeys };
 
 /**
  * One lesson's material.
@@ -92,18 +88,7 @@ export function useCourseProgress(
 
 export function useEnroll(repository: EnrollmentRepository = enrollmentRepository) {
   const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (input: { courseSlug: string; cohortCode?: string }) =>
-      repository.enroll(input),
-    onSuccess: (_enrollment, { courseSlug }) => {
-      // Both lists change: the course now has progress, and "Mis cursos" has a
-      // new row. Invalidate rather than patch — the server owns the shape.
-      void queryClient.invalidateQueries({ queryKey: enrollmentKeys.progress(courseSlug) });
-      void queryClient.invalidateQueries({ queryKey: enrollmentKeys.myCourses });
-      void queryClient.invalidateQueries({ queryKey: catalogKeys.detail(courseSlug) });
-    },
-  });
+  return useMutation(enrollMutationOptions(queryClient, repository));
 }
 
 export function useCompleteLesson(

@@ -2,7 +2,7 @@ import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
-import { ErrorState, LoadingState } from '@/core/ui/state-view';
+import { ErrorState } from '@/core/ui/state-view';
 import {
   useCompleteLesson,
   useLesson,
@@ -14,6 +14,7 @@ import {
   LessonPlayer,
   LessonPlayerUnavailable,
 } from '@/features/enrollment/presentation/lesson-player';
+import { LessonScreenSkeleton } from '@/features/enrollment/presentation/lesson-screen-skeleton';
 
 export function LessonScreen() {
   const theme = useTheme();
@@ -28,7 +29,7 @@ export function LessonScreen() {
   if (isLoading) {
     return (
       <View style={[styles.screen, { backgroundColor: theme.colors.bg }]}>
-        <LoadingState label="Cargando la lección…" />
+        <LessonScreenSkeleton />
       </View>
     );
   }

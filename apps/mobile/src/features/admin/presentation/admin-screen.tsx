@@ -6,8 +6,9 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { ApiError } from '@/core/errors/api-error';
 import { useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
-import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
+import { EmptyState, ErrorState } from '@/core/ui/state-view';
 import { useOverview } from '@/features/admin/application/use-admin';
+import { AdminScreenSkeleton } from '@/features/admin/presentation/admin-screen-skeleton';
 import { AuditPanel } from '@/features/admin/presentation/audit-panel';
 import { CohortPanel } from '@/features/admin/presentation/cohort-panel';
 import { OverviewPanel } from '@/features/admin/presentation/overview-panel';
@@ -50,11 +51,7 @@ export function AdminScreen() {
   }
 
   if (isLoading || !overview) {
-    return (
-      <View style={[styles.screen, { backgroundColor: theme.colors.bg }]}>
-        <LoadingState label="Cargando el panel…" />
-      </View>
-    );
+    return <AdminScreenSkeleton />;
   }
 
   return (

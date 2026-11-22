@@ -4,10 +4,11 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
 import { ProfileAvatar } from '@/core/ui/profile-avatar';
-import { EmptyState, ErrorState, LoadingState } from '@/core/ui/state-view';
+import { EmptyState, ErrorState } from '@/core/ui/state-view';
 import { Card, ScreenHeader } from '@/core/ui/surface';
 import { useCommunityMember } from '@/features/forum/application/use-forum';
 import { timeAgo } from '@/features/forum/domain/entities';
+import { CommunityMemberScreenSkeleton } from '@/features/forum/presentation/community-member-screen-skeleton';
 
 export function CommunityMemberScreen() {
   const theme = useTheme();
@@ -16,7 +17,7 @@ export function CommunityMemberScreen() {
   return (
     <ScrollView style={{ backgroundColor: theme.colors.bg }} contentContainerStyle={styles.content}>
       <ScreenHeader back={{ label: 'Volver a Comunidad', href: '/community' }} title="Perfil de participante" />
-      {isLoading ? <LoadingState label="Cargando perfil…" /> : error ? <ErrorState error={error} onRetry={() => void refetch()} /> : member ? (
+      {isLoading ? <CommunityMemberScreenSkeleton /> : error ? <ErrorState error={error} onRetry={() => void refetch()} /> : member ? (
         <>
           <Card>
             <View style={styles.identity}>

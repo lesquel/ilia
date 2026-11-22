@@ -209,6 +209,15 @@ def compute_progress(
 
 
 @dataclass(frozen=True)
+class ProgressSnapshot:
+    """Everything `compute_progress` needs from storage for one enrollment."""
+
+    completed_lesson_ids: set[UUID]
+    lesson_positions: dict[UUID, int]
+    passed_activity_ids: set[UUID]
+
+
+@dataclass(frozen=True)
 class EnrolledCourse:
     """One row of "Mis cursos": the card plus how far along it is."""
 

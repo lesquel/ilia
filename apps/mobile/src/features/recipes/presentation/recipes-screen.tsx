@@ -3,11 +3,13 @@ import { useState } from 'react';
 import { Platform, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
-import { EmptyState, LoadingState } from '@/core/ui/state-view';
+import { EmptyState } from '@/core/ui/state-view';
 import { Card, Fact, OutlineButton, ScreenHeader, Tag } from '@/core/ui/surface';
 
 import { useRecipes } from '../application/use-recipes';
 import { toClassroomText, type Recipe } from '../domain/recipe';
+
+import { RecipesScreenSkeleton } from './recipes-screen-skeleton';
 
 function savedDate(value: string): string {
   const date = new Date(value);
@@ -40,7 +42,7 @@ export function RecipesScreen() {
       />
 
       {!isReady ? (
-        <LoadingState label="Abriendo tu recetario…" />
+        <RecipesScreenSkeleton />
       ) : recipes.length === 0 ? (
         <EmptyState
           glyph={NotebookPen}

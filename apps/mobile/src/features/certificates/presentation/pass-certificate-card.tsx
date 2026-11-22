@@ -15,6 +15,7 @@ import {
   CERTIFICATE_PROOF,
   PLAN_BLOCKS_CERTIFICATE,
 } from '@/features/certificates/domain/copy';
+import { PassCertificateCardSkeleton } from '@/features/certificates/presentation/pass-certificate-card-skeleton';
 
 /**
  * The verification code, offered at the moment the practice counts.
@@ -76,7 +77,7 @@ export function PassCertificateCard({
           </Link>
         </>
       ) : isLoading ? (
-        <ActivityIndicator color={theme.colors.accent} />
+        <PassCertificateCardSkeleton />
       ) : eligibility && !eligibility.met ? (
         eligibility.missing.map((item) => (
           <Text key={item} style={[styles.missing, { color: theme.colors.neutral[700] }]}>

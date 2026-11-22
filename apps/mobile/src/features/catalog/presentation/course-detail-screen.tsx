@@ -22,7 +22,7 @@ import {
 import { INSTITUTE_SHORT_NAME } from '@/core/brand';
 import { breakpoint, useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
-import { ErrorState, LoadingState } from '@/core/ui/state-view';
+import { ErrorState } from '@/core/ui/state-view';
 import { useCourse, useCourses } from '@/features/catalog/application/use-catalog';
 import { CourseCoverArt } from '@/features/catalog/presentation/course-cover-art';
 import {
@@ -37,6 +37,7 @@ import {
   type ModuleActivity,
   type SyllabusStationStatus,
 } from '@/features/catalog/domain/entities';
+import { CourseDetailScreenSkeleton } from '@/features/catalog/presentation/course-detail-screen-skeleton';
 
 /**
  * Institute card + a square timeline. Enrollment stays a slot so catalog
@@ -75,11 +76,7 @@ export function CourseDetailScreen({
   const { courses: catalog } = useCourses();
 
   if (isLoading) {
-    return (
-      <View style={[styles.screen, { backgroundColor: theme.colors.bg }]}>
-        <LoadingState label="Cargando el curso…" />
-      </View>
-    );
+    return <CourseDetailScreenSkeleton />;
   }
 
   if (error || !course) {
