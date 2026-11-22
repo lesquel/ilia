@@ -19,7 +19,7 @@ from app.core.config import Settings, get_settings
 from app.core.database import Database
 from app.core.errors import register_error_handlers
 from app.core.logging import configure_logging
-from app.core.middleware import CorrelationIdMiddleware
+from app.core.middleware import CorrelationIdMiddleware, RequestSessionMiddleware
 from app.features.admin.interface.dependencies import build_admin_container
 from app.features.admin.interface.router import router as admin_router
 from app.features.auth.interface.code_module import router as code_module_router
@@ -81,6 +81,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         lifespan=lifespan,
     )
 
+    # Added first so it ends up innermost, in the task that serves the request
+    # (see RequestSessionMiddleware).
+    app.add_middleware(RequestSessionMiddleware, database=database)
     app.add_middleware(CorrelationIdMiddleware)
     app.add_middleware(
         CORSMiddleware,

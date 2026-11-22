@@ -140,7 +140,7 @@ def test_enrolling_loads_the_course_once(harness: Harness) -> None:
     user_loads = [s for s in meter.statements if _USER_TABLE.search(s)]
     assert len(user_loads) == 1, _explain(meter)
     assert len(meter.statements) <= 9, _explain(meter)
-    assert meter.checkouts <= 7, _explain(meter)
+    assert meter.checkouts <= 1, _explain(meter)
 
 
 def test_my_courses_costs_the_same_for_one_course_or_two(harness: Harness) -> None:
@@ -159,7 +159,7 @@ def test_my_courses_costs_the_same_for_one_course_or_two(harness: Harness) -> No
 
     assert two_courses == one_course, _explain(meter)
     assert len(meter.statements) <= 6, _explain(meter)
-    assert meter.checkouts <= 4, _explain(meter)
+    assert meter.checkouts <= 1, _explain(meter)
 
 
 def test_course_progress_stays_within_budget(harness: Harness) -> None:
@@ -169,7 +169,7 @@ def test_course_progress_stays_within_budget(harness: Harness) -> None:
 
     assert response.status_code == 200
     assert len(meter.statements) <= 6, _explain(meter)
-    assert meter.checkouts <= 4, _explain(meter)
+    assert meter.checkouts <= 1, _explain(meter)
 
 
 def test_course_detail_is_one_session(harness: Harness) -> None:
