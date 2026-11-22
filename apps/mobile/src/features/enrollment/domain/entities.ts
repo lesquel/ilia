@@ -91,6 +91,8 @@ export interface LessonView {
    */
   mediaUrl: string | null;
   captionsUrl: string | null;
+  /** A still of the video, shown before the first play. */
+  posterUrl: string | null;
   /** Last saved playback time, returned by the API in seconds. */
   resumePositionSeconds: number;
   isCompleted: boolean;

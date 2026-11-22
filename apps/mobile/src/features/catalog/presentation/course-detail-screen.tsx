@@ -22,9 +22,9 @@ import {
 import { INSTITUTE_SHORT_NAME } from '@/core/brand';
 import { breakpoint, useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
-import { MascotGuide } from '@/core/ui/mascot-guide';
 import { ErrorState, LoadingState } from '@/core/ui/state-view';
 import { useCourse, useCourses } from '@/features/catalog/application/use-catalog';
+import { CourseCoverArt } from '@/features/catalog/presentation/course-cover-art';
 import {
   LEVEL_LABELS,
   currentItemIdInModule,
@@ -122,7 +122,6 @@ export function CourseDetailScreen({
     : isEnrolled && followTitle
       ? `Sigue: ${followTitle}.`
       : course.summary;
-  const mascotLine = isEnrolled && followTitle ? `Sigue: ${followTitle}.` : 'Cuando quieras, empezamos.';
   const activityCount = course.modules.reduce((total, module) => total + module.activities.length, 0);
 
   return (
@@ -161,26 +160,20 @@ export function CourseDetailScreen({
               : undefined,
           ]}
         >
-          <View
-            style={[
-              styles.stage,
-              { backgroundColor: theme.colors.accentRamp[100], borderRadius: theme.radius.md },
-            ]}
-          >
-            <View style={styles.kickerRow}>
-              <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
-              <Text style={[styles.kicker, { color: theme.colors.accentAlt }]}>
-                Instituto {INSTITUTE_SHORT_NAME}
-              </Text>
-            </View>
-            <View style={styles.stageMascot}>
-              <MascotGuide
-                line={mascotLine}
-                lineKey={`course-card-${course.slug}`}
-                holdMood="write"
-                size={148}
-              />
-            </View>
+          {/* The same cover as the course's card in the catalog, so the teacher
+              recognizes where they landed. */}
+          <View style={[styles.stage, { borderRadius: theme.radius.md }]}>
+            <CourseCoverArt
+              courseSlug={course.slug}
+              overlay={
+                <View style={styles.kickerRow}>
+                  <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
+                  <Text style={[styles.kicker, { color: theme.colors.accentAlt }]}>
+                    Instituto {INSTITUTE_SHORT_NAME}
+                  </Text>
+                </View>
+              }
+            />
           </View>
           <View
             style={[
@@ -552,15 +545,8 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   stage: {
-    paddingTop: 14,
-    paddingHorizontal: 14,
     marginBottom: 6,
     overflow: 'hidden',
-  },
-  stageMascot: {
-    alignItems: 'center',
-    paddingTop: 6,
-    paddingBottom: 10,
   },
   kickerRow: {
     flexDirection: 'row',

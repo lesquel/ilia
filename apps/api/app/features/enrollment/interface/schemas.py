@@ -128,6 +128,7 @@ class LessonViewResponse(BaseModel):
     media_url: str | None = None
     media_expires_in: int | None = None
     captions_url: str | None = None
+    poster_url: str | None = None
     is_completed: bool
     resume_position_seconds: int
     position: int
@@ -141,6 +142,7 @@ class LessonViewResponse(BaseModel):
         view: LessonView,
         media: SignedUrl | None = None,
         captions: SignedUrl | None = None,
+        poster: SignedUrl | None = None,
     ) -> "LessonViewResponse":
         return cls(
             lesson_id=view.lesson.lesson_id,
@@ -156,6 +158,7 @@ class LessonViewResponse(BaseModel):
             media_url=media.url if media else None,
             media_expires_in=media.expires_in_seconds if media else None,
             captions_url=captions.url if captions else None,
+            poster_url=poster.url if poster else None,
             is_completed=view.is_completed,
             resume_position_seconds=view.resume_position_seconds,
             position=view.position,

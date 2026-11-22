@@ -19,3 +19,21 @@ export function selectLessonSubtitle(player: SubtitlePlayer, track: SubtitleTrac
 export function pauseLessonVideo(player: PausablePlayer): void {
   player.pause();
 }
+
+/**
+ * The poster covers the player until the first play. It gives way to the
+ * resume choice, which already says where the teacher left off.
+ */
+export function shouldShowPoster({
+  posterUrl,
+  hasStarted,
+  posterFailed,
+  offersResume,
+}: {
+  posterUrl: string | null | undefined;
+  hasStarted: boolean;
+  posterFailed: boolean;
+  offersResume: boolean;
+}): boolean {
+  return Boolean(posterUrl) && !hasStarted && !posterFailed && !offersResume;
+}

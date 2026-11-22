@@ -1,11 +1,19 @@
 import { useEventListener } from 'expo';
 import { useFocusEffect } from 'expo-router';
+import { Image } from 'expo-image';
 import { useVideoPlayer, VideoView, type SubtitleTrack } from 'expo-video';
+import { Play } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
-import { pauseLessonVideo, seekLessonVideo, selectLessonSubtitle } from './video-playback';
+import { Icon } from '@/core/ui/icon';
+import {
+  pauseLessonVideo,
+  seekLessonVideo,
+  selectLessonSubtitle,
+  shouldShowPoster,
+} from './video-playback';
 import { cueAt, formatVideoTime, parseWebVtt, type WebVttCue } from './webvtt';
 
 /** Same measure as the lesson column, so the picture sits in the middle. */
@@ -24,11 +32,13 @@ const CENTERED_PLAYER_MAX_WIDTH = 760;
 export function LessonPlayer({
   url,
   captionsUrl,
+  posterUrl,
   resumePositionSeconds = 0,
   onPositionChange,
 }: {
   url: string;
   captionsUrl?: string | null;
+  posterUrl?: string | null;
   resumePositionSeconds?: number;
   onPositionChange?: (positionSeconds: number) => void;
 }) {
@@ -44,6 +54,8 @@ export function LessonPlayer({
   const [caption, setCaption] = useState('');
   const [captionsEnabled, setCaptionsEnabled] = useState(true);
   const nativeSubtitleTrack = useRef<SubtitleTrack | null>(null);
+  const [hasStarted, setHasStarted] = useState(false);
+  const [posterFailed, setPosterFailed] = useState(false);
 
   const player = useVideoPlayer(url, (instance) => {
     // Not autoplaying. A lesson that starts talking the moment the page opens
@@ -128,6 +140,7 @@ export function LessonPlayer({
     setCaption((current) => current === nextCaption ? current : nextCaption);
   });
   useEventListener(player, 'playingChange', ({ isPlaying }) => {
+    if (isPlaying) setHasStarted(true);
     if (!isPlaying) savePosition(player.currentTime, true);
   });
   useEventListener(player, 'playToEnd', () => savePosition(player.currentTime, true));
@@ -155,6 +168,33 @@ export function LessonPlayer({
         contentFit="contain"
         playsInline
       />
+      {shouldShowPoster({
+        posterUrl,
+        hasStarted,
+        posterFailed,
+        offersResume: showResumeChoice,
+      }) ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Reproducir video"
+          onPress={() => {
+            setHasStarted(true);
+            player.play();
+          }}
+          style={styles.poster}
+        >
+          <Image
+            source={{ uri: posterUrl ?? undefined }}
+            style={StyleSheet.absoluteFill}
+            contentFit="contain"
+            onError={() => setPosterFailed(true)}
+            accessibilityIgnoresInvertColors
+          />
+          <View style={[styles.posterPlay, { backgroundColor: theme.colors.accent }]}>
+            <Icon glyph={Play} size={28} color="#FFFFFF" />
+          </View>
+        </Pressable>
+      ) : null}
       {captionsUrl && cues.length > 0 ? (
         <Pressable
           accessibilityRole="button"
@@ -244,6 +284,23 @@ const styles = StyleSheet.create({
     marginVertical: 6.8,
   },
   video: { width: '100%', height: '100%' },
+  poster: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FAF8F4',
+  },
+  posterPlay: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   captionToggle: {
     position: 'absolute',
     top: 10,

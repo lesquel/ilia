@@ -1,7 +1,7 @@
 """Upload the catalog's lesson media to the configured object storage.
 
 Collects every resource key referenced by TEACHER_COURSES lessons (plus the
-sibling `.vtt` of each) and maps `cursos/<x>` to `<repo>/media/cursos/<x>`.
+sibling `.vtt` and `.jpg` poster of each) and maps `cursos/<x>` to `<repo>/media/cursos/<x>`.
 Keys already in storage are skipped; keys with no local file are reported.
 Dry run by default.
 
@@ -29,7 +29,7 @@ from app.features.storage.infrastructure.registry import StorageMisconfiguredErr
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 MEDIA_ROOT = REPO_ROOT / "media"
-CONTENT_TYPES = {".mp4": "video/mp4", ".vtt": "text/vtt"}
+CONTENT_TYPES = {".mp4": "video/mp4", ".vtt": "text/vtt", ".jpg": "image/jpeg"}
 
 
 class UploadError(Exception):
@@ -106,7 +106,11 @@ def catalog_keys() -> list[str]:
 async def build_plan(uploader: MediaUploader, media_root: Path = MEDIA_ROOT) -> Plan:
     plan = Plan()
     for key in catalog_keys():
-        candidates = [(key, True), (str(Path(key).with_suffix(".vtt")), False)]
+        candidates = [
+            (key, True),
+            (str(Path(key).with_suffix(".vtt")), False),
+            (str(Path(key).with_suffix(".jpg")), False),
+        ]
         for candidate, required in candidates:
             path = media_root / candidate
             if not path.is_file():

@@ -75,6 +75,7 @@ interface LessonViewDto {
   resource_ref: string | null;
   media_url: string | null;
   captions_url: string | null;
+  poster_url?: string | null;
   is_completed: boolean;
   resume_position_seconds: number;
   position: number;
@@ -187,6 +188,7 @@ export class HttpEnrollmentRepository implements EnrollmentRepository {
       resourceRef: dto.resource_ref,
       mediaUrl: dto.media_url,
       captionsUrl: dto.captions_url,
+      posterUrl: dto.poster_url ?? null,
       resumePositionSeconds: dto.resume_position_seconds ?? 0,
       isCompleted: dto.is_completed,
       position: dto.position,
