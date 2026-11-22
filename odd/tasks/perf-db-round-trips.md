@@ -10,7 +10,7 @@ Delivery: one work-unit commit per task. Runners: pytest (apps/api, focused file
 
 ## Tasks
 - T1 S2 — inline — done: RED 8 → GREEN (6 unit tests in test_request_session.py, budget ceilings 1 session); all 45 API test files green (520 passed, 3 skipped); live: every endpoint 1 session, lección 7.1→2.6 s, mis cursos 5.3→2.6 s, entitlements 5.2→2.4 s, lab 4.2→2.4 s. Risk items 1 and 4 (commit timing, task ownership) → independent verifier
-- T2 S3 — inline
+- T2 S3 — inline — done: GET /lab/submissions (one joined statement, newest first, activity + course names); API tests RED 3 → GREEN; evaluation tests 95 green; mobile `myHistory` test RED→GREEN, hook uses it, the per-activity walk is deleted; tsc 0; live 1 request 1.4 s
 - T3 S4 — inline
 
 ## Log

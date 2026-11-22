@@ -25,6 +25,7 @@ from app.features.evaluation.interface.dependencies import (
 from app.features.evaluation.interface.schemas import (
     ActivityResponse,
     EvaluationResponse,
+    MySubmissionResponse,
     SubmissionResponse,
     SubmissionResultResponse,
     SubmitPromptRequest,
@@ -110,6 +111,20 @@ async def read_submission(
         submission=SubmissionResponse.from_entity(submission),
         evaluation=EvaluationResponse.from_entity(evaluation) if evaluation else None,
     )
+
+
+@router.get("/submissions", response_model=list[MySubmissionResponse])
+async def list_all_my_submissions(
+    user: CurrentUser,
+    submissions: SubmissionsDep,
+) -> list[MySubmissionResponse]:
+    """Every lab attempt of the signed-in teacher, newest first.
+
+    One request for the home and history screens, which used to ask activity
+    by activity.
+    """
+    mine = await submissions.list_for_user(user.id)
+    return [MySubmissionResponse.from_context(item) for item in mine]
 
 
 @router.get("/activities/{activity_id}/submissions", response_model=list[SubmissionResponse])

@@ -1,20 +1,24 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { catalogRepository } from '@/features/catalog/data/catalog-repository';
-import { enrollmentRepository } from '@/features/enrollment/data/enrollment-repository';
-import { labRepository } from '@/features/lab/data/lab-repository';
-
-import { loadGlobalSubmissionHistory } from './load-global-submissions';
+import { labRepository, type LabRepository } from '@/features/lab/data/lab-repository';
 
 export const globalSubmissionKeys = {
   all: ['lab', 'global-submissions'] as const,
 };
 
-export function useGlobalSubmissionHistory(enabled: boolean) {
+/**
+ * Every lab attempt of the signed-in teacher, newest first.
+ *
+ * One request (`GET /lab/submissions`). It used to walk every activity of
+ * every enrolled course, one request each.
+ */
+export function useGlobalSubmissionHistory(
+  enabled: boolean,
+  repository: LabRepository = labRepository,
+) {
   const query = useQuery({
     queryKey: globalSubmissionKeys.all,
-    queryFn: () =>
-      loadGlobalSubmissionHistory(enrollmentRepository, catalogRepository, labRepository),
+    queryFn: () => repository.myHistory(),
     enabled,
   });
 

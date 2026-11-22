@@ -8,6 +8,7 @@ from app.features.evaluation.domain.entities import (
     Activity,
     Evaluation,
     Submission,
+    SubmissionInContext,
 )
 
 
@@ -188,3 +189,20 @@ class SubmissionResultResponse(BaseModel):
 
     submission: SubmissionResponse
     evaluation: EvaluationResponse | None
+
+
+class MySubmissionResponse(SubmissionResponse):
+    """A submission in the teacher's history, with the names it is listed under."""
+
+    activity_title: str
+    course_slug: str
+    course_title: str
+
+    @classmethod
+    def from_context(cls, item: SubmissionInContext) -> "MySubmissionResponse":
+        return cls(
+            **SubmissionResponse.from_entity(item.submission).model_dump(),
+            activity_title=item.activity_title,
+            course_slug=item.course_slug,
+            course_title=item.course_title,
+        )

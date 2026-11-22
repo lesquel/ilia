@@ -164,3 +164,13 @@ class Evaluation:
     @property
     def was_overridden(self) -> bool:
         return self.override_total is not None
+
+
+@dataclass(frozen=True)
+class SubmissionInContext:
+    """A submission with the names a history list shows next to it."""
+
+    submission: Submission
+    activity_title: str
+    course_slug: str
+    course_title: str
