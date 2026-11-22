@@ -204,3 +204,54 @@ export function funnelSentence(steps: FunnelStep[]): string {
   if (parts.length < 2) return parts.join('');
   return `${parts.slice(0, -1).join(', ')} y ${parts[parts.length - 1]}`;
 }
+
+export type RoleTone = 'accent' | 'success' | 'ink';
+
+/** The colour role a role tag takes: one per role, so the column scans at a glance. */
+export function roleTone(role: Role): RoleTone {
+  if (role === 'instructor') return 'success';
+  if (role === 'admin') return 'ink';
+  return 'accent';
+}
+
+export interface OverviewKpi {
+  key: 'users' | 'enrollments' | 'submissions' | 'certificates' | 'courses';
+  label: string;
+  value: number;
+  hint: string;
+}
+
+function counted(value: number, one: string, many: string): string {
+  return `${value} ${value === 1 ? one : many}`;
+}
+
+/** The five figures the overview leads with. */
+export function overviewKpis(overview: PlatformOverview): OverviewKpi[] {
+  return [
+    {
+      key: 'users',
+      label: 'Cuentas',
+      value: overview.totalUsers,
+      hint: `${counted(overview.students, 'docente', 'docentes')} · ${counted(overview.instructors, 'instructor', 'instructores')}`,
+    },
+    {
+      key: 'enrollments',
+      label: 'Inscripciones',
+      value: overview.enrollments,
+      hint: 'en todos los cursos',
+    },
+    { key: 'submissions', label: 'Entregas', value: overview.submissions, hint: 'evaluadas por Lía' },
+    {
+      key: 'certificates',
+      label: 'Certificados',
+      value: overview.certificatesIssued,
+      hint: counted(overview.certificatesRevoked, 'revocado', 'revocados'),
+    },
+    {
+      key: 'courses',
+      label: 'Cursos publicados',
+      value: overview.coursesPublished,
+      hint: counted(overview.coursesDraft, 'borrador', 'borradores'),
+    },
+  ];
+}

@@ -17,7 +17,7 @@ export {
 export type { AppLocation } from './domain/app-location';
 export { useLogin, useLogout, useRegister, useSession, authKeys } from './application/use-auth';
 export { installAuthTokenProvider } from './data/install';
-export { AccountBar } from './presentation/account-bar';
+export { AccountBar, SectionTabBar } from './presentation/account-bar';
 export { DocumentTitle } from './presentation/document-title';
 export { RegisterScreen } from './presentation/register-screen';
 export { GuestOnly } from './presentation/guest-only';

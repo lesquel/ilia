@@ -5,8 +5,10 @@ import { Bone, BoneLines } from '@/core/ui/skeleton';
 
 /**
  * The bones of one `CourseCard`: the cover at its fixed height, then the body
- * in the same order (title, two-line summary, meta row, footer rule), so a grid of these lines up exactly with
- * the grid of cards that replaces it. Use inside a `Skeleton`.
+ * in the same order (title, two-line summary, footer rule with meta and call
+ * to action), so a grid of these lines up with the grid of cards that replaces
+ * it. The progress bar of an enrolled course is not drawn: which cards have
+ * one is not known yet. Use inside a `Skeleton`.
  */
 export function CourseCardSkeleton() {
   const theme = useTheme();
@@ -26,22 +28,17 @@ export function CourseCardSkeleton() {
 
       <View style={styles.body}>
         <View style={styles.title}>
-          <Bone height={20} width="88%" />
-          <Bone height={20} width="56%" />
+          <Bone height={19} width="88%" />
+          <Bone height={19} width="56%" />
         </View>
 
         <View style={styles.summary}>
-          <BoneLines lines={2} height={12} gap={8} lastWidth="70%" />
-        </View>
-
-        <View style={styles.metaRow}>
-          <Bone height={13} width={92} />
-          <Bone height={13} width={64} />
+          <BoneLines lines={2} height={12} gap={7} lastWidth="70%" />
         </View>
 
         <View style={[styles.footer, { borderTopColor: theme.colors.divider }]}>
-          <Bone height={13} width="42%" />
-          <Bone height={14} width={96} />
+          <Bone height={12} width="46%" />
+          <Bone height={14} width={84} />
         </View>
       </View>
     </View>
@@ -59,7 +56,9 @@ const styles = StyleSheet.create({
   },
   body: {
     flex: 1,
-    padding: 20.4,
+    paddingTop: 16,
+    paddingHorizontal: 18,
+    paddingBottom: 18,
     gap: 8,
   },
   title: {
@@ -68,19 +67,13 @@ const styles = StyleSheet.create({
   summary: {
     marginTop: 4,
   },
-  metaRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 4,
-    marginBottom: 12,
-  },
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 12,
     marginTop: 'auto',
-    paddingTop: 14,
+    paddingTop: 10,
     borderTopWidth: 1,
   },
 });

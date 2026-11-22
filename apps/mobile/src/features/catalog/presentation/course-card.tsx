@@ -1,8 +1,7 @@
 import { Link } from 'expo-router';
-import { ArrowRight, BookOpen, Clock } from 'lucide-react-native';
+import { ArrowRight } from 'lucide-react-native';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { INSTITUTE_SHORT_NAME } from '@/core/brand';
 import { useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
 import {
@@ -10,8 +9,13 @@ import {
   formatDuration,
   type CourseSummary,
 } from '@/features/catalog/domain/entities';
+import {
+  catalogCallToAction,
+  catalogProgressLine,
+  type CatalogProgress,
+} from '@/features/catalog/domain/catalog-progress';
 import { CourseCoverArt } from '@/features/catalog/presentation/course-cover-art';
-import { coverToneForCourseSlug } from '@/features/catalog/presentation/course-cover-craft';
+import { useCourseAccent } from '@/features/catalog/presentation/use-course-accent';
 
 function cardLift(raised: boolean) {
   if (Platform.OS === 'web') {
@@ -41,11 +45,16 @@ function cardLift(raised: boolean) {
 export function CourseCard({
   course,
   isStartHere = false,
+  progress,
 }: {
   course: CourseSummary;
   isStartHere?: boolean;
+  /** Only for a course the teacher is enrolled in. */
+  progress?: CatalogProgress;
 }) {
   const theme = useTheme();
+  const accent = useCourseAccent(course.slug);
+  const clamped = progress ? Math.max(0, Math.min(100, Math.round(progress.percentage))) : 0;
 
   return (
     // `Link` and not an onPress handler: on web this renders a real anchor, so
@@ -54,7 +63,9 @@ export function CourseCard({
     <Link href={`/catalog/${course.slug}`} asChild>
       <Pressable
         accessibilityRole="link"
-        accessibilityLabel={`${course.title}, nivel ${LEVEL_LABELS[course.level]}`}
+        accessibilityLabel={`${course.title}, nivel ${LEVEL_LABELS[course.level]}${
+          progress ? `, ${clamped}% completado` : ''
+        }`}
         style={styles.pressable}
       >
         {({ pressed, hovered }: { pressed: boolean; hovered?: boolean }) => (
@@ -67,7 +78,7 @@ export function CourseCard({
               styles.card,
               {
                 backgroundColor: theme.colors.surface,
-                borderColor: hovered ? theme.colors.accentRamp[300] : theme.colors.divider,
+                borderColor: hovered ? accent.mid : theme.colors.divider,
                 borderRadius: theme.radius.lg,
                 opacity: pressed ? 0.92 : 1,
                 overflow: 'hidden',
@@ -84,16 +95,13 @@ export function CourseCard({
                 <View
                   style={[
                     styles.levelChip,
-                    { backgroundColor: theme.colors.surface, borderRadius: theme.radius.sm },
+                    { backgroundColor: theme.colors.surface, borderRadius: PILL_RADIUS },
                   ]}
                 >
                   <Text
                     style={[
                       styles.levelLabel,
-                      {
-                        color:
-                          coverToneForCourseSlug(course.slug)?.ink ?? theme.colors.accentRamp[700],
-                      },
+                      { color: accent.ink },
                     ]}
                   >
                     {LEVEL_LABELS[course.level]}
@@ -103,7 +111,7 @@ export function CourseCard({
                     <View
                       style={[
                         styles.startHint,
-                        { backgroundColor: theme.colors.accentButton, borderRadius: theme.radius.sm },
+                        { backgroundColor: accent.ink, borderRadius: PILL_RADIUS },
                       ]}
                     >
                       <Text style={styles.startHintLabel}>Empieza aquí</Text>
@@ -115,7 +123,10 @@ export function CourseCard({
 
             <View style={styles.body}>
               <Text
-                style={[styles.title, { color: theme.colors.text }]}
+                style={[
+                  styles.title,
+                  { color: theme.colors.ink, fontFamily: theme.typography.displayBold.family },
+                ]}
                 numberOfLines={2}
                 accessibilityRole="header"
               >
@@ -129,33 +140,46 @@ export function CourseCard({
                 {course.summary}
               </Text>
 
-              <View style={styles.metaRow}>
-                <View style={styles.metaItem}>
-                  <Icon glyph={BookOpen} size={14} color={theme.colors.neutral[600]} />
-                  <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>
-                    {course.lessonCount} {course.lessonCount === 1 ? 'lección' : 'lecciones'}
-                  </Text>
-                </View>
-                <View style={styles.metaItem}>
-                  <Icon glyph={Clock} size={14} color={theme.colors.neutral[600]} />
-                  <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>
+              <View style={styles.bottom}>
+                {progress ? (
+                  <View style={styles.progress}>
+                    <View style={styles.progressHead}>
+                      <Text
+                        style={[styles.progressLine, { color: theme.colors.neutral[700] }]}
+                        numberOfLines={1}
+                      >
+                        {catalogProgressLine(progress)}
+                      </Text>
+                      <Text style={[styles.progressValue, { color: accent.ink }]}>
+                        {clamped}%
+                      </Text>
+                    </View>
+                    <View
+                      accessibilityRole="progressbar"
+                      accessibilityValue={{ min: 0, max: 100, now: clamped }}
+                      style={[styles.track, { backgroundColor: theme.colors.neutral[200] }]}
+                    >
+                      <View
+                        style={[styles.fill, { width: `${clamped}%`, backgroundColor: accent.ink }]}
+                      />
+                    </View>
+                  </View>
+                ) : null}
+
+                <View style={[styles.footer, { borderTopColor: theme.colors.divider }]}>
+                  <Text
+                    style={[styles.meta, { color: theme.colors.neutral[600] }]}
+                    numberOfLines={1}
+                  >
+                    {course.lessonCount} {course.lessonCount === 1 ? 'lección' : 'lecciones'} ·{' '}
                     {formatDuration(course.durationSeconds)}
                   </Text>
-                </View>
-              </View>
-
-              <View style={[styles.footer, { borderTopColor: theme.colors.divider }]}>
-                <Text
-                  style={[styles.institute, { color: theme.colors.neutral[600] }]}
-                  numberOfLines={1}
-                >
-                  Instituto {INSTITUTE_SHORT_NAME}
-                </Text>
-                <View style={styles.footerAction}>
-                  <Text style={[styles.footerLabel, { color: theme.colors.accentAlt }]}>
-                    Ver el curso
-                  </Text>
-                  <Icon glyph={ArrowRight} size={16} color={theme.colors.accent} />
+                  <View style={styles.footerAction}>
+                    <Text style={[styles.footerLabel, { color: accent.ink }]}>
+                      {catalogCallToAction(progress)}
+                    </Text>
+                    <Icon glyph={ArrowRight} size={16} color={accent.ink} />
+                  </View>
                 </View>
               </View>
             </View>
@@ -165,6 +189,8 @@ export function CourseCard({
     </Link>
   );
 }
+
+const PILL_RADIUS = 999;
 
 const styles = StyleSheet.create({
   pressable: {
@@ -179,71 +205,87 @@ const styles = StyleSheet.create({
   levelChip: {
     alignSelf: 'flex-start',
     paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingVertical: 4,
   },
   levelLabel: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '700',
   },
   body: {
     flex: 1,
-    padding: 20.4,
+    paddingTop: 16,
+    paddingHorizontal: 18,
+    paddingBottom: 18,
     gap: 8,
   },
   coverTags: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
   },
   // On the cover, beside the level: it marks the course, it does not push
   // every other card's title down to make room for itself.
   startHint: {
     paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingVertical: 4,
   },
   startHintLabel: {
     color: '#ffffff',
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '700',
   },
   // No reserved heights: a one-line title sits right above its summary, and
   // the footer still lines up across a row because it is pushed to the bottom.
   title: {
-    fontSize: 20,
-    fontWeight: '600',
-    lineHeight: 26,
+    fontSize: 19,
+    lineHeight: 23,
   },
   summary: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 13,
+    lineHeight: 19,
   },
-  metaRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-    marginTop: 4,
-    marginBottom: 12,
+  bottom: {
+    marginTop: 'auto',
+    paddingTop: 4,
+    gap: 10,
   },
-  metaItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  progress: {
     gap: 6,
   },
-  meta: {
-    fontSize: 13,
+  progressHead: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 8,
   },
-  institute: {
+  progressLine: {
+    flex: 1,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  progressValue: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  track: {
+    height: 6,
+    borderRadius: PILL_RADIUS,
+    overflow: 'hidden',
+  },
+  fill: {
+    height: '100%',
+    borderRadius: PILL_RADIUS,
+  },
+  meta: {
     flexShrink: 1,
-    fontSize: 13,
+    fontSize: 12,
   },
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 12,
-    marginTop: 'auto',
-    paddingTop: 14,
+    paddingTop: 10,
     borderTopWidth: 1,
   },
   footerAction: {
@@ -253,6 +295,6 @@ const styles = StyleSheet.create({
   },
   footerLabel: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
   },
 });

@@ -56,7 +56,15 @@ export function AdminScreen() {
 
   return (
     <ScrollView style={{ backgroundColor: theme.colors.bg }} contentContainerStyle={styles.content}>
-      <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">Administración</Text>
+      <Text
+        style={[
+          styles.title,
+          { color: theme.colors.ink, fontFamily: theme.typography.display.family },
+        ]}
+        accessibilityRole="header"
+      >
+        Administración
+      </Text>
       {/* One row that scrolls sideways on a phone: six tabs wrapped onto three
           lines would push the section itself below the fold. */}
       <ScrollView
@@ -130,7 +138,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     gap: 20.4,
   },
-  title: { fontSize: 32, fontWeight: '600' },
+  title: { fontSize: 34, lineHeight: 40, letterSpacing: -0.8 },
   // Without this a horizontal ScrollView stretches to the height of its column.
   tabStrip: { flexGrow: 0 },
   tabs: { flexDirection: 'row', gap: 6.8, paddingBottom: 3.4 },

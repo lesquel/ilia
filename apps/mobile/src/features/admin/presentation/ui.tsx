@@ -59,7 +59,14 @@ export function Card({
     >
       {title ? (
         <View style={styles.cardHead}>
-          <Text style={[styles.cardTitle, { color: theme.colors.text }]}>{title}</Text>
+          <Text
+            style={[
+              styles.cardTitle,
+              { color: theme.colors.ink, fontFamily: theme.typography.displayBold.family },
+            ]}
+          >
+            {title}
+          </Text>
           {hint ? (
             <Text style={[styles.cardHint, { color: theme.colors.neutral[600] }]}>{hint}</Text>
           ) : null}
@@ -158,19 +165,24 @@ export function Tag({
   filled = false,
 }: {
   label: string;
-  tone?: 'accent' | 'neutral';
+  tone?: 'accent' | 'neutral' | 'success' | 'ink';
   filled?: boolean;
 }) {
   const theme = useTheme();
-  const accent = tone === 'accent';
-  const ink = accent ? theme.colors.accentRamp[800] : theme.colors.neutral[800];
+  const tones: Record<typeof tone, { ink: string; wash: string }> = {
+    accent: { ink: theme.colors.accentRamp[800], wash: theme.colors.accentRamp[100] },
+    neutral: { ink: theme.colors.neutral[800], wash: theme.colors.neutral[200] },
+    success: { ink: theme.colors.success, wash: theme.colors.successSoft },
+    ink: { ink: theme.colors.ink, wash: theme.colors.neutral[200] },
+  };
+  const { ink, wash } = tones[tone];
 
   return (
     <View
       style={[
         styles.tag,
         {
-          backgroundColor: accent ? theme.colors.accentRamp[100] : theme.colors.neutral[200],
+          backgroundColor: wash,
           borderRadius: theme.radius.sm,
         },
       ]}
@@ -318,7 +330,7 @@ export function EmptyNote({ children }: { children: ReactNode }) {
 const styles = StyleSheet.create({
   card: { borderWidth: 1, padding: 20.4, gap: 13.6 },
   cardHead: { gap: 3.4 },
-  cardTitle: { fontSize: 18, fontWeight: '700', letterSpacing: -0.2 },
+  cardTitle: { fontSize: 18, letterSpacing: -0.2 },
   cardHint: { fontSize: 13, lineHeight: 19 },
   label: { fontSize: 13, fontWeight: '600', marginBottom: 3.4 },
   input: {

@@ -10,6 +10,8 @@ const TAB_WIDTHS = [72, 128, 76, 96, 84, 80];
 /** The overview's three groups: people, courses, certification. */
 const GROUP_TILES = [3, 4, 2];
 const FUNNEL_STEPS = 3;
+/** The headline strip: accounts, enrolments, submissions, certificates, courses. */
+const KPI_COUNT = 5;
 
 /**
  * A group heading and its tiles, on the same measured grid the overview uses,
@@ -58,7 +60,8 @@ function TileGroupBone({ tiles }: { tiles: number }) {
 
 /**
  * The admin dashboard before the overview arrives: the title, the tab strip
- * and the overview tab (three tile groups and the funnel card), in the same
+ * and the overview tab (the headline strip, three tile groups and the funnel
+ * card), in the same
  * column the dashboard uses.
  */
 export function AdminScreenSkeleton() {
@@ -81,6 +84,16 @@ export function AdminScreenSkeleton() {
         </View>
 
         <View style={styles.panel}>
+          <View style={styles.kpis}>
+            {Array.from({ length: KPI_COUNT }, (_, index) => (
+              <BoneCard key={index} style={styles.kpi}>
+                <Bone width="60%" height={13} />
+                <Bone width={56} height={34} />
+                <Bone width="75%" height={12} />
+              </BoneCard>
+            ))}
+          </View>
+
           {GROUP_TILES.map((tiles, index) => (
             <TileGroupBone key={index} tiles={tiles} />
           ))}
@@ -119,6 +132,8 @@ const styles = StyleSheet.create({
   // Clipped rather than scrolled: a skeleton strip has nothing to scroll to.
   tabs: { flexDirection: 'row', gap: 6.8, paddingBottom: 3.4, overflow: 'hidden' },
   panel: { gap: 20.4 },
+  kpis: { flexDirection: 'row', flexWrap: 'wrap', gap: TILE_GAP },
+  kpi: { padding: 16, gap: 8, flexGrow: 1, flexBasis: 170, minWidth: 150 },
   group: { gap: 10.2 },
   groupHead: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', columnGap: 10.2, rowGap: 3.4 },
   tiles: { flexDirection: 'row', flexWrap: 'wrap', gap: TILE_GAP },

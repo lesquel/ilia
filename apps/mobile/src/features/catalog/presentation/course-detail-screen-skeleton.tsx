@@ -1,112 +1,97 @@
-import {
-  Platform,
-  ScrollView,
-  StyleSheet,
-  View,
-  useWindowDimensions,
-} from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
+import { Platform, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 
 import { breakpoint, useTheme } from '@/core/theme';
-import { Bone, BoneLines, Skeleton } from '@/core/ui/skeleton';
+import { Bone, Skeleton } from '@/core/ui/skeleton';
+
+import { useCourseAccent } from './use-course-accent';
 
 /**
- * The course page before the course arrives: the institute card on the left
- * (sticky column on a wide window, on top on a phone) and the syllabus
- * timeline beside it, at the same paddings and widths as `CourseDetailScreen`.
+ * The course page before the course arrives, in the same frame as
+ * `CourseDetailScreen`: the hero band already in the course's color (the slug
+ * is known before the course is), the overlapping progress card, syllabus rows
+ * and the side column, at the same paddings and widths.
  */
 export function CourseDetailScreenSkeleton() {
   const theme = useTheme();
+  const { slug } = useLocalSearchParams<{ slug: string }>();
+  const accent = useCourseAccent(slug);
   const { width } = useWindowDimensions();
-  const isWide = width >= breakpoint.compact;
+  const isWide = width >= breakpoint.medium;
+  const isPhone = width < breakpoint.compact;
+  const gutter = isPhone ? 16 : 40;
+  const surface = {
+    backgroundColor: theme.colors.surface,
+    borderColor: theme.colors.divider,
+    borderRadius: theme.radius.lg,
+  };
 
   return (
     <ScrollView
       style={{ backgroundColor: theme.colors.bg }}
       contentContainerStyle={styles.content}
     >
-      <Skeleton label="Cargando el curso" style={styles.group}>
-        {Platform.OS === 'web' ? (
-          <View style={styles.backLink}>
-            <Bone height={14} width={128} />
-          </View>
-        ) : null}
-
-        <View style={[styles.split, isWide ? styles.splitWide : undefined]}>
+      <Skeleton label="Cargando el curso">
+        <View style={[styles.hero, { backgroundColor: accent.ink }]}>
           <View
             style={[
-              styles.card,
+              styles.heroInner,
               {
-                backgroundColor: theme.colors.surface,
-                borderColor: theme.colors.divider,
-                borderRadius: theme.radius.lg,
+                paddingHorizontal: gutter,
+                paddingTop: isPhone ? 20 : 32,
+                paddingBottom: isPhone ? 60 : 76,
               },
-              isWide ? styles.cardWide : undefined,
             ]}
           >
-            {/* The tinted stage: kicker row plus Lía at 148 px. */}
-            <Bone height={STAGE_HEIGHT} radius={theme.radius.md} style={styles.stage} />
-            <Bone height={22} width={112} />
-            <View style={styles.title}>
-              <Bone height={32} width="92%" />
-              <Bone height={32} width="58%" />
+            <View style={styles.heroText}>
+              {Platform.OS === 'web' ? <Bone height={14} width={128} style={styles.onInk} /> : null}
+              <View style={styles.chips}>
+                <Bone height={26} width={72} radius={999} style={styles.onInk} />
+                <Bone height={26} width={150} radius={999} style={styles.onInk} />
+              </View>
+              <Bone height={isPhone ? 34 : 52} width="78%" style={styles.onInk} />
+              <Bone height={17} width="62%" style={styles.onInk} />
+              <Bone height={14} width="48%" style={styles.onInk} />
             </View>
-            <BoneLines lines={3} height={16} gap={8} lastWidth="72%" />
-            <View style={styles.facts}>
-              <Bone height={13} width={96} />
-              <Bone height={13} width={72} />
-              <Bone height={13} width={88} />
-              <Bone height={13} width={150} />
+            {isWide ? <View style={[styles.heroCover, { borderRadius: theme.radius.lg }]} /> : null}
+          </View>
+        </View>
+
+        <View
+          style={[styles.body, { paddingHorizontal: gutter }, isWide ? styles.bodyWide : undefined]}
+        >
+          <View style={styles.main}>
+            <View
+              style={[styles.progressCard, isPhone ? undefined : styles.progressCardRow, surface]}
+            >
+              <View style={styles.advance}>
+                <Bone height={14} width="60%" />
+                <Bone height={8} radius={999} />
+              </View>
+              <Bone height={48} width={isPhone ? '100%' : 200} radius={theme.radius.md} />
             </View>
-            {/* The enrollment slot: a rule, a line of hint and the button. */}
-            <View style={[styles.panel, { borderTopColor: theme.colors.divider }]}>
-              <BoneLines lines={2} height={14} gap={6} lastWidth="80%" />
-              <Bone height={48} radius={theme.radius.md} />
+            <View style={styles.syllabusHead}>
+              <Bone height={22} width={220} />
             </View>
+            {ROWS.map((row) => (
+              <View
+                key={row}
+                style={[
+                  styles.row,
+                  { backgroundColor: theme.colors.surface, borderColor: theme.colors.divider },
+                ]}
+              >
+                <Bone circle height={30} />
+                <Bone height={15} width="52%" />
+              </View>
+            ))}
           </View>
 
-          <View style={styles.timeline}>
-            <View style={styles.timelineHead}>
-              <Bone height={22} width={112} />
-              <Bone height={13} width={140} />
-            </View>
-            <View style={styles.rail}>
-              {STATION_ROWS.map((rowCount, stationIndex) => (
-                <View
-                  key={stationIndex}
-                  style={[
-                    styles.station,
-                    {
-                      backgroundColor: theme.colors.surface,
-                      borderColor: theme.colors.divider,
-                      borderRadius: theme.radius.md,
-                    },
-                  ]}
-                >
-                  <Bone height={12} width={12} radius={0} style={styles.node} />
-                  <View style={styles.stationHead}>
-                    <Bone height={16} width="58%" />
-                  </View>
-                  {Array.from({ length: rowCount }, (_, rowIndex) => (
-                    <View
-                      key={rowIndex}
-                      style={[
-                        styles.row,
-                        {
-                          borderBottomColor:
-                            rowIndex === rowCount - 1 ? 'transparent' : theme.colors.divider,
-                        },
-                      ]}
-                    >
-                      <Bone height={10} width={10} radius={0} />
-                      <Bone height={12} width={22} />
-                      <View style={styles.rowTitle}>
-                        <Bone height={14} width={rowIndex % 2 === 0 ? '78%' : '62%'} />
-                      </View>
-                      <Bone height={12} width={40} />
-                    </View>
-                  ))}
-                </View>
-              ))}
+          <View style={[styles.side, isWide ? styles.sideWide : undefined]}>
+            <View style={[styles.sideCard, surface]}>
+              <Bone height={16} width={120} />
+              <Bone height={14} width="90%" />
+              <Bone height={14} width={110} />
             </View>
           </View>
         </View>
@@ -115,100 +100,99 @@ export function CourseDetailScreenSkeleton() {
   );
 }
 
-/** Kicker row (14 + 16), gap 6, Lía (148) and her padding (10). */
-const STAGE_HEIGHT = 194;
-/** Rows per placeholder chapter: enough to read as a syllabus. */
-const STATION_ROWS = [3, 3, 2];
+const ROWS = [0, 1, 2, 3, 4, 5];
 
 const styles = StyleSheet.create({
   content: {
-    padding: 20.4,
-    maxWidth: 1080,
+    paddingBottom: 40,
+  },
+  onInk: {
+    backgroundColor: 'rgba(255, 255, 255, 0.24)',
+  },
+  hero: {
     width: '100%',
+    overflow: 'hidden',
+  },
+  heroInner: {
+    width: '100%',
+    maxWidth: 1200,
     alignSelf: 'center',
-  },
-  group: {
-    gap: 0,
-  },
-  backLink: {
-    alignSelf: 'flex-start',
-    paddingVertical: 6,
-    marginBottom: 10,
-  },
-  split: {
-    gap: 28,
-  },
-  splitWide: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 36,
+    alignItems: 'flex-end',
+    gap: 32,
   },
-  card: {
-    borderWidth: 1,
-    padding: 22,
-    gap: 10,
-  },
-  cardWide: {
-    width: 320,
-    flexShrink: 0,
-  },
-  stage: {
-    marginBottom: 6,
-  },
-  title: {
-    gap: 4,
-  },
-  facts: {
-    gap: 8,
-    marginTop: 4,
-  },
-  panel: {
-    borderTopWidth: 1,
-    paddingTop: 16,
-    gap: 10.2,
-    marginTop: 8,
-  },
-  timeline: {
+  heroText: {
     flex: 1,
     minWidth: 0,
-    paddingTop: 4,
+    gap: 14,
   },
-  timelineHead: {
+  chips: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  heroCover: {
+    width: 340,
+    height: 248,
+    marginBottom: -20,
+    backgroundColor: 'rgba(255, 255, 255, 0.18)',
+  },
+  body: {
+    width: '100%',
+    maxWidth: 1200,
+    alignSelf: 'center',
+    gap: 24,
+  },
+  bodyWide: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 32,
+  },
+  main: {
+    flex: 1,
+    minWidth: 0,
+    marginTop: -36,
+    gap: 8,
+  },
+  progressCard: {
+    borderWidth: 1,
+    paddingVertical: 22,
+    paddingHorizontal: 24,
+    gap: 16,
+    marginBottom: 4,
+  },
+  progressCardRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 16,
+    gap: 20,
   },
-  rail: {
-    position: 'relative',
-    paddingLeft: 28,
+  advance: {
+    flex: 1,
+    gap: 10,
   },
-  station: {
-    position: 'relative',
-    marginBottom: 16,
-    borderWidth: 1,
-    paddingTop: 16,
-    paddingHorizontal: 16,
-    paddingBottom: 6,
-  },
-  node: {
-    position: 'absolute',
-    left: -29,
-    top: 20,
-  },
-  stationHead: {
-    marginBottom: 8,
+  syllabusHead: {
+    marginTop: 12,
+    marginBottom: 4,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
+    gap: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    borderRadius: 16,
+    borderWidth: 1,
   },
-  rowTitle: {
-    flex: 1,
+  side: {
+    gap: 16,
+  },
+  sideWide: {
+    width: 360,
+    flexShrink: 0,
+    paddingTop: 28,
+  },
+  sideCard: {
+    borderWidth: 1,
+    padding: 22,
+    gap: 12,
   },
 });

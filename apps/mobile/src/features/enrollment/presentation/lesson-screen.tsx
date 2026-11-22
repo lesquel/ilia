@@ -1,14 +1,21 @@
-import { Link, useLocalSearchParams, useRouter } from 'expo-router';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
-import { useTheme } from '@/core/theme';
+import { breakpoint, useTheme } from '@/core/theme';
 import { ErrorState } from '@/core/ui/state-view';
+import { useCourse, useCourseAccent } from '@/features/catalog';
 import {
   useCompleteLesson,
+  useCourseProgress,
   useLesson,
   useRecordLessonPosition,
 } from '@/features/enrollment/application/use-enrollment';
-import { lessonColumn } from '@/features/enrollment/presentation/lesson-layout';
+import {
+  lessonStepStates,
+  lessonStepStatesByPosition,
+} from '@/features/enrollment/domain/lesson-steps';
+import { lessonColumn, lessonWideColumn } from '@/features/enrollment/presentation/lesson-layout';
+import { LessonTopBar } from '@/features/enrollment/presentation/lesson-top-bar';
 import { LessonStudio } from '@/features/enrollment/presentation/lesson-studio';
 import { LessonQuiz } from '@/features/enrollment/presentation/lesson-quiz';
 import {
@@ -26,6 +33,12 @@ export function LessonScreen() {
   const { lesson, isLoading, error, refetch } = useLesson(courseSlug, lessonId ?? '');
   const complete = useCompleteLesson(courseSlug);
   const recordPosition = useRecordLessonPosition(courseSlug);
+  const isWide = useWindowDimensions().width >= breakpoint.compact;
+  // The course's own color and name, and which lessons are done, for the top
+  // bar. Both are usually cached from the course page; the bar works without.
+  const accent = useCourseAccent(courseSlug);
+  const { course } = useCourse(courseSlug);
+  const { progress } = useCourseProgress(courseSlug);
 
   if (isLoading) {
     return (
@@ -45,9 +58,42 @@ export function LessonScreen() {
 
   const goTo = (id: string) => router.replace(`/catalog/${courseSlug}/lessons/${id}`);
   const isModuleComplete = !lesson.next || lesson.next.moduleId !== lesson.moduleId;
-  const moduleProgress = lesson.moduleTotalLessons > 0
-    ? Math.min(100, (lesson.modulePosition / lesson.moduleTotalLessons) * 100)
-    : 0;
+  const isStudio = Boolean(lesson.body) && lesson.kind !== 'quiz';
+  // A studio lesson on a wide screen splits into scene + Lía; the bar follows.
+  const column = isStudio && isWide ? lessonWideColumn : lessonColumn;
+
+  const courseLessonIds = course
+    ? [...course.modules]
+        .sort((a, b) => a.position - b.position)
+        .flatMap((module) => [...module.lessons].sort((a, b) => a.position - b.position))
+        .map((item) => item.id)
+    : [];
+  const steps =
+    progress && courseLessonIds.includes(lesson.lessonId)
+      ? lessonStepStates({
+          lessonIds: courseLessonIds,
+          currentLessonId: lesson.lessonId,
+          completedLessonIds: progress.completedLessonIds,
+        })
+      : lessonStepStatesByPosition(lesson.position, lesson.totalLessons);
+
+  const media = lesson.mediaUrl ? (
+    <View style={isStudio && isWide ? undefined : [styles.media, lessonColumn]}>
+      <LessonPlayer
+        key={`${lesson.lessonId}:${lesson.mediaUrl}:${lesson.captionsUrl ?? ''}`}
+        url={lesson.mediaUrl}
+        captionsUrl={lesson.captionsUrl}
+        posterUrl={lesson.posterUrl}
+        resumePositionSeconds={lesson.resumePositionSeconds}
+        accentColor={accent.ink}
+        onPositionChange={(positionSeconds) =>
+          recordPosition.mutate({ lessonId: lesson.lessonId, positionSeconds })
+        }
+      />
+    </View>
+  ) : lesson.resourceRef ? (
+    <LessonPlayerUnavailable />
+  ) : null;
 
   return (
     <ScrollView
@@ -55,56 +101,19 @@ export function LessonScreen() {
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator
     >
-      <View style={[styles.chrome, lessonColumn]}>
-        <Link href={`/catalog/${courseSlug}`} style={[styles.back, { color: theme.colors.accentAlt }]}>
-          ← Curso
-        </Link>
-        <Text style={[styles.chromeTitle, { color: theme.colors.text }]} numberOfLines={1}>
-          {lesson.title}
-        </Text>
-        {/* A one-module course would say "2 / 6" here and "2 de 6" just below. */}
-        {lesson.totalLessons !== lesson.moduleTotalLessons ? (
-          <Text style={[styles.chromeStep, { color: theme.colors.neutral[600] }]}>
-            Lección {lesson.position} de {lesson.totalLessons}
-          </Text>
-        ) : null}
-      </View>
+      <LessonTopBar
+        backHref={`/catalog/${courseSlug}`}
+        courseTitle={course?.title ?? null}
+        position={lesson.position}
+        totalLessons={lesson.totalLessons}
+        title={lesson.title}
+        steps={steps}
+        accent={accent}
+        isWide={isWide}
+        column={column}
+      />
 
-      <View style={[styles.moduleProgress, lessonColumn]} accessibilityRole="progressbar" accessibilityValue={{
-        min: 0,
-        max: lesson.moduleTotalLessons,
-        now: lesson.modulePosition,
-        text: `${lesson.moduleTitle}: lección ${lesson.modulePosition} de ${lesson.moduleTotalLessons}`,
-      }}>
-        <View style={styles.moduleProgressCopy}>
-          <Text style={[styles.moduleTitle, { color: theme.colors.neutral[700] }]} numberOfLines={1}>
-            {lesson.moduleTitle}
-          </Text>
-          <Text style={[styles.moduleStep, { color: theme.colors.neutral[600] }]}>
-            {lesson.modulePosition} de {lesson.moduleTotalLessons}
-          </Text>
-        </View>
-        <View style={[styles.moduleTrack, { backgroundColor: theme.colors.neutral[200] }]}>
-          <View style={[styles.moduleFill, { width: `${moduleProgress}%`, backgroundColor: theme.colors.accent }]} />
-        </View>
-      </View>
-
-      {lesson.mediaUrl ? (
-        <View style={[styles.media, lessonColumn]}>
-          <LessonPlayer
-            key={`${lesson.lessonId}:${lesson.mediaUrl}:${lesson.captionsUrl ?? ''}`}
-            url={lesson.mediaUrl}
-            captionsUrl={lesson.captionsUrl}
-            posterUrl={lesson.posterUrl}
-            resumePositionSeconds={lesson.resumePositionSeconds}
-            onPositionChange={(positionSeconds) =>
-              recordPosition.mutate({ lessonId: lesson.lessonId, positionSeconds })
-            }
-          />
-        </View>
-      ) : lesson.resourceRef ? (
-        <LessonPlayerUnavailable />
-      ) : null}
+      {isStudio ? null : media}
 
       {lesson.body && lesson.kind === 'quiz' ? (
         <LessonQuiz
@@ -118,6 +127,8 @@ export function LessonScreen() {
       ) : lesson.body ? (
         <LessonStudio
           body={lesson.body}
+          accent={accent}
+          media={media}
           onMarkComplete={() => complete.mutate(lesson.lessonId)}
           isCompleted={lesson.isCompleted}
           isCompletePending={complete.isPending}
@@ -153,34 +164,9 @@ const styles = StyleSheet.create({
   content: {
     flexGrow: 1,
   },
-  chrome: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-    paddingHorizontal: 24,
-    paddingTop: 12,
-    paddingBottom: 8,
-  },
-  back: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  chromeTitle: {
-    flex: 1,
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  chromeStep: {
-    fontSize: 13,
-  },
-  moduleProgress: { paddingHorizontal: 24, paddingBottom: 8, gap: 5 },
-  moduleProgressCopy: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
-  moduleTitle: { flex: 1, fontSize: 12, fontWeight: '600' },
-  moduleStep: { fontSize: 12, fontVariant: ['tabular-nums'] },
-  moduleTrack: { height: 4, width: '100%', borderRadius: 99, overflow: 'hidden' },
-  moduleFill: { height: '100%', borderRadius: 99 },
   media: {
     paddingHorizontal: 24,
+    paddingTop: 12,
   },
   placeholder: {
     flex: 1,

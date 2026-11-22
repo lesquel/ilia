@@ -12,3 +12,5 @@ export {
 export type { Course, CourseSummary, Level, LessonKind, Module } from './domain/entities';
 export { useCourse, useCourses, catalogKeys } from './application/use-catalog';
 export { CourseCard } from './presentation/course-card';
+export { courseAccent, type CourseAccent } from './presentation/course-tone';
+export { useCourseAccent } from './presentation/use-course-accent';

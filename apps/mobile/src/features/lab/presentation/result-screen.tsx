@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Link, useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import {
   ActivityIndicator,
   Pressable,
@@ -10,22 +10,30 @@ import {
 } from 'react-native';
 
 import { breakpoint, useTheme } from '@/core/theme';
-import { ProgressBar } from '@/core/ui/progress-bar';
 import { ErrorState } from '@/core/ui/state-view';
 import { PassCertificateCard } from '@/features/certificates';
 import {
   useActivity,
+  useMySubmissions,
   useSubmissionResult,
 } from '@/features/lab/application/use-lab';
+import { compareAttempts, formatScoreDelta } from '@/features/lab/domain/attempt-comparison';
 import {
   dimensionName,
-  scoreTone,
   simulatedEvaluationNotice,
   type DimensionScore,
 } from '@/features/lab/domain/entities';
+import { diffPromptWords } from '@/features/lab/domain/prompt-diff';
+import {
+  previousAttempt,
+  resultBadge,
+  scoreBand,
+  type ScoreBand,
+} from '@/features/lab/domain/result-display';
 import { sideScoresFromEvaluation } from '@/features/lab/domain/side-scores';
 import { GeneratedSheet } from '@/features/lab/presentation/generated-sheet';
 import { ResultScreenSkeleton } from '@/features/lab/presentation/result-screen-skeleton';
+import { ScoreRing } from '@/features/lab/presentation/score-ring';
 import { SaveRecipeButton } from '@/features/recipes';
 
 export function ResultScreen() {
@@ -39,6 +47,11 @@ export function ResultScreen() {
     submissionId ?? '',
   );
   const { activity } = useActivity(submission?.activityId ?? '');
+  // The attempt before this one, for "Qué cambió". Only real attempts: on the
+  // first one there is nothing to compare and the card is not drawn.
+  const { submissions } = useMySubmissions(submission?.activityId ?? '');
+  const previous = submission ? previousAttempt(submissions, submission) : null;
+  const previousResult = useSubmissionResult(previous?.id ?? '');
 
   if (isLoading) {
     return <ResultScreenSkeleton />;
@@ -89,16 +102,75 @@ export function ResultScreen() {
   const accent = evaluation.passed && !simulatedNotice ? theme.colors.accentAlt : theme.colors.neutral[600];
   const sides = sideScoresFromEvaluation(activity, evaluation.dimensionScores);
   const generatedText = evaluation.generatedText.trim();
+  const badge = resultBadge({
+    passed: evaluation.passed,
+    simulated: Boolean(simulatedNotice),
+    attempt: submission.attempt,
+    maxAttempts: activity?.maxAttempts ?? null,
+  });
+  const badgeColors =
+    badge.role === 'success'
+      ? { bg: theme.colors.successSoft, fg: theme.colors.success }
+      : badge.role === 'warning'
+        ? { bg: theme.colors.warningSoft, fg: theme.colors.warning }
+        : { bg: theme.colors.neutral[100], fg: theme.colors.neutral[700] };
+  const ringColor = simulatedNotice
+    ? theme.colors.neutral[400]
+    : bandColor(scoreBand(evaluation.effectiveTotal), theme.colors);
+
+  const comparison = previous
+    ? compareAttempts(
+        { submission: previousResult.submission ?? previous, evaluation: previousResult.evaluation },
+        { submission, evaluation },
+      )
+    : null;
+  const totalDelta = comparison?.complete ? comparison.totalDelta : null;
+  const promptSegments = previous ? diffPromptWords(previous.prompt, submission.prompt) : [];
+  const hasNewWords = promptSegments.some((segment) => segment.added);
+  const canRetry = Boolean(activity && activity.attemptsLeft > 0 && !evaluation.passed);
+  const card = {
+    backgroundColor: theme.colors.surface,
+    borderColor: theme.colors.divider,
+    borderRadius: theme.radius.lg + 4,
+  };
+
+  const actions = (
+    <View style={styles.actions}>
+      {/* Wait for the activity: a recipe saved under a generic title is hard to find later. */}
+      {activity ? (
+        <SaveRecipeButton
+          submissionId={submission.id}
+          prompt={submission.prompt}
+          activityTitle={activity.title}
+          score={evaluation.effectiveTotal}
+        />
+      ) : null}
+      {canRetry && activity ? (
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => router.replace(`/lab/${submission.activityId}`)}
+          style={({ pressed }) => [
+            styles.button,
+            {
+              backgroundColor: theme.colors.accentButton,
+              borderRadius: theme.radius.md,
+              opacity: pressed ? 0.85 : 1,
+            },
+          ]}
+        >
+          <Text style={styles.buttonLabel}>
+            Intentar de nuevo ({activity.attemptsLeft} restantes)
+          </Text>
+        </Pressable>
+      ) : null}
+    </View>
+  );
 
   return (
     <ScrollView
       style={{ backgroundColor: theme.colors.bg }}
       contentContainerStyle={[styles.content, isWide ? styles.contentWide : undefined]}
     >
-      <Text style={[styles.eyebrow, { color: theme.colors.accentRamp[700] }]}>
-        Resultado · intento {submission.attempt}
-      </Text>
-
       {simulatedNotice ? (
         <View
           style={[
@@ -110,13 +182,50 @@ export function ResultScreen() {
         </View>
       ) : null}
 
-      <Text style={[styles.verdict, { color: theme.colors.text }]}>
-        {simulatedNotice
-          ? 'Esta nota no cuenta.'
-          : evaluation.passed
-            ? 'Esta práctica cuenta.'
-            : 'Todavía no alcanza'}
-      </Text>
+      <View style={[styles.hero, card, isWide ? styles.heroWide : undefined]}>
+        <ScoreRing score={evaluation.effectiveTotal} color={ringColor} size={isWide ? 200 : 160} />
+        <View style={[styles.heroCopy, isWide ? styles.heroCopyWide : undefined]}>
+          <Text style={[styles.badge, { backgroundColor: badgeColors.bg, color: badgeColors.fg }]}>
+            {badge.label}
+          </Text>
+          <Text
+            style={[
+              styles.verdict,
+              isWide ? styles.verdictWide : undefined,
+              { color: theme.colors.text, fontFamily: theme.typography.display.family },
+            ]}
+            accessibilityRole="header"
+          >
+            {simulatedNotice
+              ? 'Esta nota no cuenta.'
+              : evaluation.passed
+                ? 'Esta práctica cuenta.'
+                : 'Todavía no alcanza'}
+          </Text>
+          <Text style={[styles.heroMeta, { color: theme.colors.neutral[700] }]}>
+            {activity?.title ? `${activity.title} · ` : ''}Resultado del intento {submission.attempt}
+            {totalDelta !== null && previous ? (
+              <>
+                {' · '}
+                <Text
+                  style={{
+                    fontWeight: '700',
+                    color:
+                      Math.round(totalDelta) > 0
+                        ? theme.colors.success
+                        : Math.round(totalDelta) < 0
+                          ? theme.colors.warning
+                          : theme.colors.neutral[700],
+                  }}
+                >
+                  {formatScoreDelta(totalDelta)}
+                </Text>
+                {` respecto al intento ${previous.attempt}`}
+              </>
+            ) : null}
+          </Text>
+        </View>
+      </View>
 
       <View style={[styles.pair, isWide ? styles.pairWide : undefined]}>
         <View style={[styles.station, isWide ? styles.stationWide : undefined]}>
@@ -166,18 +275,6 @@ export function ResultScreen() {
           <SideScore label="Nota de la hoja" value={sides.resultScore} color={accent} />
         </View>
       </View>
-
-      {/* Wait for the activity: a recipe saved under a generic title is hard to find later. */}
-      {activity ? (
-        <View style={styles.recipeRow}>
-          <SaveRecipeButton
-            submissionId={submission.id}
-            prompt={submission.prompt}
-            activityTitle={activity.title}
-            score={evaluation.effectiveTotal}
-          />
-        </View>
-      ) : null}
 
       {evaluation.passed && !simulatedNotice && activity?.courseSlug ? (
         <PassCertificateCard
@@ -230,51 +327,98 @@ export function ResultScreen() {
         </View>
       ) : null}
 
-      <Text style={[styles.sectionTitle, { color: theme.colors.text }]} accessibilityRole="header">Por dimensión</Text>
-
-      {evaluation.dimensionScores.map((score) => (
-        <DimensionRow key={score.key} score={score} name={dimensionName(activity, score.key)} />
-      ))}
-
-      <Text style={[styles.sectionTitle, { color: theme.colors.text }]} accessibilityRole="header">Devolución</Text>
-      <Text style={[styles.body, { color: theme.colors.text }]}>{evaluation.feedback}</Text>
-
-      <View
-        style={[
-          styles.panel,
-          {
-            backgroundColor: theme.colors.accentRamp[100],
-            borderColor: theme.colors.divider,
-            borderRadius: theme.radius.md,
-          },
-        ]}
-      >
-        <Text style={[styles.panelTitle, { color: theme.colors.accentRamp[800] }]}>
-          Qué cambiar en el próximo intento
-        </Text>
-        <Text style={[styles.body, { color: theme.colors.accentRamp[800] }]}>
-          {evaluation.suggestion}
-        </Text>
-      </View>
-
-      {activity && activity.attemptsLeft > 0 && !evaluation.passed ? (
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => router.replace(`/lab/${submission.activityId}`)}
-          style={({ pressed }) => [
-            styles.button,
-            {
-              backgroundColor: theme.colors.accentButton,
-              borderRadius: theme.radius.md,
-              opacity: pressed ? 0.85 : 1,
-            },
-          ]}
-        >
-          <Text style={styles.buttonLabel}>
-            Intentar de nuevo ({activity.attemptsLeft} restantes)
+      <View style={[styles.columns, isWide ? styles.columnsWide : undefined]}>
+        <View style={[styles.column, styles.section, card]}>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text }]} accessibilityRole="header">
+            Lo que Lía revisó
           </Text>
-        </Pressable>
-      ) : null}
+          {evaluation.dimensionScores.map((score) => (
+            <DimensionRow key={score.key} score={score} name={dimensionName(activity, score.key)} />
+          ))}
+        </View>
+
+        <View style={styles.column}>
+          {previous ? (
+            <View style={[styles.section, card]}>
+              <View style={styles.sectionHeader}>
+                <Text
+                  style={[styles.sectionTitle, styles.sectionTitleFlex, { color: theme.colors.text }]}
+                  accessibilityRole="header"
+                >
+                  Qué cambió desde el intento {previous.attempt}
+                </Text>
+                <Link
+                  href={
+                    `/lab/compare/${encodeURIComponent(submission.activityId)}?a=${previous.id}&b=${submission.id}` as Href
+                  }
+                  style={[styles.link, { color: theme.colors.accentAlt }]}
+                >
+                  Comparar lado a lado
+                </Link>
+              </View>
+              <Text
+                style={[
+                  styles.diff,
+                  { backgroundColor: theme.colors.bg, color: theme.colors.text, borderRadius: 16 },
+                ]}
+              >
+                {promptSegments.map((segment, index) =>
+                  segment.added ? (
+                    <Text
+                      key={index}
+                      style={{ backgroundColor: theme.colors.successSoft, color: theme.colors.success }}
+                    >
+                      {segment.text}
+                    </Text>
+                  ) : (
+                    <Text key={index}>{segment.text}</Text>
+                  ),
+                )}
+              </Text>
+              <View style={styles.legend}>
+                {hasNewWords ? (
+                  <>
+                    <View style={[styles.legendSwatch, { backgroundColor: theme.colors.successSoft }]} />
+                    <Text style={[styles.note, { color: theme.colors.neutral[600] }]}>
+                      Lo nuevo respecto al intento {previous.attempt}
+                    </Text>
+                  </>
+                ) : (
+                  <Text style={[styles.note, { color: theme.colors.neutral[600] }]}>
+                    No agregaste nada nuevo respecto al intento {previous.attempt}.
+                  </Text>
+                )}
+              </View>
+              {actions}
+            </View>
+          ) : null}
+
+          <View style={[styles.section, card]}>
+            <Text style={[styles.sectionTitle, { color: theme.colors.text }]} accessibilityRole="header">
+              Devolución
+            </Text>
+            <Text style={[styles.body, { color: theme.colors.text }]}>{evaluation.feedback}</Text>
+            <View
+              style={[
+                styles.panel,
+                {
+                  backgroundColor: theme.colors.accentRamp[100],
+                  borderColor: theme.colors.divider,
+                  borderRadius: theme.radius.md,
+                },
+              ]}
+            >
+              <Text style={[styles.panelTitle, { color: theme.colors.accentRamp[800] }]}>
+                Qué cambiar en el próximo intento
+              </Text>
+              <Text style={[styles.body, { color: theme.colors.accentRamp[800] }]}>
+                {evaluation.suggestion}
+              </Text>
+            </View>
+            {previous ? null : actions}
+          </View>
+        </View>
+      </View>
 
       {/* Recorded per evaluation so a grade stays explainable when the provider
           updates its model (TRD 6.3). */}
@@ -284,6 +428,15 @@ export function ResultScreen() {
       </Text>
     </ScrollView>
   );
+}
+
+function bandColor(
+  band: ScoreBand,
+  colors: { success: string; accentButton: string; warning: string },
+): string {
+  if (band === 'success') return colors.success;
+  if (band === 'primary') return colors.accentButton;
+  return colors.warning;
 }
 
 function SideScore({
@@ -308,24 +461,23 @@ function SideScore({
 
 function DimensionRow({ score, name }: { score: DimensionScore; name: string }) {
   const theme = useTheme();
-  const tone = scoreTone(score.score);
-  const color =
-    tone === 'strong'
-      ? theme.colors.accent
-      : tone === 'fair'
-        ? theme.colors.neutral[600]
-        : theme.colors.neutral[700];
+  const shown = Math.max(0, Math.min(100, Math.round(score.score)));
+  const color = bandColor(scoreBand(score.score), theme.colors);
 
   return (
-    <View
-      style={[styles.dimension, { borderColor: theme.colors.divider, borderRadius: theme.radius.md }]}
-    >
+    <View style={styles.dimension}>
       <View style={styles.dimensionHeader}>
         <Text style={[styles.dimensionName, { color: theme.colors.text }]}>{name}</Text>
-        <Text style={[styles.dimensionScore, { color }]}>{Math.round(score.score)}</Text>
+        <Text style={[styles.dimensionScore, { color }]}>{shown}</Text>
       </View>
 
-      <ProgressBar percentage={score.score} label="" />
+      <View
+        style={[styles.dimensionTrack, { backgroundColor: theme.colors.neutral[100] }]}
+        accessibilityRole="progressbar"
+        accessibilityValue={{ min: 0, max: 100, now: shown, text: `${name}: ${shown} de 100` }}
+      >
+        <View style={[styles.dimensionFill, { width: `${shown}%`, backgroundColor: color }]} />
+      </View>
 
       {/* PRD E-06: a number with no reason is not reviewable. */}
       <Text style={[styles.justification, { color: theme.colors.neutral[600] }]}>
@@ -336,7 +488,37 @@ function DimensionRow({ score, name }: { score: DimensionScore; name: string }) 
 }
 
 const styles = StyleSheet.create({
-  recipeRow: { flexDirection: 'row', flexWrap: 'wrap' },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10, marginTop: 6.8 },
+  hero: { borderWidth: 1, padding: 20, gap: 16, alignItems: 'center' },
+  heroWide: { flexDirection: 'row', padding: 28, gap: 28 },
+  heroCopy: { gap: 10, alignSelf: 'stretch' },
+  heroCopyWide: { flex: 1, minWidth: 0, alignSelf: 'center' },
+  badge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 999,
+    overflow: 'hidden',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  heroMeta: { fontSize: 15, lineHeight: 22 },
+  columns: { gap: 16, marginTop: 6.8 },
+  columnsWide: { flexDirection: 'row', alignItems: 'flex-start', gap: 20 },
+  column: { gap: 16, flex: 1, minWidth: 0 },
+  section: { borderWidth: 1, padding: 20, gap: 14 },
+  sectionHeader: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  sectionTitleFlex: { flexShrink: 1 },
+  link: { fontSize: 14, fontWeight: '600' },
+  diff: { padding: 16, fontSize: 15, lineHeight: 25, overflow: 'hidden' },
+  legend: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  legendSwatch: { width: 10, height: 10, borderRadius: 3 },
   override: { borderWidth: 1, padding: 13.6, gap: 3.4, marginTop: 6.8 },
   overrideReason: { fontSize: 14, lineHeight: 21 },
   screen: { flex: 1 },
@@ -349,7 +531,9 @@ const styles = StyleSheet.create({
     gap: 10.2,
   },
   contentWide: {
-    maxWidth: 1080,
+    maxWidth: 1240,
+    padding: 32,
+    gap: 16,
   },
   pair: {
     gap: 12,
@@ -398,33 +582,29 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: -0.6,
   },
-  eyebrow: {
-    fontSize: 11,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  verdict: { fontSize: 20, fontWeight: '600', marginBottom: 6.8 },
+  verdict: { fontSize: 26, lineHeight: 30 },
+  verdictWide: { fontSize: 36, lineHeight: 40 },
   waitTitle: { fontSize: 20, fontWeight: '600', textAlign: 'center' },
   waitHint: { fontSize: 14, textAlign: 'center', maxWidth: 380 },
   panel: { borderWidth: 1, padding: 13.6, gap: 3.4, marginVertical: 6.8 },
   panelTitle: { fontSize: 15, fontWeight: '600', marginBottom: 3.4 },
   failure: { fontSize: 14, lineHeight: 21 },
-  sectionTitle: { fontSize: 18, fontWeight: '600', marginTop: 13.6 },
-  dimension: { borderWidth: 1, padding: 13.6, gap: 6.8 },
+  sectionTitle: { fontSize: 17, fontWeight: '700' },
+  dimension: { gap: 6 },
+  dimensionTrack: { height: 10, borderRadius: 999, overflow: 'hidden' },
+  dimensionFill: { height: '100%', borderRadius: 999 },
   dimensionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  dimensionName: { fontSize: 15, fontWeight: '600', flex: 1 },
-  dimensionScore: { fontSize: 20, fontWeight: '600' },
+  dimensionName: { fontSize: 14, fontWeight: '600', flex: 1 },
+  dimensionScore: { fontSize: 14, fontWeight: '700' },
   justification: { fontSize: 13, lineHeight: 19 },
   body: { fontSize: 15, lineHeight: 23 },
   promptBody: { fontSize: 14, lineHeight: 21 },
   note: { fontSize: 12, lineHeight: 18 },
   button: {
-    paddingVertical: 13.6,
+    paddingHorizontal: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 48,
-    marginTop: 13.6,
+    minHeight: 46,
   },
   buttonLabel: { color: '#ffffff', fontSize: 16, fontWeight: '600' },
   provenance: { fontSize: 11, textAlign: 'center', marginTop: 13.6 },

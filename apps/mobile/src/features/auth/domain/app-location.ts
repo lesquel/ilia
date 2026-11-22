@@ -35,7 +35,7 @@ export type AppLocation = {
 export type AppNavItem = {
   sectionId: AppSectionId;
   label: string;
-  href: '/catalog' | '/my-courses' | '/certificates' | '/community' | '/instructor' | '/admin';
+  href: '/' | '/catalog' | '/my-courses' | '/certificates' | '/community' | '/instructor' | '/admin';
 };
 
 export const SESSION_ROLE_LABELS: Record<Role, string> = {
@@ -58,6 +58,7 @@ export function givenNameInitial(fullName: string): string {
 
 export function appNavItemsForRole(role: Role): AppNavItem[] {
   const items: AppNavItem[] = [
+    { sectionId: 'home', label: 'Inicio', href: '/' },
     { sectionId: 'catalog', label: 'Catálogo', href: '/catalog' },
     { sectionId: 'my-courses', label: 'Mis cursos', href: '/my-courses' },
     { sectionId: 'certificates', label: 'Certificados', href: '/certificates' },
@@ -72,6 +73,34 @@ export function appNavItemsForRole(role: Role): AppNavItem[] {
   }
 
   return items;
+}
+
+/**
+ * The phone's bottom bar: five places at most, so every label fits under its
+ * icon. What does not fit stays one tap away in the account menu.
+ */
+export function tabItemsForRole(role: Role): AppNavItem[] {
+  const byHref = new Map(appNavItemsForRole(role).map((item) => [item.href, item]));
+  const order: AppNavItem['href'][] = canActAs(role, 'admin')
+    ? ['/', '/catalog', '/instructor', '/admin', '/community']
+    : canActAs(role, 'instructor')
+      ? ['/', '/catalog', '/my-courses', '/instructor', '/community']
+      : ['/', '/catalog', '/my-courses', '/certificates', '/community'];
+  return order.flatMap((href) => {
+    const item = byHref.get(href);
+    return item ? [item] : [];
+  });
+}
+
+/**
+ * Places with their own bottom controls (Atrás / Continuar), where a section
+ * bar underneath would stack two bars and steal the thumb's room.
+ */
+export function isImmersivePath(pathname: string): boolean {
+  const [root, second, third] = normalizePath(pathname).split('/').filter(Boolean);
+  if (root === 'catalog') return third === 'lessons';
+  if (root === 'lab') return Boolean(second) && second !== 'submissions' && second !== 'compare';
+  return false;
 }
 
 /** Names the URL cannot give: known only once the page's own data has loaded. */

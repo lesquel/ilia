@@ -37,8 +37,11 @@ export function LessonPlayer({
   posterUrl,
   resumePositionSeconds = 0,
   onPositionChange,
+  accentColor,
 }: {
   url: string;
+  /** The course's ink for "Ver video" and the resume button; the app accent otherwise. */
+  accentColor?: string;
   captionsUrl?: string | null;
   posterUrl?: string | null;
   resumePositionSeconds?: number;
@@ -193,7 +196,7 @@ export function LessonPlayer({
             onError={() => setPosterFailed(true)}
             accessibilityIgnoresInvertColors
           />
-          <View style={[styles.posterPlay, { backgroundColor: theme.colors.accentButton }]}>
+          <View style={[styles.posterPlay, { backgroundColor: accentColor ?? theme.colors.accentButton }]}>
             <Icon glyph={Play} size={20} color="#FFFFFF" />
             {/* On a phone the poster is small and the label would cover Lía. */}
             {isWide ? <Text style={styles.posterPlayLabel}>Ver video</Text> : null}
@@ -232,7 +235,11 @@ export function LessonPlayer({
               setShowResumeChoice(false);
               player.play();
             }}
-            style={({ pressed }) => [styles.resumePrimary, { opacity: pressed ? 0.8 : 1 }]}
+            style={({ pressed }) => [
+              styles.resumePrimary,
+              { opacity: pressed ? 0.8 : 1 },
+              accentColor ? { backgroundColor: accentColor } : undefined,
+            ]}
           >
             <Text style={styles.resumePrimaryLabel}>Continuar desde {formatVideoTime(resumePositionSeconds)}</Text>
           </Pressable>

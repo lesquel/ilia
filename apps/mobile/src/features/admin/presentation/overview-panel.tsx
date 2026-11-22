@@ -18,6 +18,7 @@ import { Icon } from '@/core/ui/icon';
 import {
   certificationFunnel,
   funnelSentence,
+  overviewKpis,
   type PlatformOverview,
 } from '@/features/admin/domain/entities';
 import { Card } from '@/features/admin/presentation/ui';
@@ -31,6 +32,8 @@ export const MAX_COLUMNS = 4;
 export function OverviewPanel({ overview }: { overview: PlatformOverview }) {
   return (
     <View style={styles.panel}>
+      <KpiStrip overview={overview} />
+
       <StatGroup title="Personas" note={`${overview.totalUsers} cuentas en total`}>
         {(width) => (
           <>
@@ -100,6 +103,46 @@ export function OverviewPanel({ overview }: { overview: PlatformOverview }) {
       >
         <FunnelChart overview={overview} />
       </Card>
+    </View>
+  );
+}
+
+/** The five headline figures, numbers in the display face. */
+function KpiStrip({ overview }: { overview: PlatformOverview }) {
+  const theme = useTheme();
+
+  return (
+    <View style={styles.kpis}>
+      {overviewKpis(overview).map((kpi) => (
+        <View
+          key={kpi.key}
+          accessible
+          accessibilityLabel={`${kpi.label}: ${kpi.value}, ${kpi.hint}`}
+          style={[
+            styles.kpi,
+            {
+              backgroundColor: theme.colors.surface,
+              borderColor: theme.colors.divider,
+              borderRadius: theme.radius.lg,
+            },
+          ]}
+        >
+          <Text style={[styles.kpiLabel, { color: theme.colors.neutral[800] }]} numberOfLines={1}>
+            {kpi.label}
+          </Text>
+          <Text
+            style={[
+              styles.kpiValue,
+              { color: theme.colors.ink, fontFamily: theme.typography.display.family },
+            ]}
+          >
+            {kpi.value}
+          </Text>
+          <Text style={[styles.kpiHint, { color: theme.colors.neutral[800] }]} numberOfLines={1}>
+            {kpi.hint}
+          </Text>
+        </View>
+      ))}
     </View>
   );
 }
@@ -189,7 +232,14 @@ function StatTile({
       >
         <Icon glyph={glyph} size={18} color={theme.colors.accent} />
       </View>
-      <Text style={[styles.tileValue, { color: theme.colors.text }]}>{value}</Text>
+      <Text
+        style={[
+          styles.tileValue,
+          { color: theme.colors.ink, fontFamily: theme.typography.displayBold.family },
+        ]}
+      >
+        {value}
+      </Text>
       <Text style={[styles.tileLabel, { color: theme.colors.neutral[800] }]} numberOfLines={2}>
         {label}
       </Text>
@@ -245,6 +295,11 @@ function FunnelChart({ overview }: { overview: PlatformOverview }) {
 
 const styles = StyleSheet.create({
   panel: { gap: 20.4 },
+  kpis: { flexDirection: 'row', flexWrap: 'wrap', gap: TILE_GAP },
+  kpi: { borderWidth: 1, padding: 16, gap: 4, flexGrow: 1, flexBasis: 170, minWidth: 150 },
+  kpiLabel: { fontSize: 13, fontWeight: '600' },
+  kpiValue: { fontSize: 34, lineHeight: 40, letterSpacing: -0.8 },
+  kpiHint: { fontSize: 12, lineHeight: 17, fontWeight: '600' },
   group: { gap: 10.2 },
   groupHead: {
     flexDirection: 'row',
@@ -265,7 +320,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 6.8,
   },
-  tileValue: { fontSize: 30, fontWeight: '700', lineHeight: 36, letterSpacing: -0.6 },
+  tileValue: { fontSize: 28, lineHeight: 34, letterSpacing: -0.6 },
   tileLabel: { fontSize: 13, fontWeight: '600', lineHeight: 18 },
   body: { fontSize: 15, lineHeight: 22 },
   barList: { gap: 10.2 },

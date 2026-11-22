@@ -15,6 +15,11 @@ import { breakpoint, useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
 import { useCourses } from '@/features/catalog/application/use-catalog';
 import {
+  coursesInProgress,
+  type CatalogProgress,
+  type EnrolledCourseLike,
+} from '@/features/catalog/domain/catalog-progress';
+import {
   LEVELS,
   LEVEL_LABELS,
   sortCoursesAlongLearningPath,
@@ -26,11 +31,23 @@ import {
 import { CatalogScreenSkeleton } from './catalog-screen-skeleton';
 import { CourseCard } from './course-card';
 
-export function CatalogScreen() {
+/**
+ * The catalog does not import enrollment: the route reads the enrolments and
+ * hands them in, so a visitor's catalog is the same screen with nothing passed.
+ */
+export interface CatalogScreenProps {
+  /** Progress per course slug, for the cards of enrolled courses. */
+  progressBySlug?: Readonly<Record<string, CatalogProgress>>;
+  /** The teacher's enrolments, behind the "En curso" filter. */
+  enrolments?: readonly EnrolledCourseLike[];
+}
+
+export function CatalogScreen({ progressBySlug, enrolments }: CatalogScreenProps = {}) {
   const theme = useTheme();
   const { width } = useWindowDimensions();
 
   const [level, setLevel] = useState<Level | undefined>();
+  const [onlyInProgress, setOnlyInProgress] = useState(false);
   const [search, setSearch] = useState('');
   const [submittedSearch, setSubmittedSearch] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
@@ -44,6 +61,15 @@ export function CatalogScreen() {
     useCourses(filters);
   const coursesAlongPath = useMemo(() => sortCoursesAlongLearningPath(courses), [courses]);
   const startHereId = useMemo(() => startingCourseId(courses), [courses]);
+  // From the enrolments, not the loaded pages: a course on a page not fetched
+  // yet is still one the teacher is in.
+  const inProgress = useMemo(() => coursesInProgress(enrolments ?? []), [enrolments]);
+  const inProgressMatches = useMemo(
+    () => coursesInProgress(enrolments ?? [], submittedSearch),
+    [enrolments, submittedSearch],
+  );
+  const showInProgress = onlyInProgress && inProgress.length > 0;
+  const listed = showInProgress ? inProgressMatches : coursesAlongPath;
 
   // Same breakpoints as the mockup's container queries: one column on a phone,
   // two on a tablet, three on a desktop.
@@ -58,7 +84,12 @@ export function CatalogScreen() {
 
   const header = (
     <View style={styles.header}>
-      <Text style={[styles.title, { color: theme.colors.text }]} accessibilityRole="header">Explorar cursos</Text>
+      <Text
+        style={[styles.title, { color: theme.colors.ink, fontFamily: theme.typography.display.family }]}
+        accessibilityRole="header"
+      >
+        Explorar cursos
+      </Text>
       <Text style={[styles.subtitle, { color: theme.colors.neutral[600] }]}>
         Aprende haciendo. Cada módulo termina en una actividad, no en un cuestionario.
       </Text>
@@ -93,16 +124,41 @@ export function CatalogScreen() {
       {/* Category chips from mockup #4 are not wired: the API exposes level, query
           and cursor only — no category field in ORM or catalog router. */}
       <View style={styles.filters}>
-        <LevelChip label="Todos" active={level === undefined} onPress={() => setLevel(undefined)} />
+        <FilterChip
+          label="Todos"
+          active={level === undefined && !showInProgress}
+          onPress={() => {
+            setLevel(undefined);
+            setOnlyInProgress(false);
+          }}
+        />
+        {inProgress.length > 0 ? (
+          <FilterChip
+            label={`En curso · ${inProgress.length}`}
+            active={showInProgress}
+            onPress={() => {
+              setLevel(undefined);
+              setOnlyInProgress(!showInProgress);
+            }}
+          />
+        ) : null}
+        <View style={[styles.chipRule, { backgroundColor: theme.colors.divider }]} />
         {LEVELS.map((option) => (
-          <LevelChip
+          <FilterChip
             key={option}
             label={LEVEL_LABELS[option]}
-            active={level === option}
-            onPress={() => setLevel(level === option ? undefined : option)}
+            active={!showInProgress && level === option}
+            onPress={() => {
+              setOnlyInProgress(false);
+              setLevel(level === option && !showInProgress ? undefined : option);
+            }}
           />
         ))}
-        {isLoading ? null : (
+        {showInProgress ? (
+          <Text style={[styles.count, { color: theme.colors.neutral[600] }]}>
+            {listed.length} {listed.length === 1 ? 'curso' : 'cursos'}
+          </Text>
+        ) : isLoading ? null : (
           <Text style={[styles.count, { color: theme.colors.neutral[600] }]}>
             {courses.length} {courses.length === 1 ? 'curso' : 'cursos'}
             {hasMore ? ' o más' : ''}
@@ -112,7 +168,7 @@ export function CatalogScreen() {
     </View>
   );
 
-  if (error && courses.length === 0) {
+  if (error && courses.length === 0 && !showInProgress) {
     return (
       <View style={[styles.screen, { backgroundColor: theme.colors.bg }]}>
         {header}
@@ -125,7 +181,7 @@ export function CatalogScreen() {
     <FlatList
       style={{ backgroundColor: theme.colors.bg }}
       contentContainerStyle={[styles.content, { maxWidth: maxContentWidth }]}
-      data={coursesAlongPath}
+      data={listed}
       // `columns` changes with the window, and FlatList cannot change numColumns
       // on the fly — the key forces a fresh list instead of an invariant error.
       key={`columns-${columns}`}
@@ -134,19 +190,28 @@ export function CatalogScreen() {
       keyExtractor={(course) => course.id}
       renderItem={({ item }) => (
         <View style={columns > 1 ? [styles.gridItem, { maxWidth: cardMaxWidth }] : undefined}>
-          <CourseCard course={item} isStartHere={item.id === startHereId} />
+          <CourseCard
+            course={item}
+            isStartHere={item.id === startHereId && !progressBySlug?.[item.slug]}
+            progress={progressBySlug?.[item.slug]}
+          />
         </View>
       )}
       ListHeaderComponent={header}
       ListEmptyComponent={
-        isLoading ? (
+        showInProgress ? (
+          <EmptyState
+            title="Ningún curso en curso coincide"
+            hint="Prueba con otra búsqueda o vuelve a Todos."
+          />
+        ) : isLoading ? (
           <CatalogScreenSkeleton columns={columns} cardMaxWidth={cardMaxWidth} gap={GRID_GAP} />
         ) : (
           <EmptyState {...emptyCatalogMessage(filters)} />
         )
       }
       ListFooterComponent={
-        isLoadingMore ? (
+        isLoadingMore && !showInProgress ? (
           // The next page draws as the cards it brings, one row of them.
           <CatalogScreenSkeleton
             columns={columns}
@@ -159,13 +224,14 @@ export function CatalogScreen() {
       }
       onEndReachedThreshold={0.5}
       onEndReached={() => {
-        if (hasMore && !isLoadingMore) void loadMore();
+        if (hasMore && !isLoadingMore && !showInProgress) void loadMore();
       }}
     />
   );
 }
 
-function LevelChip({
+/** A pill: the active one is dark, like the active section in the nav. */
+function FilterChip({
   label,
   active,
   onPress,
@@ -185,15 +251,15 @@ function LevelChip({
       style={({ pressed }) => [
         styles.chip,
         {
-          backgroundColor: active ? theme.colors.accentButton : 'transparent',
-          borderColor: active ? theme.colors.accent : theme.colors.divider,
-          borderRadius: theme.radius.sm,
+          backgroundColor: active ? theme.colors.ink : theme.colors.surface,
+          borderColor: active ? theme.colors.ink : theme.colors.divider,
+          borderRadius: PILL_RADIUS,
           opacity: pressed ? 0.8 : 1,
         },
       ]}
     >
       <Text
-        style={[styles.chipText, { color: active ? '#ffffff' : theme.colors.neutral[700] }]}
+        style={[styles.chipText, { color: active ? theme.colors.bg : theme.colors.ink }]}
       >
         {label}
       </Text>
@@ -201,6 +267,7 @@ function LevelChip({
   );
 }
 
+const PILL_RADIUS = 999;
 const CONTENT_MAX_WIDTH = 1280;
 const WIDE_SCREEN = 1600;
 const WIDE_CONTENT_MAX_WIDTH = 1720;
@@ -223,8 +290,9 @@ const styles = StyleSheet.create({
     marginBottom: 13.6,
   },
   title: {
-    fontSize: 32,
-    fontWeight: '600',
+    fontSize: 34,
+    lineHeight: 38,
+    letterSpacing: -0.6,
   },
   subtitle: {
     fontSize: 15,
@@ -259,12 +327,19 @@ const styles = StyleSheet.create({
   },
   chip: {
     borderWidth: 1,
-    paddingVertical: 6.8,
-    paddingHorizontal: 13.6,
+    minHeight: 38,
+    justifyContent: 'center',
+    paddingHorizontal: 16,
   },
   chipText: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '600',
+  },
+  chipRule: {
+    width: 1,
+    alignSelf: 'stretch',
+    marginVertical: 4,
+    marginHorizontal: 4,
   },
   column: {
     gap: GRID_GAP,

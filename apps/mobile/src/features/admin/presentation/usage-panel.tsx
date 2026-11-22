@@ -27,7 +27,12 @@ export function UsagePanel() {
         {!isLoading && !error && !report ? <EmptyState title="No hay datos de uso" /> : null}
         {report ? (
           <View style={styles.totals}>
-            <Text style={[styles.big, { color: theme.colors.text }]}>
+            <Text
+              style={[
+                styles.big,
+                { color: theme.colors.ink, fontFamily: theme.typography.display.family },
+              ]}
+            >
               {formatTokens(report.totals.totalTokens)} tokens
             </Text>
             <Text style={[styles.meta, { color: muted }]}>
@@ -40,9 +45,22 @@ export function UsagePanel() {
                 Costo estimado: USD {report.totals.estimatedCost.toFixed(2)}
               </Text>
             ) : (
-              <Text style={[styles.meta, { color: muted }]}>
-                Sin precios configurados: no se puede estimar el costo.
-              </Text>
+              // A zero cost here means "no prices", never "free": said as an
+              // alert so it is not read as a figure.
+              <View
+                accessibilityRole="alert"
+                style={[
+                  styles.alert,
+                  {
+                    backgroundColor: theme.colors.warningSoft,
+                    borderRadius: theme.radius.md,
+                  },
+                ]}
+              >
+                <Text style={[styles.alertText, { color: theme.colors.warning }]}>
+                  Sin precios configurados para el proveedor de IA: no se puede estimar el costo.
+                </Text>
+              </View>
             )}
           </View>
         ) : null}
@@ -106,7 +124,9 @@ function UsageRow({ row }: { row: UsageByUser }) {
 const styles = StyleSheet.create({
   panel: { gap: 20.4 },
   totals: { gap: 6.8 },
-  big: { fontSize: 30, fontWeight: '700', lineHeight: 36, letterSpacing: -0.6 },
+  big: { fontSize: 34, lineHeight: 40, letterSpacing: -0.8 },
+  alert: { padding: 12, marginTop: 3.4 },
+  alertText: { fontSize: 14, lineHeight: 20, fontWeight: '600' },
   meta: { fontSize: 13, lineHeight: 19 },
   cost: { fontSize: 16, fontWeight: '600' },
   who: { gap: 3.4, minWidth: 0 },
