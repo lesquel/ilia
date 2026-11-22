@@ -3,7 +3,10 @@ import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { useTheme } from '@/core/theme';
-import { type CourseCoverCraft } from '@/features/catalog/presentation/course-cover-craft';
+import {
+  type CourseCoverCraft,
+  type CourseCoverTone,
+} from '@/features/catalog/presentation/course-cover-craft';
 import { coverSceneForCourseSlug } from '@/features/catalog/presentation/course-covers';
 
 /**
@@ -18,28 +21,34 @@ export function CourseCoverArt({
 }) {
   const theme = useTheme();
   const scene = coverSceneForCourseSlug(courseSlug);
+  // A course without its own scene keeps the brand blue.
+  const tone: CourseCoverTone = scene?.tone ?? {
+    wash: theme.colors.accentRamp[100],
+    mid: theme.colors.accentRamp[200],
+    ink: theme.colors.accent,
+  };
 
   return (
     // Every cover is the same desk at the same height, so a row of cards lines
     // up. A course without its own scene still gets paper on it: an empty
     // tabletop reads as a broken image.
-    <View style={[styles.cover, { backgroundColor: theme.colors.accentRamp[100] }]}>
+    <View style={[styles.cover, { backgroundColor: tone.wash }]}>
       <View
         style={[
           styles.tabletop,
           {
             backgroundColor: theme.colors.bg,
-            borderColor: theme.colors.accentRamp[200],
+            borderColor: tone.mid,
           },
         ]}
         accessibilityElementsHidden
       >
-        <View style={[styles.tableEdge, { backgroundColor: theme.colors.accent }]} />
+        <View style={[styles.tableEdge, { backgroundColor: tone.ink }]} />
       </View>
-      {scene ? null : <BareSheets />}
+      {scene ? null : <BareSheets tone={tone} />}
       {scene ? (
         <View style={styles.desk} accessibilityElementsHidden>
-          <CraftStage craft={scene.craft} />
+          <CraftStage craft={scene.craft} tone={tone} />
           <Image
             source={scene.still}
             style={styles.lia}
@@ -57,7 +66,7 @@ export function CourseCoverArt({
  * Paper on the desk and nobody at it: the same sheets the scenes use, without
  * claiming a craft the course was never given.
  */
-function BareSheets() {
+function BareSheets({ tone }: { tone: CourseCoverTone }) {
   const theme = useTheme();
 
   return (
@@ -67,8 +76,8 @@ function BareSheets() {
           styles.bareSheet,
           styles.bareSheetBack,
           {
-            backgroundColor: theme.colors.accentRamp[200],
-            borderColor: theme.colors.accentRamp[200],
+            backgroundColor: tone.mid,
+            borderColor: tone.mid,
           },
         ]}
       />
@@ -78,15 +87,13 @@ function BareSheets() {
           styles.bareSheetFront,
           {
             backgroundColor: theme.colors.surface,
-            borderColor: theme.colors.accentRamp[200],
+            borderColor: tone.mid,
           },
         ]}
       >
-        <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
-        <View style={[styles.inkLine, { backgroundColor: theme.colors.accentRamp[200] }]} />
-        <View
-          style={[styles.inkLine, { backgroundColor: theme.colors.accentRamp[200], width: '82%' }]}
-        />
+        <View style={[styles.signalSquare, { backgroundColor: tone.ink }]} />
+        <View style={[styles.inkLine, { backgroundColor: tone.mid }]} />
+        <View style={[styles.inkLine, { backgroundColor: tone.mid, width: '82%' }]} />
         <View
           style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300], width: '64%' }]}
         />
@@ -95,7 +102,7 @@ function BareSheets() {
   );
 }
 
-function CraftStage({ craft }: { craft: CourseCoverCraft }) {
+function CraftStage({ craft, tone }: { craft: CourseCoverCraft; tone: CourseCoverTone }) {
   const theme = useTheme();
 
   if (craft === 'writing-prompt') {
@@ -115,24 +122,14 @@ function CraftStage({ craft }: { craft: CourseCoverCraft }) {
             styles.promptSheet,
             {
               backgroundColor: theme.colors.surface,
-              borderColor: theme.colors.accentRamp[200],
+              borderColor: tone.mid,
             },
           ]}
         >
-          <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
-          <View style={[styles.inkLine, { backgroundColor: theme.colors.accentRamp[200] }]} />
-          <View
-            style={[
-              styles.inkLine,
-              { backgroundColor: theme.colors.accentRamp[200], width: '92%' },
-            ]}
-          />
-          <View
-            style={[
-              styles.inkLine,
-              { backgroundColor: theme.colors.accentRamp[200], width: '78%' },
-            ]}
-          />
+          <View style={[styles.signalSquare, { backgroundColor: tone.ink }]} />
+          <View style={[styles.inkLine, { backgroundColor: tone.mid }]} />
+          <View style={[styles.inkLine, { backgroundColor: tone.mid, width: '92%' }]} />
+          <View style={[styles.inkLine, { backgroundColor: tone.mid, width: '78%' }]} />
           <View
             style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300], width: '84%' }]}
           />
@@ -180,7 +177,7 @@ function CraftStage({ craft }: { craft: CourseCoverCraft }) {
             },
           ]}
         >
-          <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
+          <View style={[styles.signalSquare, { backgroundColor: tone.ink }]} />
           <View style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300] }]} />
           <View
             style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300], width: '88%' }]}
@@ -196,6 +193,86 @@ function CraftStage({ craft }: { craft: CourseCoverCraft }) {
     );
   }
 
+  if (craft === 'prompt-before-after') {
+    // The vague request crossed out behind, the precise one in front.
+    return (
+      <View style={styles.pairDesk}>
+        <View
+          style={[
+            styles.pairCard,
+            styles.pairBack,
+            { backgroundColor: theme.colors.neutral[100], borderColor: theme.colors.neutral[300] },
+          ]}
+        >
+          <View
+            style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300], width: '58%' }]}
+          />
+          <View style={[styles.strike, { backgroundColor: tone.ink }]} />
+        </View>
+        <View
+          style={[
+            styles.pairCard,
+            styles.pairFront,
+            { backgroundColor: theme.colors.surface, borderColor: tone.mid },
+          ]}
+        >
+          <View style={[styles.inkLine, { backgroundColor: tone.mid }]} />
+          <View style={[styles.inkLine, { backgroundColor: tone.mid, width: '88%' }]} />
+          <View
+            style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300], width: '94%' }]}
+          />
+          <View
+            style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300], width: '72%' }]}
+          />
+          <View
+            style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300], width: '80%' }]}
+          />
+          <View style={[styles.pairTick, { backgroundColor: tone.ink }]} />
+        </View>
+      </View>
+    );
+  }
+
+  if (craft === 'notebook-sources') {
+    // A bound notebook with its sources tabbed along the top.
+    return (
+      <View style={styles.notebookDesk}>
+        <View style={styles.notebookTabs}>
+          <View style={[styles.notebookTab, { backgroundColor: tone.ink }]} />
+          <View style={[styles.notebookTab, { backgroundColor: tone.mid }]} />
+          <View style={[styles.notebookTab, { backgroundColor: theme.colors.neutral[300] }]} />
+        </View>
+        <View
+          style={[
+            styles.notebook,
+            { backgroundColor: theme.colors.surface, borderColor: tone.mid },
+          ]}
+        >
+          <View
+            style={[styles.notebookSpine, { backgroundColor: tone.wash, borderColor: tone.mid }]}
+          >
+            {[0, 1, 2, 3, 4].map((ring) => (
+              <View key={ring} style={[styles.notebookRing, { backgroundColor: tone.ink }]} />
+            ))}
+          </View>
+          <View style={styles.notebookPage}>
+            <View style={[styles.inkLine, { backgroundColor: tone.mid, width: '70%' }]} />
+            <View style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300] }]} />
+            <View
+              style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300], width: '86%' }]}
+            />
+            <View
+              style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300], width: '64%' }]}
+            />
+            <View
+              style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300], width: '78%' }]}
+            />
+          </View>
+        </View>
+      </View>
+    );
+  }
+
   if (craft === 'chat-exchange') {
     // A teacher's request on the right, the model's reply on the left.
     return (
@@ -204,21 +281,16 @@ function CraftStage({ craft }: { craft: CourseCoverCraft }) {
           styles.chatCard,
           {
             backgroundColor: theme.colors.surface,
-            borderColor: theme.colors.accentRamp[200],
+            borderColor: tone.mid,
           },
         ]}
       >
-        <View style={[styles.chatAsk, { backgroundColor: theme.colors.accentRamp[100] }]}>
-          <View style={[styles.inkLine, { backgroundColor: theme.colors.accentRamp[200] }]} />
-          <View
-            style={[
-              styles.inkLine,
-              { backgroundColor: theme.colors.accentRamp[200], width: '70%' },
-            ]}
-          />
+        <View style={[styles.chatAsk, { backgroundColor: tone.wash }]}>
+          <View style={[styles.inkLine, { backgroundColor: tone.mid }]} />
+          <View style={[styles.inkLine, { backgroundColor: tone.mid, width: '70%' }]} />
         </View>
         <View style={[styles.chatReply, { backgroundColor: theme.colors.neutral[100] }]}>
-          <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
+          <View style={[styles.signalSquare, { backgroundColor: tone.ink }]} />
           <View style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300] }]} />
           <View
             style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300], width: '86%' }]}
@@ -227,7 +299,7 @@ function CraftStage({ craft }: { craft: CourseCoverCraft }) {
             style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300], width: '58%' }]}
           />
         </View>
-        <View style={[styles.chatInput, { borderColor: theme.colors.accentRamp[200] }]} />
+        <View style={[styles.chatInput, { borderColor: tone.mid }]} />
       </View>
     );
   }
@@ -252,25 +324,20 @@ function CraftStage({ craft }: { craft: CourseCoverCraft }) {
           style={[
             styles.citedLine,
             {
-              backgroundColor: theme.colors.accentRamp[100],
-              borderLeftColor: theme.colors.accent,
+              backgroundColor: tone.wash,
+              borderLeftColor: tone.ink,
             },
           ]}
         >
-          <View style={[styles.inkLine, { backgroundColor: theme.colors.accentRamp[200] }]} />
-          <View
-            style={[
-              styles.inkLine,
-              { backgroundColor: theme.colors.accentRamp[200], width: '76%' },
-            ]}
-          />
+          <View style={[styles.inkLine, { backgroundColor: tone.mid }]} />
+          <View style={[styles.inkLine, { backgroundColor: tone.mid, width: '76%' }]} />
         </View>
         <View
           style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300], width: '82%' }]}
         />
         <View style={styles.citeRow}>
           <View style={[styles.citeChip, { backgroundColor: theme.colors.neutral[200] }]} />
-          <View style={[styles.citeChip, { backgroundColor: theme.colors.accent }]} />
+          <View style={[styles.citeChip, { backgroundColor: tone.ink }]} />
         </View>
       </View>
     );
@@ -284,28 +351,25 @@ function CraftStage({ craft }: { craft: CourseCoverCraft }) {
           styles.quizCard,
           {
             backgroundColor: theme.colors.surface,
-            borderColor: theme.colors.accentRamp[200],
+            borderColor: tone.mid,
           },
         ]}
       >
-        <View style={[styles.quizTop, { backgroundColor: theme.colors.accent }]} />
+        <View style={[styles.quizTop, { backgroundColor: tone.ink }]} />
         <View
           style={[styles.inkLine, { backgroundColor: theme.colors.neutral[300], width: '88%' }]}
         />
         {[false, true, false, false].map((correct, index) => (
           <View
             key={index}
-            style={[
-              styles.quizOption,
-              correct ? { backgroundColor: theme.colors.accentRamp[100] } : null,
-            ]}
+            style={[styles.quizOption, correct ? { backgroundColor: tone.wash } : null]}
           >
             <View
               style={[
                 styles.quizRadio,
                 {
-                  borderColor: correct ? theme.colors.accent : theme.colors.neutral[400],
-                  backgroundColor: correct ? theme.colors.accent : 'transparent',
+                  borderColor: correct ? tone.ink : theme.colors.neutral[400],
+                  backgroundColor: correct ? tone.ink : 'transparent',
                 },
               ]}
             />
@@ -313,9 +377,7 @@ function CraftStage({ craft }: { craft: CourseCoverCraft }) {
               style={[
                 styles.rubricLine,
                 {
-                  backgroundColor: correct
-                    ? theme.colors.accentRamp[200]
-                    : theme.colors.neutral[300],
+                  backgroundColor: correct ? tone.mid : theme.colors.neutral[300],
                 },
               ]}
             />
@@ -327,11 +389,7 @@ function CraftStage({ craft }: { craft: CourseCoverCraft }) {
 
   if (craft === 'three-part-slide') {
     // A projected slide in three bands: topic, main idea, detail.
-    const bands = [
-      theme.colors.accentRamp[100],
-      theme.colors.accentRamp[200],
-      theme.colors.neutral[200],
-    ];
+    const bands = [tone.wash, tone.mid, theme.colors.neutral[200]];
     return (
       <View
         style={[
@@ -344,7 +402,7 @@ function CraftStage({ craft }: { craft: CourseCoverCraft }) {
       >
         {bands.map((band, index) => (
           <View key={index} style={[styles.slideBand, { backgroundColor: band }]}>
-            <View style={[styles.slideTitle, { backgroundColor: theme.colors.accent }]} />
+            <View style={[styles.slideTitle, { backgroundColor: tone.ink }]} />
             <View
               style={[styles.inkLine, { backgroundColor: theme.colors.surface, width: '72%' }]}
             />
@@ -360,25 +418,23 @@ function CraftStage({ craft }: { craft: CourseCoverCraft }) {
         styles.rubricSheet,
         {
           backgroundColor: theme.colors.surface,
-          borderColor: theme.colors.accentRamp[200],
+          borderColor: tone.mid,
         },
       ]}
     >
       <View style={styles.rubricHead}>
-        <View style={[styles.signalSquare, { backgroundColor: theme.colors.accent }]} />
-        <View
-          style={[styles.inkLine, { backgroundColor: theme.colors.accentRamp[200], width: 72 }]}
-        />
+        <View style={[styles.signalSquare, { backgroundColor: tone.ink }]} />
+        <View style={[styles.inkLine, { backgroundColor: tone.mid, width: 72 }]} />
       </View>
-      <RubricRow filled />
-      <RubricRow filled />
-      <RubricRow filled />
-      <RubricRow filled={false} />
+      <RubricRow filled tone={tone} />
+      <RubricRow filled tone={tone} />
+      <RubricRow filled tone={tone} />
+      <RubricRow filled={false} tone={tone} />
     </View>
   );
 }
 
-function RubricRow({ filled }: { filled: boolean }) {
+function RubricRow({ filled, tone }: { filled: boolean; tone: CourseCoverTone }) {
   const theme = useTheme();
 
   return (
@@ -387,7 +443,7 @@ function RubricRow({ filled }: { filled: boolean }) {
         style={[
           styles.rubricMark,
           {
-            backgroundColor: filled ? theme.colors.accent : theme.colors.neutral[200],
+            backgroundColor: filled ? tone.ink : theme.colors.neutral[200],
           },
         ]}
       />
@@ -395,7 +451,7 @@ function RubricRow({ filled }: { filled: boolean }) {
         style={[
           styles.rubricLine,
           {
-            backgroundColor: filled ? theme.colors.accentRamp[200] : theme.colors.neutral[300],
+            backgroundColor: filled ? tone.mid : theme.colors.neutral[300],
           },
         ]}
       />
@@ -462,8 +518,8 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   lia: {
-    width: 168,
-    height: 224,
+    width: 156,
+    height: 208,
     marginRight: 4,
     marginBottom: 44,
     zIndex: 2,
@@ -578,6 +634,91 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 6,
     borderRadius: 3,
+  },
+  pairDesk: {
+    width: 170,
+    height: 196,
+    marginRight: -34,
+    marginBottom: 50,
+  },
+  pairCard: {
+    position: 'absolute',
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 12,
+    gap: 9,
+  },
+  pairBack: {
+    left: 0,
+    top: 0,
+    width: 120,
+    height: 70,
+    justifyContent: 'center',
+    transform: [{ rotate: '-7deg' }],
+  },
+  pairFront: {
+    left: 26,
+    top: 50,
+    width: 140,
+    height: 140,
+    transform: [{ rotate: '3deg' }],
+  },
+  strike: {
+    position: 'absolute',
+    left: 8,
+    right: 30,
+    top: 33,
+    height: 3,
+    borderRadius: 2,
+  },
+  pairTick: {
+    position: 'absolute',
+    right: 10,
+    bottom: 10,
+    width: 14,
+    height: 14,
+  },
+  notebookDesk: {
+    width: 142,
+    height: 184,
+    marginRight: -8,
+    marginBottom: 50,
+    transform: [{ rotate: '-4deg' }],
+  },
+  notebookTabs: {
+    flexDirection: 'row',
+    gap: 6,
+    paddingLeft: 40,
+    marginBottom: -4,
+  },
+  notebookTab: {
+    width: 26,
+    height: 18,
+    borderTopLeftRadius: 4,
+    borderTopRightRadius: 4,
+  },
+  notebook: {
+    flex: 1,
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  notebookSpine: {
+    width: 26,
+    borderRightWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+  },
+  notebookRing: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  notebookPage: {
+    flex: 1,
+    padding: 12,
+    gap: 9,
   },
   chatCard: {
     width: 156,

@@ -9,15 +9,9 @@ import {
   LEVEL_LABELS,
   formatDuration,
   type CourseSummary,
-  type Level,
 } from '@/features/catalog/domain/entities';
 import { CourseCoverArt } from '@/features/catalog/presentation/course-cover-art';
-
-const PATH_STEP: Record<Level, string> = {
-  beginner: '1',
-  intermediate: '2',
-  expert: '3',
-};
+import { coverToneForCourseSlug } from '@/features/catalog/presentation/course-cover-craft';
 
 function cardLift(raised: boolean) {
   if (Platform.OS === 'web') {
@@ -84,11 +78,23 @@ export function CourseCard({
             <CourseCoverArt
               courseSlug={course.slug}
               overlay={
-                <View style={styles.coverCopy}>
-                  <Text style={[styles.pathNumber, { color: theme.colors.accentAlt }]}>
-                    {PATH_STEP[course.level]}
-                  </Text>
-                  <Text style={[styles.levelLabel, { color: theme.colors.accentRamp[700] }]}>
+                // The level, in the course's own ink: every cover in a row
+                // shares a level, so a big step number only repeated itself.
+                <View
+                  style={[
+                    styles.levelChip,
+                    { backgroundColor: theme.colors.surface, borderRadius: theme.radius.sm },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.levelLabel,
+                      {
+                        color:
+                          coverToneForCourseSlug(course.slug)?.ink ?? theme.colors.accentRamp[700],
+                      },
+                    ]}
+                  >
                     {LEVEL_LABELS[course.level]}
                   </Text>
                 </View>
@@ -104,7 +110,11 @@ export function CourseCard({
                 ) : null}
               </View>
 
-              <Text style={[styles.title, { color: theme.colors.text }]} numberOfLines={2} accessibilityRole="header">
+              <Text
+                style={[styles.title, { color: theme.colors.text }]}
+                numberOfLines={2}
+                accessibilityRole="header"
+              >
                 {course.title}
               </Text>
 
@@ -119,8 +129,7 @@ export function CourseCard({
                 <View style={styles.metaItem}>
                   <Icon glyph={BookOpen} size={14} color={theme.colors.neutral[600]} />
                   <Text style={[styles.meta, { color: theme.colors.neutral[600] }]}>
-                    {course.lessonCount}{' '}
-                    {course.lessonCount === 1 ? 'lección' : 'lecciones'}
+                    {course.lessonCount} {course.lessonCount === 1 ? 'lección' : 'lecciones'}
                   </Text>
                 </View>
                 <View style={styles.metaItem}>
@@ -163,14 +172,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     height: '100%',
   },
-  coverCopy: {
-    gap: 2,
-  },
-  pathNumber: {
-    fontSize: 40,
-    fontWeight: '600',
-    lineHeight: 40,
-    letterSpacing: -1,
+  levelChip: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
   },
   levelLabel: {
     fontSize: 13,
