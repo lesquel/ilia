@@ -15,7 +15,13 @@ import { Check, ChevronLeft, ChevronRight, Play, Send } from 'lucide-react-nativ
 import { breakpoint, useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
 import { MascotGuide, type MascotMood } from '@/core/ui/mascot-guide';
-import { lessonColumn } from '@/features/enrollment/presentation/lesson-layout';
+import type { CourseAccent } from '@/features/catalog';
+import {
+  LESSON_LIA_PANEL_WIDTH,
+  lessonColumn,
+  lessonWideColumn,
+} from '@/features/enrollment/presentation/lesson-layout';
+import { LessonLiaPanel } from '@/features/enrollment/presentation/lesson-lia-panel';
 import { useReducedMotion } from 'react-native-reanimated';
 import { examplePlainText, parseLessonBody } from '@/features/enrollment/domain/lesson-body';
 import {
@@ -51,8 +57,14 @@ export function LessonStudio({
   nextLessonTitle,
   onOpenNextLesson,
   isModuleComplete = false,
+  accent,
+  media,
 }: {
   body: string;
+  /** The course's color: the current beat and the primary buttons. */
+  accent: CourseAccent;
+  /** The video, if any. On a wide screen it sits above the scene, left of Lía. */
+  media?: ReactNode;
   onMarkComplete?: () => void;
   isCompleted?: boolean;
   isCompletePending?: boolean;
@@ -99,6 +111,7 @@ export function LessonStudio({
         style={styles.deck}
         contentContainerStyle={styles.readAll}
       >
+        {media}
         <Pressable
           accessibilityRole="button"
           onPress={() => setReadAllAtOnce(false)}
@@ -148,9 +161,14 @@ export function LessonStudio({
     questionStillOpen,
   );
 
-  return (
-    <View style={styles.deck}>
-      <View style={[styles.film, lessonColumn]}>
+  const completing = celebrationKey === `complete-${lineKey}`;
+  const speakingMood: MascotMood = completing
+    ? isModuleComplete ? 'proud' : 'happy'
+    : mascotSpeakingMood(currentScene, labPhase, sceneIndex);
+  const column = isWide ? lessonWideColumn : lessonColumn;
+
+  const film = (
+      <View style={[styles.film, isWide ? styles.filmWide : lessonColumn]}>
         {scenes.map((scene, index) => (
           <View
             key={`${scene.type}-${index}`}
@@ -158,7 +176,7 @@ export function LessonStudio({
               styles.filmBeat,
               {
                 backgroundColor:
-                  index === sceneIndex ? theme.colors.accent : theme.colors.neutral[300],
+                  index === sceneIndex ? accent.ink : theme.colors.neutral[300],
                 width: index === sceneIndex ? 36 : 18,
               },
             ]}
@@ -168,13 +186,15 @@ export function LessonStudio({
           {sceneKindLabel(currentScene)} · {sceneIndex + 1} / {scenes.length}
         </Text>
       </View>
+  );
 
-      <View style={[styles.slide, lessonColumn]}>
+  const slide = (
+      <View style={[styles.slide, isWide ? styles.slideWide : lessonColumn]}>
         <ScrollView
           style={styles.slideCopy}
           contentContainerStyle={[
             styles.slideCopyInner,
-            isWide ? styles.slideCopyInnerWide : undefined,
+            isWide ? styles.slideCopyInnerPanel : undefined,
           ]}
           showsVerticalScrollIndicator={false}
         >
@@ -189,20 +209,18 @@ export function LessonStudio({
             />
           </FadingStage>
         </ScrollView>
+        {/* Wide screens give Lía her own panel; phones keep her in the corner. */}
+        {isWide ? null : (
         <View style={[styles.presenter, { pointerEvents: 'none' }]}>
           <MascotGuide
             line={mascotLineFor(currentScene, labPhase, sceneIndex)}
             lineKey={lineKey}
-            speakingMood={
-              celebrationKey === `complete-${lineKey}`
-                ? isModuleComplete ? 'proud' : 'happy'
-                : mascotSpeakingMood(currentScene, labPhase, sceneIndex)
-            }
+            speakingMood={speakingMood}
             doneMood={mascotDoneMood(currentScene, labPhase)}
             holdMood={labPhase === 'processing' ? 'think' : undefined}
-            size={isWide ? 168 : 120}
+            size={120}
             motion={
-              celebrationKey === `complete-${lineKey}`
+              completing
                 ? isModuleComplete ? 'proud' : 'celebrate'
                 : celebratedLineKey === lineKey
                   ? 'none'
@@ -219,7 +237,34 @@ export function LessonStudio({
             motionKey={celebrationKey ?? `page-${sceneIndex}-${pageDirection}`}
           />
         </View>
+        )}
       </View>
+  );
+
+  return (
+    <View style={styles.deck}>
+      {isWide ? (
+        <View style={[styles.stage, column]}>
+          <View style={styles.stageMain}>
+            {media}
+            {film}
+            {slide}
+          </View>
+          <View style={styles.stageAside}>
+            <LessonLiaPanel
+              lines={mascotLinesFor(currentScene, labPhase, sceneIndex)}
+              mood={holdOrSpeaking(labPhase, speakingMood)}
+              accent={accent}
+            />
+          </View>
+        </View>
+      ) : (
+        <>
+          {media}
+          {film}
+          {slide}
+        </>
+      )}
 
       {completeFailed ? (
         <Text
@@ -238,7 +283,7 @@ export function LessonStudio({
       >
         {/* The bar spans the window; its contents keep to the lesson column, so
             "Leer de un tirón" sits at the column's edge, not the screen's. */}
-        <View style={[styles.dockColumn, lessonColumn]}>
+        <View style={[styles.dockColumn, column]}>
         <View style={[styles.dockActions, isWide ? undefined : styles.dockActionsCompact]}>
         <Pressable
           accessibilityRole="button"
@@ -275,8 +320,8 @@ export function LessonStudio({
               backgroundColor:
                 primary.kind === 'complete' && isCompleted
                   ? 'transparent'
-                  : theme.colors.accentButton,
-              borderColor: theme.colors.accentButton,
+                  : accent.ink,
+              borderColor: accent.ink,
               borderRadius: theme.radius.md,
               opacity:
                 primary.disabled || isCompletePending ? 0.5 : pressed ? 0.85 : 1,
@@ -284,7 +329,7 @@ export function LessonStudio({
           ]}
         >
           {primary.kind === 'complete' && isCompletePending ? (
-            <ActivityIndicator color={theme.colors.accent} />
+            <ActivityIndicator color={accent.ink} />
           ) : (
             <>
               <Icon
@@ -314,7 +359,7 @@ export function LessonStudio({
               styles.nextLesson,
               isWide ? undefined : styles.nextLessonCompact,
               {
-                backgroundColor: theme.colors.accentButton,
+                backgroundColor: accent.ink,
                 borderRadius: theme.radius.md,
                 opacity: pressed ? 0.85 : 1,
               },
@@ -365,6 +410,24 @@ function mascotSpeakingMood(scene: LessonScene, labPhase: LabPhase, sceneIndex: 
   if (scene.type === 'reveal' || scene.type === 'compare') return 'show';
   if (sceneIndex === 0) return 'curious';
   return 'think';
+}
+
+/** The panel's face follows the presenter's: thinking while the lab works. */
+function holdOrSpeaking(labPhase: LabPhase, speakingMood: MascotMood): MascotMood {
+  return labPhase === 'processing' ? 'think' : speakingMood;
+}
+
+const LAB_PHASES: readonly LabPhase[] = ['idle', 'composing', 'processing', 'revealed'];
+
+/**
+ * What Lía has said in this scene, oldest first. In the lab every phase adds a
+ * line, so the panel reads as a conversation instead of one line replaced.
+ */
+function mascotLinesFor(scene: LessonScene, labPhase: LabPhase, sceneIndex: number): string[] {
+  if (scene.type !== 'lab') return [mascotLineFor(scene, labPhase, sceneIndex)];
+  return LAB_PHASES.slice(0, LAB_PHASES.indexOf(labPhase) + 1).map((phase) =>
+    mascotLineFor(scene, phase, sceneIndex),
+  );
 }
 
 function mascotDoneMood(scene: LessonScene, labPhase: LabPhase): MascotMood {
@@ -625,6 +688,20 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 4,
   },
+  filmWide: { paddingHorizontal: 0 },
+  stage: {
+    flex: 1,
+    minHeight: 0,
+    flexDirection: 'row',
+    gap: 28,
+    paddingHorizontal: 24,
+    paddingTop: 20,
+    paddingBottom: 16,
+  },
+  stageMain: { flex: 1, minWidth: 0, minHeight: 0, gap: 12 },
+  stageAside: { width: LESSON_LIA_PANEL_WIDTH, minHeight: 0 },
+  // Below a video the scene still needs room to read; the page scrolls instead.
+  slideWide: { paddingHorizontal: 0, minHeight: 320 },
   filmBeat: {
     height: 4,
     borderRadius: 99,
@@ -649,10 +726,8 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingBottom: 88,
   },
-  slideCopyInnerWide: {
-    // The presenter sits over the bottom-right corner (168 px wide, 8 px in).
-    // Every scene keeps clear of it, not only the idea scene.
-    paddingRight: 176,
+  // Lía is in her own panel on a wide screen, so no corner to keep clear.
+  slideCopyInnerPanel: {
     paddingBottom: 24,
   },
   ideaBeat: {
