@@ -7,7 +7,12 @@ import asyncio
 from datetime import datetime
 from uuid import UUID
 
-from app.features.enrollment.domain.entities import Cohort, Enrollment, LessonContent
+from app.features.enrollment.domain.entities import (
+    Cohort,
+    Enrollment,
+    LessonContent,
+    ProgressSnapshot,
+)
 from app.features.enrollment.domain.errors import AlreadyEnrolledError, CohortCodeTakenError
 
 
@@ -71,6 +76,27 @@ class InMemoryProgressRepository:
         # The in-memory store holds no evaluations: the syllabus simply shows no
         # activity as passed, rather than inventing one that is.
         return set()
+
+    async def snapshot(
+        self, *, enrollment_id: UUID, user_id: UUID, course_id: UUID
+    ) -> ProgressSnapshot:
+        return ProgressSnapshot(
+            completed_lesson_ids=await self.completed_lesson_ids(enrollment_id),
+            lesson_positions=await self.positions_for_enrollment(enrollment_id),
+            passed_activity_ids=await self.passed_activity_ids(
+                user_id=user_id, course_id=course_id
+            ),
+        )
+
+    async def snapshots(
+        self, *, user_id: UUID, enrollments: dict[UUID, UUID]
+    ) -> dict[UUID, ProgressSnapshot]:
+        return {
+            enrollment_id: await self.snapshot(
+                enrollment_id=enrollment_id, user_id=user_id, course_id=course_id
+            )
+            for enrollment_id, course_id in enrollments.items()
+        }
 
     async def mark_completed(
         self, *, enrollment_id: UUID, course_id: UUID, lesson_id: UUID

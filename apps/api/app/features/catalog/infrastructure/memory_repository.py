@@ -85,6 +85,10 @@ class InMemoryCourseRepository:
     async def get_by_id(self, course_id: UUID) -> Course | None:
         return next((course for course in self._courses if course.id == course_id), None)
 
+    async def get_many_by_ids(self, course_ids: list[UUID]) -> dict[UUID, Course]:
+        wanted = set(course_ids)
+        return {course.id: course for course in self._courses if course.id in wanted}
+
     async def get_published_by_slug(self, slug: Slug) -> Course | None:
         for course in self._courses:
             if course.slug == slug and course.status is CourseStatus.PUBLISHED:

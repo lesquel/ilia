@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 from app.features.auth.interface.dependencies import CurrentUser, SettingsDep
 from app.features.billing.application.use_cases import require_level
 from app.features.billing.interface.dependencies import EntitlementsDep
-from app.features.catalog.domain.entities import Slug
+from app.features.catalog.domain.entities import Course
 from app.features.catalog.interface.router import CoursesDep
 from app.features.enrollment.application.use_cases import (
     CompleteLesson,
@@ -58,17 +58,21 @@ async def enroll(
 ) -> EnrollmentResponse:
     # The plan gate (PRD 11): the free tier covers the basic path only. Checked
     # before enrolling rather than after, so a teacher is never given a course
-    # and then locked out of it.
+    # and then locked out of it. The use case runs it on the course it already
+    # loaded, so the course is read once.
+    check_access = None
     if entitlements is not None:
-        course = await courses.get_published_by_slug(Slug(payload.course_slug))
-        if course is not None:
-            require_level(entitlements, course.level)
+        plan = entitlements
+
+        def check_access(course: Course) -> None:
+            require_level(plan, course.level)
 
     use_case = EnrollInCourse(
         courses=courses,
         enrollments=enrollments,
         cohorts=cohorts,
         clock=request.app.state.auth["clock"],
+        check_access=check_access,
     )
 
     enrollment = await use_case.execute(

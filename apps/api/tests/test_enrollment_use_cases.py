@@ -114,6 +114,61 @@ class TestEnrollInCourse:
             await enroll.execute(user_id=teacher, slug="no-existe")
 
 
+class TestAccessGate:
+    """The plan gate runs on the course the use case loads, before anything is written."""
+
+    async def test_a_refused_course_is_not_enrolled(
+        self,
+        courses: InMemoryCourseRepository,
+        enrollments: InMemoryEnrollmentRepository,
+        cohorts: InMemoryCohortRepository,
+        teacher,  # type: ignore[no-untyped-def]
+    ) -> None:
+        class RefusedError(Exception):
+            pass
+
+        seen: list[str] = []
+
+        def refuse(course: Course) -> None:
+            seen.append(str(course.slug))
+            raise RefusedError
+
+        gated = EnrollInCourse(
+            courses=courses,
+            enrollments=enrollments,
+            cohorts=cohorts,
+            clock=FrozenClock(),
+            check_access=refuse,
+        )
+
+        with pytest.raises(RefusedError):
+            await gated.execute(user_id=teacher, slug="ia-basica")
+
+        assert seen == ["ia-basica"]
+        assert await enrollments.list_for_user(teacher) == []
+
+    async def test_an_unknown_course_is_not_found_before_the_gate(
+        self,
+        courses: InMemoryCourseRepository,
+        enrollments: InMemoryEnrollmentRepository,
+        cohorts: InMemoryCohortRepository,
+        teacher,  # type: ignore[no-untyped-def]
+    ) -> None:
+        def must_not_run(course: Course) -> None:
+            raise AssertionError("gate ran for a course that does not exist")
+
+        gated = EnrollInCourse(
+            courses=courses,
+            enrollments=enrollments,
+            cohorts=cohorts,
+            clock=FrozenClock(),
+            check_access=must_not_run,
+        )
+
+        with pytest.raises(CourseNotFoundError):
+            await gated.execute(user_id=teacher, slug="no-existe")
+
+
 class TestCohortAttribution:
     async def test_a_valid_code_attributes_the_enrollment(
         self,

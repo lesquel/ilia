@@ -2,8 +2,9 @@
 
 from uuid import UUID
 
-from sqlalchemy import Subquery, and_, func, literal, or_, select, tuple_
-from sqlalchemy.orm import selectinload
+from sqlalchemy import Select, Subquery, and_, func, literal, or_, select, tuple_
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from app.core.database import Database
 from app.features.auth.infrastructure.models import UserModel
@@ -130,24 +131,32 @@ class SqlAlchemyCourseRepository:
         return Page(items=items, next_cursor=next_cursor)
 
     async def get_by_id(self, course_id: UUID) -> Course | None:
-        statement = (
+        courses = await self.get_many_by_ids([course_id])
+        return courses.get(course_id)
+
+    async def get_many_by_ids(self, course_ids: list[UUID]) -> dict[UUID, Course]:
+        if not course_ids:
+            return {}
+
+        statement = _with_syllabus(
             select(CourseModel, UserModel.full_name)
             .join(UserModel, UserModel.id == CourseModel.instructor_id)
-            .where(CourseModel.id == course_id)
-            .options(selectinload(CourseModel.modules).selectinload(ModuleModel.lessons))
+            .where(CourseModel.id.in_(course_ids))
         )
 
+        # One session for the courses and their activities: against a remote
+        # database every extra session is a pre-ping, a BEGIN and a COMMIT.
         async with self._db.session() as session:
-            row = (await session.execute(statement)).first()
+            rows = (await session.execute(statement)).unique().all()
+            activities = await _activities_of(session, [course for course, _ in rows])
 
-        if row is None:
-            return None
-
-        course, instructor_name = row
-        return _to_entity(course, instructor_name, await self._activities_of(course))
+        return {
+            course.id: _to_entity(course, instructor_name, activities)
+            for course, instructor_name in rows
+        }
 
     async def get_published_by_slug(self, slug: Slug) -> Course | None:
-        statement = (
+        statement = _with_syllabus(
             select(CourseModel, UserModel.full_name)
             .join(UserModel, UserModel.id == CourseModel.instructor_id)
             .where(
@@ -156,51 +165,63 @@ class SqlAlchemyCourseRepository:
                     CourseModel.status == CourseStatus.PUBLISHED.value,
                 )
             )
-            # Eager-load the syllabus in two extra queries instead of one per
-            # module and one per lesson.
-            .options(selectinload(CourseModel.modules).selectinload(ModuleModel.lessons))
         )
 
         async with self._db.session() as session:
-            row = (await session.execute(statement)).first()
+            row = (await session.execute(statement)).unique().first()
+            if row is None:
+                return None
+            course, instructor_name = row
+            activities = await _activities_of(session, [course])
 
-        if row is None:
-            return None
+        return _to_entity(course, instructor_name, activities)
 
-        course, instructor_name = row
-        return _to_entity(course, instructor_name, await self._activities_of(course))
 
-    async def _activities_of(self, course: CourseModel) -> dict[UUID, list[ModuleActivity]]:
-        """The lab activities of a course, grouped by module.
+def _with_syllabus(statement: Select) -> Select:  # type: ignore[type-arg]
+    """Load modules and lessons in the same statement as the course.
 
-        A separate query rather than a relationship: activities belong to the
-        evaluation feature's tables, and wiring the two ORM models together
-        would tie the catalog's schema to another feature's.
-        """
-        module_ids = [module.id for module in course.modules]
-        if not module_ids:
-            return {}
+    A join rather than `selectinload`: two fewer round trips per course, which
+    is most of what a request costs against a remote database. The relationship
+    `order_by` keeps modules and lessons in syllabus order. `body` is deferred
+    because the catalog never serves the material, only the syllabus.
+    """
+    return statement.options(
+        joinedload(CourseModel.modules).joinedload(ModuleModel.lessons).defer(LessonModel.body)
+    )
 
-        async with self._db.session() as session:
-            rows = (
-                await session.execute(
-                    select(
-                        ActivityModel.module_id,
-                        ActivityModel.id,
-                        ActivityModel.title,
-                        ActivityModel.max_attempts,
-                    )
-                    .where(ActivityModel.module_id.in_(module_ids))
-                    .order_by(ActivityModel.title)
-                )
-            ).all()
 
-        grouped: dict[UUID, list[ModuleActivity]] = {}
-        for module_id, activity_id, title, max_attempts in rows:
-            grouped.setdefault(module_id, []).append(
-                ModuleActivity(id=activity_id, title=title, max_attempts=max_attempts)
+async def _activities_of(
+    session: AsyncSession, courses: list[CourseModel]
+) -> dict[UUID, list[ModuleActivity]]:
+    """The lab activities of some courses, grouped by module.
+
+    A separate query rather than a relationship: activities belong to the
+    evaluation feature's tables, and wiring the two ORM models together
+    would tie the catalog's schema to another feature's.
+    """
+    module_ids = [module.id for course in courses for module in course.modules]
+    if not module_ids:
+        return {}
+
+    rows = (
+        await session.execute(
+            select(
+                ActivityModel.module_id,
+                ActivityModel.id,
+                ActivityModel.title,
+                ActivityModel.max_attempts,
             )
-        return grouped
+            .where(ActivityModel.module_id.in_(module_ids))
+            .order_by(ActivityModel.title)
+        )
+    ).all()
+
+    grouped: dict[UUID, list[ModuleActivity]] = {}
+    for module_id, activity_id, title, max_attempts in rows:
+        grouped.setdefault(module_id, []).append(
+            ModuleActivity(id=activity_id, title=title, max_attempts=max_attempts)
+        )
+    return grouped
 
 
 def _to_entity(

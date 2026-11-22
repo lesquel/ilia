@@ -6,11 +6,17 @@ from uuid import UUID, uuid4
 from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import Database
 from app.features.auth.infrastructure.models import CohortModel
 from app.features.catalog.infrastructure.models import LessonModel
-from app.features.enrollment.domain.entities import Cohort, Enrollment, LessonContent
+from app.features.enrollment.domain.entities import (
+    Cohort,
+    Enrollment,
+    LessonContent,
+    ProgressSnapshot,
+)
 from app.features.enrollment.domain.errors import AlreadyEnrolledError, CohortCodeTakenError
 from app.features.evaluation.domain.real_pass import SIMULATED_EVALUATION_MODEL
 from app.features.evaluation.infrastructure.models import (
@@ -137,19 +143,56 @@ class SqlAlchemyProgressRepository:
         would be two answers to one question.
         """
         async with self._db.session() as session:
-            rows = await session.execute(
-                select(func.distinct(SubmissionModel.activity_id))
-                .select_from(SubmissionModel)
-                .join(EvaluationModel, EvaluationModel.submission_id == SubmissionModel.id)
-                .join(ActivityModel, ActivityModel.id == SubmissionModel.activity_id)
-                .where(
-                    SubmissionModel.user_id == user_id,
-                    ActivityModel.course_id == course_id,
-                    EvaluationModel.passed.is_(True),
-                    EvaluationModel.model != SIMULATED_EVALUATION_MODEL,
+            passed = await _passed_by_course(session, user_id=user_id, course_ids=[course_id])
+        return passed.get(course_id, set())
+
+    async def snapshot(
+        self, *, enrollment_id: UUID, user_id: UUID, course_id: UUID
+    ) -> ProgressSnapshot:
+        snapshots = await self.snapshots(user_id=user_id, enrollments={enrollment_id: course_id})
+        return snapshots[enrollment_id]
+
+    async def snapshots(
+        self, *, user_id: UUID, enrollments: dict[UUID, UUID]
+    ) -> dict[UUID, ProgressSnapshot]:
+        if not enrollments:
+            return {}
+
+        # One session, and one read of lesson_progress for both completions and
+        # resume positions: a row is either completed or still in progress.
+        async with self._db.session() as session:
+            rows = (
+                await session.execute(
+                    select(
+                        LessonProgressModel.enrollment_id,
+                        LessonProgressModel.lesson_id,
+                        LessonProgressModel.position_seconds,
+                        LessonProgressModel.completed_at,
+                    ).where(LessonProgressModel.enrollment_id.in_(list(enrollments)))
                 )
+            ).all()
+            passed = await _passed_by_course(
+                session, user_id=user_id, course_ids=list(set(enrollments.values()))
             )
-            return {row[0] for row in rows.all()}
+
+        completed: dict[UUID, set[UUID]] = {enrollment_id: set() for enrollment_id in enrollments}
+        positions: dict[UUID, dict[UUID, int]] = {
+            enrollment_id: {} for enrollment_id in enrollments
+        }
+        for enrollment_id, lesson_id, seconds, completed_at in rows:
+            if completed_at is not None:
+                completed[enrollment_id].add(lesson_id)
+            else:
+                positions[enrollment_id][lesson_id] = seconds
+
+        return {
+            enrollment_id: ProgressSnapshot(
+                completed_lesson_ids=completed[enrollment_id],
+                lesson_positions=positions[enrollment_id],
+                passed_activity_ids=passed.get(course_id, set()),
+            )
+            for enrollment_id, course_id in enrollments.items()
+        }
 
     async def mark_completed(
         self, *, enrollment_id: UUID, course_id: UUID, lesson_id: UUID
@@ -201,6 +244,28 @@ class SqlAlchemyProgressRepository:
         )
         async with self._db.session() as session:
             await session.execute(statement)
+
+
+async def _passed_by_course(
+    session: AsyncSession, *, user_id: UUID, course_ids: list[UUID]
+) -> dict[UUID, set[UUID]]:
+    rows = await session.execute(
+        select(ActivityModel.course_id, SubmissionModel.activity_id)
+        .distinct()
+        .select_from(SubmissionModel)
+        .join(EvaluationModel, EvaluationModel.submission_id == SubmissionModel.id)
+        .join(ActivityModel, ActivityModel.id == SubmissionModel.activity_id)
+        .where(
+            SubmissionModel.user_id == user_id,
+            ActivityModel.course_id.in_(course_ids),
+            EvaluationModel.passed.is_(True),
+            EvaluationModel.model != SIMULATED_EVALUATION_MODEL,
+        )
+    )
+    passed: dict[UUID, set[UUID]] = {}
+    for course_id, activity_id in rows.all():
+        passed.setdefault(course_id, set()).add(activity_id)
+    return passed
 
 
 def _cohort_to_entity(row: CohortModel) -> Cohort:

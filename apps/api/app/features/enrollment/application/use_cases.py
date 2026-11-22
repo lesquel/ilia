@@ -1,5 +1,6 @@
 """Enrollment and progress use cases."""
 
+from collections.abc import Callable
 from datetime import date
 from uuid import UUID
 
@@ -88,11 +89,15 @@ class EnrollInCourse:
         enrollments: EnrollmentRepository,
         cohorts: CohortRepository,
         clock: Clock,
+        check_access: Callable[[Course], None] | None = None,
     ) -> None:
         self._courses = courses
         self._enrollments = enrollments
         self._cohorts = cohorts
         self._clock = clock
+        # A gate run on the course before anything else, such as the plan
+        # level. Passed in so the course is loaded once for both questions.
+        self._check_access = check_access
 
     async def execute(
         self, *, user_id: UUID, slug: str, cohort_code: str | None = None
@@ -100,6 +105,8 @@ class EnrollInCourse:
         # Only published courses. Enrolling into a draft would give a teacher a
         # course that then vanishes from their panel when it is unpublished.
         course = await _published_course(self._courses, slug)
+        if self._check_access is not None:
+            self._check_access(course)
 
         if await self._enrollments.get(user_id=user_id, course_id=course.id) is not None:
             raise AlreadyEnrolledError()
@@ -141,27 +148,34 @@ class ListMyCourses:
         if not enrollments:
             return []
 
-        # One query for every enrollment's completions, not one per course.
-        completions = await self._progress.completed_by_enrollment(
-            [enrollment.id for enrollment in enrollments]
+        # One read for every enrollment's progress and one for every course,
+        # not one per course.
+        snapshots = await self._progress.snapshots(
+            user_id=user_id,
+            enrollments={enrollment.id: enrollment.course_id for enrollment in enrollments},
+        )
+        courses = await self._courses.get_many_by_ids(
+            list(dict.fromkeys(enrollment.course_id for enrollment in enrollments))
         )
 
         results: list[EnrolledCourse] = []
         for enrollment in enrollments:
-            course = await self._courses.get_by_id(enrollment.course_id)
+            course = courses.get(enrollment.course_id)
             if course is None:
                 # The course was withdrawn from the catalog. The enrollment
                 # survives — PRD A-04 keeps certificates verifiable — but there
                 # is nothing to render, so it is skipped rather than crashing.
                 continue
 
-            passed = await self._progress.passed_activity_ids(user_id=user_id, course_id=course.id)
+            snapshot = snapshots[enrollment.id]
             results.append(
                 EnrolledCourse(
                     course=course.as_summary(),
                     enrolled_at=enrollment.enrolled_at,
+                    # Without resume positions, as this list has always
+                    # answered; only the single-course progress carries them.
                     progress=compute_progress(
-                        course, completions.get(enrollment.id, set()), passed
+                        course, snapshot.completed_lesson_ids, snapshot.passed_activity_ids
                     ),
                 )
             )
@@ -188,11 +202,16 @@ class GetCourseProgress:
         if enrollment is None:
             raise NotEnrolledError()
 
-        completed = await self._progress.completed_lesson_ids(enrollment.id)
-        positions = await self._progress.positions_for_enrollment(enrollment.id)
-        passed = await self._progress.passed_activity_ids(user_id=user_id, course_id=course.id)
+        snapshot = await self._progress.snapshot(
+            enrollment_id=enrollment.id, user_id=user_id, course_id=course.id
+        )
 
-        return compute_progress(course, completed, passed, positions)
+        return compute_progress(
+            course,
+            snapshot.completed_lesson_ids,
+            snapshot.passed_activity_ids,
+            snapshot.lesson_positions,
+        )
 
 
 class CompleteLesson:
@@ -223,11 +242,16 @@ class CompleteLesson:
             enrollment_id=enrollment.id, course_id=course.id, lesson_id=lesson_id
         )
 
-        completed = await self._progress.completed_lesson_ids(enrollment.id)
-        positions = await self._progress.positions_for_enrollment(enrollment.id)
-        passed = await self._progress.passed_activity_ids(user_id=user_id, course_id=course.id)
+        snapshot = await self._progress.snapshot(
+            enrollment_id=enrollment.id, user_id=user_id, course_id=course.id
+        )
 
-        return compute_progress(course, completed, passed, positions)
+        return compute_progress(
+            course,
+            snapshot.completed_lesson_ids,
+            snapshot.passed_activity_ids,
+            snapshot.lesson_positions,
+        )
 
 
 class RecordLessonPosition:
