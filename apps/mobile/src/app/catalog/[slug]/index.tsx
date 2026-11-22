@@ -1,4 +1,4 @@
-import { Link, useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useSession } from '@/features/auth';
 import { CourseDetailScreen } from '@/features/catalog/presentation/course-detail-screen';
@@ -26,29 +26,11 @@ export default function CourseRoute() {
   return (
     <CourseDetailScreen
       enrollmentSlot={<EnrollPanel slug={courseSlug} level={course?.level} />}
-      footerSlot={
-        <>
-          <CertificatePanel slug={courseSlug} courseTitle={course?.title} />
-          {progress ? (
-            <Link
-              href={`/catalog/${courseSlug}/forum`}
-              style={{ fontSize: 15, fontWeight: '600', marginTop: 13.6 }}
-            >
-              Ir al foro del curso →
-            </Link>
-          ) : null}
-        </>
-      }
+      sideSlot={<CertificatePanel slug={courseSlug} courseTitle={course?.title} />}
+      forumHref={progress ? `/catalog/${courseSlug}/forum` : undefined}
       completedLessonIds={progress?.completedLessonIds ?? []}
       passedActivityIds={progress?.passedActivityIds ?? []}
       isEnrolled={Boolean(progress)}
-      completedLessonCount={progress?.completedLessons ?? 0}
-      nextItemTitle={progress?.nextLesson?.lessonTitle}
-      nextItemHref={
-        progress?.nextLesson
-          ? `/catalog/${courseSlug}/lessons/${progress.nextLesson.lessonId}`
-          : undefined
-      }
       // Tapping a lesson opens it. Marking it done belongs in the reader, next
       // to the material — a checkbox in the syllabus would let a teacher tick
       // off a lesson they never read.

@@ -12,6 +12,7 @@ import {
   useCourseProgress,
   useEnroll,
 } from '@/features/enrollment/application/use-enrollment';
+import { useCourseAccent } from '@/features/catalog/presentation/use-course-accent';
 import { callToAction } from '@/features/enrollment/domain/entities';
 import { EnrollPanelSkeleton } from '@/features/enrollment/presentation/enroll-panel-skeleton';
 
@@ -42,6 +43,8 @@ function messageFor(error: unknown): string {
  */
 export function EnrollPanel({ slug, level }: { slug: string; level?: Level }) {
   const theme = useTheme();
+  // The course's own color, like every other button on its page.
+  const accent = useCourseAccent(slug);
   const { isAuthenticated, isLoading: isCheckingSession } = useSession();
 
   // Skip the request entirely when nobody is logged in: it would answer 401 and
@@ -58,7 +61,7 @@ export function EnrollPanel({ slug, level }: { slug: string; level?: Level }) {
 
   if (!isAuthenticated) {
     return (
-      <View style={[styles.panel, { borderColor: theme.colors.divider }]}>
+      <View style={styles.panel}>
         <Text style={[styles.hint, { color: theme.colors.neutral[700] }]}>
           Crea una cuenta para inscribirte y guardar tu progreso.
         </Text>
@@ -69,7 +72,7 @@ export function EnrollPanel({ slug, level }: { slug: string; level?: Level }) {
                 style={[
                   styles.button,
                   {
-                    backgroundColor: theme.colors.accentButton,
+                    backgroundColor: accent.ink,
                     borderRadius: theme.radius.md,
                     opacity: pressed ? 0.85 : 1,
                   },
@@ -89,7 +92,7 @@ export function EnrollPanel({ slug, level }: { slug: string; level?: Level }) {
   // plan knows exactly what to do.
   if (level && !canEnrolIn(entitlements, level)) {
     return (
-      <View style={[styles.panel, { borderColor: theme.colors.divider }]}>
+      <View style={styles.panel}>
         <Text style={[styles.hint, { color: theme.colors.neutral[700] }]}>
           Tu plan actual no incluye los cursos de este nivel.
         </Text>
@@ -100,7 +103,7 @@ export function EnrollPanel({ slug, level }: { slug: string; level?: Level }) {
                 style={[
                   styles.button,
                   {
-                    backgroundColor: theme.colors.accentButton,
+                    backgroundColor: accent.ink,
                     borderRadius: theme.radius.md,
                     opacity: pressed ? 0.85 : 1,
                   },
@@ -117,7 +120,7 @@ export function EnrollPanel({ slug, level }: { slug: string; level?: Level }) {
 
   if (progress) {
     return (
-      <View style={[styles.panel, { borderColor: theme.colors.divider }]}>
+      <View style={styles.panel}>
         <ProgressBar
           percentage={progress.percentage}
           label={`${progress.completedLessons} de ${progress.totalLessons} lecciones · ${progress.percentage}%`}
@@ -145,7 +148,7 @@ export function EnrollPanel({ slug, level }: { slug: string; level?: Level }) {
   }
 
   return (
-    <View style={[styles.panel, { borderColor: theme.colors.divider }]}>
+    <View style={styles.panel}>
       <Text style={[styles.hint, { color: theme.colors.neutral[700] }]}>
         ¿Vienes de una charla presencial? Pon el código para que tu capacitación quede
         registrada.
@@ -187,7 +190,7 @@ export function EnrollPanel({ slug, level }: { slug: string; level?: Level }) {
         style={({ pressed }) => [
           styles.button,
           {
-            backgroundColor: theme.colors.accentButton,
+            backgroundColor: accent.ink,
             borderRadius: theme.radius.md,
             opacity: enroll.isPending ? 0.6 : pressed ? 0.85 : 1,
           },
@@ -204,13 +207,9 @@ export function EnrollPanel({ slug, level }: { slug: string; level?: Level }) {
 }
 
 const styles = StyleSheet.create({
-  // A rule, not a box: the panel sits inside the course card, and a square
-  // frame inside a rounded one read as a form pasted on top.
+  // No frame of its own: the panel fills the course page's progress card.
   panel: {
-    borderTopWidth: 1,
-    paddingTop: 16,
     gap: 10.2,
-    marginTop: 8,
   },
   hint: {
     fontSize: 14,
