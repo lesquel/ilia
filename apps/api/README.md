@@ -82,6 +82,16 @@ PostgreSQL 17 con SQLAlchemy 2 (async, `asyncpg`) y Alembic. La URL sale de
 ILIA_DATABASE_URL=postgresql+asyncpg://ilia:ilia@localhost:5432/ilia
 ```
 
+Cada request HTTP usa una sola sesión de base de datos, compartida por todos
+los repositorios que toca (`Database.request_scope`, abierta por
+`RequestSessionMiddleware`). Un bloque que escribe hace commit al terminar,
+igual que antes.
+
+`ILIA_DB_POOL_PRE_PING` (por defecto `true`) prueba cada conexión del pool antes
+de usarla. Déjalo activo en producción: en Vercel las instancias se congelan y
+el pooler corta sus conexiones. En desarrollo contra una base remota puedes
+ponerlo en `false` para ahorrar un viaje de ida y vuelta por request.
+
 ### Probar el catálogo en SQLite
 
 Para revisar el curso y el flujo de catálogo sin configurar PostgreSQL, usa la

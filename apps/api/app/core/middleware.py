@@ -2,9 +2,14 @@
 
 import time
 import uuid
+from typing import TYPE_CHECKING
 
 import structlog
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
+from starlette.types import ASGIApp, Receive, Scope, Send
+
+if TYPE_CHECKING:
+    from app.core.database import Database
 from starlette.requests import Request
 from starlette.responses import Response
 
@@ -40,3 +45,24 @@ class CorrelationIdMiddleware(BaseHTTPMiddleware):
         )
         response.headers[CORRELATION_HEADER] = correlation_id
         return response
+
+
+class RequestSessionMiddleware:
+    """Open one shared database session for each HTTP request.
+
+    A plain ASGI middleware, not `BaseHTTPMiddleware`: that one runs the rest
+    of the app in another task, and the shared session belongs to the task
+    that serves the request. It must therefore sit inside every
+    `BaseHTTPMiddleware` (added first, so it ends up innermost).
+    """
+
+    def __init__(self, app: ASGIApp, database: "Database | None") -> None:
+        self.app = app
+        self.database = database
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http" or self.database is None:
+            await self.app(scope, receive, send)
+            return
+        async with self.database.request_scope():
+            await self.app(scope, receive, send)

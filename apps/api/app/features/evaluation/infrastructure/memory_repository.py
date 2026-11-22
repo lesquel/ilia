@@ -7,6 +7,7 @@ from app.features.evaluation.domain.entities import (
     Activity,
     Evaluation,
     Submission,
+    SubmissionInContext,
     SubmissionStatus,
 )
 
@@ -25,6 +26,15 @@ class InMemoryActivityRepository:
 class InMemorySubmissionRepository:
     def __init__(self) -> None:
         self._submissions: dict[UUID, Submission] = {}
+
+    async def list_for_user(self, user_id: UUID) -> list[SubmissionInContext]:
+        # No catalog in memory: the names stay empty; ordering is what tests pin.
+        mine = [item for item in self._submissions.values() if item.user_id == user_id]
+        mine.sort(key=lambda item: (item.created_at or datetime.min, item.attempt), reverse=True)
+        return [
+            SubmissionInContext(submission=item, activity_title="", course_slug="", course_title="")
+            for item in mine
+        ]
 
     async def add(self, submission: Submission) -> None:
         self._submissions[submission.id] = submission

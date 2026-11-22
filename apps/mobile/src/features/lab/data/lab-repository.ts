@@ -8,6 +8,7 @@ import type {
   SubmissionStatus,
 } from '@/features/lab/domain/entities';
 import { EMPTY_ACTIVITY_CHECKS } from '@/features/lab/domain/entities';
+import type { SubmissionHistoryItem } from '@/features/lab/domain/submission-history';
 
 interface DimensionDto {
   key: string;
@@ -45,6 +46,12 @@ interface SubmissionDto {
   prompt: string;
   failure_reason: string | null;
   created_at?: string | null;
+}
+
+interface MySubmissionDto extends SubmissionDto {
+  activity_title: string;
+  course_slug: string;
+  course_title: string;
 }
 
 interface EvaluationDto {
@@ -140,6 +147,8 @@ export interface LabRepository {
   submit(activityId: string, prompt: string): Promise<Submission>;
   result(submissionId: string): Promise<SubmissionResult>;
   mySubmissions(activityId: string): Promise<Submission[]>;
+  /** Every attempt of the signed-in teacher, newest first, in one request. */
+  myHistory(): Promise<SubmissionHistoryItem[]>;
 }
 
 export class HttpLabRepository implements LabRepository {
@@ -180,6 +189,17 @@ export class HttpLabRepository implements LabRepository {
       `/lab/activities/${encodeURIComponent(activityId)}/submissions`,
     );
     return rows.map(toSubmission);
+  }
+
+  async myHistory(): Promise<SubmissionHistoryItem[]> {
+    const rows = await this.http.get<MySubmissionDto[]>('/lab/submissions');
+    return rows.map((row) => ({
+      submission: toSubmission(row),
+      activityId: row.activity_id,
+      activityTitle: row.activity_title,
+      courseSlug: row.course_slug,
+      courseTitle: row.course_title,
+    }));
   }
 }
 

@@ -16,6 +16,7 @@ from app.features.evaluation.domain.entities import (
     Evaluation,
     ModelOutput,
     Submission,
+    SubmissionInContext,
 )
 from app.features.evaluation.domain.rubric import Rubric
 
@@ -129,6 +130,10 @@ class SubmissionRepository(Protocol):
         ...
 
     async def list_for_activity(self, *, user_id: UUID, activity_id: UUID) -> list[Submission]: ...
+
+    async def list_for_user(self, user_id: UUID) -> list["SubmissionInContext"]:
+        """Every submission of one person, newest first, with its activity and course."""
+        ...
 
     async def find_by_idempotency_key(
         self, *, user_id: UUID, activity_id: UUID, idempotency_key: str

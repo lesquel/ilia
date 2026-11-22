@@ -17,6 +17,7 @@ from app.features.evaluation.domain.entities import (
     Activity,
     Evaluation,
     Submission,
+    SubmissionInContext,
     SubmissionStatus,
 )
 from app.features.evaluation.domain.errors import ConcurrentSubmissionError
@@ -270,6 +271,27 @@ class SqlAlchemySubmissionRepository:
             )
             row = result.scalar_one_or_none()
             return _to_submission(row) if row else None
+
+    async def list_for_user(self, user_id: UUID) -> list[SubmissionInContext]:
+        # One statement: the activity and course names come joined, so a
+        # history of any length costs the same.
+        async with self._db.session() as session:
+            result = await session.execute(
+                select(SubmissionModel, ActivityModel.title, CourseModel.slug, CourseModel.title)
+                .join(ActivityModel, ActivityModel.id == SubmissionModel.activity_id)
+                .join(CourseModel, CourseModel.id == ActivityModel.course_id)
+                .where(SubmissionModel.user_id == user_id)
+                .order_by(SubmissionModel.created_at.desc(), SubmissionModel.attempt.desc())
+            )
+            return [
+                SubmissionInContext(
+                    submission=_to_submission(row),
+                    activity_title=activity_title,
+                    course_slug=course_slug,
+                    course_title=course_title,
+                )
+                for row, activity_title, course_slug, course_title in result.all()
+            ]
 
     async def list_for_activity(self, *, user_id: UUID, activity_id: UUID) -> list[Submission]:
         async with self._db.session() as session:
