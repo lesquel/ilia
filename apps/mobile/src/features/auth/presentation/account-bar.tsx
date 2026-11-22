@@ -70,7 +70,9 @@ export function AccountBar() {
 
   const location = resolveAppLocation(pathname, { courseTitle });
   const navItems = appNavItemsForRole(user.role);
-  const isWide = width >= breakpoint.compact;
+  // Instructors and admins carry six sections; on one row below the medium
+  // width they squeezed the trail down to "C…". They get the two-row bar there.
+  const isWide = width >= (navItems.length > 4 ? breakpoint.medium : breakpoint.compact);
 
   const place = (
     <View style={[styles.place, styles.placeGrow]}>
@@ -357,7 +359,10 @@ const styles = StyleSheet.create({
   placeGrow: {
     flex: 1,
   },
+  // Takes the free width beside the logo, so the trail's percentages have a
+  // real width to resolve against; without it the trail collapsed to "Cat…".
   placeCopy: {
+    flex: 1,
     flexShrink: 1,
     minWidth: 0,
     gap: 2,

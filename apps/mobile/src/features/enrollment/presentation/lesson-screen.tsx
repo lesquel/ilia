@@ -8,6 +8,7 @@ import {
   useLesson,
   useRecordLessonPosition,
 } from '@/features/enrollment/application/use-enrollment';
+import { lessonColumn } from '@/features/enrollment/presentation/lesson-layout';
 import { LessonStudio } from '@/features/enrollment/presentation/lesson-studio';
 import { LessonQuiz } from '@/features/enrollment/presentation/lesson-quiz';
 import {
@@ -54,19 +55,22 @@ export function LessonScreen() {
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator
     >
-      <View style={styles.chrome}>
+      <View style={[styles.chrome, lessonColumn]}>
         <Link href={`/catalog/${courseSlug}`} style={[styles.back, { color: theme.colors.accentAlt }]}>
           ← Curso
         </Link>
         <Text style={[styles.chromeTitle, { color: theme.colors.text }]} numberOfLines={1}>
           {lesson.title}
         </Text>
-        <Text style={[styles.chromeStep, { color: theme.colors.neutral[600] }]}>
-          {lesson.position} / {lesson.totalLessons}
-        </Text>
+        {/* A one-module course would say "2 / 6" here and "2 de 6" just below. */}
+        {lesson.totalLessons !== lesson.moduleTotalLessons ? (
+          <Text style={[styles.chromeStep, { color: theme.colors.neutral[600] }]}>
+            Lección {lesson.position} de {lesson.totalLessons}
+          </Text>
+        ) : null}
       </View>
 
-      <View style={styles.moduleProgress} accessibilityRole="progressbar" accessibilityValue={{
+      <View style={[styles.moduleProgress, lessonColumn]} accessibilityRole="progressbar" accessibilityValue={{
         min: 0,
         max: lesson.moduleTotalLessons,
         now: lesson.modulePosition,
@@ -86,7 +90,7 @@ export function LessonScreen() {
       </View>
 
       {lesson.mediaUrl ? (
-        <View style={styles.media}>
+        <View style={[styles.media, lessonColumn]}>
           <LessonPlayer
             key={`${lesson.lessonId}:${lesson.mediaUrl}:${lesson.captionsUrl ?? ''}`}
             url={lesson.mediaUrl}

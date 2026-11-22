@@ -47,10 +47,13 @@ export function CatalogScreen() {
 
   // Same breakpoints as the mockup's container queries: one column on a phone,
   // two on a tablet, three on a desktop.
-  const columns = width >= breakpoint.medium ? 3 : width >= breakpoint.compact ? 2 : 1;
+  const columns =
+    width >= WIDE_SCREEN ? 4 : width >= breakpoint.medium ? 3 : width >= breakpoint.compact ? 2 : 1;
+  // A wide monitor gets a fourth column, not two bands of empty background.
+  const maxContentWidth = columns === 4 ? WIDE_CONTENT_MAX_WIDTH : CONTENT_MAX_WIDTH;
   // A short last row would otherwise stretch its cards across the whole list:
   // one course on a desktop became a single full-width card.
-  const contentWidth = Math.min(width, CONTENT_MAX_WIDTH) - CONTENT_PADDING * 2;
+  const contentWidth = Math.min(width, maxContentWidth) - CONTENT_PADDING * 2;
   const cardMaxWidth = (contentWidth - GRID_GAP * (columns - 1)) / columns;
 
   const header = (
@@ -121,7 +124,7 @@ export function CatalogScreen() {
   return (
     <FlatList
       style={{ backgroundColor: theme.colors.bg }}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, { maxWidth: maxContentWidth }]}
       data={coursesAlongPath}
       // `columns` changes with the window, and FlatList cannot change numColumns
       // on the fly — the key forces a fresh list instead of an invariant error.
@@ -199,6 +202,8 @@ function LevelChip({
 }
 
 const CONTENT_MAX_WIDTH = 1280;
+const WIDE_SCREEN = 1600;
+const WIDE_CONTENT_MAX_WIDTH = 1720;
 const CONTENT_PADDING = 20.4;
 const GRID_GAP = 13.6;
 

@@ -4,9 +4,9 @@ import { Image } from 'expo-image';
 import { useVideoPlayer, VideoView, type SubtitleTrack } from 'expo-video';
 import { Play } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
-import { useTheme } from '@/core/theme';
+import { breakpoint, useTheme } from '@/core/theme';
 import { Icon } from '@/core/ui/icon';
 import {
   pauseLessonVideo,
@@ -17,7 +17,9 @@ import {
 import { cueAt, formatVideoTime, parseWebVtt, type WebVttCue } from './webvtt';
 
 /** Same measure as the lesson column, so the picture sits in the middle. */
-const CENTERED_PLAYER_MAX_WIDTH = 760;
+import { LESSON_COLUMN_MAX_WIDTH } from '@/features/enrollment/presentation/lesson-layout';
+
+const CENTERED_PLAYER_MAX_WIDTH = LESSON_COLUMN_MAX_WIDTH;
 
 /**
  * The lesson's media.
@@ -43,6 +45,7 @@ export function LessonPlayer({
   onPositionChange?: (positionSeconds: number) => void;
 }) {
   const theme = useTheme();
+  const isWide = useWindowDimensions().width >= breakpoint.compact;
   const restored = useRef(false);
   // A link that expired or a file that is not there leaves a silent black box;
   // the teacher needs to know it is the video, not their computer.
@@ -190,8 +193,10 @@ export function LessonPlayer({
             onError={() => setPosterFailed(true)}
             accessibilityIgnoresInvertColors
           />
-          <View style={[styles.posterPlay, { backgroundColor: theme.colors.accent }]}>
-            <Icon glyph={Play} size={28} color="#FFFFFF" />
+          <View style={[styles.posterPlay, { backgroundColor: theme.colors.accentButton }]}>
+            <Icon glyph={Play} size={20} color="#FFFFFF" />
+            {/* On a phone the poster is small and the label would cover Lía. */}
+            {isWide ? <Text style={styles.posterPlayLabel}>Ver video</Text> : null}
           </View>
         </Pressable>
       ) : null}
@@ -294,12 +299,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#FAF8F4',
   },
+  // In the corner, not the middle: the poster's title sits in the middle and a
+  // centred button covered its first letters.
   posterPlay: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    position: 'absolute',
+    left: 16,
+    bottom: 16,
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: 8,
+    paddingLeft: 14,
+    paddingRight: 18,
+    paddingVertical: 10,
+    borderRadius: 999,
+  },
+  posterPlayLabel: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '700',
   },
   captionToggle: {
     position: 'absolute',

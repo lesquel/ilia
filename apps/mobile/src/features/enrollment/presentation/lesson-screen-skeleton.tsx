@@ -1,6 +1,7 @@
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
 
 import { breakpoint, useTheme } from '@/core/theme';
+import { lessonColumn } from '@/features/enrollment/presentation/lesson-layout';
 import { Bone, BoneLines, Skeleton } from '@/core/ui/skeleton';
 
 /**
@@ -15,7 +16,7 @@ export function LessonScreenSkeleton() {
 
   return (
     <Skeleton label="Cargando la lección" style={styles.group}>
-      <View style={styles.chrome}>
+      <View style={[styles.chrome, lessonColumn]}>
         <Bone height={14} width={56} />
         <View style={styles.chromeTitle}>
           <Bone height={15} width="60%" />
@@ -23,7 +24,7 @@ export function LessonScreenSkeleton() {
         <Bone height={13} width={36} />
       </View>
 
-      <View style={styles.moduleProgress}>
+      <View style={[styles.moduleProgress, lessonColumn]}>
         <View style={styles.moduleProgressCopy}>
           <Bone height={12} width="40%" />
           <Bone height={12} width={40} />
@@ -32,14 +33,14 @@ export function LessonScreenSkeleton() {
       </View>
 
       <View style={styles.deck}>
-        <View style={styles.film}>
+        <View style={[styles.film, lessonColumn]}>
           {FILM_BEATS.map((beatWidth, index) => (
             <Bone key={index} height={4} width={beatWidth} radius={99} />
           ))}
           <Bone height={13} width={96} style={styles.filmLabel} />
         </View>
 
-        <View style={[styles.slide, isWide ? styles.slideWide : undefined]}>
+        <View style={[styles.slide, lessonColumn, isWide ? styles.slideWide : undefined]}>
           <Bone height={13} width={120} />
           <Bone height={28} width={isWide ? '55%' : '85%'} />
           <BoneLines lines={4} height={16} gap={10} lastWidth="65%" />
@@ -89,14 +90,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingHorizontal: 40,
+    paddingHorizontal: 24,
     paddingTop: 8,
     paddingBottom: 4,
   },
   filmLabel: { marginLeft: 8 },
   slide: {
     flex: 1,
-    paddingHorizontal: 28,
+    paddingHorizontal: 24,
     paddingTop: 16,
     paddingBottom: 88,
     gap: 14,
