@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import {
   appNavItemsForRole,
+  isImmersivePath,
+  tabItemsForRole,
   compactCrumbs,
   courseSlugInPath,
   documentTitle,
@@ -185,6 +187,7 @@ describe('courseSlugInPath', () => {
 describe('appNavItemsForRole', () => {
   it('shows learning places and community to a student', () => {
     expect(appNavItemsForRole('student').map((item) => item.href)).toEqual([
+      '/',
       '/catalog',
       '/my-courses',
       '/certificates',
@@ -198,6 +201,7 @@ describe('appNavItemsForRole', () => {
     );
     expect(appNavItemsForRole('instructor').some((item) => item.href === '/admin')).toBe(false);
     expect(appNavItemsForRole('admin').map((item) => item.href)).toEqual([
+      '/',
       '/catalog',
       '/my-courses',
       '/certificates',
@@ -205,6 +209,37 @@ describe('appNavItemsForRole', () => {
       '/instructor',
       '/admin',
     ]);
+  });
+});
+
+describe('tabItemsForRole', () => {
+  const hrefs = (role: 'student' | 'instructor' | 'admin') =>
+    tabItemsForRole(role).map((item) => item.href);
+
+  it('gives a student the five places of the learning loop', () => {
+    expect(hrefs('student')).toEqual(['/', '/catalog', '/my-courses', '/certificates', '/community']);
+  });
+
+  it('swaps certificates for the instructor panel for an instructor', () => {
+    expect(hrefs('instructor')).toEqual(['/', '/catalog', '/my-courses', '/instructor', '/community']);
+  });
+
+  it('gives an admin both panels and keeps the bar at five', () => {
+    expect(hrefs('admin')).toEqual(['/', '/catalog', '/instructor', '/admin', '/community']);
+  });
+});
+
+describe('isImmersivePath', () => {
+  it('marks the lesson and the lab, which carry their own bottom controls', () => {
+    expect(isImmersivePath('/catalog/gemini-paso-a-paso/lessons/abc')).toBe(true);
+    expect(isImmersivePath('/lab/activity-1')).toBe(true);
+  });
+
+  it('leaves every other place with the section bar', () => {
+    expect(isImmersivePath('/')).toBe(false);
+    expect(isImmersivePath('/catalog/gemini-paso-a-paso')).toBe(false);
+    expect(isImmersivePath('/lab/submissions/abc')).toBe(false);
+    expect(isImmersivePath('/lab/compare/activity-1')).toBe(false);
   });
 });
 

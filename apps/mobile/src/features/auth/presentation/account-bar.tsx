@@ -6,6 +6,7 @@ import {
   ChevronDown,
   ChevronRight,
   GraduationCap,
+  House,
   LogOut,
   Presentation,
   Shield,
@@ -16,7 +17,6 @@ import { useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -36,7 +36,9 @@ import {
   compactCrumbs,
   courseSlugInPath,
   firstGivenName,
+  isImmersivePath,
   resolveAppLocation,
+  tabItemsForRole,
   type AppLocationCrumb,
   type AppNavItem,
   type AppSectionId,
@@ -45,6 +47,7 @@ import type { User } from '@/features/auth/domain/entities';
 import { useCourse } from '@/features/catalog';
 
 const SECTION_ICONS: Partial<Record<AppSectionId, LucideIcon>> = {
+  home: House,
   catalog: BookOpen,
   'my-courses': GraduationCap,
   certificates: Award,
@@ -70,9 +73,10 @@ export function AccountBar() {
 
   const location = resolveAppLocation(pathname, { courseTitle });
   const navItems = appNavItemsForRole(user.role);
-  // Instructors and admins carry six sections; on one row below the medium
-  // width they squeezed the trail down to "C…". They get the two-row bar there.
-  const isWide = width >= (navItems.length > 4 ? breakpoint.medium : breakpoint.compact);
+  // Instructors and admins carry six or seven sections; on one row below the
+  // medium width they squeezed the trail down to "C…". They get the phone bar
+  // there, with the sections in the bottom tab bar.
+  const isWide = width >= (navItems.length > 5 ? breakpoint.medium : breakpoint.compact);
 
   const place = (
     <View style={[styles.place, styles.placeGrow]}>
@@ -108,9 +112,8 @@ export function AccountBar() {
     );
   }
 
-  // Phone width: two fixed rows. Place and account share the top row; the
-  // sections stay on one line and scroll sideways instead of wrapping, so the
-  // bar keeps the same height whatever the role shows.
+  // Phone width: one row with the place and the account. The sections live in
+  // the bottom tab bar (`SectionTabBar`), where the thumb reaches them.
   return (
     <View style={[styles.bar, styles.barCompact, barColors]}>
       <View style={styles.compactTop}>
@@ -118,14 +121,6 @@ export function AccountBar() {
         <CodeModuleButton />
         <SessionMenu key={pathname} user={user} compact />
       </View>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        accessibilityLabel="Secciones de ILIA"
-        contentContainerStyle={styles.navScroll}
-      >
-        {links}
-      </ScrollView>
     </View>
   );
 }
@@ -288,7 +283,7 @@ function LocationTrail({ crumbs }: { crumbs: AppLocationCrumb[] }) {
 function NavLink({ item, isCurrent }: { item: AppNavItem; isCurrent: boolean }) {
   const theme = useTheme();
   const glyph = SECTION_ICONS[item.sectionId];
-  const color = isCurrent ? theme.colors.text : theme.colors.neutral[600];
+  const color = isCurrent ? '#ffffff' : theme.colors.neutral[700];
 
   return (
     <Link href={item.href} asChild>
@@ -297,29 +292,86 @@ function NavLink({ item, isCurrent }: { item: AppNavItem; isCurrent: boolean }) 
         accessibilityState={{ selected: isCurrent }}
         accessibilityLabel={isCurrent ? `${item.label}, sección actual` : item.label}
       >
-        {({ pressed }) => (
+        {({ pressed, hovered }: { pressed: boolean; hovered?: boolean }) => (
+          // Proposal A: the current section is a dark pill, the rest are quiet
+          // until hovered.
           <View
             style={[
               styles.navItem,
               {
-                borderBottomColor: isCurrent ? theme.colors.text : 'transparent',
-                opacity: pressed ? 0.7 : 1,
+                backgroundColor: isCurrent
+                  ? theme.colors.ink
+                  : hovered
+                    ? theme.colors.neutral[100]
+                    : 'transparent',
+                opacity: pressed ? 0.8 : 1,
               },
             ]}
           >
             {glyph ? <Icon glyph={glyph} size={15} color={color} /> : null}
-            <Text
-              style={[
-                styles.navLabel,
-                { color, fontWeight: isCurrent ? '700' : '600' },
-              ]}
-            >
-              {item.label}
-            </Text>
+            <Text style={[styles.navLabel, { color }]}>{item.label}</Text>
           </View>
         )}
       </Pressable>
     </Link>
+  );
+}
+
+/**
+ * The phone's sections, at the bottom where the thumb reaches them. Hidden on
+ * wide screens (the bar on top carries them) and inside a lesson or the lab,
+ * which have their own bottom controls.
+ */
+export function SectionTabBar() {
+  const theme = useTheme();
+  const pathname = usePathname();
+  const { width } = useWindowDimensions();
+  const { user, isAuthenticated } = useSession();
+
+  if (!isAuthenticated || !user || isImmersivePath(pathname)) return null;
+  const navItems = appNavItemsForRole(user.role);
+  const isWide = width >= (navItems.length > 5 ? breakpoint.medium : breakpoint.compact);
+  if (isWide) return null;
+
+  const current = resolveAppLocation(pathname).sectionId;
+
+  return (
+    <View
+      accessibilityLabel="Secciones de ILIA"
+      style={[
+        styles.tabBar,
+        {
+          backgroundColor: theme.colors.surface,
+          borderTopColor: theme.colors.divider,
+          // The root SafeAreaView already keeps it above the home indicator.
+          paddingBottom: 6,
+        },
+      ]}
+    >
+      {tabItemsForRole(user.role).map((item) => {
+        const isCurrent = item.sectionId === current;
+        const glyph = SECTION_ICONS[item.sectionId];
+        const color = isCurrent ? theme.colors.accentButton : theme.colors.neutral[600];
+        return (
+          <Link key={item.href} href={item.href} asChild>
+            <Pressable
+              accessibilityRole="link"
+              accessibilityState={{ selected: isCurrent }}
+              accessibilityLabel={isCurrent ? `${item.label}, sección actual` : item.label}
+              style={styles.tabItem}
+            >
+              {glyph ? <Icon glyph={glyph} size={22} color={color} /> : null}
+              <Text
+                numberOfLines={1}
+                style={[styles.tabLabel, { color, fontWeight: isCurrent ? '700' : '600' }]}
+              >
+                {item.label}
+              </Text>
+            </Pressable>
+          </Link>
+        );
+      })}
+    </View>
   );
 }
 
@@ -340,8 +392,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'stretch',
     paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 0,
+    paddingVertical: 8,
     gap: 4,
   },
   compactTop: {
@@ -405,21 +456,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
   },
-  navScroll: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
   navItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    borderBottomWidth: 2,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 999,
   },
   navLabel: {
-    fontSize: 13,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  tabBar: {
+    flexDirection: 'row',
+    borderTopWidth: 1,
+    paddingTop: 6,
+  },
+  tabItem: {
+    flex: 1,
+    minHeight: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 3,
+  },
+  tabLabel: {
+    fontSize: 11,
   },
   session: {
     alignSelf: 'flex-end',

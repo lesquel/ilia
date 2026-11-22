@@ -51,6 +51,13 @@ export const palette = {
     accentAlt: '#0e58d6',
     accentButton: '#0e58d6',
     divider: 'rgba(17, 17, 17, 0.1)',
+    // Status roles (proposal A): one meaning each, never decoration.
+    success: '#1D6B3A',
+    successSoft: '#E3F5EA',
+    warning: '#9A5B00',
+    warningSoft: '#FDE7C8',
+    // The active section's pill and other "you are here" marks.
+    ink: '#111318',
     neutral: ramps.neutral,
     accentRamp: ramps.accent,
     accentAltRamp: ramps.accentAlt,
@@ -63,6 +70,11 @@ export const palette = {
     accentAlt: '#4d8eff',
     accentButton: '#0e58d6',
     divider: 'rgba(255, 255, 255, 0.16)',
+    success: '#8FE0A8',
+    successSoft: '#153322',
+    warning: '#FFB547',
+    warningSoft: '#3A2A12',
+    ink: '#F2F5FA',
     neutral: {
       ...ramps.neutral,
       100: '#1a1a1a',
@@ -102,6 +114,18 @@ export const palette = {
 } as const;
 
 export const typography = {
+  /**
+   * Screen and section titles (proposal A). Loaded in the root layout; until
+   * it arrives the system sans stands in, so nothing waits on the font.
+   */
+  display: {
+    family: 'BricolageGrotesque_800ExtraBold',
+    weight: '800',
+  },
+  displayBold: {
+    family: 'BricolageGrotesque_700Bold',
+    weight: '700',
+  },
   heading: {
     family: 'BarlowCondensed_600SemiBold',
     weight: '600',

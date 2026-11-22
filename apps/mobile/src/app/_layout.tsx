@@ -1,3 +1,8 @@
+import {
+  BricolageGrotesque_700Bold,
+  BricolageGrotesque_800ExtraBold,
+  useFonts,
+} from '@expo-google-fonts/bricolage-grotesque';
 import { focusManager, QueryClientProvider } from '@tanstack/react-query';
 import { Link, Stack, type Href } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -8,7 +13,12 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { createQueryClient } from '@/core/api/query-client';
 import { ErrorBoundary } from '@/core/ui/error-boundary';
 import { palette } from '@/core/theme';
-import { AccountBar, DocumentTitle, installAuthTokenProvider } from '@/features/auth';
+import {
+  AccountBar,
+  DocumentTitle,
+  installAuthTokenProvider,
+  SectionTabBar,
+} from '@/features/auth';
 import '@/core/ui/global-web-styles';
 
 // Composition root. Runs once, before the first render, not on every mount.
@@ -17,6 +27,9 @@ installAuthTokenProvider();
 export default function RootLayout() {
   const colors = palette.light;
   const queryClient = useMemo(() => createQueryClient(), []);
+  // Titles use Bricolage Grotesque. The app does not wait for it: until it
+  // loads, titles fall back to the system sans.
+  useFonts({ BricolageGrotesque_700Bold, BricolageGrotesque_800ExtraBold });
 
   useEffect(() => {
     if (Platform.OS === 'web') return;
@@ -69,6 +82,7 @@ export default function RootLayout() {
                 }}
               />
             </View>
+            <SectionTabBar />
           </SafeAreaView>
         </QueryClientProvider>
       </ErrorBoundary>
