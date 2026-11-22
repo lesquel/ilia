@@ -79,6 +79,29 @@ class TestUrls:
         # forced to https — a local MinIO has no certificate.
         assert minio.startswith("http://localhost:9000/ilia-media/clase.mp4?")
 
+    def test_an_endpoint_with_a_base_path_signs_the_bare_host(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        # Supabase Storage serves S3 under /storage/v1/s3. SigV4 signs the Host
+        # header and the path separately: the base path belongs in the path, or
+        # every signature is computed over a host the server never sees.
+        seen: dict[str, str] = {}
+
+        def fake_presign(**kwargs: object) -> str:
+            seen.update({k: str(v) for k, v in kwargs.items()})
+            return f"{kwargs['scheme']}://{kwargs['host']}{kwargs['path']}?X-Amz-Signature=x"
+
+        monkeypatch.setattr("app.features.storage.infrastructure.s3.presign", fake_presign)
+        url = (
+            self.storage(storage_endpoint="https://abcd.supabase.co/storage/v1/s3/")
+            .read_url("cursos/clase.mp4", ttl=timedelta(minutes=5))
+            .url
+        )
+
+        assert seen["host"] == "abcd.supabase.co"
+        assert seen["path"] == "/storage/v1/s3/ilia-media/cursos/clase.mp4"
+        assert url.startswith("https://abcd.supabase.co/storage/v1/s3/ilia-media/cursos/clase.mp4?")
+
     def test_the_secret_never_reaches_the_url(self) -> None:
         url = self.storage().read_url("clase.mp4", ttl=timedelta(minutes=5)).url
 

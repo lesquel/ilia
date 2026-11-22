@@ -1,0 +1,72 @@
+[
+ {
+  "offset": 0.2,
+  "duration": 2.376,
+  "text": "Hola, soy Lía."
+ },
+ {
+  "offset": 2.876,
+  "duration": 5.208,
+  "text": "Vamos a armar una prueba corta en Google Forms, y empezamos en Gemini."
+ },
+ {
+  "offset": 8.906285761151995,
+  "duration": 5.784,
+  "text": "Si tu escuela tiene el plan de pago de Google, Forms puede escribir las preguntas solo."
+ },
+ {
+  "offset": 14.990285761151995,
+  "duration": 5.208,
+  "text": "Con una cuenta gratis, se las pides a Gemini y las pasas a Forms."
+ },
+ {
+  "offset": 20.798285761151995,
+  "duration": 2.28,
+  "text": "Abre un nuevo chat."
+ },
+ {
+  "offset": 23.678285761151994,
+  "duration": 8.064,
+  "text": "Pide cinco preguntas de opción múltiple para séptimo: una del tema, una de la idea principal y tres para clasificar frases."
+ },
+ {
+  "offset": 32.34228576115199,
+  "duration": 3.792,
+  "text": "Pide que las opciones incorrectas sean creíbles."
+ },
+ {
+  "offset": 36.73428576115199,
+  "duration": 5.736,
+  "text": "Y un formato fácil de copiar: cada opción en su línea, con la correcta marcada."
+ },
+ {
+  "offset": 43.070285761151986,
+  "duration": 2.856,
+  "text": "Al final, pega la lectura."
+ },
+ {
+  "offset": 46.52628576115199,
+  "duration": 1.872,
+  "text": "Envía."
+ },
+ {
+  "offset": 48.99828576115199,
+  "duration": 3.72,
+  "text": "Así quedaron, con un asterisco en la correcta."
+ },
+ {
+  "offset": 53.31828576115199,
+  "duration": 2.808,
+  "text": "Léelas antes de copiarlas."
+ },
+ {
+  "offset": 56.42628576115199,
+  "duration": 6.264,
+  "text": "En la tercera, la opción D dice que la frase es un error de lectura: nadie la elegiría."
+ },
+ {
+  "offset": 62.990285761151995,
+  "duration": 3.36,
+  "text": "Cámbiala por un detalle real del texto."
+ }
+]

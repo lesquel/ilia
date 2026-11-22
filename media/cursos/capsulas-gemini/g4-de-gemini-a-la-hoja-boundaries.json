@@ -1,0 +1,67 @@
+[
+ {
+  "offset": 0.2,
+  "duration": 2.376,
+  "text": "Hola, soy Lía."
+ },
+ {
+  "offset": 2.876,
+  "duration": 4.008,
+  "text": "Último paso: de Gemini a la hoja impresa."
+ },
+ {
+  "offset": 7.711714279719761,
+  "duration": 4.512,
+  "text": "La hoja ya está revisada; ahora hay que sacarla del chat."
+ },
+ {
+  "offset": 12.823714279719761,
+  "duration": 3.816,
+  "text": "Toca los tres puntos, debajo de la respuesta."
+ },
+ {
+  "offset": 17.23971427971976,
+  "duration": 3.336,
+  "text": "Elige «Exportar a Documentos»."
+ },
+ {
+  "offset": 21.17571427971976,
+  "duration": 4.992,
+  "text": "Cuando avise que se creó el documento, toca «Abrir Documentos»."
+ },
+ {
+  "offset": 26.767714279719762,
+  "duration": 3.6,
+  "text": "Ya está en tu Drive, con el texto puesto."
+ },
+ {
+  "offset": 30.66771427971976,
+  "duration": 2.544,
+  "text": "Lo último se hace a mano."
+ },
+ {
+  "offset": 33.81171427971976,
+  "duration": 6.048,
+  "text": "Primero, borra lo que es de Gemini: «Totalmente de acuerdo» no va en la hoja."
+ },
+ {
+  "offset": 40.45971427971976,
+  "duration": 3.048,
+  "text": "Pon el nombre de la escuela y la fecha."
+ },
+ {
+  "offset": 44.107714279719765,
+  "duration": 4.008,
+  "text": "Después busca la clave y selecciónala hasta el final."
+ },
+ {
+  "offset": 48.71571427971977,
+  "duration": 5.064,
+  "text": "Córtala y guárdala aparte, porque no va en la hoja de los chicos."
+ },
+ {
+  "offset": 54.37971427971977,
+  "duration": 3.888,
+  "text": "La hoja salió de Gemini, pero la firmas tú."
+ }
+]

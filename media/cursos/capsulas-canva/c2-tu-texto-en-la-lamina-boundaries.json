@@ -1,0 +1,37 @@
+[
+ {
+  "offset": 0.2,
+  "duration": 2.376,
+  "text": "Hola, soy Lía."
+ },
+ {
+  "offset": 2.876,
+  "duration": 3.456,
+  "text": "Ahora corregimos el texto del borrador."
+ },
+ {
+  "offset": 7.154857148306711,
+  "duration": 3.096,
+  "text": "Ábrelo con «Editar el diseño»."
+ },
+ {
+  "offset": 10.85085714830671,
+  "duration": 8.952,
+  "text": "Doble clic en la idea principal, selecciona todo y escribe la de la lectura: una tarea grande sale bien cuando cada uno cumple su parte."
+ },
+ {
+  "offset": 20.40285714830671,
+  "duration": 5.736,
+  "text": "Lo mismo con el detalle: en vez de algo general, un dato que está en el texto."
+ },
+ {
+  "offset": 26.738857148306707,
+  "duration": 3.504,
+  "text": "Ahora la lámina dice lo que dice la lectura."
+ },
+ {
+  "offset": 30.542857148306705,
+  "duration": 3.12,
+  "text": "Ese cambio no lo hace la IA por ti."
+ }
+]

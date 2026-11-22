@@ -1,0 +1,162 @@
+[
+  {
+    "slug": "g1-el-primer-pedido",
+    "course": "Gemini paso a paso",
+    "title": "El primer pedido",
+    "cues": [
+      {
+        "event": "intro",
+        "text": "Hola, soy Lía. Vamos a preparar una hoja de lectura con Gemini, en un minuto."
+      },
+      {
+        "event": "home",
+        "text": "Esta es la pantalla real de Gemini, en gemini punto google punto com."
+      },
+      {
+        "event": "new-chat",
+        "text": "Toca «Nuevo chat», así no arrastra lo que hablaste antes."
+      },
+      {
+        "event": "type-1",
+        "text": "Primero, quién eres y cuánto dura tu clase."
+      },
+      {
+        "event": "type-2",
+        "text": "Después, la tarea: un párrafo sobre el huerto escolar y cinco preguntas que separen el tema de la idea principal."
+      },
+      {
+        "event": "type-3",
+        "text": "Y al final, cómo lo quieres de vuelta: la clave aparte, para ti."
+      },
+      {
+        "event": "send",
+        "text": "Envía, y espera unos segundos."
+      },
+      {
+        "event": "answer",
+        "text": "Esto es lo que respondió Gemini, sin editar."
+      },
+      {
+        "event": "scroll",
+        "text": "Las dos primeras preguntas van bien: el tema y la idea principal. Pero la tercera, la cuarta y la quinta piden datos sueltos, como qué plantas se cultivan. Antes de imprimir, contéstalas tú. En el próximo video las cambiamos."
+      }
+    ]
+  },
+  {
+    "slug": "g2-un-cambio-sin-empezar-de-cero",
+    "course": "Gemini paso a paso",
+    "title": "Un cambio sin empezar de cero",
+    "cues": [
+      {
+        "event": "intro",
+        "text": "Hola, soy Lía. Vamos a cambiar unas preguntas sin empezar de cero."
+      },
+      {
+        "event": "open",
+        "text": "Seguimos en el mismo chat del video anterior."
+      },
+      {
+        "event": "look",
+        "text": "La tercera, la cuarta y la quinta piden un dato suelto. No muestran si el estudiante distingue el tema de la idea principal."
+      },
+      {
+        "event": "type",
+        "text": "Escribe debajo, en el mismo chat: qué preguntas, qué tienen de malo y qué quieres en su lugar. Y cierra con esto: deja lo demás igual."
+      },
+      {
+        "event": "send",
+        "text": "Envía."
+      },
+      {
+        "event": "answer",
+        "text": "Gemini cambió solo esas tres."
+      },
+      {
+        "event": "scroll",
+        "text": "Ahora piden decidir si una frase es el tema, la idea principal o un detalle, y explicar por qué. El párrafo y las dos primeras preguntas quedaron idénticos. Un cambio por mensaje: así sabes qué revisar."
+      }
+    ]
+  },
+  {
+    "slug": "g3-para-quien-va-atrasado",
+    "course": "Gemini paso a paso",
+    "title": "Para quien todavía lee despacio",
+    "cues": [
+      {
+        "event": "intro",
+        "text": "Hola, soy Lía. Ahora, la misma hoja para quien todavía lee despacio."
+      },
+      {
+        "event": "open",
+        "text": "Si en tu curso hay chicos que todavía leen despacio, no necesitan otra hoja: necesitan la misma, con un escalón antes."
+      },
+      {
+        "event": "type",
+        "text": "Pide frases cortas y numeradas, y una pista antes de cada pregunta. Fíjate en lo que no escribes: ningún nombre. Gemini no necesita saber quiénes son."
+      },
+      {
+        "event": "send",
+        "text": "Envía."
+      },
+      {
+        "event": "answer",
+        "text": "Las frases salieron cortas y numeradas."
+      },
+      {
+        "event": "scroll",
+        "text": "Y cada pregunta trae su pista, como busca en las frases tres y cuatro. Compárala con la original: esta vez no se perdió ninguna idea, pero al acortar a veces se pierde algo. Tú decides quién usa cada versión."
+      }
+    ]
+  },
+  {
+    "slug": "g4-de-gemini-a-la-hoja",
+    "course": "Gemini paso a paso",
+    "title": "De Gemini a la hoja impresa",
+    "cues": [
+      {
+        "event": "intro",
+        "text": "Hola, soy Lía. Último paso: de Gemini a la hoja impresa."
+      },
+      {
+        "event": "open",
+        "text": "La hoja ya está revisada; ahora hay que sacarla del chat."
+      },
+      {
+        "event": "menu",
+        "text": "Toca los tres puntos, debajo de la respuesta."
+      },
+      {
+        "event": "export",
+        "text": "Elige «Exportar a Documentos»."
+      },
+      {
+        "event": "created",
+        "text": "Cuando avise que se creó el documento, toca «Abrir Documentos»."
+      },
+      {
+        "event": "docs",
+        "text": "Ya está en tu Drive, con el texto puesto. Lo último se hace a mano."
+      },
+      {
+        "event": "chatter",
+        "text": "Primero, borra lo que es de Gemini: «Totalmente de acuerdo» no va en la hoja."
+      },
+      {
+        "event": "header",
+        "text": "Pon el nombre de la escuela y la fecha."
+      },
+      {
+        "event": "key",
+        "text": "Después busca la clave y selecciónala hasta el final."
+      },
+      {
+        "event": "cut",
+        "text": "Córtala y guárdala aparte, porque no va en la hoja de los chicos."
+      },
+      {
+        "event": "end",
+        "text": "La hoja salió de Gemini, pero la firmas tú."
+      }
+    ]
+  }
+]

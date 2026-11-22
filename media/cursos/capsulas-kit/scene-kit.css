@@ -1,0 +1,45 @@
+/* Shared look for ILIA course animations: paper, ink, ILIA blue. Light only. */
+  :root { --paper: #fbfaf7; --ink: #1b1b17; --muted: #6b6a63; --line: #e4e1d8; --blue: #1b70fe; --blue-soft: #e8f0ff; --red: #c8402d; --green: #1f8a4c; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1280px; height: 720px; overflow: hidden; background: var(--paper); color: var(--ink);
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; }
+  header { position: absolute; top: 28px; left: 48px; font-size: 15px; color: var(--muted); letter-spacing: .02em; }
+  header b { color: var(--blue); font-weight: 700; margin-right: 10px; }
+  .progress { position: absolute; left: 48px; right: 48px; bottom: 26px; height: 3px; background: var(--line); border-radius: 3px; }
+  .progress i { display: block; height: 100%; width: 0; background: var(--blue); border-radius: 3px; }
+  section { position: absolute; inset: 70px 48px 130px; opacity: 0; display: flex; align-items: center; justify-content: center; gap: 48px; }
+  [data-in] { opacity: 0; }
+  .kicker { font-size: 16px; font-weight: 700; color: var(--blue); margin-bottom: 14px; }
+  .big { font-size: 40px; line-height: 1.2; font-weight: 700; }
+  .chip { display: inline-block; padding: 10px 18px; border-radius: 999px; background: #fff; border: 1.5px solid var(--line); font-size: 22px; margin: 6px; }
+  .chip.blue { border-color: var(--blue); color: var(--blue); background: var(--blue-soft); }
+  .chip.red { border-color: var(--red); color: var(--red); }
+  .bubble { background: #fff; border: 1.5px solid var(--line); border-radius: 18px; padding: 18px 24px; font-size: 24px; box-shadow: 0 8px 24px rgba(0,0,0,.05); }
+  .page { width: 330px; height: 430px; background: #fff; border: 1.5px solid var(--line); border-radius: 10px; padding: 28px 26px; box-shadow: 0 14px 34px rgba(0,0,0,.08); position: relative; overflow: hidden; }
+  .page h4 { font-size: 20px; margin-bottom: 14px; }
+  .page li { list-style: none; font-size: 18px; padding: 7px 0; border-bottom: 1px solid #f0eee8; }
+  .page .bar { height: 12px; background: #eceae3; border-radius: 6px; margin: 12px 0; }
+  .scan { position: absolute; left: 0; right: 0; height: 46px; background: linear-gradient(transparent, rgba(27,112,254,.18), transparent); top: -50px; }
+  .col { width: 300px; text-align: center; }
+  .col .page { width: 100%; height: 330px; }
+  .col p { font-size: 20px; font-weight: 700; margin-top: 14px; }
+  .mark { font-size: 54px; font-weight: 800; }
+  .rule { max-width: 900px; background: #fff; border-left: 8px solid var(--blue); border-radius: 12px; padding: 34px 40px; font-size: 34px; line-height: 1.35; box-shadow: 0 14px 34px rgba(0,0,0,.06); }
+  .strike { position: relative; }
+  .strike::after { content: ""; position: absolute; left: 6%; top: 50%; height: 3px; background: var(--red); width: var(--w, 0%); }
+
+/* Sentence-anchored elements start hidden; marks stay visible and only change colour. */
+[data-say]:not([data-mode="mark"]) { opacity: 0; }
+
+/* Light ILIA stand-in for a chat. Quoted text inside is always Gemini's real reply. */
+.chat { width: 980px; background: #fff; border: 1.5px solid var(--line); border-radius: 18px; padding: 22px 26px; box-shadow: 0 14px 34px rgba(0,0,0,.06); display: flex; flex-direction: column; gap: 12px; }
+.msg { max-width: 800px; font-size: 20px; line-height: 1.45; padding: 12px 16px; border-radius: 14px; }
+.me { align-self: flex-end; background: var(--blue-soft); }
+.gm { align-self: flex-start; background: #f4f3ef; }
+.who { font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+.hlw { border-radius: 4px; padding: 0 3px; }
+.on-red { background: #fdecea; color: var(--red); }
+.on-blue { background: var(--blue-soft); color: var(--blue); font-weight: 700; }
+.gap { color: var(--blue); background: var(--blue-soft); padding: 0 4px; border-radius: 4px; font-weight: 700; }
+.ok { color: var(--green); font-weight: 800; }
+.row { display: flex; justify-content: space-between; gap: 16px; font-size: 20px; padding: 9px 0; border-bottom: 1px solid var(--line); }

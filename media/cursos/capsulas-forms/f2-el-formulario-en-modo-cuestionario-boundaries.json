@@ -1,0 +1,42 @@
+[
+ {
+  "offset": 0.2,
+  "duration": 2.376,
+  "text": "Hola, soy Lía."
+ },
+ {
+  "offset": 2.876,
+  "duration": 3.744,
+  "text": "Ahora creamos el formulario en Google Forms."
+ },
+ {
+  "offset": 7.441999999455044,
+  "duration": 3.24,
+  "text": "Entra a forms punto google punto com."
+ },
+ {
+  "offset": 11.281999999455044,
+  "duration": 2.952,
+  "text": "Toca «Formulario en blanco»."
+ },
+ {
+  "offset": 14.833999999455044,
+  "duration": 3.576,
+  "text": "Ponle un título que tus estudiantes reconozcan."
+ },
+ {
+  "offset": 19.00999999945504,
+  "duration": 2.88,
+  "text": "Ve a «Configuración»."
+ },
+ {
+  "offset": 22.48999999945504,
+  "duration": 3.336,
+  "text": "Y activa «Convertir en cuestionario»."
+ },
+ {
+  "offset": 26.12599999945504,
+  "duration": 6.336,
+  "text": "Desde ahora cada pregunta puede tener puntos y una respuesta correcta, y Forms corrige solo."
+ }
+]

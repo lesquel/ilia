@@ -18,6 +18,10 @@ CANONICAL_SLUGS = (
     "prompting-para-docentes",
     "notebooklm-en-el-aula",
     "evaluacion-asistida-por-ia",
+    "gemini-paso-a-paso",
+    "notebooklm-paso-a-paso",
+    "prueba-corta-en-forms",
+    "lamina-en-canva",
 )
 
 PROMPTING_SLUG = "prompting-para-docentes"
@@ -180,3 +184,28 @@ def test_gemini_course_only_cites_the_printed_destreza_code() -> None:
     )
     codes = set(re.findall(r"\bLL\.\d+\.\d+\.\d+\b", bodies + statements))
     assert codes == {"LL.5.4.2"}
+
+
+CAPSULE_SLUGS = (
+    "gemini-paso-a-paso",
+    "notebooklm-paso-a-paso",
+    "prueba-corta-en-forms",
+    "lamina-en-canva",
+)
+
+
+def test_capsule_courses_teach_with_short_videos() -> None:
+    """Cápsulas: every video is short (90 s or less) and lives in its course folder."""
+    for slug in CAPSULE_SLUGS:
+        course = next(course for course in TEACHER_COURSES if course["slug"] == slug)
+        videos = [
+            lesson
+            for _module_title, lessons in course["modules"]
+            for lesson in lessons
+            if lesson[1] == "video"
+        ]
+        assert len(videos) >= 4, slug
+        for title, _kind, seconds, _body, resource in videos:
+            assert 0 < seconds <= 90, (slug, title, seconds)
+            assert resource.startswith("cursos/capsulas-"), (slug, title)
+            assert resource.endswith(".mp4"), (slug, title)

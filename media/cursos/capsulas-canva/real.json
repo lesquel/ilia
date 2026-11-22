@@ -1,0 +1,55 @@
+[
+  {
+    "slug": "c1-pide-el-borrador",
+    "course": "Una lámina en Canva",
+    "title": "Pide el borrador",
+    "cues": [
+      { "event": "intro", "text": "Hola, soy Lía. Vamos a pedirle a Canva un borrador de lámina para la clase." },
+      { "event": "home", "text": "Esta es Canva IA. Con una cuenta gratis tiene un límite de usos al mes; si tu escuela tiene Canva para Educación, es gratis para docentes." },
+      { "event": "type", "text": "Describe la lámina en pocas palabras: para quién es y de qué lectura." },
+      { "event": "parts", "text": "Y qué debe tener: el tema, la idea principal y un detalle, con letra grande." },
+      { "event": "send", "text": "Envía. Tarda unos minutos." },
+      { "event": "result", "text": "Ya está el borrador." },
+      { "event": "open-design", "text": "Ábrelo para verlo grande." },
+      { "event": "design", "text": "Se ve bien, pero lee la idea principal: dice que la escuela cultiva un huerto para aprender y trabajar en equipo. La lectura no dice eso. En el próximo video la corregimos." }
+    ]
+  },
+  {
+    "slug": "c2-tu-texto-en-la-lamina",
+    "course": "Una lámina en Canva",
+    "title": "Tu texto en la lámina",
+    "cues": [
+      { "event": "intro", "text": "Hola, soy Lía. Ahora corregimos el texto del borrador." },
+      { "event": "editor", "text": "Ábrelo con «Editar el diseño»." },
+      { "event": "idea", "text": "Doble clic en la idea principal, selecciona todo y escribe la de la lectura: una tarea grande sale bien cuando cada uno cumple su parte." },
+      { "event": "detail", "text": "Lo mismo con el detalle: en vez de algo general, un dato que está en el texto." },
+      { "event": "end", "text": "Ahora la lámina dice lo que dice la lectura. Ese cambio no lo hace la IA por ti." }
+    ]
+  },
+  {
+    "slug": "c3-mirala-desde-el-fondo",
+    "course": "Una lámina en Canva",
+    "title": "Mírala desde el fondo del aula",
+    "cues": [
+      { "event": "intro", "text": "Hola, soy Lía. Antes de proyectarla, dos revisiones." },
+      { "event": "image", "text": "La imagen la generó la IA: no son tus estudiantes, y no hace falta que lo sean. Si quieres poner fotos reales del curso, pide permiso a las familias." },
+      { "event": "present", "text": "Toca «Presentar»," },
+      { "event": "fullscreen", "text": "y mírala en pantalla completa, como desde el fondo del aula. Si algo no se lee, agranda la letra o quita texto." }
+    ]
+  },
+  {
+    "slug": "c4-descargala-en-pdf",
+    "course": "Una lámina en Canva",
+    "title": "Descárgala en PDF",
+    "liaSide": "left",
+    "cues": [
+      { "event": "intro", "text": "Hola, soy Lía. Último paso: descargar la lámina." },
+      { "event": "share", "text": "Toca «Compartir»" },
+      { "event": "download", "text": "y luego «Descargar»." },
+      { "event": "panel", "text": "El tipo de archivo es PDF." },
+      { "event": "print", "text": "Si la vas a imprimir, elige «Impresión»." },
+      { "event": "go", "text": "Y toca «Descargar»." },
+      { "event": "done", "text": "Listo: queda en tu computadora, para imprimir o proyectar aunque en el aula no haya internet." }
+    ]
+  }
+]

@@ -13,9 +13,15 @@ export type CourseCoverScene = {
 };
 
 const COURSE_COVER_STILL_BY_SLUG: Record<string, ImageSource> = {
+  'introduccion-ia-docentes': require('../../../../assets/mascot/lia-write.png'),
+  'ia-para-docentes': require('../../../../assets/mascot/lia-show.png'),
   'prompting-para-docentes': require('../../../../assets/mascot/lia-write.png'),
   'notebooklm-en-el-aula': require('../../../../assets/mascot/lia-show.png'),
   'evaluacion-asistida-por-ia': require('../../../../assets/mascot/lia-think.png'),
+  'gemini-paso-a-paso': require('../../../../assets/mascot/lia-talk.png'),
+  'notebooklm-paso-a-paso': require('../../../../assets/mascot/lia-explain.png'),
+  'prueba-corta-en-forms': require('../../../../assets/mascot/lia-done.png'),
+  'lamina-en-canva': require('../../../../assets/mascot/lia-show.png'),
 };
 
 const COURSE_COSTUME_BY_SLUG: Record<string, ImageSource> = {

@@ -1,0 +1,47 @@
+[
+ {
+  "offset": 0.2,
+  "duration": 2.376,
+  "text": "Hola, soy Lía."
+ },
+ {
+  "offset": 2.876,
+  "duration": 3.648,
+  "text": "Vamos a armar un cuaderno con tu propia lectura."
+ },
+ {
+  "offset": 7.347142841884068,
+  "duration": 7.344,
+  "text": "Esta es Gemini Notebook, la herramienta que antes se llamaba NotebookLM, en notebook punto google punto com."
+ },
+ {
+  "offset": 15.291142841884069,
+  "duration": 2.616,
+  "text": "Toca «Nuevo cuaderno»."
+ },
+ {
+  "offset": 18.507142841884068,
+  "duration": 3.792,
+  "text": "En el panel de la izquierda, toca «Fuentes»."
+ },
+ {
+  "offset": 22.899142841884068,
+  "duration": 6.864,
+  "text": "Puedes subir un PDF, una foto de las páginas de tu libro, un archivo de Drive o pegar un texto."
+ },
+ {
+  "offset": 30.36314284188407,
+  "duration": 5.184,
+  "text": "Rosa sube su lectura de séptimo sobre el huerto escolar, en PDF."
+ },
+ {
+  "offset": 36.14714284188407,
+  "duration": 2.568,
+  "text": "Listo: una fuente."
+ },
+ {
+  "offset": 39.01514284188407,
+  "duration": 6.384,
+  "text": "Desde ahora, lo que responda sale de esa lectura, y en el centro ya te dejó un resumen."
+ }
+]
