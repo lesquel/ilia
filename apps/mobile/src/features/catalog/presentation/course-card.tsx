@@ -80,6 +80,7 @@ export function CourseCard({
               overlay={
                 // The level, in the course's own ink: every cover in a row
                 // shares a level, so a big step number only repeated itself.
+                <View style={styles.coverTags}>
                 <View
                   style={[
                     styles.levelChip,
@@ -98,18 +99,21 @@ export function CourseCard({
                     {LEVEL_LABELS[course.level]}
                   </Text>
                 </View>
+                  {isStartHere ? (
+                    <View
+                      style={[
+                        styles.startHint,
+                        { backgroundColor: theme.colors.accentButton, borderRadius: theme.radius.sm },
+                      ]}
+                    >
+                      <Text style={styles.startHintLabel}>Empieza aquí</Text>
+                    </View>
+                  ) : null}
+                </View>
               }
             />
 
             <View style={styles.body}>
-              <View style={styles.startHintSlot}>
-                {isStartHere ? (
-                  <Text style={[styles.startHint, { color: theme.colors.accentAlt }]}>
-                    Empieza aquí
-                  </Text>
-                ) : null}
-              </View>
-
               <Text
                 style={[styles.title, { color: theme.colors.text }]}
                 numberOfLines={2}
@@ -120,7 +124,7 @@ export function CourseCard({
 
               <Text
                 style={[styles.summary, { color: theme.colors.neutral[600] }]}
-                numberOfLines={3}
+                numberOfLines={2}
               >
                 {course.summary}
               </Text>
@@ -186,25 +190,33 @@ const styles = StyleSheet.create({
     padding: 20.4,
     gap: 8,
   },
-  startHintSlot: {
-    minHeight: 16,
-    justifyContent: 'center',
+  coverTags: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 8,
   },
+  // On the cover, beside the level: it marks the course, it does not push
+  // every other card's title down to make room for itself.
   startHint: {
-    fontSize: 12,
-    fontWeight: '600',
-    lineHeight: 16,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
   },
+  startHintLabel: {
+    color: '#ffffff',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  // No reserved heights: a one-line title sits right above its summary, and
+  // the footer still lines up across a row because it is pushed to the bottom.
   title: {
     fontSize: 20,
     fontWeight: '600',
     lineHeight: 26,
-    minHeight: 52,
   },
   summary: {
     fontSize: 14,
     lineHeight: 20,
-    minHeight: 60,
   },
   metaRow: {
     flexDirection: 'row',
