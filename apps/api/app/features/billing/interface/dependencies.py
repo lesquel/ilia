@@ -5,6 +5,7 @@ from fastapi import Depends, Request
 
 from app.core.config import Settings
 from app.core.database import Database
+from app.features.auth.interface.dependencies import CurrentUser
 from app.features.billing.application.use_cases import GetEntitlements
 from app.features.billing.domain.entities import Entitlements
 from app.features.billing.domain.ports import PlanRepository
@@ -50,21 +51,15 @@ def get_entitlements_use_case(request: Request) -> GetEntitlements | None:
     )
 
 
-async def current_entitlements(request: Request) -> Entitlements | None:
-    """Entitlements for whoever is authenticated, or None if billing is off."""
-    from app.core.config import get_app_settings
-    from app.features.auth.interface.dependencies import get_current_user
+async def current_entitlements(request: Request, user: CurrentUser) -> Entitlements | None:
+    """Entitlements for whoever is authenticated, or None if billing is off.
 
+    The user comes from the same `CurrentUser` dependency the route uses, so
+    FastAPI resolves it once per request instead of reading it twice.
+    """
     use_case = get_entitlements_use_case(request)
     if use_case is None:
         return None
-
-    user = await get_current_user(
-        request,
-        get_app_settings(request),
-        request.app.state.auth["users"],
-        request.app.state.auth["tokens"],
-    )
 
     return await use_case.execute(user=user)
 

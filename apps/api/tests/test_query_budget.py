@@ -121,6 +121,7 @@ def _enroll(harness: Harness, slug: str) -> None:
 
 # The course table itself, schema-qualified or not; not course_module.
 _COURSE_TABLE = re.compile(r"FROM (\w+\.)?course(\s|$)")
+_USER_TABLE = re.compile(r"FROM (\w+\.)?app_user(\s|$)")
 
 
 def _explain(meter: Meter) -> str:
@@ -135,10 +136,11 @@ def test_enrolling_loads_the_course_once(harness: Harness) -> None:
 
     course_loads = [s for s in meter.statements if _COURSE_TABLE.search(s)]
     assert len(course_loads) == 1, _explain(meter)
-    # Six of these are the plan gate's: the user (read a second time by the
-    # billing dependency) and four billing reads.
-    assert len(meter.statements) <= 10, _explain(meter)
-    assert meter.checkouts <= 8, _explain(meter)
+    # The plan gate shares the request's signed-in user, so the user is read once.
+    user_loads = [s for s in meter.statements if _USER_TABLE.search(s)]
+    assert len(user_loads) == 1, _explain(meter)
+    assert len(meter.statements) <= 9, _explain(meter)
+    assert meter.checkouts <= 7, _explain(meter)
 
 
 def test_my_courses_costs_the_same_for_one_course_or_two(harness: Harness) -> None:
