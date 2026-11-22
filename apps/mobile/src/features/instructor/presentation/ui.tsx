@@ -277,6 +277,64 @@ export function OutlineLink({
   );
 }
 
+export type KpiTone = 'success' | 'warning' | 'neutral';
+
+/**
+ * One headline figure: a label, the number in the display face, and a hint.
+ *
+ * The tone colours the hint only, and only when it carries a meaning (good,
+ * needs a look); the number itself stays ink.
+ */
+export function KpiTile({
+  label,
+  value,
+  hint,
+  tone = 'neutral',
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+  tone?: KpiTone;
+}) {
+  const theme = useTheme();
+  const hintColor =
+    tone === 'success'
+      ? theme.colors.success
+      : tone === 'warning'
+        ? theme.colors.warning
+        : theme.colors.neutral[800];
+
+  return (
+    <View
+      style={[
+        styles.kpi,
+        {
+          backgroundColor: theme.colors.surface,
+          borderColor: theme.colors.divider,
+          borderRadius: theme.radius.lg,
+        },
+      ]}
+    >
+      <Text style={[styles.kpiLabel, { color: theme.colors.neutral[800] }]} numberOfLines={1}>
+        {label}
+      </Text>
+      <Text
+        style={[
+          styles.kpiValue,
+          { color: theme.colors.ink, fontFamily: theme.typography.display.family },
+        ]}
+      >
+        {value}
+      </Text>
+      {hint ? (
+        <Text style={[styles.kpiHint, { color: hintColor }]} numberOfLines={2}>
+          {hint}
+        </Text>
+      ) : null}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   card: { borderWidth: 1, padding: 20.4, gap: 13.6 },
   cardHead: { gap: 3.4 },
@@ -320,4 +378,8 @@ const styles = StyleSheet.create({
     minHeight: 44,
   },
   outlineLabel: { fontSize: 14, fontWeight: '600' },
+  kpi: { borderWidth: 1, padding: 16, gap: 4, flexGrow: 1, flexBasis: 170, minWidth: 150 },
+  kpiLabel: { fontSize: 13, fontWeight: '600' },
+  kpiValue: { fontSize: 32, lineHeight: 38, letterSpacing: -0.6 },
+  kpiHint: { fontSize: 12, lineHeight: 17, fontWeight: '600' },
 });

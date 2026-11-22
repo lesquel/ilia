@@ -6,8 +6,10 @@ import {
   certificationFunnel,
   cohortListAppearance,
   funnelSentence,
+  overviewKpis,
   roleChangeNeedsConfirmation,
   roleChangeQuestion,
+  roleTone,
 } from './entities';
 
 describe('cohortListAppearance', () => {
@@ -137,5 +139,63 @@ describe('auditFooter', () => {
   it('says nothing when every recorded action is on screen', () => {
     expect(auditFooter(5, 5)).toBeNull();
     expect(auditFooter(0, 0)).toBeNull();
+  });
+});
+
+describe('roleTone', () => {
+  it('gives each role its own colour role', () => {
+    expect(roleTone('student')).toBe('accent');
+    expect(roleTone('instructor')).toBe('success');
+    expect(roleTone('admin')).toBe('ink');
+  });
+});
+
+describe('overviewKpis', () => {
+  it('leads with the five headline figures, each with its hint', () => {
+    const kpis = overviewKpis({
+      students: 40,
+      instructors: 3,
+      admins: 1,
+      totalUsers: 44,
+      coursesPublished: 9,
+      coursesDraft: 2,
+      coursesArchived: 1,
+      totalCourses: 12,
+      enrollments: 120,
+      submissions: 300,
+      certificatesIssued: 18,
+      certificatesRevoked: 1,
+    });
+    expect(kpis).toEqual([
+      { key: 'users', label: 'Cuentas', value: 44, hint: '40 docentes · 3 instructores' },
+      { key: 'enrollments', label: 'Inscripciones', value: 120, hint: 'en todos los cursos' },
+      { key: 'submissions', label: 'Entregas', value: 300, hint: 'evaluadas por Lía' },
+      { key: 'certificates', label: 'Certificados', value: 18, hint: '1 revocado' },
+      { key: 'courses', label: 'Cursos publicados', value: 9, hint: '2 borradores' },
+    ]);
+  });
+
+  it('uses the singular for one', () => {
+    const kpis = overviewKpis({
+      students: 1,
+      instructors: 1,
+      admins: 1,
+      totalUsers: 3,
+      coursesPublished: 1,
+      coursesDraft: 1,
+      coursesArchived: 0,
+      totalCourses: 2,
+      enrollments: 1,
+      submissions: 1,
+      certificatesIssued: 0,
+      certificatesRevoked: 0,
+    });
+    expect(kpis.map((kpi) => kpi.hint)).toEqual([
+      '1 docente · 1 instructor',
+      'en todos los cursos',
+      'evaluadas por Lía',
+      '0 revocados',
+      '1 borrador',
+    ]);
   });
 });

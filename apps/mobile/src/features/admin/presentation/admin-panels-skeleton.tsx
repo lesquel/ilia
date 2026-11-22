@@ -21,6 +21,8 @@ interface ColumnBone {
   width?: number;
   /** What sits in the cell: stacked bone lines, as [width, height]. */
   lines: [DimensionValue, number][];
+  /** A round initials mark before the lines, as the users table draws. */
+  avatar?: boolean;
 }
 
 function TableSkeleton({ label, columns }: { label: string; columns: ColumnBone[] }) {
@@ -49,10 +51,19 @@ function TableSkeleton({ label, columns }: { label: string; columns: ColumnBone[
           ]}
         >
           {columns.map((column, index) => (
-            <View key={index} style={[styles.cell, isWide ? cellStyle(column) : undefined]}>
-              {column.lines.map(([width, height], line) => (
-                <Bone key={line} width={width} height={height} />
-              ))}
+            <View
+              key={index}
+              style={[
+                column.avatar ? styles.avatarCell : styles.cell,
+                isWide ? cellStyle(column) : undefined,
+              ]}
+            >
+              {column.avatar ? <Bone height={36} circle /> : null}
+              <View style={column.avatar ? styles.avatarLines : styles.lines}>
+                {column.lines.map(([width, height], line) => (
+                  <Bone key={line} width={width} height={height} />
+                ))}
+              </View>
             </View>
           ))}
         </View>
@@ -71,7 +82,7 @@ export function UsersPanelSkeleton() {
     <TableSkeleton
       label="Cargando usuarios"
       columns={[
-        { lines: [['55%', 16], ['75%', 13]] },
+        { lines: [['55%', 16], ['75%', 13]], avatar: true },
         { width: 200, lines: [[150, 22]] },
         { width: 330, lines: [['90%', 36]] },
       ]}
@@ -124,6 +135,9 @@ const styles = StyleSheet.create({
   row: { gap: 6.8, paddingVertical: 13.6, borderTopWidth: 1 },
   rowWide: { flexDirection: 'row', alignItems: 'center', gap: 13.6 },
   cell: { gap: 6, minWidth: 0 },
+  lines: { gap: 6 },
+  avatarCell: { flexDirection: 'row', alignItems: 'center', gap: 10.2, minWidth: 0 },
+  avatarLines: { flex: 1, gap: 6, minWidth: 0 },
   flexCell: { flex: 1, minWidth: 0 },
   totals: { gap: 6.8 },
 });

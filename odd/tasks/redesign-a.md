@@ -13,13 +13,15 @@ Delivery: ask-on-risk, one work-unit commit per area. Runners: Vitest (`apps/mob
 - Assumption: no new backend endpoints in this feature; blocks that need data the API lacks (weekly streak, per-day activity) are skipped and listed as follow-ups.
 
 ## Tasks
-- T1 S1 foundation — inline
-- T2 S2 student home — delegated (W1)
-- T3 S3 catalog + course — delegated (W2)
-- T4 S4 lesson + lab — delegated (W3)
-- T5 S5–S6 instructor + admin — delegated (W4)
-- T6 seam check: tsc, focused vitest, screenshots at 1440/390 — inline
+- T1 S1 foundation — inline — done: RED→GREEN nav items/tab items/isImmersivePath/courseAccent; commit 8c5bf2c
+- T2 S2 student home — delegated (W1) — done: 22 domain tests RED→GREEN; parent fix: phone hero chip clear of Lía
+- T3 S3 catalog + course — delegated (W2) — done: catalog-progress + syllabus-rows tests RED→GREEN (51 green)
+- T4 S4 lesson + lab — delegated (W3) — done: lesson-steps, prompt-diff, result-display tests RED→GREEN (87 green)
+- T5 S5–S6 instructor + admin — delegated (W4) — done: instructor dashboard + admin domain tests RED→GREEN (61 green)
+- T6 seam check — inline — done: tsc 0, eslint clean, 287 focused tests green, Playwright screenshots of home/catalog/course/lesson/lab (1440+390), instructor, review, admin; no page errors
 
 ## Log
 - L1 (2026-11-21) user: "SI ME GUSTA EL A HAZLO PORFA"
 - L2 Route: T1 first inline (every unit depends on its tokens, font and tone helper). T2–T5 are independent units with disjoint feature folders, each several screens, launched together (Writer trigger a). Parent owns git, installs, tsc and E2E.
+- L3 Follow-ups (need backend data): weekly activity/streak (lesson completions have no timestamps); global lab submissions endpoint (home walks every activity); AI output and per-dimension scores in the instructor inbox; approve Lía's mark without override; admin plan/last-seen, per-day AI usage, provider-configured flag; catalog tool tags and total count.
+- L4 Decisions to revisit: score bands 80/65 on the lab result vs scoreTone 70/40 elsewhere; "Intentar de nuevo" still only when not passed.

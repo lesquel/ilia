@@ -9,6 +9,7 @@ import {
   ROLE_LABELS,
   roleChangeNeedsConfirmation,
   roleChangeQuestion,
+  roleTone,
   type ManagedUser,
 } from '@/features/admin/domain/entities';
 import { UsersPanelSkeleton } from '@/features/admin/presentation/admin-panels-skeleton';
@@ -70,7 +71,7 @@ export function UsersPanel() {
         <View>
           <ListHeader>
             <HeaderCell label="Persona" style={styles.whoCell} />
-            <HeaderCell label="Rol y estado" style={styles.tagsCell} />
+            <HeaderCell label="Rol y cuenta" style={styles.tagsCell} />
             <HeaderCell label="Cambiar rol" style={styles.rolesCell} />
           </ListHeader>
           {users.map((user) => (
@@ -144,24 +145,23 @@ function UserRow({
 
   return (
     <ListRow>
-      <View style={[styles.who, isWide ? styles.whoCell : undefined]}>
-        <Text style={[styles.name, { color: theme.colors.text }]} numberOfLines={1}>
-          {user.fullName}
-        </Text>
-        <Text style={[styles.meta, { color: theme.colors.neutral[800] }]} numberOfLines={1}>
-          {user.email}
-        </Text>
-        {message ? (
-          <Text style={[styles.meta, { color: theme.colors.accentRamp[700] }]}>{message}</Text>
-        ) : null}
+      <View style={[styles.person, isWide ? styles.whoCell : undefined]}>
+        <Initials name={user.fullName || user.email} />
+        <View style={styles.who}>
+          <Text style={[styles.name, { color: theme.colors.text }]} numberOfLines={1}>
+            {user.fullName}
+          </Text>
+          <Text style={[styles.meta, { color: theme.colors.neutral[800] }]} numberOfLines={1}>
+            {user.email}
+          </Text>
+          {message ? (
+            <Text style={[styles.meta, { color: theme.colors.accentRamp[700] }]}>{message}</Text>
+          ) : null}
+        </View>
       </View>
 
       <View style={[styles.tags, isWide ? styles.tagsCell : undefined]}>
-        <Tag
-          label={ROLE_LABELS[user.role]}
-          tone={user.role === 'student' ? 'neutral' : 'accent'}
-          filled={user.role === 'admin'}
-        />
+        <Tag label={ROLE_LABELS[user.role]} tone={roleTone(user.role)} filled />
         <Tag
           label={user.isActive ? 'Activa' : 'Inactiva'}
           tone={user.isActive ? 'accent' : 'neutral'}
@@ -246,9 +246,40 @@ function UserRow({
   );
 }
 
+function Initials({ name }: { name: string }) {
+  const theme = useTheme();
+  const letters = name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toLocaleUpperCase('es'))
+    .join('');
+
+  return (
+    <View
+      style={[styles.initials, { backgroundColor: theme.colors.accentRamp[100] }]}
+      importantForAccessibility="no-hide-descendants"
+      accessibilityElementsHidden
+    >
+      <Text style={[styles.initialsText, { color: theme.colors.accentRamp[800] }]}>
+        {letters || '·'}
+      </Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  person: { flexDirection: 'row', alignItems: 'center', gap: 10.2, minWidth: 0 },
+  initials: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  initialsText: { fontSize: 13, fontWeight: '700' },
   meta: { fontSize: 13, lineHeight: 19 },
-  who: { gap: 3.4, minWidth: 0 },
+  who: { flex: 1, gap: 3.4, minWidth: 0 },
   name: { fontSize: 16, fontWeight: '600' },
   tags: { flexDirection: 'row', flexWrap: 'wrap', gap: 6.8 },
   change: { gap: 10.2 },
