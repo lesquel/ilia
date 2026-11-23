@@ -1,9 +1,23 @@
 from app.shared.errors import (
     ConflictError,
+    DomainError,
     NotFoundError,
     QuotaExceededError,
     ValidationError,
 )
+
+
+class ProviderUnavailableError(DomainError):
+    """The grading provider could not serve the request: down, unreachable,
+    rate-limiting us, or rejecting our credentials.
+
+    The only failure that may hand an evaluation to the fallback provider. It
+    is about the provider, never about the prompt. A failure the teacher's own
+    text can cause (an unparseable verdict, a content refusal) must not reach a
+    second grader, or a prompt could be written to shop for a better mark.
+    """
+
+    code = "llm_provider_unavailable"
 
 
 class ActivityNotFoundError(NotFoundError):

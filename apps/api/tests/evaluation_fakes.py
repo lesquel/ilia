@@ -10,6 +10,7 @@ from uuid import UUID
 from app.features.evaluation.application.use_cases import RunEvaluation, SubmitPrompt
 from app.features.evaluation.domain.entities import Activity, ModelOutput, Submission
 from app.features.evaluation.domain.ports import (
+    EvaluationEngine,
     JudgeVerdict,
     UntrustedPrompt,
 )
@@ -116,6 +117,7 @@ def build_run_evaluation(
     *,
     executor: EchoExecutor,
     judge: CompliantJudge,
+    fallback: EvaluationEngine | None = None,
 ) -> tuple[RunEvaluation, Repos]:
     repos = Repos(
         activities=InMemoryActivityRepository([activity]),
@@ -133,6 +135,7 @@ def build_run_evaluation(
         judge=judge,
         usage=repos.usage,
         clock=FrozenClock(),
+        fallback=fallback,
     )
 
     return run, repos

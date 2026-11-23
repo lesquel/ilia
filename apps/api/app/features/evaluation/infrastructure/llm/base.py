@@ -19,6 +19,7 @@ from typing import Any, Protocol
 
 import httpx
 
+from app.features.evaluation.domain.errors import ProviderUnavailableError
 from app.shared.errors import DomainError
 
 
@@ -32,6 +33,13 @@ class LlmResponseInvalidError(LlmError):
     """The provider answered, but not with what it was asked for."""
 
     code = "llm_response_invalid"
+
+
+class LlmUnavailableError(LlmError, ProviderUnavailableError):
+    """The provider itself failed: timeout, unreachable, or an availability or
+    credential status. Eligible for the fallback provider."""
+
+    code = "llm_unavailable"
 
 
 @dataclass(frozen=True)
