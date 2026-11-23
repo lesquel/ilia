@@ -1,0 +1,79 @@
+name: Deploy
+
+# Production lives on one Vercel project: FastAPI serves the Expo web export
+# from apps/api/web-dist, so the pages and /api/v1 share one origin and the
+# host-only session cookie works. A deploy only starts after CI passed on main.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  vercel:
+    name: Vercel production
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      PUBLIC_URL: https://ilia-nu.vercel.app
+      # Until the repository holds the Vercel secrets, skip instead of failing.
+      HAS_VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN != '' }}
+    steps:
+      - name: Check deploy credentials
+        if: env.HAS_VERCEL_TOKEN != 'true'
+        run: echo "::notice::VERCEL_TOKEN is not set; skipping the production deploy."
+
+      - uses: actions/checkout@v5
+        if: env.HAS_VERCEL_TOKEN == 'true'
+        with:
+          # Deploy exactly the commit CI approved, not whatever main is now.
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - uses: actions/setup-node@v5
+        if: env.HAS_VERCEL_TOKEN == 'true'
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/mobile/package-lock.json
+
+      - name: Install web dependencies
+        if: env.HAS_VERCEL_TOKEN == 'true'
+        working-directory: apps/mobile
+        run: npm ci
+
+      # Empty API URL means same origin: the bundle calls /api/v1 on its own host.
+      - name: Export the web app into the API
+        if: env.HAS_VERCEL_TOKEN == 'true'
+        working-directory: apps/mobile
+        env:
+          EXPO_PUBLIC_API_URL: ""
+          EXPO_PUBLIC_WEB_URL: ${{ env.PUBLIC_URL }}
+        run: npx expo export --platform web --output-dir ../api/web-dist
+
+      - name: Deploy to Vercel
+        if: env.HAS_VERCEL_TOKEN == 'true'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: npx --yes vercel@66.6.0 deploy --prod --yes --token "$VERCEL_TOKEN"
+
+      - name: Smoke test production
+        if: env.HAS_VERCEL_TOKEN == 'true'
+        run: |
+          for attempt in $(seq 1 10); do
+            if curl -fs "$PUBLIC_URL/health" > /dev/null \
+              && curl -fs "$PUBLIC_URL/api/v1/catalog/courses" > /dev/null \
+              && curl -fs "$PUBLIC_URL/" > /dev/null; then
+              echo "Production answered on attempt $attempt."
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Production did not answer after the deploy."
+          exit 1
