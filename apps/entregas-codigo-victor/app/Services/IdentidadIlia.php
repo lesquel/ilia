@@ -31,6 +31,20 @@ class IdentidadIlia
         return $this->peticion('identity', [], $token, $correlation);
     }
 
+    public function cursos(string $token, string $correlation): array
+    {
+        $data = $this->peticion('courses', [], $token, $correlation);
+        if (Validator::make($data, [
+            'courses' => ['present', 'array', 'list'],
+            'courses.*.id' => ['required', 'uuid'],
+            'courses.*.title' => ['required', 'string', 'max:250'],
+            'courses.*.slug' => ['required', 'string', 'max:250'],
+        ])->fails()) {
+            throw new IdentidadIliaException(503);
+        }
+        return $data['courses'];
+    }
+
     public function sincronizar(array $identity): User
     {
         $id = strtolower($identity['id']);

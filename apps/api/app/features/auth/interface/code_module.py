@@ -15,7 +15,7 @@ import structlog
 from fastapi import APIRouter, HTTPException, Request, Response
 from pydantic import BaseModel, Field
 
-from app.features.auth.domain.entities import User
+from app.features.auth.domain.entities import Role, User
 from app.features.auth.interface.dependencies import (
     CurrentUser,
     SettingsDep,
@@ -25,6 +25,9 @@ from app.features.auth.interface.dependencies import (
 from app.features.auth.interface.schemas import UserResponse
 from app.features.auth.interface.throttle import enforce
 from app.features.auth.interface.transport import read_access_token
+from app.features.catalog.domain.entities import CatalogFilters, Course
+from app.features.catalog.interface.router import CoursesDep
+from app.features.enrollment.interface.dependencies import EnrollmentsDep
 
 router = APIRouter(prefix="/auth/code-module", tags=["code-module"])
 ISSUER = "ilia-code-module"
@@ -174,5 +177,58 @@ async def identity(
     return {
         "user": UserResponse.from_entity(user).model_dump(mode="json"),
         "expires_at": claims["exp"],
+        "correlation_id": correlation,
+    }
+
+
+@router.get("/courses")
+async def module_courses(
+    request: Request,
+    response: Response,
+    settings: SettingsDep,
+    users: UsersDep,
+    courses: CoursesDep,
+    enrollments: EnrollmentsDep,
+) -> dict[str, Any]:
+    """Read official course membership; no duplicate catalog in Laravel."""
+    secret = _service(request, settings)
+    scheme, _, token = request.headers.get("Authorization", "").partition(" ")
+    if scheme.lower() != "bearer":
+        raise HTTPException(401, "Autenticación requerida.")
+    user = await _user(_decode(token, secret, "session"), users)
+    selected: dict[UUID, Course] = {}
+    if user.role is Role.STUDENT:
+        joined = await enrollments.list_for_user(user.id)
+        selected = await courses.get_many_by_ids([item.course_id for item in joined])
+    else:
+        # Authoring's existing ownership rules apply. Admin may manage published
+        # catalog courses as well as their own drafts.
+        writer = request.app.state.instructor.get("writer")
+        if writer is not None:
+            own = await writer.list_for_instructor(user.id)
+            selected.update({item.id: item for item in own})
+        if user.role is Role.ADMIN:
+            cursor = None
+            while True:
+                page = await courses.list_published(
+                    filters=CatalogFilters(), limit=100, cursor=cursor
+                )
+                details = await courses.get_many_by_ids([item.id for item in page.items])
+                selected.update(details)
+                if not page.next_cursor or page.next_cursor == cursor:
+                    break
+                cursor = page.next_cursor
+    correlation = _headers(response, request)
+    return {
+        "user": UserResponse.from_entity(user).model_dump(mode="json"),
+        "courses": [
+            {
+                "id": str(course.id),
+                "title": course.title,
+                "slug": str(course.slug),
+                "status": course.status.value,
+            }
+            for course in sorted(selected.values(), key=lambda item: item.title.casefold())
+        ],
         "correlation_id": correlation,
     }

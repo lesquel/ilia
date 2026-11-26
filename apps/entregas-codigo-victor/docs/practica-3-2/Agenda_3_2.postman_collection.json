@@ -1,0 +1,371 @@
+{
+  "info": {
+    "name": "ILIA · Práctica 3.2 · Agenda y enrutamiento",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Seis casos. Configurar tarea_id y entrega_id reales, sesión y CSRF. Ejecutar P1–P6 en orden. Los eventos se publican con agenda:publicar y se procesan con agenda:consumir."
+  },
+  "variable": [
+    {
+      "key": "modulo",
+      "value": "http://localhost:8010"
+    },
+    {
+      "key": "tarea_id",
+      "value": ""
+    },
+    {
+      "key": "entrega_id",
+      "value": ""
+    },
+    {
+      "key": "csrf_token",
+      "value": ""
+    },
+    {
+      "key": "fecha_actual",
+      "value": ""
+    },
+    {
+      "key": "ultimo_evento",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "P1 · Publicación → publicaciones",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.variables.set(\"id_evento\", pm.variables.replaceIn(\"{{$guid}}\"));",
+              "pm.variables.set(\"correlation_id\", pm.variables.replaceIn(\"{{$guid}}\"));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 202\", () => pm.response.to.have.status(202));",
+              "const data=pm.response.json().data;",
+              "pm.test(\"Estado pendiente\", () => pm.expect(data.estado).to.eql(\"pendiente\"));",
+              "pm.collectionVariables.set(\"ultimo_evento\", data.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrf_token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"{{id_evento}}\",\n  \"correlation_id\": \"{{correlation_id}}\",\n  \"tipo\": \"tarea.publicada\",\n  \"prioridad\": \"normal\",\n  \"datos\": {\n    \"tarea_id\": {{tarea_id}}\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{modulo}}/api/practica/agenda/eventos"
+      }
+    },
+    {
+      "name": "P2 · Cambio de fecha → fechas",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.variables.set(\"id_evento\", pm.variables.replaceIn(\"{{$guid}}\"));",
+              "pm.variables.set(\"correlation_id\", pm.variables.replaceIn(\"{{$guid}}\"));",
+              "pm.variables.set(\"fecha_nueva\", new Date(Date.now()+7*86400000).toISOString());"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 202\", () => pm.response.to.have.status(202));",
+              "const data=pm.response.json().data;",
+              "pm.test(\"Estado pendiente\", () => pm.expect(data.estado).to.eql(\"pendiente\"));",
+              "pm.collectionVariables.set(\"ultimo_evento\", data.id);",
+              "if (pm.response.json().data) pm.collectionVariables.set(\"fecha_actual\", pm.response.json().data.datos.fecha_nueva);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrf_token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"{{id_evento}}\",\n  \"correlation_id\": \"{{correlation_id}}\",\n  \"tipo\": \"tarea.fecha_modificada\",\n  \"prioridad\": \"normal\",\n  \"datos\": {\n    \"tarea_id\": {{tarea_id}},\n    \"fecha_nueva\": \"{{fecha_nueva}}\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{modulo}}/api/practica/agenda/eventos"
+      }
+    },
+    {
+      "name": "P3 · Entrega → entregas",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.variables.set(\"id_evento\", pm.variables.replaceIn(\"{{$guid}}\"));",
+              "pm.variables.set(\"correlation_id\", pm.variables.replaceIn(\"{{$guid}}\"));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 202\", () => pm.response.to.have.status(202));",
+              "const data=pm.response.json().data;",
+              "pm.test(\"Estado pendiente\", () => pm.expect(data.estado).to.eql(\"pendiente\"));",
+              "pm.collectionVariables.set(\"ultimo_evento\", data.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrf_token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"{{id_evento}}\",\n  \"correlation_id\": \"{{correlation_id}}\",\n  \"tipo\": \"entrega.registrada\",\n  \"prioridad\": \"normal\",\n  \"datos\": {\n    \"tarea_id\": {{tarea_id}},\n    \"entrega_id\": {{entrega_id}}\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{modulo}}/api/practica/agenda/eventos"
+      }
+    },
+    {
+      "name": "P4 · Tipo desconocido",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.variables.set(\"id_evento\", pm.variables.replaceIn(\"{{$guid}}\"));",
+              "pm.variables.set(\"correlation_id\", pm.variables.replaceIn(\"{{$guid}}\"));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const data=pm.response.json().data;",
+              "pm.test(\"Estado no_enrutable\", () => pm.expect(data.estado).to.eql(\"no_enrutable\"));",
+              "pm.collectionVariables.set(\"ultimo_evento\", data.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrf_token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"{{id_evento}}\",\n  \"correlation_id\": \"{{correlation_id}}\",\n  \"tipo\": \"tarea.desconocida\",\n  \"prioridad\": \"normal\",\n  \"datos\": {\n    \"tarea_id\": {{tarea_id}}\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{modulo}}/api/practica/agenda/eventos"
+      }
+    },
+    {
+      "name": "P5 · Misma fecha → filtrado",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.variables.set(\"id_evento\", pm.variables.replaceIn(\"{{$guid}}\"));",
+              "pm.variables.set(\"correlation_id\", pm.variables.replaceIn(\"{{$guid}}\"));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const data=pm.response.json().data;",
+              "pm.test(\"Estado filtrado\", () => pm.expect(data.estado).to.eql(\"filtrado\"));",
+              "pm.collectionVariables.set(\"ultimo_evento\", data.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrf_token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"{{id_evento}}\",\n  \"correlation_id\": \"{{correlation_id}}\",\n  \"tipo\": \"tarea.fecha_modificada\",\n  \"prioridad\": \"normal\",\n  \"datos\": {\n    \"tarea_id\": {{tarea_id}},\n    \"fecha_nueva\": \"{{fecha_actual}}\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{modulo}}/api/practica/agenda/eventos"
+      }
+    },
+    {
+      "name": "P6 · Sin campo obligatorio",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.variables.set(\"id_evento\", pm.variables.replaceIn(\"{{$guid}}\"));",
+              "pm.variables.set(\"correlation_id\", pm.variables.replaceIn(\"{{$guid}}\"));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 422\", () => pm.response.to.have.status(422));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrf_token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"{{id_evento}}\",\n  \"correlation_id\": \"{{correlation_id}}\",\n  \"prioridad\": \"normal\",\n  \"datos\": {\n    \"tarea_id\": {{tarea_id}}\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{modulo}}/api/practica/agenda/eventos"
+      }
+    },
+    {
+      "name": "Consultar último evento",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{modulo}}/api/practica/agenda/eventos/{{ultimo_evento}}"
+      }
+    }
+  ]
+}

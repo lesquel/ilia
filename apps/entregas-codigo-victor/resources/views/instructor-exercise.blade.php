@@ -13,6 +13,18 @@
         <p class="preserve">{{ $exercise->instructions }}</p>
     </section>
 
+
+    <link rel="stylesheet" href="{{ asset('practica/agenda.css') }}">
+    @if (session('success'))<p class="notice" role="status">{{ session('success') }}</p>@endif
+    @if ($errors->any())<p class="notice error" role="alert">{{ $errors->first() }}</p>@endif
+    <section class="card">
+        <h2>Curso y vencimiento</h2><p>{{ $exercise->course_title ?? 'Sin curso asignado · Tarea anterior' }}</p>
+        <form method="POST" action="{{ route('module.agenda.date', $exercise->id) }}" class="agenda-deadline-form">
+            @csrf<label>Fecha límite · Ecuador
+                <input type="datetime-local" name="due_at" value="{{ $exercise->due_at ? \Carbon\CarbonImmutable::parse($exercise->due_at, 'UTC')->setTimezone(config('agenda.timezone'))->format('Y-m-d\TH:i') : '' }}">
+            </label><button type="submit">Guardar fecha</button>
+        </form><p class="hint">Deja la fecha vacía para quitar el vencimiento. Los cambios se distribuyen a la agenda.</p>
+    </section>
     <section class="card" aria-labelledby="submissions-heading">
         <h2 id="submissions-heading">Entregas recibidas</h2>
         @forelse ($submissions as $submission)

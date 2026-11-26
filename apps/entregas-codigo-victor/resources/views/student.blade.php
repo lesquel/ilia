@@ -3,6 +3,9 @@
 @section('content')
     <a class="back" href="{{ route('module.dashboard') }}">← Volver a mis tareas</a>
     <h1>{{ $exercise->title }}</h1>
+    <p>{{ $exercise->course_title ?? 'Sin curso asignado' }}
+        @if ($exercise->due_at) · Vence: {{ \Carbon\CarbonImmutable::parse($exercise->due_at, 'UTC')->setTimezone(config('agenda.timezone'))->format('d/m/Y H:i') }} @endif
+    </p>
     <section class="card">
         <div class="row">
             <h2>Consigna</h2>

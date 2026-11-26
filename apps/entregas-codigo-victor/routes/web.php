@@ -45,3 +45,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/reportes-entregas/{id}/descargar', [ReporteEntregasController::class, 'descargar'])
         ->whereUuid('id')->name('module.reports.download');
 });
+
+// Práctica 3.2: cursos, agenda y enrutamiento de eventos.
+Route::middleware('auth')->group(function () {
+    Route::get('/api/practica/cursos', [\App\Http\Controllers\AgendaController::class, 'cursos'])->name('module.agenda.courses');
+    Route::post('/tareas/{id}/fecha', [\App\Http\Controllers\AgendaController::class, 'fecha'])->whereNumber('id')->name('module.agenda.date');
+    Route::post('/api/practica/agenda/eventos', [\App\Http\Controllers\AgendaController::class, 'evento'])->middleware('throttle:30,1');
+    Route::get('/api/practica/agenda/eventos/{id}', [\App\Http\Controllers\AgendaController::class, 'show'])->whereUuid('id');
+});

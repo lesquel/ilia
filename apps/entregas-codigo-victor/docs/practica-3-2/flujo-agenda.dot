@@ -1,0 +1,25 @@
+digraph Agenda {
+ graph [rankdir=TB, bgcolor="white", pad="0.3", nodesep="0.35", ranksep="0.5", fontname="DejaVu Sans"];
+ node [shape=box, style="rounded,filled", fillcolor="#EDF4FF", color="#246BFF", fontname="DejaVu Sans", fontsize=11, margin="0.16,0.12"];
+ edge [fontname="DejaVu Sans", fontsize=9, color="#475467"];
+ productor [label="Productor Laravel\nCrear tarea · Cambiar fecha · Registrar entrega"];
+ validacion [label="Validación del contrato\ny permisos del usuario"];
+ filtro [label="Message Filter\n¿Cambió el vencimiento?", shape=diamond];
+ filtrado [label="Registro: filtrado\nSin publicación ni consumidor", fillcolor="#FFF3DB", color="#B88315"];
+ router [label="Content-Based Router\nInspecciona tipo del evento", shape=diamond];
+ desconocido [label="Registro: no_enrutable\nRevisión; no se descarta silenciosamente", fillcolor="#FFF3DB", color="#B88315"];
+ outbox [label="Outbox persistente en SQLite\nMisma transacción que la operación"];
+ broker [label="RabbitMQ · exchange direct\nilia.victor.agenda"];
+ publica [label="Routing key: tarea.publicada\nCola: ilia.victor.agenda.publicaciones\nConsumidorPublicacion: incorpora el deber"];
+ fecha [label="Routing key: tarea.fecha_modificada\nCola: ilia.victor.agenda.fechas\nConsumidorFecha: actualiza el vencimiento"];
+ entrega [label="Routing key: entrega.registrada\nCola: ilia.victor.agenda.entregas\nConsumidorEntrega: marca al estudiante"];
+ resultado [label="Agenda persistida · Línea de tiempo\nACK después de confirmar la transacción", fillcolor="#E1F5E9", color="#17845E"];
+ error [label="422: entrada incompleta\nSin evento ni publicación", fillcolor="#FFF0ED", color="#B42318"];
+ productor -> validacion; validacion -> filtro [label="válido"]; validacion -> error [label="inválido"];
+ filtro -> filtrado [label="misma fecha"]; filtro -> router [label="aceptado"];
+ router -> desconocido [label="tipo desconocido"]; router -> outbox [label="destino reconocido"];
+ outbox -> broker [label="mensaje persistente y confirmación"];
+ broker -> publica; broker -> fecha; broker -> entrega;
+ publica -> resultado; fecha -> resultado; entrega -> resultado;
+ {rank=same; publica;fecha;entrega;}
+}

@@ -86,7 +86,7 @@ for (const form of document.querySelectorAll('.editor')) {
                     ? 'La sesión venció. Copia tu código antes de volver a iniciar sesión.'
                     : Object.values(body.errors ?? {})[0]?.[0] ?? 'No se pudo guardar la entrega.');
             }
-            result.textContent = `Entrega #${body.data.submission_id} guardada.`;
+            result.textContent = `Entrega #${body.data.submission_id} guardada. La agenda se actualizará en segundo plano.`;
         } catch (error) {
             submit.disabled = false;
             input.readOnly = history.length >= 100;

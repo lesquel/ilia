@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Data\CodeSubmission;
 use App\Services\AmbitoEjercicios;
+use App\Services\Agenda\FlujoAgenda;
+use App\Services\Agenda\LineaTiempo;
+use App\Services\CursosIlia;
+use Carbon\CarbonImmutable;
 use App\Http\Requests\StoreCodeSubmission;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -74,8 +78,7 @@ class CodePracticeController extends Controller
 
             return view('student-home', [
                 'studentName' => $user->name,
-                'exercises' => $query->selectSub($submissionCount, 'submission_count')
-                    ->get(),
+                'exercises' => app(LineaTiempo::class)->tareas($user, $request),
             ]);
         }
 
@@ -124,9 +127,29 @@ class CodePracticeController extends Controller
             'title' => ['required', 'string', 'max:150'],
             'instructions' => ['required', 'string', 'max:4000'],
             'language' => ['required', 'in:python,javascript,php'],
+            'ilia_course_id' => ['nullable', 'uuid'],
+            'due_at' => ['nullable', 'date_format:Y-m-d\TH:i'],
+            'agenda_form' => ['sometimes', 'boolean'],
         ]);
 
-        DB::table('exercises')->insert($data + ['instructor_id' => $request->user()->id]);
+        $agenda = ! empty($data['agenda_form']) || ! empty($data['ilia_course_id']) || ! empty($data['due_at']);
+        if ($request->user()->ilia_user_id && ! empty($data['agenda_form']) && empty($data['ilia_course_id'])) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['ilia_course_id' => 'Selecciona un curso oficial.']);
+        }
+        $course = null;
+        if (! empty($data['ilia_course_id'])) {
+            $course = collect(app(CursosIlia::class)->listar($request))->firstWhere('id', $data['ilia_course_id']);
+            abort_unless($course, 403, 'No puedes crear tareas para este curso.');
+        }
+        unset($data['agenda_form']);
+        $data['course_title'] = $course['title'] ?? null;
+        $data['due_at'] = empty($data['due_at']) ? null : CarbonImmutable::createFromFormat(
+            'Y-m-d\TH:i', $data['due_at'], config('agenda.timezone'))->utc()->format('Y-m-d H:i:s');
+        $data['agenda_version'] = $agenda ? 1 : 0;
+        DB::transaction(function () use ($request, $data, $agenda) {
+            $id = DB::table('exercises')->insertGetId($data + ['instructor_id' => $request->user()->id]);
+            if ($agenda) app(FlujoAgenda::class)->registrar('tarea.publicada', $request->user(), DB::table('exercises')->find($id));
+        });
 
         return back()->with('success', 'Tarea creada.');
     }
@@ -135,14 +158,17 @@ class CodePracticeController extends Controller
     {
         $submission = CodeSubmission::fromValidated($request->validated());
         $time = now();
-        $id = DB::table('submissions')->insertGetId([
-            'exercise_id' => $submission->exerciseId,
-            'student_id' => $request->user()->id,
-            'code' => $submission->code,
-            'history' => json_encode($submission->history, JSON_THROW_ON_ERROR),
-            'ai_usage' => $submission->aiUsage,
-            'submitted_at' => $time,
-        ]);
+        $id = DB::transaction(function () use ($request, $submission, $time) {
+            $id = DB::table('submissions')->insertGetId([
+                'exercise_id' => $submission->exerciseId, 'student_id' => $request->user()->id,
+                'code' => $submission->code,
+                'history' => json_encode($submission->history, JSON_THROW_ON_ERROR),
+                'ai_usage' => $submission->aiUsage, 'submitted_at' => $time,
+            ]);
+            app(FlujoAgenda::class)->registrar('entrega.registrada', $request->user(),
+                DB::table('exercises')->find($submission->exerciseId), ['entrega_id' => $id]);
+            return $id;
+        });
 
         return response()->json(['data' => [
             'submission_id' => $id,

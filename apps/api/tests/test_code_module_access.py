@@ -145,3 +145,60 @@ def test_correlation_is_propagated_and_no_tokens_in_logs(module_client: TestClie
     assert issued.json()["ticket"] not in output
     assert result.json()["session_token"] not in output
     assert KEY not in output
+
+
+@pytest.mark.parametrize("role", list(Role))
+def test_official_course_scope_for_delegated_identity(module_client: TestClient, role: Role):
+    from datetime import timedelta
+    from types import SimpleNamespace
+    from unittest.mock import AsyncMock
+
+    from app.features.catalog.domain.entities import Course, CourseStatus, Level, Slug
+    from app.features.catalog.infrastructure.memory_repository import InMemoryCourseRepository
+    from app.features.enrollment.domain.entities import Enrollment
+    from app.features.enrollment.infrastructure.memory_repository import (
+        InMemoryEnrollmentRepository,
+    )
+
+    user = register(module_client)
+    user.role = role
+    now = datetime.now(UTC)
+
+    def course(title, owner, published):
+        return Course(
+            id=uuid4(),
+            slug=Slug(title.lower()),
+            title=title,
+            summary="Resumen",
+            description="Descripción",
+            level=Level.BEGINNER,
+            status=CourseStatus.PUBLISHED if published else CourseStatus.DRAFT,
+            instructor_id=owner,
+            instructor_name="Docente",
+            created_at=now,
+            published_at=now - timedelta(days=1) if published else None,
+        )
+
+    mine = course("Propio", user.id, False)
+    enrolled = course("Inscrito", uuid4(), True)
+    other = course("Ajeno", uuid4(), True)
+    module_client.app.state.catalog["courses"] = InMemoryCourseRepository([mine, enrolled, other])
+    module_client.app.state.enrollment["enrollments"] = InMemoryEnrollmentRepository(
+        [Enrollment.create(user_id=user.id, course_id=enrolled.id)]
+    )
+    module_client.app.state.instructor["writer"] = SimpleNamespace(
+        list_for_instructor=AsyncMock(return_value=[mine])
+    )
+    session = exchange(module_client, ticket(module_client).json()["ticket"]).json()[
+        "session_token"
+    ]
+    result = module_client.get(
+        BASE + "/courses", headers={"X-Module-Key": KEY, "Authorization": "Bearer " + session}
+    )
+    assert result.status_code == 200
+    ids = {item["id"] for item in result.json()["courses"]}
+    expected = {str(enrolled.id)} if role is Role.STUDENT else {str(mine.id)}
+    if role is Role.ADMIN:
+        expected |= {str(enrolled.id), str(other.id)}
+    assert ids == expected
+    assert module_client.get(BASE + "/courses").status_code == 401
